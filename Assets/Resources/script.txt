@@ -1,0 +1,36 @@
+#begin
+start network
+start userviewing
+start cloud
+end
+
+#cloud
+pointcloud
+end
+
+#network
+stop foundserver
+startdiscover
+listenforserver
+startserver
+listenforclients
+end
+
+#newclient
+sync
+end
+
+#foundserver
+stop network
+stop userviewing
+monitorconnection
+end
+
+#userviewing
+userview
+end
+
+
+capture
+load
+playback

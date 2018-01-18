@@ -1,0 +1,127 @@
+﻿
+
+
+
+TODO
+
+
+
+NOTE: uxmap can be folded into uxinterface. so we create multiple interfaces, rather than multiple maps under an interface? or both? 
+maps in same interface are different for devices for example.
+
+
+
+
+
+
+
+
+re. sign offs: maybe want to get the whole network to sign off on a task?? maybe not. tcp message will arrive in order. 
+
+TASK
+
+ID
+Unique global ID.
+
+
+pointer
+Unique global pointer ID.
+
+
+
+TASKSTATUS
+
+active
+Default state, meaning task is currently active.
+
+
+callback
+Indicates that the task is requesting a callback. After handling the callback, the status is returned to active.
+
+
+complete
+Indicates that the task has been signed off by all controllers.
+
+
+
+
+POINTER
+
+
+
+
+
+POINTERSTATUS
+
+EVALUATE
+
+
+
+NEWTASK
+means a task needs to be generated from the pointer...
+
+
+
+TASKUPDATED
+task status changed
+
+
+KILLED
+pointer was killed and must be removed
+
+
+PAUSED
+??
+
+
+
+
+
+
+
+
+
+TODO: hold doesn't seem to working as it should either?
+
+How the storyengine works.
+
+
+
+SCRIPT
+The Script reads a txt file and turns it into a string of connected and labeled storypoints.
+
+STORYPOINT
+A single point in a script, consisting of a label and a task.
+
+
+STORYPOINTER
+Storypointers are moved from one storypoint to the next by the director. Only the server's director progresses storypointers. 
+All storypointers and tasks are synchronised over the network. Client directors aren't executed, they receive updated poiners via the network.
+
+DIRECTOR
+The director maintains a set of storypointers that move through the strings of storypoints. There is only one director active, on the network server.
+
+ASSISTANT DIRECTOR
+This is the actual heart of the engine. It controls task generation and distribution and networking.
+
+TASK
+Every storypoint contains a task, to be executed by the various controllers/handlers. Tasks are generated locally.
+Task changes are updated across the network. This means that any client and any handler can update a task. 
+Every controller/handler must sign off on a task locally for it to be marked as complete. The server-director will then progress the script.
+
+CONTROLLERS/HANDLERS
+Controllers recieve tasks via the assistant director event and handlers execute the task. 
+
+STORYMODE
+Every instance has a storymode. This can be used to decide who gets to control what. 
+(Ie. a mobile vr device controlling orientation of its camera and syncing it to all other instances)
+
+#NETWORKLOBBY
+When a new client connects to the server, it launches the #networklobby storyline. (This must be implemented for networked execution).
+
+
+
+
+
+
+
