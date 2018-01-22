@@ -11,7 +11,12 @@ public class SetHandler : MonoBehaviour
 	#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 	public GameObject kinect;
 	KinectManager kinectManager;
+
 	#endif
+
+
+	ushort[] depthMap;
+	int width,height;
 
 	string me = "Task handler: ";
 
@@ -32,6 +37,7 @@ public class SetHandler : MonoBehaviour
 		#endif
 	}
 
+
 	public bool TaskHandler (StoryTask task)
 	{
 		
@@ -39,38 +45,137 @@ public class SetHandler : MonoBehaviour
 
 		switch (task.description) {
 
+		#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+
+
 		case "startkinect":
 
-			#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
 			kinect.SetActive (true);
-
-			#else
-
-			Debug.LogError(me + "Kinect only available on windows platform.");
-
-			#endif
 
 			done = true;
 
 			break;
 
 
-		case "kinect":
+		case "loadkinect":
 
-			#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+			// we grab a frame and write it to disk...
+
+			Debug.LogWarning(me+"Loading depth from disk at "+Application.persistentDataPath);
+
+
+
+			SaveLoad.LoadDepth();
+
+			DepthCapture.current = SaveLoad.savedDepthCaptures [0];
+
+
+
+			done=true;
+
+			break;
+
+		case "showkinect":
 
 			ParticleCloud.setLifeTime (0.1f);
 
-			ushort[] depthMap;
+
+			if (interval == 4) {
+				interval = 0;
+
+				depthMap = DepthCapture.current.GetRawDepthMap ();
+
+				 width =  DepthCapture.current.getUserDepthWidth ();
+				 height =  DepthCapture.current.getUserDepthHeight ();
+
+
+
+				int sample = 8;
+				Vector3 point;
+
+				for (int y = 0; y < height; y += sample) {
+
+					for (int x = 0; x < width; x += sample) {
+
+						int i = y * width + x;
+
+						ushort userMap = (ushort)(depthMap [i] & 7);
+						ushort userDepth = (ushort)(depthMap [i] >> 3);
+
+						if (userMap != 0) {
+							point = kinectManager.depthToWorld (x, y, userDepth);
+							point.y = -point.y;
+							point.y += 1.5f;
+
+							ParticleCloud.Emit (point);
+						}
+
+					}
+
+
+
+				}
+
+
+
+
+
+			}
+
+
+
+
+			interval++;
+
+
+
+			break;
+
+	
+
+
+
+
+		case "recordkinect":
+
+			// we grab a frame and write it to disk...
+
+			Debug.LogWarning(me+"writing depth to disk at "+Application.persistentDataPath);
+
+			 width = kinectManager.getUserDepthWidth ();
+			 height = kinectManager.getUserDepthHeight ();
+
+			depthMap = kinectManager.GetRawDepthMap ();
+
+			DepthCapture dc = new DepthCapture(width,height);
+			DepthCapture.current = dc;
+
+			dc.put (depthMap);
+
+			SaveLoad.SaveDepth();
+
+
+
+
+
+			done=true;
+
+			break;
+
+		case "kinect":
+
+
+			ParticleCloud.setLifeTime (0.1f);
+
 
 			if (interval == 4) {
 				interval = 0;
 
 				depthMap = kinectManager.GetRawDepthMap ();
 
-				int width = kinectManager.getUserDepthWidth ();
-				int height = kinectManager.getUserDepthHeight ();
+				 width = kinectManager.getUserDepthWidth ();
+				 height = kinectManager.getUserDepthHeight ();
 
 
 
@@ -131,15 +236,12 @@ public class SetHandler : MonoBehaviour
 			//			}
 
 
-			#else
-
-			Debug.LogError(me + "Kinect only available on windows platform.");
-
-			#endif
 
 
 			break;
 
+			#endif
+			
 		case "pointcloud":
 
 			ParticleCloud.setLifeTime (0.5f);

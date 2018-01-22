@@ -6,10 +6,15 @@ end
 
 #kinect
 start userviewing
+loadkinect
+showkinect
+end
+
+#kinect2
+start userviewing
 startkinect
 kinect
 end
-
 
 
 #cloud
@@ -42,3 +47,13 @@ end
 capture
 load
 playback
+
+#playdepth
+end
+
+#recorddepth
+recordkinect
+end
+
+#stopdepth
+end

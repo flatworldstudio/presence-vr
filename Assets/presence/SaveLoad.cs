@@ -1,8 +1,49 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Collections.Generic; 
-using System.Runtime.Serialization.Formatters.Binary; 
+using System.Collections.Generic;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+
+[System.Serializable]
+public class DepthCapture
+{
+	public static DepthCapture current;
+
+	ushort[] data;
+	int userDepthWidth,userDepthHeight;
+
+	public DepthCapture (int width,int height)
+	{
+		userDepthWidth = width;
+		userDepthHeight = height;
+
+	}
+
+	public void put (ushort[] frame)
+	{
+
+		data = frame;
+	}
+
+	public  ushort[] GetRawDepthMap (){
+		return data;
+	}
+
+	public  int getUserDepthWidth (){
+		return userDepthWidth;
+	}
+
+	public int getUserDepthHeight (){
+		return userDepthHeight;
+	}
+
+
+
+}
+
+
+
+
 
 [System.Serializable]
 
@@ -10,17 +51,17 @@ public class Capture
 {
 
 	public static Capture current;
-	public static bool capturing=false;
-	public static bool playing=false;
+	public static bool capturing = false;
+	public static bool playing = false;
 
-//	public Character knight;
-//	public Character rogue;
-//	public Character wizard;
+	//	public Character knight;
+	//	public Character rogue;
+	//	public Character wizard;
 
-//	public Vector3[] position;
-//	public Quaternion[] orientation;
+	//	public Vector3[] position;
+	//	public Quaternion[] orientation;
 	public Frame[] frames;
-	int size =250;
+	int size = 250;
 
 	int i;
 
@@ -36,19 +77,23 @@ public class Capture
 //		rogue = new Character ();
 //		wizard = new Character ();
 	}
+
 	public void capture ()
 	{
 		Capture.capturing = true;
 		i = 0;
 
 	}
-	public void play (){
+
+	public void play ()
+	{
 		Capture.playing = true;
 		i = 0;
 
 	}
 
-	public bool read (out Frame f) {
+	public bool read (out Frame f)
+	{
 
 		if (i == size) {
 			f = new Frame ();
@@ -56,7 +101,7 @@ public class Capture
 
 		} else {
 
-			 f =  frames [i];
+			f = frames [i];
 			i++;
 			return true;
 		}
@@ -64,12 +109,13 @@ public class Capture
 
 	}
 
-	public bool log (Vector3 pos, Quaternion orient){
+	public bool log (Vector3 pos, Quaternion orient)
+	{
 
 		if (i == size) {
 			return false;
 		} else {
-			Frame f = new Frame (pos,orient);
+			Frame f = new Frame (pos, orient);
 //			f.position = pos;
 //			f.orientation = orient;
 
@@ -89,15 +135,15 @@ public class Frame
 	public float[] position;
 	public float[] orientation;
 
-//	public string name;
+	//	public string name;
 
 	public Frame (Vector3 pos, Quaternion orient)
 	{
 		position = new float[3];
 
-		position[0]=pos.x;
-		position[1]=pos.y;
-		position[2]=pos.z;
+		position [0] = pos.x;
+		position [1] = pos.y;
+		position [2] = pos.z;
 
 		orientation = new float[4];
 
@@ -109,13 +155,15 @@ public class Frame
 
 	}
 
-	public Vector3 getPosition() {
+	public Vector3 getPosition ()
+	{
 		return new Vector3 (position [0], position [1], position [2]);
 
 	}
 
-	public Quaternion getRotation (){
-		return new Quaternion (orientation[0],orientation[1],orientation[2],orientation[3]);
+	public Quaternion getRotation ()
+	{
+		return new Quaternion (orientation [0], orientation [1], orientation [2], orientation [3]);
 
 	}
 
@@ -126,31 +174,61 @@ public class Frame
 }
 
 
-public static class SaveLoad {
+public static class SaveLoad
+{
 
-	public static List<Capture> savedCaptures = new List<Capture>();
+	public static List<Capture> savedCaptures = new List<Capture> ();
+	public static List<DepthCapture> savedDepthCaptures = new List<DepthCapture> ();
 
-	public static void Save() {
+	public static void LoadDepth ()
+	{
+		if (File.Exists (Application.persistentDataPath + "/savedDepthCaptures.pdc")) {
+			BinaryFormatter bf = new BinaryFormatter ();
+			FileStream file = File.Open (Application.persistentDataPath + "/savedDepthCaptures.pdc", FileMode.Open);
+			SaveLoad.savedDepthCaptures = (List<DepthCapture>)bf.Deserialize (file);
+			file.Close ();
+		}
+	}
 
-		savedCaptures.Add(Capture.current);
+	public static void SaveDepth ()
+	{
 
-		BinaryFormatter bf = new BinaryFormatter();
+		savedDepthCaptures.Add (DepthCapture.current);
 
-		FileStream file = File.Create (Application.persistentDataPath + "/savedGames.gd");
+		BinaryFormatter bf = new BinaryFormatter ();
 
-		bf.Serialize(file, SaveLoad.savedCaptures);
+		FileStream file = File.Create (Application.persistentDataPath + "/savedDepthCaptures.pdc");
 
-		file.Close();
+		bf.Serialize (file, SaveLoad.savedDepthCaptures);
+
+		file.Close ();
 
 	}
 
 
-	public static void Load() {
-		if(File.Exists(Application.persistentDataPath + "/savedGames.gd")) {
-			BinaryFormatter bf = new BinaryFormatter();
-			FileStream file = File.Open(Application.persistentDataPath + "/savedGames.gd", FileMode.Open);
-			SaveLoad.savedCaptures = (List<Capture>)bf.Deserialize(file);
-			file.Close();
+	public static void SaveFrames ()
+	{
+
+		savedCaptures.Add (Capture.current);
+
+		BinaryFormatter bf = new BinaryFormatter ();
+
+		FileStream file = File.Create (Application.persistentDataPath + "/savedGames.gd");
+
+		bf.Serialize (file, SaveLoad.savedCaptures);
+
+		file.Close ();
+
+	}
+
+
+	public static void LoadFrames ()
+	{
+		if (File.Exists (Application.persistentDataPath + "/savedGames.gd")) {
+			BinaryFormatter bf = new BinaryFormatter ();
+			FileStream file = File.Open (Application.persistentDataPath + "/savedGames.gd", FileMode.Open);
+			SaveLoad.savedCaptures = (List<Capture>)bf.Deserialize (file);
+			file.Close ();
 		}
 	}
 

@@ -226,7 +226,7 @@ public class DataHandler : MonoBehaviour
 
 		case "load":
 
-			SaveLoad.Load ();
+			SaveLoad.LoadFrames ();
 
 
 			Capture.current = SaveLoad.savedCaptures [0];
@@ -257,7 +257,7 @@ public class DataHandler : MonoBehaviour
 
 			Debug.Log (me + "Saving capture.");
 
-			SaveLoad.Save ();
+			SaveLoad.SaveFrames ();
 
 			done = true;
 

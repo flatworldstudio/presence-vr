@@ -139,18 +139,21 @@ public class UserHandler : MonoBehaviour
 		simpleConstraint.hardClampMin = new Vector3 (-320, -180);
 		simpleConstraint.hardClampMax = new Vector3 (320, 180);
 
-		GameObject obj = GameObject.Find ("back");
 		GameObject menu = GameObject.Find ("menu");
 
+		UiButton but = new UiButton ("record", menu, simpleConstraint);
+		but.callback = "recorddepth";
+		overviewInterface.uiButtons.Add ("record", but);
 
-//		UiButton but = new UiButton ("back", menu, simpleConstraint);
-//		but.callback = "userback";
-//		overviewInterface.uiButtons.Add ("back", but);
-//
-//		obj = GameObject.Find ("add");
-//		but = new UiButton ("add", menu, simpleConstraint);
-//		but.callback = "useradd";
-//		overviewInterface.uiButtons.Add ("add", but);
+		but = new UiButton ("stop", menu, simpleConstraint);
+		but.callback = "stopdepth";
+		overviewInterface.uiButtons.Add ("stop", but);
+
+		but = new UiButton ("play", menu, simpleConstraint);
+		but.callback = "playdepth";
+		overviewInterface.uiButtons.Add ("play", but);
+
+
 
 	}
 

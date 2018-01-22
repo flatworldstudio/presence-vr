@@ -879,7 +879,7 @@ private	float[] depthLookUp;
 		int hr = 0;
 //		depthMax = -10000000;
 //		depthMin = 10000000;
-		Debug.LogWarning("waking up kinect");
+		Debug.Log("waking up kinect");
 
 		depthLookUp = new float[2048];
 

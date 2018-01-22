@@ -25,7 +25,9 @@ public class AssitantDirector : MonoBehaviour
 	Director theDirector;
 	public string scriptName;
 
-	public string launchOnStoryline;
+	 string launchOnStoryline;
+	public string launchOSX,launchWIN,launchIOS;
+
 
 	#if NETWORKED
 
@@ -39,7 +41,7 @@ public class AssitantDirector : MonoBehaviour
 
 	void Start ()
 	{
-
+		
 		Debug.Log (me + "Starting ...");
 
 		UUID.setIdentity ();
@@ -51,6 +53,32 @@ public class AssitantDirector : MonoBehaviour
 		theDirector = new Director ();
 
 		GENERAL.ALLTASKS = new List<StoryTask> ();
+
+		#if UNITY_IOS
+
+		Debug.Log (me+"Running on IOS platform");
+
+		launchOnStoryline = launchIOS;
+
+		#endif
+
+		#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
+
+		Debug.Log (me+"Running on OSX platform");
+
+		launchOnStoryline = launchOSX;
+
+		#endif
+				
+
+		#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+
+		Debug.Log (me+"Running on WINDOWS platform");
+
+		launchOnStoryline = launchWIN;
+
+		#endif
+
 
 	
 
