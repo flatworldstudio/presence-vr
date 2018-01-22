@@ -798,6 +798,11 @@ Prefab:
       propertyPath: m_LocalPosition.y
       value: 667
       objectReference: {fileID: 0}
+    - target: {fileID: 114537222341640082, guid: a7b96c05b61f9410a9b07a41f0fc226d,
+        type: 2}
+      propertyPath: networkManager
+      value: 
+      objectReference: {fileID: 1913343545}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: a7b96c05b61f9410a9b07a41f0fc226d, type: 2}
   m_IsPrefabParent: 0
@@ -8517,6 +8522,12 @@ Skybox:
   m_GameObject: {fileID: 1886142263}
   m_Enabled: 1
   m_CustomSkybox: {fileID: 2100000, guid: eae358eaf3ee14cb8bf086324720a4af, type: 2}
+--- !u!114 &1913343545 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 114882841426049040, guid: 013df46e842a7407c895e97c07246efd,
+    type: 2}
+  m_PrefabInternal: {fileID: 1193746603}
+  m_Script: {fileID: 11500000, guid: 82e221aa839c3433aa67d4e349657019, type: 3}
 --- !u!1 &1976487521
 GameObject:
   m_ObjectHideFlags: 0
