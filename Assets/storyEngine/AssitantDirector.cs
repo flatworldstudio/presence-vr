@@ -24,6 +24,7 @@ public class AssitantDirector : MonoBehaviour
 
 	Director theDirector;
 	public string scriptName;
+
 	public string launchOnStoryline;
 
 	#if NETWORKED
@@ -50,6 +51,9 @@ public class AssitantDirector : MonoBehaviour
 		theDirector = new Director ();
 
 		GENERAL.ALLTASKS = new List<StoryTask> ();
+
+	
+
 
 		#if NETWORKED
 

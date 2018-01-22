@@ -1,34 +1,50 @@
-﻿
-using UnityEngine;
+﻿using UnityEngine;
 
 public static class ParticleCloud  {
-	
+
 	static ParticleSystem ps;
 	static ParticleSystem.EmitParams emitParams;
+
 	static GameObject e1,e2;
 	static float r1,r2;
 	static int count=0;
 
-	// Use this for initialization
-	public static void init (GameObject particleSystem, GameObject emitter1,GameObject emitter2) {
 
-		e1 = emitter1;
-		e2 = emitter2;
-
+	public static void init (GameObject particleSystem) {
 		ps = particleSystem.GetComponent<ParticleSystem> ();
 		emitParams = new ParticleSystem.EmitParams();
+
+		e1 = GameObject.Find("e1");
+		e2 =  GameObject.Find("e2");
 		r1 = 0;
 		r2 = 0;
+
 	}
 
 
 
-	// Update is called once per frame
+	public static void Emit (Vector3 pos){
+
+
+		emitParams.position =pos;
+		ps.Emit(emitParams, 1);
+
+
+
+	}
+	public static void setLifeTime (float value){
+
+		var main = ps.main;
+
+	main.startLifetime=value;
+
+	}
+
 	public static void update () {
 
 
 		if (count == 2) {
-			
+
 			DoEmit ();
 
 			count = 0;
@@ -38,13 +54,11 @@ public static class ParticleCloud  {
 
 	}
 
-//	static float b=0f;
-
 	static void DoEmit()
 	{
-		
 
-	
+
+
 
 		Quaternion rot = Quaternion.Euler (new Vector3 (r2-90f, 0, 0));
 
@@ -53,10 +67,10 @@ public static class ParticleCloud  {
 
 		Vector3 dotPosition =  Vector3.zero;
 
-//		emitParams.position = new Vector3(0.0f, 0.0f, 0.0f);
+		//		emitParams.position = new Vector3(0.0f, 0.0f, 0.0f);
 
 		for (int p = -15; p < 15; p++) {
-			
+
 			float a = Mathf.PI * 2 /60 *p;
 
 			dotPosition.x = Mathf.Sin (a) * 5;
@@ -75,8 +89,8 @@ public static class ParticleCloud  {
 		r2 = r2 % 180f;
 
 
-//		r1+=0.
+		//		r1+=0.
 	}
 
-
 }
+

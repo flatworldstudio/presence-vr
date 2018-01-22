@@ -1,7 +1,13 @@
 #begin
-start network
 start userviewing
+start network
 start cloud
+end
+
+#kinect
+start userviewing
+startkinect
+kinect
 end
 
 
