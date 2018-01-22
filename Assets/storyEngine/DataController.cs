@@ -26,7 +26,7 @@ public class DataController : MonoBehaviour
 
 	public List <StoryTask> taskList;
 
-	string me = "Data troller: ";
+	string me = "Data controller: ";
 
 	void Start ()
 	{

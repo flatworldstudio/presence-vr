@@ -297,6 +297,7 @@ public class DeusController : MonoBehaviour
 	void handleUi ()
 	{
 			
+
 		string inputString = Input.inputString;
 		if (inputString.Length > 0) {
 				
@@ -338,6 +339,8 @@ public class DeusController : MonoBehaviour
 				break;
 			}
 
+
+
 			if (pointerPositions.Length > storyPointerIndex && storyPointerIndex != -1) {
 				if (pointerPositions [storyPointerIndex] != null) {
 					Debug.Log (me + "Progressing storyline" + pointerPositions [storyPointerIndex].currentPoint.storyLineName);
@@ -362,7 +365,7 @@ public class DeusController : MonoBehaviour
 	{
 			
 		handleTasks ();
-		handleUi ();
+//		handleUi ();
 		updateTaskDisplays ();
 	
 	}

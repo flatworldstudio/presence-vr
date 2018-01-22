@@ -23,7 +23,10 @@ public class ExtendedNetworkManager : NetworkManager
 
 	public OnStartServerDelegate onStartServerDelegate;
 	public OnStartClientDelegate onStartClientDelegate;
+
 	public OnServerConnectDelegate onServerConnectDelegate;
+
+
 	public OnClientConnectDelegate onClientConnectDelegate;
 	public OnClientDisconnectDelegate onClientDisconnectDelegate;
 
