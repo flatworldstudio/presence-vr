@@ -16,7 +16,7 @@ public class DeusController : MonoBehaviour
 	 AssitantDirector ad;
 
 	string me = "Deus Controller: ";
-	List <Task> taskList;
+	List <StoryTask> taskList;
 	List <StoryPointer> pointerList;
 	StoryPointer[] pointerPositions;
 	public bool storyBoard;
@@ -26,7 +26,7 @@ public class DeusController : MonoBehaviour
 		
 		Debug.Log (me + "Starting...");
 
-		taskList = new List <Task> ();
+		taskList = new List <StoryTask> ();
 		pointerList = new List <StoryPointer> ();
 		pointerPositions = new StoryPointer[10];
 
@@ -83,7 +83,7 @@ public class DeusController : MonoBehaviour
 
 	}
 
-	public void addTasks (List<Task> theTasks)
+	public void addTasks (List<StoryTask> theTasks)
 
 	{
 		taskList.AddRange (theTasks);
@@ -96,7 +96,7 @@ public class DeusController : MonoBehaviour
 
 		while (t < taskList.Count) {
 
-			Task task = taskList [t];
+			StoryTask task = taskList [t];
 
 			if (task.pointer.getStatus () == POINTERSTATUS.KILLED && task.description != "end") {
 
@@ -110,17 +110,27 @@ public class DeusController : MonoBehaviour
 
 				case "end":
 
-					Debug.Log (me + "Destroying ui for pointer for storyline " + task.pointer.currentPoint.storyLineName);
-
-					pointerList.Remove (task.pointer);
-
-					pointerPositions [task.pointer.position] = null;
-
-					Destroy (task.pointer.pointerObject);
-
 					// after finishing the end task, we mark the pointer as killed, so it gets removed.
 
 					task.pointer.setStatus (POINTERSTATUS.KILLED);
+
+
+
+//					Debug.Log (me + "Destroying ui for pointer for storyline " + task.pointer.currentPoint.storyLineName);
+//
+//					// update first. some pointers reach end in a single go - we want those to be aligned.
+//
+//					updateTaskDisplay (task);
+//
+//					pointerList.Remove (task.pointer);
+//
+//					pointerPositions [task.pointer.position] = null;
+//
+//					Destroy (task.pointer.pointerObject);
+//
+//					// after finishing the end task, we mark the pointer as killed, so it gets removed.
+//
+//					task.pointer.setStatus (POINTERSTATUS.KILLED);
 
 					task.signOff (me);
 					taskList.RemoveAt (t);
@@ -129,6 +139,7 @@ public class DeusController : MonoBehaviour
 				default:
 
 					updateTaskDisplay (task);
+
 					task.signOff (me);
 					taskList.RemoveAt (t);
 					break;
@@ -141,12 +152,46 @@ public class DeusController : MonoBehaviour
 
 	}
 
+	void updateTaskDisplays (){
 
-	void updateTaskDisplay (Task theTask)
+//		Debug.Log (GENERAL.ALLTASKS.Count);
+
+		foreach (StoryTask task in GENERAL.ALLTASKS) {
+
+			updateTaskDisplay (task);
+
+			if (task.description == "end") {
+				
+				Debug.Log (me + "Destroying ui for pointer for storyline " + task.pointer.currentPoint.storyLineName);
+
+				// update first. some pointers reach end in a single go - we want those to be aligned.
+
+//				updateTaskDisplay (task);
+
+				pointerList.Remove (task.pointer);
+
+				pointerPositions [task.pointer.position] = null;
+
+				Destroy (task.pointer.pointerObject);
+
+
+			}
+
+//			updateTaskDisplay (task);
+
+
+		}
+
+
+	}
+
+
+	void updateTaskDisplay (StoryTask theTask)
 	{
 
 		if (!pointerList.Contains (theTask.pointer)) {
-			Debug.Log (me + "Pointer is new, added pointer for storyline " + theTask.pointer.currentPoint.storyLineName);
+			
+			Debug.Log (me + "Pointer is new, added display for storyline " + theTask.pointer.currentPoint.storyLineName);
 
 			pointerList.Add (theTask.pointer);
 
@@ -156,8 +201,23 @@ public class DeusController : MonoBehaviour
 
 //			Debug.Log (me + "Setting UI info for task: " + theTask.description);
 
+
 		if (theTask.description != "wait") {
-			theTask.pointer.deusText.text = theTask.description;
+
+			string displayText ;
+
+			// If a task has a value for "debug" we display it along with task description.
+
+			if (theTask.getStringValue ("debug", out displayText)) {
+				
+				displayText = theTask.description + " | " + displayText;
+
+			} else {
+
+				displayText = theTask.description;
+			}
+						
+			theTask.pointer.deusText.text = displayText;
 			theTask.pointer.deusTextSuper.text = theTask.pointer.currentPoint.storyLineName;
 
 		} else {
@@ -303,6 +363,7 @@ public class DeusController : MonoBehaviour
 			
 		handleTasks ();
 		handleUi ();
+		updateTaskDisplays ();
 	
 	}
 }

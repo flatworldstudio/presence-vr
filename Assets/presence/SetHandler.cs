@@ -17,7 +17,7 @@ public class SetHandler : MonoBehaviour {
 
 	}
 
-	public bool TaskHandler (Task task){
+	public bool TaskHandler (StoryTask task){
 		
 		bool done = false;
 

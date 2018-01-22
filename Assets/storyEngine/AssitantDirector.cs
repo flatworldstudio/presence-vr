@@ -16,7 +16,6 @@ using UnityEngine.Networking.NetworkSystem;
 public delegate void NewTasksEvent (object sender, TaskArgs e);
 
 public class AssitantDirector : MonoBehaviour
-
 {
 	
 	public event NewTasksEvent newTasksEvent;
@@ -50,7 +49,7 @@ public class AssitantDirector : MonoBehaviour
 
 		theDirector = new Director ();
 
-		GENERAL.ALLTASKS = new List<Task> ();
+		GENERAL.ALLTASKS = new List<StoryTask> ();
 
 		#if NETWORKED
 
@@ -67,7 +66,6 @@ public class AssitantDirector : MonoBehaviour
 	}
 
 	void Update ()
-
 	{
 
 		switch (theDirector.status) {
@@ -76,7 +74,7 @@ public class AssitantDirector : MonoBehaviour
 
 			theDirector.evaluatePointers ();
 
-			List<Task> newTasks = new List<Task> ();
+			List<StoryTask> newTasks = new List<StoryTask> ();
 
 			for (int p = 0; p < GENERAL.ALLPOINTERS.Count; p++) {
 
@@ -96,12 +94,14 @@ public class AssitantDirector : MonoBehaviour
 
 								pointer.setStatus (POINTERSTATUS.PAUSED);
 
-								Task task = new Task (pointer,SCOPE.GLOBAL);
+								StoryTask task = new StoryTask (pointer, SCOPE.GLOBAL);
+
+								task.loadPersistantData (pointer);
 
 								pointer.currentTask = task;
 								newTasks.Add (task);
 
-								Debug.Log (me + "Global scope, global pointer, new task");
+								Debug.Log (me + "Global scope, global pointer, new task: "+task.description);
 							}
 
 						}
@@ -117,13 +117,15 @@ public class AssitantDirector : MonoBehaviour
 
 							pointer.setStatus (POINTERSTATUS.PAUSED);
 
-							Task task = new Task (pointer,SCOPE.LOCAL);
+							StoryTask task = new StoryTask (pointer, SCOPE.LOCAL);
+
+							task.loadPersistantData (pointer);
 
 							pointer.currentTask = task;
 
 							newTasks.Add (task);
 
-							Debug.Log (me + "Local pointer, new task");
+							Debug.Log (me + "Local pointer, new task: "+task.description);
 
 						}
 
@@ -214,6 +216,7 @@ public class AssitantDirector : MonoBehaviour
 					break;
 
 				case SCOPE.SOLO:
+					
 				default:
 
 					break;
@@ -230,15 +233,24 @@ public class AssitantDirector : MonoBehaviour
 
 		for (int i = GENERAL.ALLTASKS.Count - 1; i >= 0; i--) {
 
-			Task task = GENERAL.ALLTASKS [i];
+			StoryTask task = GENERAL.ALLTASKS [i];
 
 			if (task.hasChanged) {
 
-				if (task.status == TASKSTATUS.COMPLETE) {
+				if (task.getStatus () == TASKSTATUS.COMPLETE) {
 
 					GENERAL.ALLTASKS.RemoveAt (i);
 
-					Debug.Log (me + "task " + task.ID + " completed, REMOVING from alltasks.");
+					Debug.Log (me + "task " + task.ID + ":" + task.description + " completed, removing from general.alltasks.");
+
+
+//					foreach (StoryTask st in GENERAL.ALLTASKS) {
+//
+//						//			updateTaskDisplay (task);
+//						Debug.Log ("alltasks "+ st.description);
+//					}
+
+
 
 				}
 
@@ -247,6 +259,8 @@ public class AssitantDirector : MonoBehaviour
 				case SCOPE.LOCAL:
 
 					if (task.scope == SCOPE.GLOBAL) {
+
+						Debug.Log (me + "task " + task.ID + ":" + task.description + " changed, sending update to server.");
 
 						sendTaskUpdateToServer (task.getUpdateMessage ());
 
@@ -258,6 +272,9 @@ public class AssitantDirector : MonoBehaviour
 
 					if (task.scope == SCOPE.GLOBAL) {
 
+						Debug.Log (me + "task " + task.ID + ":" + task.description + " changed, sending update to clients.");
+
+
 						sendTaskUpdateToClients (task.getUpdateMessage ());
 
 					}
@@ -265,6 +282,7 @@ public class AssitantDirector : MonoBehaviour
 					break;
 
 				case SCOPE.SOLO:
+					
 				default:
 
 					break;
@@ -287,7 +305,6 @@ public class AssitantDirector : MonoBehaviour
 	// Network connectivity handling.
 
 	void onStartServer ()
-
 	{
 
 		GENERAL.SCOPE = SCOPE.GLOBAL;
@@ -301,7 +318,6 @@ public class AssitantDirector : MonoBehaviour
 	}
 
 	void onStartClient (NetworkClient theClient)
-
 	{
 
 		Debug.Log (me + "start client delegate called, registring message handlers.");
@@ -312,7 +328,6 @@ public class AssitantDirector : MonoBehaviour
 	}
 
 	void OnServerConnect (NetworkConnection conn)
-
 	{
 
 		Debug.Log (me + "incoming server connection delegate called");
@@ -322,7 +337,6 @@ public class AssitantDirector : MonoBehaviour
 	}
 
 	void OnClientConnect (NetworkConnection conn)
-
 	{
 
 		Debug.Log (me + "Client connection delegate called");
@@ -333,7 +347,6 @@ public class AssitantDirector : MonoBehaviour
 	}
 
 	void OnClientDisconnect (NetworkConnection conn)
-
 	{
 
 		Debug.Log (me + "Client disconnection delegate called");
@@ -373,7 +386,7 @@ public class AssitantDirector : MonoBehaviour
 			
 	}
 
-	 void applyPointerUpdate (string pointerUuid, string pointName, int pointerStatus)
+	void applyPointerUpdate (string pointerUuid, string pointName, int pointerStatus)
 	{
 
 		// get the story point
@@ -401,7 +414,6 @@ public class AssitantDirector : MonoBehaviour
 	}
 
 	public void sendPointerUpdateToClients (PointerUpdate pointerMessage)
-
 	{
 	
 		NetworkServer.SendToAll (pointerCode, pointerMessage);
@@ -413,7 +425,6 @@ public class AssitantDirector : MonoBehaviour
 	// Handle task messages.
 
 	void onTaskUpdateFromServer (NetworkMessage networkMessage)
-
 	{
 
 		var taskUpdate = networkMessage.ReadMessage<TaskUpdate> ();
@@ -425,7 +436,6 @@ public class AssitantDirector : MonoBehaviour
 	}
 
 	void onTaskUpdateFromClient (NetworkMessage netMsg)
-
 	{
 
 		var taskUpdate = netMsg.ReadMessage<TaskUpdate> ();
@@ -461,7 +471,7 @@ public class AssitantDirector : MonoBehaviour
 
 			} else {
 
-				debug +=  ("client connection null.");
+				debug += ("client connection null.");
 
 			}
 
@@ -472,18 +482,17 @@ public class AssitantDirector : MonoBehaviour
 	}
 
 	void applyTaskUpdate (TaskUpdate taskUpdate)
-
 	{
 
 		StoryPointer updatePointer = GENERAL.getPointer (taskUpdate.pointerID);
 
-		Task updateTask = GENERAL.getTask (taskUpdate.taskID);
+		StoryTask updateTask = GENERAL.getTask (taskUpdate.taskID);
 
 		if (updateTask == null) {
 			
 			Debug.Log (me + "Creating new task upon network update, applying global ID, setting global scope.");
 
-			updateTask = new Task (taskUpdate.description, updatePointer,taskUpdate.taskID);
+			updateTask = new StoryTask (taskUpdate.description, updatePointer, taskUpdate.taskID);
 
 			updateTask.ApplyUpdateMessage (taskUpdate);
 
@@ -501,13 +510,13 @@ public class AssitantDirector : MonoBehaviour
 
 		} else {
 
+
 			updateTask.ApplyUpdateMessage (taskUpdate);
 		}
 
 	}
 
 	void sendTaskUpdateToServer (TaskUpdate message)
-
 	{
 		
 		networkManager.client.Send (taskCode, message);
@@ -518,7 +527,6 @@ public class AssitantDirector : MonoBehaviour
 	}
 
 	void sendTaskUpdateToClients (TaskUpdate message)
-
 	{
 
 		NetworkServer.SendToAll (taskCode, message);
@@ -590,6 +598,9 @@ public class TaskUpdate : MessageBase
 
 	public List<string> updatedVector3Names;
 	public List<Vector3> updatedVector3Values;
+
+	public List<string> updatedStringNames;
+	public List<string> updatedStringValues;
 
 	public string debug;
 
@@ -689,6 +700,25 @@ public class TaskUpdate : MessageBase
 
 		}
 
+		// Deserialise updated string values.
+
+		updatedStringNames = new List<string> ();
+		updatedStringValues = new List<string> ();
+
+		int stringCount = reader.ReadInt32 ();
+
+		debug += "/ updated strings: " + stringCount;
+
+		for (int i = 0; i < stringCount; i++) {
+
+			string stringName = reader.ReadString ();
+			string stringValue = reader.ReadString ();
+
+			updatedStringNames.Add (stringName);
+			updatedStringValues.Add (stringValue);
+
+		}
+
 //		Debug.Log (debug);
 
 	}
@@ -767,6 +797,19 @@ public class TaskUpdate : MessageBase
 
 		}
 
+		// Serialise updated string values.
+
+		writer.Write (updatedStringNames.Count);
+
+		debug += "/ updated strings: " + updatedStringNames.Count;
+
+		for (int i = 0; i < updatedStringNames.Count; i++) {
+
+			writer.Write (updatedStringNames [i]);
+			writer.Write (updatedStringValues [i]);
+
+		}
+
 //		Debug.Log (debug);
 
 	}
@@ -775,7 +818,10 @@ public class TaskUpdate : MessageBase
 
 #endif
 
-public class Task
+
+
+
+public class StoryTask
 {
 	string me = "Task: ";
 	public string ID;
@@ -786,12 +832,16 @@ public class Task
 	public Dictionary<string,float> taskFloatValues;
 	public Dictionary<string,Quaternion> taskQuaternionValues;
 	public Dictionary<string,Vector3> taskVector3Values;
+	public Dictionary<string,string> taskStringValues;
+
 
 	public StoryPointer pointer;
-	public TASKSTATUS status;
+
+	//	public TASKSTATUS status;
+
 	public SCOPE scope;
 
-	public string callBackPoint;
+//	public string callBackPoint;
 
 	public float startTime, duration;
 	public float d;
@@ -804,7 +854,37 @@ public class Task
 
 	#endif
 
-	public Task (string myDescription, StoryPointer fromStoryPointer,string setID)
+
+	public void loadPersistantData (StoryPointer referencePointer){
+
+		// we use the update message internally to transfer values from the carry over task
+
+		if (referencePointer.scope == SCOPE.GLOBAL) {
+
+			// mark changemask as true so these values get distributed over the network.
+			
+			ApplyUpdateMessage (referencePointer.persistantData.getUpdateMessage (),true);
+
+
+		} else {
+			
+			ApplyUpdateMessage (referencePointer.persistantData.getUpdateMessage ());
+
+		}
+
+	}
+
+	public StoryTask (){
+
+		// a minimal version with just data. no references. used for data carry-over task. 
+
+		pointer = new StoryPointer ();
+
+		setDefaults ();
+
+	}
+
+	public StoryTask (string myDescription, StoryPointer fromStoryPointer, string setID)
 	{
 
 		// Task created from network, so global scope and with passed in ID.
@@ -815,10 +895,10 @@ public class Task
 		scope = SCOPE.GLOBAL;
 
 		setDefaults ();
-
+		GENERAL.ALLTASKS.Add (this);
 	}
-	public Task (StoryPointer fromStoryPointer,SCOPE setScope)
 
+	public StoryTask (StoryPointer fromStoryPointer, SCOPE setScope)
 	{
 
 		// Create a task based on the current storypoint of the pointer.
@@ -831,23 +911,33 @@ public class Task
 		scope = setScope;
 
 		setDefaults ();
-
+		GENERAL.ALLTASKS.Add (this);
 	}
 
-	void setDefaults (){
+	void setDefaults ()
+	{
 
 		signoffs = 0;
-		status = TASKSTATUS.ACTIVE;
-		GENERAL.ALLTASKS.Add (this);
+
+//		GENERAL.ALLTASKS.Add (this);
 
 		taskIntValues = new Dictionary<string,int> ();
 		taskFloatValues = new Dictionary<string,float> ();
 		taskQuaternionValues = new Dictionary<string,Quaternion> ();
 		taskVector3Values = new Dictionary<string,Vector3> ();
+		taskStringValues = new Dictionary<string,string> ();
+
+
+//		taskIntValues ["status"] = (Int32) TASKSTATUS.ACTIVE;
 
 		#if NETWORKED
 		taskValuesChangeMask = new Dictionary<string,bool> ();
 		#endif
+
+//		setStatus (TASKSTATUS.ACTIVE);
+		taskIntValues ["status"] = (Int32)TASKSTATUS.ACTIVE;
+
+		taskValuesChangeMask ["status"] = false;
 
 	}
 
@@ -870,6 +960,10 @@ public class Task
 		msg.updatedQuaternionValues = new List<Quaternion> ();
 		msg.updatedVector3Names = new List<string> ();
 		msg.updatedVector3Values = new List<Vector3> ();
+
+		msg.updatedStringNames = new List<string> ();
+		msg.updatedStringValues = new List<string> ();
+
 
 		string[] intNames = taskIntValues.Keys.ToArray ();
 
@@ -947,44 +1041,92 @@ public class Task
 
 		}
 
+		string[] stringNames = taskStringValues.Keys.ToArray ();
+
+		foreach (string stringName in stringNames) {
+
+			if (taskValuesChangeMask [stringName]) {
+
+				msg.updatedStringNames.Add (stringName);
+
+				taskValuesChangeMask [stringName] = false;
+
+				string stringValue;
+
+				if (taskStringValues.TryGetValue (stringName, out stringValue))
+					msg.updatedStringValues.Add (stringValue);
+
+			}
+
+		}
+
+
+
 		return msg;
 
 	}
 
-	public void ApplyUpdateMessage (TaskUpdate update)
-
+	public void ApplyUpdateMessage (TaskUpdate update, bool changeMask = false)
 	{
+		Debug.Log (me + "Applying network task update.");
+
+
+		if (update.updatedIntNames.Contains("status")) {
+			Debug.Log (me + "incoming task status change, setting pointerstatus to taskupdated.");
+
+			pointer.setStatus (POINTERSTATUS.TASKUPDATED);
+		}
+
+
+		// check task status change
+
+//		if (update.updatedIntNames ["status"] ) {
+//			Debug.Log (me + "incoming task status change.");
+//			pointer.setStatus (POINTERSTATUS.TASKUPDATED);
+//
+//
+//		}
 		
 		for (int i = 0; i < update.updatedIntNames.Count; i++) {
 			taskIntValues [update.updatedIntNames [i]] = update.updatedIntValues [i];
-			taskValuesChangeMask [update.updatedIntNames [i]] = false;
+			taskValuesChangeMask [update.updatedIntNames [i]] = changeMask;
 
 		}
 
 		for (int i = 0; i < update.updatedFloatNames.Count; i++) {
 			taskFloatValues [update.updatedFloatNames [i]] = update.updatedFloatValues [i];
-			taskValuesChangeMask [update.updatedFloatNames [i]] = false;
+			taskValuesChangeMask [update.updatedFloatNames [i]] = changeMask;
 
 		}
 
 		for (int i = 0; i < update.updatedQuaternionNames.Count; i++) {
 			taskQuaternionValues [update.updatedQuaternionNames [i]] = update.updatedQuaternionValues [i];
-			taskValuesChangeMask [update.updatedQuaternionNames [i]] = false;
+			taskValuesChangeMask [update.updatedQuaternionNames [i]] = changeMask;
 
 		}
 
 		for (int i = 0; i < update.updatedVector3Names.Count; i++) {
 			taskVector3Values [update.updatedVector3Names [i]] = update.updatedVector3Values [i];
-			taskValuesChangeMask [update.updatedVector3Names [i]] = false;
+			taskValuesChangeMask [update.updatedVector3Names [i]] = changeMask;
 
 		}
+
+		for (int i = 0; i < update.updatedStringNames.Count; i++) {
+			taskStringValues [update.updatedStringNames [i]] = update.updatedStringValues [i];
+			taskValuesChangeMask [update.updatedStringNames [i]] = changeMask;
+
+		}
+
+
+
+
+
 
 	}
 
 	#endif
 
 	public void setIntValue (string valueName, Int32 value)
-
 	{
 
 		taskIntValues [valueName] = value;
@@ -997,7 +1139,6 @@ public class Task
 	}
 
 	public bool getIntValue (string valueName, out Int32 value)
-
 	{
 		
 		if (!taskIntValues.TryGetValue (valueName, out value)) {
@@ -1008,8 +1149,30 @@ public class Task
 
 	}
 
-	public void setFloatValue (string valueName, float value)
+	public void setStringValue (string valueName, string value)
+	{
 
+		taskStringValues [valueName] = value;
+
+		#if NETWORKED
+		taskValuesChangeMask [valueName] = true;
+		hasChanged = true;
+		#endif
+
+	}
+
+	public bool getStringValue (string valueName, out string value)
+	{
+
+		if (!taskStringValues.TryGetValue (valueName, out value)) {
+			return false;
+		}
+
+		return true;
+
+	}
+
+	public void setFloatValue (string valueName, float value)
 	{
 
 		taskFloatValues [valueName] = value;
@@ -1022,7 +1185,6 @@ public class Task
 	}
 
 	public bool getFloatValue (string valueName, out float value)
-
 	{
 		
 		if (!taskFloatValues.TryGetValue (valueName, out value)) {
@@ -1033,8 +1195,30 @@ public class Task
 
 	}
 
-	public void setVector3Value (string valueName, Vector3 value)
+//	public void setStringValue (string valueName, string value)
+//	{
+//
+//		taskStringValues [valueName] = value;
+//
+//		#if NETWORKED
+//		taskValuesChangeMask [valueName] = true;
+//		hasChanged = true;
+//		#endif
+//
+//	}
+//
+//	public bool getStringValue (string valueName, out string value)
+//	{
+//
+//		if (!taskStringValues.TryGetValue (valueName, out value)) {
+//			return false;
+//		}
+//
+//		return true;
+//
+//	}
 
+	public void setVector3Value (string valueName, Vector3 value)
 	{
 
 		taskVector3Values [valueName] = value;
@@ -1047,7 +1231,6 @@ public class Task
 	}
 
 	public bool getVector3Value (string valueName, out Vector3 value)
-
 	{
 		
 		if (!taskVector3Values.TryGetValue (valueName, out value)) {
@@ -1059,7 +1242,6 @@ public class Task
 	}
 
 	public void setQuaternionValue (string valueName, Quaternion value)
-
 	{
 
 		taskQuaternionValues [valueName] = value;
@@ -1082,42 +1264,210 @@ public class Task
 
 	}
 
+
+
+	//	public void setIntValue (string valueName, Int32 value)
+	//
+	//	{
+	//
+	//		taskIntValues [valueName] = value;
+	//
+	//		#if NETWORKED
+	//		taskValuesChangeMask [valueName] = true;
+	//		hasChanged = true;
+	//		#endif
+	//
+	//	}
+	//
+	//	public bool getIntValue (string valueName, out Int32 value)
+	//
+	//	{
+	//
+	//		if (!taskIntValues.TryGetValue (valueName, out value)) {
+	//			return false;
+	//		}
+	//
+	//		return true;
+	//
+	//	}
+
+
+	void setPointerToUpdated (){
+
+		switch (GENERAL.SCOPE) {
+
+		case SCOPE.GLOBAL:
+		case SCOPE.SOLO:
+			// we're the global server or running solo so we can trigger the pointer. regardless of the task's scope.
+
+			pointer.setStatus (POINTERSTATUS.TASKUPDATED);
+
+			break;
+
+		case SCOPE.LOCAL:
+
+			// we're a local client. only if the task is local do we trigger the pointer.
+
+			if (scope == SCOPE.LOCAL) {
+
+				pointer.setStatus (POINTERSTATUS.TASKUPDATED);
+
+			}
+
+			break;
+
+		default:
+
+
+			break;
+
+
+
+		}
+
+
+
+	}
+
 	public void setStatus (TASKSTATUS theStatus)
 	{
 		
-		status = theStatus;
+//		status = theStatus;
+
+		taskIntValues ["status"] = (Int32)theStatus;
+
+		setPointerToUpdated ();
+
+//		switch (GENERAL.SCOPE) {
+//
+//		case SCOPE.GLOBAL:
+//		case SCOPE.SOLO:
+//			// we're the global server or running solo so we can trigger the pointer. regardless of the task's scope.
+//
+//			pointer.setStatus (POINTERSTATUS.TASKUPDATED);
+//
+//			break;
+//
+//		case SCOPE.LOCAL:
+//
+//			// we're a local client. only if the task is local do we trigger the pointer.
+//
+//			if (scope == SCOPE.LOCAL) {
+//				
+//				pointer.setStatus (POINTERSTATUS.TASKUPDATED);
+//
+//			}
+//
+//			break;
+//
+//		default:
+//
+//
+//			break;
+//
+//
+//
+//		}
+
+//		pointer.setStatus (POINTERSTATUS.TASKUPDATED);
+
+
+
 
 		#if NETWORKED
+
+		taskValuesChangeMask ["status"] = true;
 		hasChanged = true;
+
 		#endif
 
 	}
+
+	public TASKSTATUS getStatus ()
+	{
+
+		Int32 value;
+
+		if (!taskIntValues.TryGetValue ("status", out value)) {
+					
+			Debug.LogError (me + "status value for task not found");
+
+			value = (Int32)TASKSTATUS.ACTIVE;
+		} 
+
+		return (TASKSTATUS)value;
+
+	}
+
+
 			
 	void complete ()
 	{
 
-		if (status != TASKSTATUS.COMPLETE) {
+		if (getStatus () != TASKSTATUS.COMPLETE) {
 
 			// make sure a task is only completed once.
 			
 			setStatus (TASKSTATUS.COMPLETE);
 
-			pointer.taskStatusChanged ();
+//			pointer.taskStatusChanged ();
+
+//			pointer.setStatus (POINTERSTATUS.TASKUPDATED);
+
+
+		} else {
+			Debug.LogWarning (me + "A task was completed more than once.");
 
 		}
 
 	}
 
-	public void callBack (string theCallBackPoint)
+	public void setCallBack (string theCallBackPoint)
 	{
 
 //		Debug.Log ("performing callback: " + theCallBackPoint);
 
-		callBackPoint = theCallBackPoint;
+//		callBackPoint = theCallBackPoint;
 
-		setStatus (TASKSTATUS.CALLBACK);
+
+		setStringValue ("callBackPoint", theCallBackPoint);
+
+
+//		setStatus (TASKSTATUS.CALLBACK);
+
+		setPointerToUpdated ();
 	
-		pointer.setStatus (POINTERSTATUS.TASKUPDATED);
+//		pointer.setStatus (POINTERSTATUS.TASKUPDATED);
+
+//		#if NETWORKED
+//
+//		taskValuesChangeMask ["callBackPoint"] = true;
+//		hasChanged = true;
+//
+//		#endif
+
+	}
+
+	public void clearCallBack(){
+
+		setStringValue ("callBackPoint", "");
+
+
+	}
+
+
+	public string getCallBack (){
+
+		string value;
+
+		if (getStringValue("callBackPoint",out value)){
+
+			return value;
+
+		} else {
+			
+			return ("");
+		}
 
 	}
 
@@ -1153,25 +1503,25 @@ public enum SCOPE
 public enum TASKSTATUS
 {
 	ACTIVE,
-	CALLBACK,
-	COMPLETE
+//	CALLBACK,
+	COMPLETE,
+//	CLEANUP
 
 }
 
 public class TaskArgs : EventArgs
-
 {
 
-	public List <Task> theTasks;
+	public List <StoryTask> theTasks;
 
-	public TaskArgs (List <Task> tasks) : base () // extend the constructor 
+	public TaskArgs (List <StoryTask> tasks) : base () // extend the constructor 
 	{ 
 		theTasks = tasks;
 	}
 
-	public TaskArgs (Task task) : base () // extend the constructor 
+	public TaskArgs (StoryTask task) : base () // extend the constructor 
 	{ 
-		theTasks = new List <Task> ();
+		theTasks = new List <StoryTask> ();
 		theTasks.Add (task);
 	}
 

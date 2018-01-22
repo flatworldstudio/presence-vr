@@ -154,7 +154,7 @@ public class UserHandler : MonoBehaviour
 
 	}
 
-	public bool TaskHandler (Task task)
+	public bool TaskHandler (StoryTask task)
 	{
 		
 		bool done = false;
@@ -269,7 +269,7 @@ public class UserHandler : MonoBehaviour
 
 				if (!callBackName.Equals ("")) {
 
-					task.callBack (callBackName);
+					task.setCallBack (callBackName);
 					//				Debug.Log("calling callback " +callBack);
 
 				}

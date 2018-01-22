@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using UnityEngine.Networking;
 #endif
 
-public delegate bool DataTaskHandler (Task theTask);
+public delegate bool DataTaskHandler (StoryTask theTask);
 	
 public class DataController : MonoBehaviour
 {
@@ -24,15 +24,15 @@ public class DataController : MonoBehaviour
 
 	bool handlerWarning = false;
 
-	public List <Task> taskList;
+	public List <StoryTask> taskList;
 
-	string me = "Data controller: ";
+	string me = "Data troller: ";
 
 	void Start ()
 	{
 		Debug.Log (me + "Starting...");
 
-		taskList = new List <Task> ();
+		taskList = new List <StoryTask> ();
 
 		#if NETWORKED
 
@@ -68,8 +68,8 @@ public class DataController : MonoBehaviour
 		
 	#if NETWORKED
 
-	// These are networking methods to be called from datahandler to establish connections. 
-	// Once connected, handling is done internally by the assistant directors.
+	// These are networking methods to be called from datahandler to establish nections. 
+	// Once nected, handling is done internally by the assistant directors.
 
 	public void networkBroadcastInit ()
 	{
@@ -140,7 +140,7 @@ public class DataController : MonoBehaviour
 
 		while (t < taskList.Count) {
 
-			Task task = taskList [t];
+			StoryTask task = taskList [t];
 
 			if (task.pointer.getStatus () == POINTERSTATUS.KILLED && task.description != "end") {
 
@@ -179,6 +179,12 @@ public class DataController : MonoBehaviour
 
 	}
 
+//	public void taskDone (StoryTask theTask){
+//		theTask.signOff (me);
+//		taskList.Remove (theTask);
+//
+//	}
+
 	void newTasksHandler (object sender, TaskArgs e)
 	{
 	
@@ -186,7 +192,7 @@ public class DataController : MonoBehaviour
 
 	}
 
-	public void addTasks (List<Task> theTasks)
+	public void addTasks (List<StoryTask> theTasks)
 	{
 		
 		taskList.AddRange (theTasks);

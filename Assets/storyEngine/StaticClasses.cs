@@ -19,7 +19,7 @@ public static class GENERAL
 	public static int SIGNOFFS;
 	public static Dictionary <string,StoryPoint> storyPoints;
 	public static List <StoryPointer> ALLPOINTERS;
-	public static List <Task> ALLTASKS;
+	public static List <StoryTask> ALLTASKS;
 	public static STORYMODE STORYMODE;
 
 	public static StoryPoint getStoryPointByID (string pointID)
@@ -96,7 +96,7 @@ public static class GENERAL
 
 	}
 
-	public static Task getTask (string taskID)
+	public static StoryTask getTask (string taskID)
 	{
 
 		flagTaskOverflow ();

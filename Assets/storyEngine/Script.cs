@@ -189,22 +189,22 @@ public class Script
 		for (int sl = 0; sl<keys.Count(); sl++) {
 
 			string key = keys [sl];
-			Debug.Log ("Storyline key: " + key);
+//			Debug.Log ("Storyline key: " + key);
 
 
 			StoryPoint thePoint;
 
 			if (!storyLines.TryGetValue (key, out thePoint)) {
-				Debug.Log (me + "Can't find point");
+//				Debug.Log (me + "Can't find point");
 			} else {
 
 				while (thePoint.getNextStoryPoint () != null) {
 
-					Debug.Log (thePoint.ID + " | " + string.Join (" ", thePoint.task));
+//					Debug.Log (thePoint.ID + " | " + string.Join (" ", thePoint.task));
 					thePoint = thePoint.getNextStoryPoint();
 				}
 
-				Debug.Log (thePoint.ID + " | " + string.Join (" ", thePoint.task));
+//				Debug.Log (thePoint.ID + " | " + string.Join (" ", thePoint.task));
 
 
 

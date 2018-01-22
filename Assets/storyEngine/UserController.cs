@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public delegate bool UserTaskHandler (Task theTask);
+public delegate bool UserTaskHandler (StoryTask theTask);
 	
 public class UserController : MonoBehaviour
 {
@@ -13,7 +13,7 @@ public class UserController : MonoBehaviour
 	AssitantDirector ad;
 	bool handlerWarning = false;
 
-	public List <Task> taskList;
+	public List <StoryTask> taskList;
 
 	string me = "User controller: ";
 
@@ -21,7 +21,7 @@ public class UserController : MonoBehaviour
 	{
 		Debug.Log (me + "Starting...");
 
-		taskList = new List <Task> ();
+		taskList = new List <StoryTask> ();
 
 		StoryEngineObject = GameObject.Find ("StoryEngineObject");
 
@@ -52,7 +52,7 @@ public class UserController : MonoBehaviour
 
 		while (t < taskList.Count) {
 
-			Task task = taskList [t];
+			StoryTask task = taskList [t];
 
 			if (task.pointer.getStatus () == POINTERSTATUS.KILLED && task.description != "end") {
 
@@ -94,7 +94,7 @@ public class UserController : MonoBehaviour
 		addTasks (e.theTasks);
 	}
 
-	public void addTasks (List<Task> theTasks)
+	public void addTasks (List<StoryTask> theTasks)
 	{
 		taskList.AddRange (theTasks);
 	}

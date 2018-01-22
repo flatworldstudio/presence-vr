@@ -26,7 +26,7 @@ public class DataHandler : MonoBehaviour
 
 	}
 
-	public bool TaskHandler (Task task)
+	public bool TaskHandler (StoryTask task)
 	{
 		
 		bool done = false;
@@ -54,7 +54,7 @@ public class DataHandler : MonoBehaviour
 
 					Debug.Log (me + "found server, now use callback!");
 
-					task.callBack ("foundserver");
+					task.setCallBack ("foundserver");
 
 					dataController.networkBroadcastStop ();
 
@@ -97,7 +97,7 @@ public class DataHandler : MonoBehaviour
 
 				Debug.Log (me + "New client on connection "+newClient);
 
-				task.callBack ("newclient");
+				task.setCallBack ("newclient");
 
 			}
 
@@ -137,7 +137,7 @@ public class DataHandler : MonoBehaviour
 
 				Debug.Log (me + "Lost connection to server.");
 
-				task.callBack ("network");
+				task.setCallBack ("network");
 
 
 			}

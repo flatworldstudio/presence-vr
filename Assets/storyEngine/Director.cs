@@ -242,7 +242,7 @@ public class Director
 
 			case TASKTYPE.BASIC:
 			case TASKTYPE.END:
-					
+									
 				if (pointer.getStatus () == POINTERSTATUS.EVALUATE) {
 
 					// A normal task to be executed. Assistant director will generate task.
@@ -257,9 +257,13 @@ public class Director
 
 				if (pointer.getStatus () == POINTERSTATUS.TASKUPDATED) {
 
-					// Task was already active and status has changed.
+					// Something has happened in the task that we need to evaluate.
 						
-					if (pointer.currentTask.status == TASKSTATUS.COMPLETE) {
+					if (pointer.currentTask.getStatus () == TASKSTATUS.COMPLETE) {
+
+						// Task was completed. Check if there's a callback before moving on.
+
+						checkForCallBack (pointer);
 
 						// Task was completed, progress to the next point.
 
@@ -271,47 +275,23 @@ public class Director
 
 					}
 
-					if (pointer.currentTask.status == TASKSTATUS.ACTIVE) {
+					if (pointer.currentTask.getStatus () == TASKSTATUS.ACTIVE) {
 
-						// Catching exception. If a task has changed, its status shouldn't be 'active'. Pause the pointer and remove it from stack to prevent crash.
+						// See if there's a callback.
 
-						Debug.LogWarning (me + "Pointerstatus says taskupdated, but taskstatus for task " +pointer.currentTask.description+" is active.");
+						checkForCallBack (pointer);
 
-						pointer.setStatus (POINTERSTATUS.PAUSED);
+						// Return pointerstatus to paused and stop evaluating it for now.
 
-						pointerStack.RemoveAt (0);
-
-					}
-
-					if (pointer.currentTask.status == TASKSTATUS.CALLBACK) {
-							
-						// A callback is equivalent to 'start name', launching a new storypointer on the given point.
-
-						targetPoint = GENERAL.getStoryPointByID (pointer.currentTask.callBackPoint);
-
-						if (GENERAL.getPointerOnStoryline (pointer.currentTask.callBackPoint) == null) {
-								
-							Debug.Log (me + "New callback storyline: " + pointer.currentTask.callBackPoint);
-
-							StoryPointer newStoryPointer = new StoryPointer (targetPoint);
-
-							pointerStack.Add (newStoryPointer);
-
-						} else {
-
-							Debug.Log (me + "Callback storyline already started: " + pointer.currentTask.callBackPoint);
-						}
-
-						// A callback doesn't affect the task that called it. Return taskstatus to active (from callback). 
-						// Set pointerstatus to paused (from taskupdated).
-
-						pointer.currentTask.setStatus (TASKSTATUS.ACTIVE);
+//						Debug.LogWarning (me + "Pointerstatus says taskupdated, but taskstatus for task " + pointer.currentTask.description + " is active.");
 
 						pointer.setStatus (POINTERSTATUS.PAUSED);
 
 						pointerStack.RemoveAt (0);
 
 					}
+
+
 
 				}
 
@@ -333,8 +313,44 @@ public class Director
 
 	}
 
-	public void loadScript (string fileName)
+	bool checkForCallBack (StoryPointer pointer){
 
+		// checks and trigger callback on the current task for given pointer. does not touch the pointer itself.
+
+		string callBackValue = pointer.currentTask.getCallBack ();
+
+		if (callBackValue != "") {
+
+			pointer.currentTask.clearCallBack (); // clear value
+
+			// A callback is equivalent to 'start name', launching a new storypointer on the given point.
+
+			StoryPoint targetPoint = GENERAL.getStoryPointByID (callBackValue);
+
+			if (GENERAL.getPointerOnStoryline (pointer.currentTask.getCallBack ()) == null) {
+
+				Debug.Log (me + "New callback storyline: " + callBackValue);
+
+				StoryPointer newStoryPointer = new StoryPointer (targetPoint);
+
+				pointerStack.Add (newStoryPointer);
+
+			} else {
+
+				Debug.Log (me + "Callback storyline already started: " + callBackValue);
+			}
+
+			return true;
+
+		} else {
+
+			return false;
+		}
+
+	}
+
+
+	public void loadScript (string fileName)
 	{
 		Script theScript = new Script (fileName);
 
@@ -353,7 +369,7 @@ public class Director
 
 	}
 
- void moveToNextPoint (StoryPointer thePointer)
+	void moveToNextPoint (StoryPointer thePointer)
 	{
 		if (!thePointer.moveToNextPoint ()) {
 			
@@ -365,7 +381,7 @@ public class Director
 		}
 	}
 
-	 float getValue (string[] instructions, string var)
+	float getValue (string[] instructions, string var)
 	{
 		string r = "0";
 		Char delimiter = '=';
@@ -402,7 +418,8 @@ public class PointerUpdate : MessageBase
 
 	public string pointerUuid;
 	public string storyPoint;
-	public int pointerStatus; // note that this actually gets overruled on the receiving client.
+	public int pointerStatus;
+	// note that this actually gets overruled on the receiving client.
 
 }
 #endif
@@ -426,7 +443,9 @@ public class StoryPointer
 
 	POINTERSTATUS status;
 
-	public Task currentTask;
+	public StoryTask currentTask;
+
+	public StoryTask persistantData; // can hold generic data which will be passed onto new task.... WIP
 
 	public	Text deusText;
 	public	Text deusTextSuper;
@@ -439,8 +458,16 @@ public class StoryPointer
 
 	string me = "Storypointer says: ";
 
-	public StoryPointer (StoryPoint startingPoint)
+	public StoryPointer ()
 
+
+	{
+		
+
+	}
+
+
+	public StoryPointer (StoryPoint startingPoint)
 	{
 		
 		currentPoint = startingPoint;
@@ -449,10 +476,11 @@ public class StoryPointer
 		scope = SCOPE.LOCAL;
 		GENERAL.ALLPOINTERS.Add (this);
 
+		persistantData = new StoryTask ();
+
 	}
 
 	public StoryPointer (StoryPoint startingPoint, string setID)
-
 	{
 		
 		currentPoint = startingPoint;
@@ -461,10 +489,11 @@ public class StoryPointer
 		scope = SCOPE.GLOBAL;
 		GENERAL.ALLPOINTERS.Add (this);
 
+		persistantData = new StoryTask ();
+
 	}
 
 	public PointerUpdate getUpdateMessage ()
-
 	{
 
 		PointerUpdate r = new PointerUpdate ();
@@ -476,7 +505,8 @@ public class StoryPointer
 
 	}
 
-	public void end() {
+	public void end ()
+	{
 
 		currentPoint = GENERAL.getStoryPointByID ("end");
 
@@ -485,16 +515,24 @@ public class StoryPointer
 	}
 
 	public POINTERSTATUS getStatus ()
-
 	{
 		return status;
 	}
 
 	public void setStatus (POINTERSTATUS theStatus)
-
 	{
 
-		status = theStatus;
+
+		if (status != POINTERSTATUS.KILLED) {
+		
+			// The end task sets pointerstatus to killed, then calls this method when the end task is complete. If it was killed, keep it killed for removal. 
+		
+//					setStatus (POINTERSTATUS.TASKUPDATED);
+
+			status = theStatus;
+		}
+
+
 
 		#if NETWORKED
 		hasChanged = true;
@@ -502,22 +540,20 @@ public class StoryPointer
 
 	}
 
-	public void taskStatusChanged ()
-
-	{
-
-		if (status != POINTERSTATUS.KILLED) {
-
-			// The end task sets pointerstatus to killed, then calls this method when the end task is complete. If it was killed, keep it killed for removal. 
-
-			setStatus (POINTERSTATUS.TASKUPDATED);
-
-		}
-
-	}
+	//	public void taskStatusChanged ()
+	//
+	//	{
+	//
+	//		if (status != POINTERSTATUS.KILLED) {
+	//
+	//			// The end task sets pointerstatus to killed, then calls this method when the end task is complete. If it was killed, keep it killed for removal.
+	//
+	//			setStatus (POINTERSTATUS.TASKUPDATED);
+	//
+	//		}
+	//	}
 
 	public Boolean moveToNextPoint ()
-
 	{
 		
 		Boolean r = false;
