@@ -243,7 +243,7 @@ public class DeusController : MonoBehaviour
 
 		newPointerUi.transform.SetParent (DeusCanvas.transform);
 
-		newPointerUi.GetComponent<RectTransform> ().anchoredPosition3D = new Vector3 (0, 0, 0);
+		newPointerUi.GetComponent<RectTransform> ().anchoredPosition3D = new Vector3 (0, 360, 0);
 		newPointerUi.GetComponent<RectTransform> ().localScale = new Vector3 (1, 1, 1);
 
 
