@@ -106,6 +106,22 @@ public class AssitantDirector : MonoBehaviour
 
 //			Debug.Log (me + "director active ...");
 
+
+			// Review tasks for callbacks.
+//
+//			foreach (StoryTask task in GENERAL.ALLTASKS) {
+//
+//				string callBackPoint;
+//
+//				if (task.getStringValue("callBackPoint",out callBackPoint)){
+//					task.pointer.setStatus (POINTERSTATUS.TASKUPDATED);
+//
+//				}
+//
+//
+//			}
+
+
 			theDirector.evaluatePointers ();
 
 //			Debug.Log (me + "director evaluated, generating tasks ...");
@@ -1342,6 +1358,7 @@ public class StoryTask
 
 		case SCOPE.GLOBAL:
 		case SCOPE.SOLO:
+			
 			// we're the global server or running solo so we can trigger the pointer. regardless of the task's scope.
 
 			pointer.setStatus (POINTERSTATUS.TASKUPDATED);
@@ -1382,6 +1399,8 @@ public class StoryTask
 
 		setPointerToUpdated ();
 
+
+
 //		switch (GENERAL.SCOPE) {
 //
 //		case SCOPE.GLOBAL:
@@ -1414,7 +1433,6 @@ public class StoryTask
 //		}
 
 //		pointer.setStatus (POINTERSTATUS.TASKUPDATED);
-
 
 
 

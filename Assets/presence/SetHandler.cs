@@ -64,7 +64,7 @@ public class SetHandler : MonoBehaviour
 
 
 			if (GENERAL.SCOPE == SCOPE.GLOBAL) {
-
+				
 
 
 				int ind;
