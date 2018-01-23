@@ -1,13 +1,21 @@
-#begin
+#develop
+start userviewing
+loaddepthdata
+showdepthdata
+end
+
+
+#clouddemo
 start userviewing
 start network
 start cloud
 end
 
-#kinect
+#playdepthdata
 start userviewing
-loadkinect
-showkinect
+start network
+loaddepthdata
+showdepthdata
 end
 
 #kinect2
@@ -49,6 +57,7 @@ load
 playback
 
 #playdepth
+nextdepth
 end
 
 #recorddepth
@@ -57,3 +66,5 @@ end
 
 #stopdepth
 end
+
+setnetworkgui

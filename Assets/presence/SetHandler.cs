@@ -16,7 +16,7 @@ public class SetHandler : MonoBehaviour
 
 
 	ushort[] depthMap;
-	int width,height;
+	int width, height;
 
 	string me = "Task handler: ";
 
@@ -57,76 +57,83 @@ public class SetHandler : MonoBehaviour
 
 			break;
 
+		case "nextdepth":
 
-		case "loadkinect":
+			IO.depthIndex++;
 
-			// we grab a frame and write it to disk...
+			if (IO.depthIndex==IO.savedDepthCaptures.Count){
+				IO.depthIndex=0;
+			}
 
-			Debug.LogWarning(me+"Loading depth from disk at "+Application.persistentDataPath);
-
-
-
-			SaveLoad.LoadDepth();
-
-			DepthCapture.current = SaveLoad.savedDepthCaptures [0];
-
-
-
-			done=true;
-
+			done = true;
 			break;
 
-		case "showkinect":
+		case "showdepthdata":
+			
+			if (IO.depthIndex >= 0) {
+				
+//				int index = 0;
+//
+//				if (!task.getIntValue ("index", out index)) {
+//
+//					task.setIntValue ("index", 0);
+//				}
 
-			ParticleCloud.setLifeTime (0.1f);
+//				int index = IO.depthIndex;
+				task.setStringValue("debug",""+IO.depthIndex);
 
+				DepthCapture.current = IO.savedDepthCaptures [IO.depthIndex];
 
-			if (interval == 4) {
-				interval = 0;
+				ParticleCloud.setLifeTime (0.1f);
 
-				depthMap = DepthCapture.current.GetRawDepthMap ();
+				if (interval == 4 && DepthCapture.current != null) {
+					
+					interval = 0;
 
-				 width =  DepthCapture.current.getUserDepthWidth ();
-				 height =  DepthCapture.current.getUserDepthHeight ();
+					depthMap = DepthCapture.current.GetRawDepthMap ();
 
+					width = DepthCapture.current.getUserDepthWidth ();
+					height = DepthCapture.current.getUserDepthHeight ();
 
+					int sample = 8;
+					Vector3 point;
 
-				int sample = 8;
-				Vector3 point;
+					for (int y = 0; y < height; y += sample) {
 
-				for (int y = 0; y < height; y += sample) {
+						for (int x = 0; x < width; x += sample) {
 
-					for (int x = 0; x < width; x += sample) {
+							int i = y * width + x;
 
-						int i = y * width + x;
+							ushort userMap = (ushort)(depthMap [i] & 7);
+							ushort userDepth = (ushort)(depthMap [i] >> 3);
 
-						ushort userMap = (ushort)(depthMap [i] & 7);
-						ushort userDepth = (ushort)(depthMap [i] >> 3);
+							if (userMap != 0) {
+								point = kinectManager.depthToWorld (x, y, userDepth);
+								point.y = -point.y;
+								point.y += 1.5f;
 
-						if (userMap != 0) {
-							point = kinectManager.depthToWorld (x, y, userDepth);
-							point.y = -point.y;
-							point.y += 1.5f;
+								ParticleCloud.Emit (point);
+							}
 
-							ParticleCloud.Emit (point);
 						}
 
 					}
 
-
-
 				}
 
+				interval++;
+
+			} else {
 
 
-
+				done = true;
 
 			}
+	
 
 
 
 
-			interval++;
 
 
 
@@ -141,25 +148,25 @@ public class SetHandler : MonoBehaviour
 
 			// we grab a frame and write it to disk...
 
-			Debug.LogWarning(me+"writing depth to disk at "+Application.persistentDataPath);
+			Debug.LogWarning (me + "writing depth to disk at " + Application.persistentDataPath);
 
-			 width = kinectManager.getUserDepthWidth ();
-			 height = kinectManager.getUserDepthHeight ();
+			width = kinectManager.getUserDepthWidth ();
+			height = kinectManager.getUserDepthHeight ();
 
 			depthMap = kinectManager.GetRawDepthMap ();
 
-			DepthCapture dc = new DepthCapture(width,height);
+			DepthCapture dc = new DepthCapture (width, height);
 			DepthCapture.current = dc;
 
 			dc.put (depthMap);
 
-			SaveLoad.SaveDepth();
+			IO.SaveDepthCaptures ();
 
 
 
 
 
-			done=true;
+			done = true;
 
 			break;
 
@@ -174,8 +181,8 @@ public class SetHandler : MonoBehaviour
 
 				depthMap = kinectManager.GetRawDepthMap ();
 
-				 width = kinectManager.getUserDepthWidth ();
-				 height = kinectManager.getUserDepthHeight ();
+				width = kinectManager.getUserDepthWidth ();
+				height = kinectManager.getUserDepthHeight ();
 
 
 

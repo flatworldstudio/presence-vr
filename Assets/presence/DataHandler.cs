@@ -33,6 +33,29 @@ public class DataHandler : MonoBehaviour
 
 		switch (task.description) {
 
+		case "loaddepthdata":
+
+			// load depth data from resources
+
+			IO.LoadDepthCapturesResource ();
+
+			if (IO.savedDepthCaptures.Count > 0) {
+				IO.depthIndex = 0;
+			}
+
+			done = true;
+
+			break;
+
+
+		case "setnetworkgui":
+
+			dataController.displayNetworkGUI (true);
+
+			done = true;
+
+			break;
+
 		case "startdiscover":
 
 			dataController.networkBroadcastInit ();
@@ -226,10 +249,10 @@ public class DataHandler : MonoBehaviour
 
 		case "load":
 
-			SaveLoad.LoadFrames ();
+			IO.LoadUserCaptures ();
 
 
-			Capture.current = SaveLoad.savedCaptures [0];
+			Capture.current = IO.savedCaptures [0];
 
 
 //			Debug.Log (me + "loaded with name " + Capture.current.knight.name);
@@ -257,7 +280,7 @@ public class DataHandler : MonoBehaviour
 
 			Debug.Log (me + "Saving capture.");
 
-			SaveLoad.SaveFrames ();
+			IO.SaveUserCaptures ();
 
 			done = true;
 

@@ -953,17 +953,17 @@ Prefab:
     - target: {fileID: 114537222341640082, guid: a7b96c05b61f9410a9b07a41f0fc226d,
         type: 2}
       propertyPath: launchWIN
-      value: kinect
+      value: playdepthdata
       objectReference: {fileID: 0}
     - target: {fileID: 114537222341640082, guid: a7b96c05b61f9410a9b07a41f0fc226d,
         type: 2}
       propertyPath: launchOSX
-      value: begin
+      value: playdepthdata
       objectReference: {fileID: 0}
     - target: {fileID: 114537222341640082, guid: a7b96c05b61f9410a9b07a41f0fc226d,
         type: 2}
       propertyPath: launchIOS
-      value: begin
+      value: playdepthdata
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: a7b96c05b61f9410a9b07a41f0fc226d, type: 2}
@@ -1220,7 +1220,7 @@ ParticleSystem:
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 1
-  randomSeed: -334567653
+  randomSeed: -34390869
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -2122,8 +2122,8 @@ ParticleSystem:
       maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
-        key0: {r: 0, g: 0, b: 0, a: 1}
-        key1: {r: 0, g: 0, b: 0, a: 0}
+        key0: {r: 1, g: 1, b: 1, a: 1}
+        key1: {r: 1, g: 1, b: 1, a: 0}
         key2: {r: 0, g: 0, b: 0, a: 0}
         key3: {r: 0, g: 0, b: 0, a: 0}
         key4: {r: 0, g: 0, b: 0, a: 0}
@@ -4818,6 +4818,21 @@ Prefab:
     - target: {fileID: 114727080683417070, guid: 013df46e842a7407c895e97c07246efd,
         type: 2}
       propertyPath: m_UseNetworkManager
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114477138676406432, guid: 013df46e842a7407c895e97c07246efd,
+        type: 2}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114477138676406432, guid: 013df46e842a7407c895e97c07246efd,
+        type: 2}
+      propertyPath: showGUI
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114727080683417070, guid: 013df46e842a7407c895e97c07246efd,
+        type: 2}
+      propertyPath: m_ShowGUI
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

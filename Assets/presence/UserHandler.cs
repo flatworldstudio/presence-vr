@@ -132,12 +132,12 @@ public class UserHandler : MonoBehaviour
 		UiConstraint simpleConstraint = new UiConstraint ();
 
 		simpleConstraint.edgeSprings = true;
-		simpleConstraint.edgeSpringMin = new Vector3 (-160, -90);
-		simpleConstraint.edgeSpringMax = new Vector3 (160, 90);
+		simpleConstraint.edgeSpringMin = new Vector3 (0, 0);
+		simpleConstraint.edgeSpringMax = new Vector3 (0, 0);
 
 		simpleConstraint.hardClamp = true;
-		simpleConstraint.hardClampMin = new Vector3 (-320, -180);
-		simpleConstraint.hardClampMax = new Vector3 (320, 180);
+		simpleConstraint.hardClampMin = new Vector3 (-100, -50);
+		simpleConstraint.hardClampMax = new Vector3 (100, 50);
 
 		GameObject menu = GameObject.Find ("menu");
 
@@ -273,6 +273,7 @@ public class UserHandler : MonoBehaviour
 				if (!callBackName.Equals ("")) {
 
 					task.setCallBack (callBackName);
+
 					//				Debug.Log("calling callback " +callBack);
 
 				}

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 #if NETWORKED
 using UnityEngine.Networking;
+
 #endif
 
 public delegate bool DataTaskHandler (StoryTask theTask);
@@ -199,6 +200,19 @@ public class DataController : MonoBehaviour
 
 	}
 
+	//
+
+	#if NETWORKED
+	public void displayNetworkGUI (bool status) {
+
+
+		NetworkObject.GetComponent<NetworkManagerHUD> ().showGUI = status;
+		networkBroadcast.showGUI = status;
+
+
+	}
+
+	#endif
 }
 
 

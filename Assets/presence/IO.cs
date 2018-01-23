@@ -10,9 +10,9 @@ public class DepthCapture
 	public static DepthCapture current;
 
 	ushort[] data;
-	int userDepthWidth,userDepthHeight;
+	int userDepthWidth, userDepthHeight;
 
-	public DepthCapture (int width,int height)
+	public DepthCapture (int width, int height)
 	{
 		userDepthWidth = width;
 		userDepthHeight = height;
@@ -25,15 +25,18 @@ public class DepthCapture
 		data = frame;
 	}
 
-	public  ushort[] GetRawDepthMap (){
+	public  ushort[] GetRawDepthMap ()
+	{
 		return data;
 	}
 
-	public  int getUserDepthWidth (){
+	public  int getUserDepthWidth ()
+	{
 		return userDepthWidth;
 	}
 
-	public int getUserDepthHeight (){
+	public int getUserDepthHeight ()
+	{
 		return userDepthHeight;
 	}
 
@@ -174,23 +177,54 @@ public class Frame
 }
 
 
-public static class SaveLoad
+public static class IO
 {
+	static string me = "IO: ";
 
 	public static List<Capture> savedCaptures = new List<Capture> ();
 	public static List<DepthCapture> savedDepthCaptures = new List<DepthCapture> ();
 
-	public static void LoadDepth ()
+	static string depthCaptureFile = "/savedDepthCaptures.pdc";
+	public static int depthIndex = -1;
+
+
+	public static void LoadDepthCapturesResource ()
+	{
+
+		// Load data from resources. The textasset route is a bit of a trick but allows us to get a raw stream.
+		
+		TextAsset asset = Resources.Load ("savedDepthCaptures") as TextAsset;
+
+		if (asset != null) {
+
+			Stream stream = new MemoryStream (asset.bytes);
+			BinaryFormatter bf = new BinaryFormatter ();
+			List<DepthCapture> loaded = (List<DepthCapture>)bf.Deserialize (stream);
+			IO.savedDepthCaptures.AddRange (loaded);
+
+			Debug.Log (me + "Local depth captures loaded."); 
+
+		} else {
+
+			Debug.Log (me + "No local depth captures found."); 
+		}
+
+	}
+
+	public static void LoadDepthCaptures ()
 	{
 		if (File.Exists (Application.persistentDataPath + "/savedDepthCaptures.pdc")) {
+
 			BinaryFormatter bf = new BinaryFormatter ();
-			FileStream file = File.Open (Application.persistentDataPath + "/savedDepthCaptures.pdc", FileMode.Open);
-			SaveLoad.savedDepthCaptures = (List<DepthCapture>)bf.Deserialize (file);
-			file.Close ();
+			FileStream stream = File.Open (Application.persistentDataPath + "/savedDepthCaptures.pdc", FileMode.Open);
+			List<DepthCapture> loaded = (List<DepthCapture>)bf.Deserialize (stream);
+			IO.savedDepthCaptures.AddRange (loaded);
+
+			stream.Close ();
 		}
 	}
 
-	public static void SaveDepth ()
+	public static void SaveDepthCaptures ()
 	{
 
 		savedDepthCaptures.Add (DepthCapture.current);
@@ -199,14 +233,14 @@ public static class SaveLoad
 
 		FileStream file = File.Create (Application.persistentDataPath + "/savedDepthCaptures.pdc");
 
-		bf.Serialize (file, SaveLoad.savedDepthCaptures);
+		bf.Serialize (file, IO.savedDepthCaptures);
 
 		file.Close ();
 
 	}
 
 
-	public static void SaveFrames ()
+	public static void SaveUserCaptures ()
 	{
 
 		savedCaptures.Add (Capture.current);
@@ -215,19 +249,19 @@ public static class SaveLoad
 
 		FileStream file = File.Create (Application.persistentDataPath + "/savedGames.gd");
 
-		bf.Serialize (file, SaveLoad.savedCaptures);
+		bf.Serialize (file, IO.savedCaptures);
 
 		file.Close ();
 
 	}
 
 
-	public static void LoadFrames ()
+	public static void LoadUserCaptures ()
 	{
 		if (File.Exists (Application.persistentDataPath + "/savedGames.gd")) {
 			BinaryFormatter bf = new BinaryFormatter ();
 			FileStream file = File.Open (Application.persistentDataPath + "/savedGames.gd", FileMode.Open);
-			SaveLoad.savedCaptures = (List<Capture>)bf.Deserialize (file);
+			IO.savedCaptures = (List<Capture>)bf.Deserialize (file);
 			file.Close ();
 		}
 	}
