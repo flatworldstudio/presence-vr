@@ -240,8 +240,23 @@ public class Director
 
 				break;
 
-			case TASKTYPE.BASIC:
+
 			case TASKTYPE.END:
+
+				// Ends the storyline, kills the pointer.
+
+				checkForCallBack (pointer);
+
+				pointer.end ();
+
+				pointerStack.RemoveAt (0);
+
+
+
+				break;
+
+			case TASKTYPE.BASIC:
+//			case TASKTYPE.END:
 									
 				if (pointer.getStatus () == POINTERSTATUS.EVALUATE) {
 
@@ -334,6 +349,26 @@ public class Director
 				StoryPointer newStoryPointer = new StoryPointer (targetPoint);
 
 				pointerStack.Add (newStoryPointer);
+
+//				#if NETWORKED
+//
+//				if (pointer.scope==SCOPE.GLOBAL){
+//					
+//					// if pointer was global, new pointer should be too
+//
+//					newStoryPointer.scope=SCOPE.GLOBAL;
+//					newStoryPointer.hasChanged=true;
+//
+//					Debug.Log (me + "Callback: new pointer also set to global");
+//
+//
+//				}
+//
+//				#endif
+
+
+
+
 
 			} else {
 
@@ -508,9 +543,14 @@ public class StoryPointer
 	public void end ()
 	{
 
-		currentPoint = GENERAL.getStoryPointByID ("end");
+		// Ending the pointer. Set status to killed so it gets cleaned up.
 
-		setStatus (POINTERSTATUS.NEWTASK);
+		setStatus (POINTERSTATUS.KILLED);
+
+		// If there was an active task, mark as completed so it gets cleaned up.
+
+		if (currentTask!=null)
+		currentTask.setStatus (TASKSTATUS.COMPLETE);
 
 	}
 

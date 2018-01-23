@@ -49,14 +49,57 @@ public class SetHandler : MonoBehaviour
 
 			IO.depthIndex++;
 
-			if (IO.depthIndex==IO.savedDepthCaptures.Count){
-				IO.depthIndex=0;
+			if (IO.depthIndex == IO.savedDepthCaptures.Count) {
+				IO.depthIndex = 0;
 			}
 
+			Debug.Log (me + "next depth");
+
 			done = true;
+
 			break;
 
 		case "showdepthdata":
+
+
+
+			if (GENERAL.SCOPE == SCOPE.GLOBAL) {
+
+
+
+				int ind;
+
+				if (task.getIntValue ("index", out ind)) {
+					
+					if (ind != IO.depthIndex) {
+
+						// changed
+
+						task.setIntValue ("index", IO.depthIndex);
+						task.setStringValue ("debug", "" + IO.depthIndex);
+
+
+					}
+
+				} else {
+
+					task.setIntValue ("index", IO.depthIndex);
+					task.setStringValue ("debug", "" + IO.depthIndex);
+
+				}
+					
+
+
+
+
+			} else {
+
+				int ind;
+				if (task.getIntValue("index",out ind))
+					IO.depthIndex=ind;
+
+			}
+
 
 			if (IO.depthIndex >= 0) {
 
@@ -68,7 +111,36 @@ public class SetHandler : MonoBehaviour
 				//				}
 
 				//				int index = IO.depthIndex;
-				task.setStringValue("debug",""+IO.depthIndex);
+
+
+
+//				string index;
+//
+//				if (task.getStringValue("debug" , out index)){
+//
+//					if (int.Parse(index) != IO.depthIndex) {
+//						
+//						task.setStringValue("debug",""+IO.depthIndex);
+//
+//					}
+//
+//
+//				}
+
+
+//				int ind;
+//
+//				if (task.getIntValue ("index", out ind)) {
+//
+//
+//
+//
+//
+//				} else {
+//
+//					task.setIntValue ("index", IO.depthIndex);
+//				}
+
 
 				DepthCapture.current = IO.savedDepthCaptures [IO.depthIndex];
 

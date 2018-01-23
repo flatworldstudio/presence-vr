@@ -4,6 +4,12 @@ loaddepthdata
 showdepthdata
 end
 
+#test
+end
+
+#showdepth
+showdepthdata
+end
 
 #clouddemo
 start userviewing
@@ -12,10 +18,10 @@ start cloud
 end
 
 #playdepthdata
-start userviewing
-start network
 loaddepthdata
-showdepthdata
+start showdepth
+start network
+start userviewing
 end
 
 #kinect2
@@ -44,6 +50,7 @@ end
 #foundserver
 stop network
 stop userviewing
+stop showdepth
 monitorconnection
 end
 
@@ -58,6 +65,7 @@ playback
 
 #playdepth
 nextdepth
+fake
 end
 
 #recorddepth

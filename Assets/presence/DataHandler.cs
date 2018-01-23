@@ -149,6 +149,24 @@ public class DataHandler : MonoBehaviour
 				Debug.Log (me + "sync task: " + targetPointer.currentTask.ID);
 
 
+
+				 targetPointer = GENERAL.getPointerOnStoryline ("showdepth");
+				targetPointer.scope = SCOPE.GLOBAL;
+				targetPointer.hasChanged = true;
+
+
+				Debug.Log (me + "sync pointer: " + targetPointer.ID);
+
+
+				targetPointer.currentTask.scope = SCOPE.GLOBAL;
+
+				targetPointer.currentTask.hasChanged = true;
+
+				Debug.Log (me + "sync task: " + targetPointer.currentTask.ID);
+
+
+
+
 			}
 
 			done = true;

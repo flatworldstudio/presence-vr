@@ -6,14 +6,14 @@ using UnityEngine.UI;
 
 public class DeusController : MonoBehaviour
 {
-//	float smoothMouseX, smoothMouseY;
+	//	float smoothMouseX, smoothMouseY;
 
 	GameObject DeusCanvas, StoryEngineObject, PointerBlock;
 
-//	public STORYMODE storyMode;
+	//	public STORYMODE storyMode;
 
 
-	 AssitantDirector ad;
+	AssitantDirector ad;
 
 	string me = "Deus Controller: ";
 	List <StoryTask> taskList;
@@ -69,7 +69,6 @@ public class DeusController : MonoBehaviour
 	}
 
 	void newTasksHandler (object sender, TaskArgs e)
-
 	{
 
 		addTasks (e.theTasks);
@@ -84,7 +83,6 @@ public class DeusController : MonoBehaviour
 	}
 
 	public void addTasks (List<StoryTask> theTasks)
-
 	{
 		taskList.AddRange (theTasks);
 	}
@@ -99,8 +97,10 @@ public class DeusController : MonoBehaviour
 			StoryTask task = taskList [t];
 
 			if (task.pointer.getStatus () == POINTERSTATUS.KILLED && task.description != "end") {
+//				if (task.pointer.getStatus () == POINTERSTATUS.KILLED && task.description != "end") {
+					
 
-				Debug.Log (me + "removing task:"+ task.description );
+				Debug.Log (me + "removing task:" + task.description);
 
 				taskList.RemoveAt (t);
 
@@ -108,6 +108,7 @@ public class DeusController : MonoBehaviour
 
 				switch (task.description) {
 
+				/*
 				case "end":
 
 					// after finishing the end task, we mark the pointer as killed, so it gets removed.
@@ -132,13 +133,18 @@ public class DeusController : MonoBehaviour
 //
 //					task.pointer.setStatus (POINTERSTATUS.KILLED);
 
+//					updateTaskDisplay (task);
+
+
 					task.signOff (me);
 					taskList.RemoveAt (t);
 					break;
 
+*/
+
 				default:
 
-					updateTaskDisplay (task);
+//					updateTaskDisplay (task);
 
 					task.signOff (me);
 					taskList.RemoveAt (t);
@@ -152,21 +158,130 @@ public class DeusController : MonoBehaviour
 
 	}
 
-	void updateTaskDisplays (){
 
-//		Debug.Log (GENERAL.ALLTASKS.Count);
+
+
+	void updateTaskDisplays ()
+	{
+
+		// Go over all pointers and plot them into our diplay
+
+		foreach (StoryPointer pointer in GENERAL.ALLPOINTERS) {
+
+			if (!pointerList.Contains (pointer)) {
+				
+				Debug.Log (me + "Pointer is new, added display for storyline " + pointer.currentPoint.storyLineName);
+
+				pointerList.Add (pointer);
+
+				createNewPointerUi (pointer);
+
+			}
+
+			updateTaskInfo (pointer);
+
+		}
+
+		// Go over all display pointers and see if they're still alive.
+
+		for (int i = pointerList.Count - 1; i >= 0; i--) {
+			
+//		foreach (StoryPointer pointer in pointerList) {
+
+			StoryPointer pointer = pointerList [i];
+
+
+			if (!GENERAL.ALLPOINTERS.Contains (pointer)) {
+
+				Debug.Log (me + "Destroying ui for pointer for storyline " + pointer.currentPoint.storyLineName);
+
+				// update first. some pointers reach end in a single go - we want those to be aligned.
+
+				//				updateTaskDisplay (task);
+
+				pointerList.Remove (pointer);
+
+				pointerPositions [pointer.position] = null;
+
+				Destroy (pointer.pointerObject);
+			
+
+			}
+
+		}
+
+
+
+
+
+
+
+	}
+
+
+
+
+
+	void updateTaskInfo (StoryPointer pointer)
+	{
+
+
+		StoryTask theTask = pointer.currentTask;
+
+		if (theTask == null)
+			return;
+
+
+		if (theTask.description != "wait") {
+
+			string displayText;
+
+			// If a task has a value for "debug" we display it along with task description.
+
+			if (theTask.getStringValue ("debug", out displayText)) {
+
+				displayText = theTask.description + " | " + displayText;
+
+			} else {
+
+				displayText = theTask.description;
+			}
+
+			theTask.pointer.deusText.text = displayText;
+			theTask.pointer.deusTextSuper.text = theTask.pointer.currentPoint.storyLineName +" " +GENERAL.ALLPOINTERS.Count;
+
+		} else {
+			
+			theTask.pointer.deusTextSuper.text = theTask.pointer.currentPoint.storyLineName;
+
+
+		}
+
+
+
+
+
+	}
+
+	/*
+
+	void updateTaskDisplaysBAK ()
+	{
+
+		//		Debug.Log (GENERAL.ALLTASKS.Count);
 
 		foreach (StoryTask task in GENERAL.ALLTASKS) {
 
-			updateTaskDisplay (task);
 
-			if (task.description == "end") {
-				
+			if (task.pointer.getStatus () == POINTERSTATUS.KILLED) {
+
+				//			if (task.description == "end") {
+
 				Debug.Log (me + "Destroying ui for pointer for storyline " + task.pointer.currentPoint.storyLineName);
 
 				// update first. some pointers reach end in a single go - we want those to be aligned.
 
-//				updateTaskDisplay (task);
+				//				updateTaskDisplay (task);
 
 				pointerList.Remove (task.pointer);
 
@@ -175,18 +290,21 @@ public class DeusController : MonoBehaviour
 				Destroy (task.pointer.pointerObject);
 
 
+			} else {
+
+				updateTaskDisplayBAK (task);
+
+
 			}
 
-//			updateTaskDisplay (task);
+			//			updateTaskDisplay (task);
 
 
 		}
 
 
 	}
-
-
-	void updateTaskDisplay (StoryTask theTask)
+	void updateTaskDisplayBAK (StoryTask theTask)
 	{
 
 		if (!pointerList.Contains (theTask.pointer)) {
@@ -204,7 +322,7 @@ public class DeusController : MonoBehaviour
 
 		if (theTask.description != "wait") {
 
-			string displayText ;
+			string displayText;
 
 			// If a task has a value for "debug" we display it along with task description.
 
@@ -233,7 +351,7 @@ public class DeusController : MonoBehaviour
 //			}
 //		}
 	}
-
+*/
 
 	void createNewPointerUi (StoryPointer targetPointer)
 	{

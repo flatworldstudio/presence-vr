@@ -144,14 +144,20 @@ public class UserHandler : MonoBehaviour
 		UiButton but = new UiButton ("record", menu, simpleConstraint);
 		but.callback = "recorddepth";
 		overviewInterface.uiButtons.Add ("record", but);
+		viewerInterface.uiButtons.Add ("record", but);
+
 
 		but = new UiButton ("stop", menu, simpleConstraint);
 		but.callback = "stopdepth";
 		overviewInterface.uiButtons.Add ("stop", but);
+		viewerInterface.uiButtons.Add ("stop", but);
+
 
 		but = new UiButton ("play", menu, simpleConstraint);
 		but.callback = "playdepth";
 		overviewInterface.uiButtons.Add ("play", but);
+		viewerInterface.uiButtons.Add ("play", but);
+
 
 
 
@@ -187,7 +193,7 @@ public class UserHandler : MonoBehaviour
 				overviewInterface.camera.cameraReference.SetActive (false);
 
 
-				uxController.update (viewerInterface);
+//				uxController.update (viewerInterface);
 
 				// get overviewer
 			
@@ -216,7 +222,15 @@ public class UserHandler : MonoBehaviour
 				task.setVector3Value ("userinterest", userinterest);
 				task.setFloatValue ("userzoom", userzoom);
 
+				string callBackName = uxController.update (viewerInterface);
 
+				if (!callBackName.Equals ("")) {
+
+					task.setCallBack (callBackName);
+
+					//				Debug.Log("calling callback " +callBack);
+
+				}
 
 
 

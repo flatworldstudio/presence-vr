@@ -104,7 +104,12 @@ public class AssitantDirector : MonoBehaviour
 
 		case DIRECTORSTATUS.ACTIVE:
 
+//			Debug.Log (me + "director active ...");
+
 			theDirector.evaluatePointers ();
+
+//			Debug.Log (me + "director evaluated, generating tasks ...");
+
 
 			List<StoryTask> newTasks = new List<StoryTask> ();
 
@@ -133,7 +138,9 @@ public class AssitantDirector : MonoBehaviour
 								pointer.currentTask = task;
 								newTasks.Add (task);
 
-								Debug.Log (me + "Global scope, global pointer, new task: "+task.description);
+//								Debug.Log (me + "Global scope, global pointer, new task: "+task.description);
+								Debug.Log (me + "Global scope, global pointer "+pointer.currentPoint.storyLineName+" , new task: "+task.description);
+
 							}
 
 						}
@@ -157,7 +164,7 @@ public class AssitantDirector : MonoBehaviour
 
 							newTasks.Add (task);
 
-							Debug.Log (me + "Local pointer, new task: "+task.description);
+							Debug.Log (me + "Local pointer "+pointer.currentPoint.storyLineName+" , new task: "+task.description);
 
 						}
 
@@ -189,10 +196,14 @@ public class AssitantDirector : MonoBehaviour
 			} else {
 
 				Debug.Log (me + GENERAL.SIGNOFFS + " handlers registred.");
+
 				Debug.Log (me + "Starting storyline " + launchOnStoryline);
 
 				theDirector.beginStoryLine (launchOnStoryline);
 				theDirector.status = DIRECTORSTATUS.ACTIVE;
+
+
+				Debug.Log (me + "Started storyline " + launchOnStoryline);
 
 			}
 
@@ -292,7 +303,7 @@ public class AssitantDirector : MonoBehaviour
 
 					if (task.scope == SCOPE.GLOBAL) {
 
-						Debug.Log (me + "task " + task.ID + ":" + task.description + " changed, sending update to server.");
+//						Debug.Log (me + "task " + task.ID + ":" + task.description + " changed, sending update to server.");
 
 						sendTaskUpdateToServer (task.getUpdateMessage ());
 
@@ -304,7 +315,7 @@ public class AssitantDirector : MonoBehaviour
 
 					if (task.scope == SCOPE.GLOBAL) {
 
-						Debug.Log (me + "task " + task.ID + ":" + task.description + " changed, sending update to clients.");
+//						Debug.Log (me + "task " + task.ID + ":" + task.description + " changed, sending update to clients.");
 
 
 						sendTaskUpdateToClients (task.getUpdateMessage ());
@@ -461,7 +472,7 @@ public class AssitantDirector : MonoBehaviour
 
 		var taskUpdate = networkMessage.ReadMessage<TaskUpdate> ();
 
-		Debug.Log (me + "Incoming task update from server. ");
+//		Debug.Log (me + "Incoming task update from server. ");
 
 		applyTaskUpdate (taskUpdate);
 
@@ -1100,7 +1111,8 @@ public class StoryTask
 
 	public void ApplyUpdateMessage (TaskUpdate update, bool changeMask = false)
 	{
-		Debug.Log (me + "Applying network task update.");
+		
+//		Debug.Log (me + "Applying network task update.");
 
 
 		if (update.updatedIntNames.Contains("status")) {
