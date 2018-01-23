@@ -1440,28 +1440,28 @@ private	float[] depthLookUp;
 
 	}
 
-	// default callibration values. c being a correction presumably and f the fov
-
-
-	double fx_d = 1.0d / 5.9421434211923247e+02;
-	double fy_d = 1.0d / 5.9104053696870778e+02;
-	double cx_d = 3.3930780975300314e+02;
-	double cy_d = 2.4273913761751615e+02;
-
-
-	public Vector3 depthToWorld (int x, int y, int depthValue){
-		Vector3 result = Vector3.zero;
-
-		//double depth = depthLookUp [depthValue];
-		//float depth = rawDepthToMeters(depthValue);
-		float depth = depthValue/1000f;
-
-		result.x = (float)((x - cx_d) * depth * fx_d);
-		result.y = (float)((y - cy_d) * depth * fy_d);
-		result.z = (float)(depth);
-		return result;
-
-	}
+//	// default callibration values. c being a correction presumably and f the fov
+//
+//
+//	double fx_d = 1.0d / 5.9421434211923247e+02;
+//	double fy_d = 1.0d / 5.9104053696870778e+02;
+//	double cx_d = 3.3930780975300314e+02;
+//	double cy_d = 2.4273913761751615e+02;
+//
+//
+//	public Vector3 depthToWorld (int x, int y, int depthValue){
+//		Vector3 result = Vector3.zero;
+//
+//		//double depth = depthLookUp [depthValue];
+//		//float depth = rawDepthToMeters(depthValue);
+//		float depth = depthValue/1000f;
+//
+//		result.x = (float)((x - cx_d) * depth * fx_d);
+//		result.y = (float)((y - cy_d) * depth * fy_d);
+//		result.z = (float)(depth);
+//		return result;
+//
+//	}
 	
 	// Update the User Map
     void UpdateUserMap()
