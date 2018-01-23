@@ -8,8 +8,9 @@ public class SetHandler : MonoBehaviour
 	public SetController setController;
 	public GameObject cloud;
 
-	#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 	public GameObject kinect;
+
+	#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 	KinectManager kinectManager;
 
 	#endif

@@ -8859,6 +8859,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   setController: {fileID: 861919365}
   cloud: {fileID: 894958394}
+  kinect: {fileID: 353864663}
 --- !u!4 &1988843643
 Transform:
   m_ObjectHideFlags: 0
