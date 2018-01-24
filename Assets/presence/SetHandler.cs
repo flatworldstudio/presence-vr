@@ -144,7 +144,7 @@ public class SetHandler : MonoBehaviour
 
 				DepthCapture.current = IO.savedDepthCaptures [IO.depthIndex];
 
-				ParticleCloud.setLifeTime (0.1f);
+//				ParticleCloud.setLifeTime (0.1f);
 
 				if (interval == 4 && DepthCapture.current != null) {
 

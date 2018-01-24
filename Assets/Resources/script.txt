@@ -24,7 +24,7 @@ start network
 start userviewing
 end
 
-#kinect2
+#kinect
 start userviewing
 startkinect
 kinect
