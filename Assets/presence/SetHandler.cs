@@ -21,7 +21,7 @@ public class SetHandler : MonoBehaviour
 	string me = "Task handler: ";
 
 	int interval = 0;
-
+	int interval2=0;
 
 	void Start ()
 	{
@@ -61,7 +61,26 @@ public class SetHandler : MonoBehaviour
 
 		case "showdepthdata":
 
+			if (IO.savedDepthCaptures.Count > 0) {
 
+				interval2++;
+
+				if (interval2 == 100) {
+					interval2 = 0;
+
+					IO.depthIndex++;
+
+					if (IO.depthIndex == IO.savedDepthCaptures.Count) {
+						IO.depthIndex = 0;
+					}
+
+
+
+				}
+
+
+
+			}
 
 			if (GENERAL.SCOPE == SCOPE.GLOBAL) {
 
