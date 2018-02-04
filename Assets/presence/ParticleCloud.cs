@@ -14,6 +14,9 @@ public static class ParticleCloud  {
 		ps = particleSystem.GetComponent<ParticleSystem> ();
 		emitParams = new ParticleSystem.EmitParams();
 
+		var main = ps.main;
+		main.maxParticles = 5000;
+
 		e1 = GameObject.Find("e1");
 		e2 =  GameObject.Find("e2");
 		r1 = 0;
