@@ -1,0 +1,3 @@
+[submodule "Assets/storyEngine"]
+	path = Assets/storyEngine
+	url = git@gitlab.com:flatworldstudio/storyEngine.git
