@@ -24,6 +24,10 @@ public class DataHandler : MonoBehaviour
 
 		dataController.addTaskHandler (TaskHandler);
 
+
+
+
+
 	}
 
 	public bool TaskHandler (StoryTask task)
@@ -48,7 +52,7 @@ public class DataHandler : MonoBehaviour
 			break;
 
 
-		case "setnetworkgui":
+		case "networkguion":
 
 			dataController.displayNetworkGUI (true);
 
@@ -79,6 +83,9 @@ public class DataHandler : MonoBehaviour
 
 					Debug.Log (me + "found server, now use callback!");
 
+//					GENERAL.networkServer
+					GENERAL.networkServer = GENERAL.broadcastServer;
+
 					task.setCallBack ("foundserver");
 
 //					dataController.networkBroadcastStop ();
@@ -86,19 +93,21 @@ public class DataHandler : MonoBehaviour
 					dataController.stopBroadcast ();
 
 					listening = false;
-				
-				}
-
-				if (Time.time - startListening > 1f) {
-
-//					dataController.networkBroadcastStop ();
-
-					dataController.stopBroadcast ();
-
 
 					done = true;
-
+				
 				}
+//
+//				if (Time.time - startListening > 1f) {
+//
+////					dataController.networkBroadcastStop ();
+//
+//					dataController.stopBroadcast ();
+//
+//
+//					done = true;
+//
+//				}
 
 			}
 
@@ -127,6 +136,9 @@ public class DataHandler : MonoBehaviour
 
 //			int newClient = dataController.getAD ().newClientConnection ();
 
+			task.setStringValue ("debug", "" + dataController.serverConnections ());
+
+
 			int newClient = GENERAL.GETNEWCONNECTION();
 
 			if (newClient != -1) {
@@ -136,6 +148,16 @@ public class DataHandler : MonoBehaviour
 				task.setCallBack ("newclient");
 
 			}
+
+			break;
+
+
+		case "goglobal":
+
+			task.pointer.scope = SCOPE.GLOBAL;
+			task.pointer.modified = true;
+
+			done = true;
 
 			break;
 
@@ -196,7 +218,7 @@ public class DataHandler : MonoBehaviour
 
 					//					task.setCallBack ("reconnect");
 
-					task.setCallBack ("network");
+					task.setCallBack ("reconnect");
 
 
 					done = true; // we'll fall throught to the next line in the script, since there is no longer a connection to monitor.

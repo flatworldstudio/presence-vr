@@ -1,3 +1,61 @@
+#presenceserver
+debugon
+networkguion
+createoverview
+createoverviewdebug
+callibratekinect
+createcallibrationdebug
+start networkserver
+overview
+end
+
+#networkserver
+startserver
+listenforclients
+end
+
+
+
+#newclient
+goglobal
+syncviewer
+end
+
+
+
+#presenceheadsetvr
+debugon
+networkguion
+callibratekinect
+callibrateheadset
+createcallibrationdebug
+start networkclient
+end
+
+#networkclient
+startdiscover
+listenforserver
+end
+
+#foundserver
+startclient
+monitorconnection
+end
+
+#reconnect
+start networkclient
+end
+
+
+
+
+
+
+
+
+
+
+
 #develop
 start userviewing
 loaddepthdata
@@ -15,9 +73,7 @@ end
 gyro
 end
 
-#compass
-compass
-end
+
 
 #test
 end
@@ -58,17 +114,9 @@ startserver
 listenforclients
 end
 
-#newclient
-sync
-end
 
-#foundserver
-startclient
-stop network
-stop userviewing
-stop showdepth
-monitorconnection
-end
+
+
 
 #userviewing
 userview

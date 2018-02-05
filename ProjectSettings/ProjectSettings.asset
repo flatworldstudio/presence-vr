@@ -250,6 +250,11 @@ PlayerSettings:
     m_Enabled: 1
     m_Devices:
     - cardboard
+  - m_BuildTarget: Standalone
+    m_Enabled: 0
+    m_Devices:
+    - OpenVR
+    - Oculus
   m_BuildTargetEnableVuforiaSettings: []
   openGLRequireES31: 0
   openGLRequireES31AEP: 0
@@ -522,8 +527,8 @@ PlayerSettings:
   webGLUseWasm: 0
   webGLCompressionFormat: 1
   scriptingDefineSymbols:
-    1: NETWORKED
-    4: NETWORKED
+    1: NETWORKED;OSX
+    4: NETWORKED;IOS
   platformArchitecture: {}
   scriptingBackend: {}
   incrementalIl2cppBuild: {}
