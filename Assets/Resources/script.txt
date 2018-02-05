@@ -63,6 +63,7 @@ sync
 end
 
 #foundserver
+startclient
 stop network
 stop userviewing
 stop showdepth

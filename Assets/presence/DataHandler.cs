@@ -58,8 +58,10 @@ public class DataHandler : MonoBehaviour
 
 		case "startdiscover":
 
-			dataController.networkBroadcastInit ();
-			dataController.networkBroadcastStartAsClient ();
+			dataController.startBroadcastClient ();
+
+//			dataController.networkBroadcastInit ();
+//			dataController.networkBroadcastStartAsClient ();
 
 			startListening = Time.time;
 			listening = true;
@@ -79,7 +81,9 @@ public class DataHandler : MonoBehaviour
 
 					task.setCallBack ("foundserver");
 
-					dataController.networkBroadcastStop ();
+//					dataController.networkBroadcastStop ();
+
+					dataController.stopBroadcast ();
 
 					listening = false;
 				
@@ -87,7 +91,10 @@ public class DataHandler : MonoBehaviour
 
 				if (Time.time - startListening > 1f) {
 
-					dataController.networkBroadcastStop ();
+//					dataController.networkBroadcastStop ();
+
+					dataController.stopBroadcast ();
+
 
 					done = true;
 
@@ -99,18 +106,22 @@ public class DataHandler : MonoBehaviour
 
 		
 
-		case "startserver":
-			
-//			Debug.Log (me + "start server");
-
-			dataController.networkBroadcastInit ();
-			dataController.networkBroadcastStartAsServer ();
-
-			dataController.networkStartServer ();
-
-			done = true;
-
-			break;
+//		case "startserver":
+//			
+////			Debug.Log (me + "start server");
+//
+//			dataController.startBroadcastServer ();
+//			dataController.startNetworkServer ();
+//
+//
+////			dataController.networkBroadcastInit ();
+////			dataController.networkBroadcastStartAsServer ();
+////
+////			dataController.networkStartServer ();
+//
+//			done = true;
+//
+//			break;
 
 		case "listenforclients":
 
@@ -130,13 +141,13 @@ public class DataHandler : MonoBehaviour
 
 		case "sync":
 
-			if (GENERAL.SCOPE == SCOPE.GLOBAL) {
+			if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL) {
 
 				// this should be the case, since we're only calling this on the server...
 			
 				StoryPointer targetPointer = GENERAL.getPointerOnStoryline ("userviewing");
 				targetPointer.scope = SCOPE.GLOBAL;
-				targetPointer.hasChanged = true;
+				targetPointer.modified = true;
 
 
 				Debug.Log (me + "sync pointer: " + targetPointer.ID);
@@ -144,7 +155,7 @@ public class DataHandler : MonoBehaviour
 
 				targetPointer.currentTask.scope = SCOPE.GLOBAL;
 
-				targetPointer.currentTask.hasChanged = true;
+				targetPointer.currentTask.modified = true;
 
 				Debug.Log (me + "sync task: " + targetPointer.currentTask.ID);
 
@@ -152,7 +163,7 @@ public class DataHandler : MonoBehaviour
 
 				 targetPointer = GENERAL.getPointerOnStoryline ("showdepth");
 				targetPointer.scope = SCOPE.GLOBAL;
-				targetPointer.hasChanged = true;
+				targetPointer.modified = true;
 
 
 				Debug.Log (me + "sync pointer: " + targetPointer.ID);
@@ -160,7 +171,7 @@ public class DataHandler : MonoBehaviour
 
 				targetPointer.currentTask.scope = SCOPE.GLOBAL;
 
-				targetPointer.currentTask.hasChanged = true;
+				targetPointer.currentTask.modified = true;
 
 				Debug.Log (me + "sync task: " + targetPointer.currentTask.ID);
 
@@ -173,19 +184,93 @@ public class DataHandler : MonoBehaviour
 
 			break;
 
+
 		case "monitorconnection":
 
-			if (GENERAL.LOSTCONNECTION) {
+			if (!dataController.clientIsConnected ()) {
+
+				if (GENERAL.wasConnected) {
+
+					GENERAL.wasConnected = false;
+					task.setStringValue ("debug", "lost connection");
+
+					//					task.setCallBack ("reconnect");
+
+					task.setCallBack ("network");
 
 
-				Debug.Log (me + "Lost connection to server.");
+					done = true; // we'll fall throught to the next line in the script, since there is no longer a connection to monitor.
 
-				task.setCallBack ("network");
+				} else {
 
+					task.setStringValue ("debug", "no connection yet");
+
+				}
+
+			} else {
+
+				GENERAL.wasConnected = true;
+
+				task.setStringValue ("debug", "connected");
 
 			}
+			//
+			//			if (GENERAL.LOSTCONNECTION) {
+			//
+			//				GENERAL.LOSTCONNECTION = false;
+			//
+			//				Debug.Log (me + "Lost connection to server.");
+			//
+			//				task.setCallBack ("remote");
+			//
+			//			}
+
+//			led.SetActive (GENERAL.wasConnected);
 
 			break;
+
+
+		case "startclient":
+
+
+			Debug.Log (me + "Starting network client.");
+
+			dataController.startNetworkClient (GENERAL.networkServer);
+
+			done = true;
+
+			break;
+
+		case "startserver":
+
+			Debug.Log (me + "Starting network server");
+
+			dataController.startBroadcastServer ();
+			dataController.startNetworkServer ();
+
+			done = true;
+
+			break;
+
+
+
+
+
+
+
+//		case "monitorconnection":
+//
+//			if (GENERAL.LOSTCONNECTION) {
+//
+//
+//				Debug.Log (me + "Lost connection to server.");
+//
+//				task.setCallBack ("network");
+//
+//
+//			}
+//
+//			break;
 
 		case "someothertask":
 		case "someothertask2":

@@ -83,7 +83,7 @@ public class SetHandler : MonoBehaviour
 
 			}
 
-			if (GENERAL.SCOPE == SCOPE.GLOBAL) {
+			if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL) {
 				
 
 
