@@ -332,9 +332,19 @@ public class Director
 
 		// checks and trigger callback on the current task for given pointer. does not touch the pointer itself.
 
+		// check if pointer has a task
+
+		if (pointer.currentTask == null )
+			return false;
+
 		string callBackValue = pointer.currentTask.getCallBack ();
 
-		if (callBackValue != "") {
+
+		if (callBackValue == "")
+			return false;
+
+
+//		if (callBackValue != "") {
 
 			pointer.currentTask.clearCallBack (); // clear value
 
@@ -377,10 +387,10 @@ public class Director
 
 			return true;
 
-		} else {
-
-			return false;
-		}
+//		} else {
+//
+//			return false;
+//		}
 
 	}
 

@@ -765,7 +765,7 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 601651060}
-  m_LocalRotation: {x: 0.025715524, y: 0.40326795, z: 0.01329569, w: 0.9146239}
+  m_LocalRotation: {x: 0, y: 0.38268343, z: 0, w: 0.92387956}
   m_LocalPosition: {x: 2.4, y: 2.1, z: 1.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -773,7 +773,7 @@ Transform:
   - {fileID: 338211233}
   m_Father: {fileID: 0}
   m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 2.081, y: 47.633003, z: 2.584}
+  m_LocalEulerAnglesHint: {x: 0, y: 45, z: 0}
 --- !u!1 &726453872
 GameObject:
   m_ObjectHideFlags: 0
@@ -958,12 +958,12 @@ Prefab:
     - target: {fileID: 114537222341640082, guid: a7b96c05b61f9410a9b07a41f0fc226d,
         type: 2}
       propertyPath: launchOSX
-      value: playdepthdata
+      value: iostest
       objectReference: {fileID: 0}
     - target: {fileID: 114537222341640082, guid: a7b96c05b61f9410a9b07a41f0fc226d,
         type: 2}
       propertyPath: launchIOS
-      value: playdepthdata
+      value: iostest
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: a7b96c05b61f9410a9b07a41f0fc226d, type: 2}

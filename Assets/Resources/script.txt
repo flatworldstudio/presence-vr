@@ -5,6 +5,19 @@ showdepthdata
 end
 
 
+#iostest
+start gyro
+start compass
+end
+
+
+#gyro
+gyro
+end
+
+#compass
+compass
+end
 
 #test
 end

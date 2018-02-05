@@ -163,12 +163,72 @@ public class UserHandler : MonoBehaviour
 
 	}
 
+	private static Quaternion GyroToUnity(Quaternion q)
+	{
+
+		return new Quaternion(q.x, q.y, -q.z, -q.w);
+		//		return new Quaternion(q.y, -q.x, q.z, q.w);
+
+	}
+
+//	static readonly Quaternion baseIdentity =  Quaternion.Euler(90, 0, 0);
+	static readonly Quaternion landscapeLeft =  Quaternion.Euler(0, 0, -90);
+	static readonly Quaternion baseIdentity =  Quaternion.Euler(90, 0, 0);
+
 	public bool TaskHandler (StoryTask task)
 	{
 		
 		bool done = false;
 
 		switch (task.description) {
+
+
+
+		case "gyro":
+			
+			Input.gyro.enabled = true;
+
+			
+
+			Quaternion attitude = baseIdentity * GyroToUnity (Input.gyro.attitude);
+
+			Vector3 z = attitude * Vector3.forward;
+
+
+
+			float angle = Mathf.Atan2 (z.x, z.z);
+
+
+//			float gyroYaw = gyroAttitude.eulerAngles.y;
+
+
+			string gyroOn = Input.gyro.enabled ? "on " : "off ";
+
+
+		
+			task.setStringValue ("debug", gyroOn + " a: " + angle+ "z: "+ z.ToString());
+
+
+
+
+
+			break;
+
+
+		case "compass":
+
+
+			Input.compass.enabled = true;
+
+			float compassYaw=Input.compass.magneticHeading;
+			string compassOn = Input.compass.enabled ? "on " : "off ";
+
+			task.setStringValue ("debug", compassOn + compassYaw);
+
+
+
+
+			break;
 
 		case "userview":
 
