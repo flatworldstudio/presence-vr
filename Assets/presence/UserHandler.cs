@@ -34,10 +34,10 @@ public class UserHandler : MonoBehaviour
 
 		Input.compass.enabled = true;
 
-		PRESENCE.mobileInitialHeading1 = Input.compass.magneticHeading;
+//		PRESENCE.mobileInitialHeading1 = Input.compass.magneticHeading;
 //		PRESENCE.mobileInitialHeading = Input.compass.magneticHeading;
 
-		viewerObject.transform.parent.transform.localRotation = Quaternion.Euler (0, -1f* PRESENCE.mobileInitialHeading, 0);
+//		viewerObject.transform.parent.transform.localRotation = Quaternion.Euler (0, -1f* PRESENCE.mobileInitialHeading, 0);
 	
 
 		#endif
@@ -266,7 +266,6 @@ public class UserHandler : MonoBehaviour
 
 
 
-
 			done = true;
 
 			break;
@@ -463,20 +462,27 @@ public class UserHandler : MonoBehaviour
 		case "compass":
 
 
-			Input.compass.enabled = true;
+	//		Input.compass.enabled = true;
+
+
+			if (Input.compass.rawVector.magnitude != 0) {
+
+				// wait for a reading.
+
+				PRESENCE.mobileInitialHeading = Input.compass.magneticHeading;
+
+				viewerObject.transform.parent.transform.localRotation = Quaternion.Euler (0, -1f * PRESENCE.mobileInitialHeading, 0);
+
+				done = true;
+
+			}
 
 //			float compassYaw=Input.compass.magneticHeading;
 //			string compassOn = Input.compass.enabled ? "on " : "off ";
 //
 //			task.setStringValue ("debug", compassOn + compassYaw);
 
-			PRESENCE.mobileInitialHeading = Input.compass.magneticHeading;
 
-			viewerObject.transform.parent.transform.localRotation = Quaternion.Euler (0, -1f * PRESENCE.mobileInitialHeading, 0);
-
-
-
-			done = true;
 
 			break;
 
@@ -494,10 +500,30 @@ public class UserHandler : MonoBehaviour
 					uint playerID = manager != null ? manager.GetPlayer1ID() : 0;
 
 					if (playerID >= 0) {
+						bool MirroredMovement = false;
+						Quaternion initialRotation = Quaternion.identity;
 
+						// set the user position in space
+						Vector3 posPointMan = manager.GetUserPosition(playerID);
+						posPointMan.z = !MirroredMovement ? -posPointMan.z : posPointMan.z;
 
+						int joint = 3; // head
 
+						Vector3 posJoint = manager.GetJointPosition(playerID, joint);
+						posJoint.z = !MirroredMovement ? -posJoint.z : posJoint.z;
 
+						Quaternion rotJoint = manager.GetJointOrientation(playerID, joint, !MirroredMovement);
+						rotJoint = initialRotation * rotJoint;
+
+						posJoint -= posPointMan;
+
+						if(MirroredMovement)
+						{
+							posJoint.x = -posJoint.x;
+							posJoint.z = -posJoint.z;
+						}
+
+						viewerObject.transform.parent.transform.position = posJoint;
 
 
 					}
@@ -519,7 +545,7 @@ public class UserHandler : MonoBehaviour
 				task.setQuaternionValue ("viewerOrientation", viewerObject.transform.parent.transform.localRotation);
 
 
-				task.setVector3Value ("viewerPosition", viewerObject.transform.parent.transform.localPosition);
+				task.setVector3Value ("viewerPosition", viewerObject.transform.parent.transform.position);
 
 
 				string callBackName = uxController.update (overviewInterface);
