@@ -28,6 +28,7 @@ public static class PRESENCE {
 	public static Vector3 kinectPosition;
 	public static Quaternion kinectRotation;
 
+	public static float vrHeadOffset=0;
 
 	public static bool isOverview = true;
 
