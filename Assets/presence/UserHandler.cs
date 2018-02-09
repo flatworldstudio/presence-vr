@@ -471,7 +471,7 @@ public class UserHandler : MonoBehaviour
 
 				PRESENCE.mobileInitialHeading = Input.compass.magneticHeading;
 
-				viewerObject.transform.parent.transform.localRotation = Quaternion.Euler (0, -1f * PRESENCE.mobileInitialHeading, 0);
+				viewerObject.transform.parent.transform.localRotation = Quaternion.Euler (0,  PRESENCE.mobileInitialHeading, 0);
 
 				done = true;
 
@@ -499,6 +499,8 @@ public class UserHandler : MonoBehaviour
 				}
 
 
+
+
 				KinectManager manager = KinectManager.Instance;
 
 		
@@ -507,7 +509,7 @@ public class UserHandler : MonoBehaviour
 				uint playerID = manager != null ? manager.GetPlayer1ID () : 0;
 
 				if (playerID >= 0) {
-					bool MirroredMovement = false;
+					bool MirroredMovement = true;
 					Quaternion initialRotation = Quaternion.identity;
 
 					// set the user position in space
@@ -519,15 +521,17 @@ public class UserHandler : MonoBehaviour
 					Vector3 posJoint = manager.GetJointPosition (playerID, joint);
 					posJoint.z = !MirroredMovement ? -posJoint.z : posJoint.z;
 
-					Quaternion rotJoint = manager.GetJointOrientation (playerID, joint, !MirroredMovement);
-					rotJoint = initialRotation * rotJoint;
+				//	Quaternion rotJoint = manager.GetJointOrientation (playerID, joint, !MirroredMovement);
+				//	rotJoint = initialRotation * rotJoint;
 
-					posJoint -= posPointMan;
+			//		posJoint -= posPointMan;
+
+					posJoint.y -= PRESENCE.kinectHeight; // correct for sensorheigh because kinect takes it into account
 
 					if (MirroredMovement) {
-						posJoint.x = -posJoint.x;
-						posJoint.z = -posJoint.z;
-					}
+					posJoint.x = -posJoint.x;
+			//			posJoint.z = -posJoint.z;
+			}
 
 				//	Vector3
 
@@ -538,7 +542,7 @@ public class UserHandler : MonoBehaviour
 
 
 
-					viewerObject.transform.parent.transform.position = posJoint;
+					viewerObject.transform.parent.transform.position = projected;
 
 
 				}
@@ -579,6 +583,8 @@ public class UserHandler : MonoBehaviour
 
 				task.setFloatValue ("compass",  Input.compass.magneticHeading );
 							
+				task.setStringValue ("debug", "" + PRESENCE.mobileInitialHeading);
+
 
 				Quaternion viewerOrientationQ;
 

@@ -69,6 +69,19 @@ public class SetHandler : MonoBehaviour
 
 			PRESENCE.kinectRotation = q;
 
+			KinectManager manager = KinectManager.Instance;
+
+			if (manager && manager.IsInitialized ()) {
+
+		//		manager.SensorHeight =PRESENCE.kinectHeight;
+
+			}
+
+
+
+
+
+
 
 			//
 			//
@@ -269,6 +282,7 @@ public class SetHandler : MonoBehaviour
 
 
 			kinectManagerObject.SetActive (true);
+
 
 			done = true;
 
