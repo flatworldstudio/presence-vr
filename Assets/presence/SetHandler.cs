@@ -46,6 +46,40 @@ public class SetHandler : MonoBehaviour
 
 		switch (task.description) {
 
+		case "placekinect":
+
+
+			GameObject k = GameObject.Find ("Kinect");
+
+			k.transform.localRotation = Quaternion.Euler (0, PRESENCE.kinectHeading, 0);
+
+			Vector3 p;
+
+
+			p = (-1f* PRESENCE.kinectHomeDistance) * (k.transform.localRotation * Vector3.forward);
+
+			p.y = PRESENCE.kinectHeight;
+
+			k.transform.position = p;
+
+
+
+			//
+			//
+			//			p.y = 1.8f;
+			//
+			//			viewerObject.transform.localPosition = p;
+
+
+			//			viewerObject.transform.localRotation = Quaternion.Euler (0, PRESENCE.kinectHeading+180f, 0);
+
+
+
+			done = true;
+
+			break;
+
+
 		case "nextdepth":
 
 			IO.depthIndex++;

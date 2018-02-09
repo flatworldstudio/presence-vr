@@ -3,6 +3,7 @@
 debugon
 networkguion
 createoverview
+placekinect
 start userinterface
 start server
 end
@@ -12,12 +13,14 @@ end
 debugon
 networkguion
 createview
+placekinect
 start userinterface
 start serversearch
 end
 
 #clienttestvr
 createviewvr
+placekinect
 start userinterface
 start serversearch
 end

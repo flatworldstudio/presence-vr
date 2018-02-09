@@ -30,10 +30,14 @@ public class UserHandler : MonoBehaviour
 
 		#if UNITY_IOS
 
+		// Callibration: rotate headset so that north is always north.
+
 		Input.compass.enabled = true;
 
 		PRESENCE.mobileInitialHeading = Input.compass.magneticHeading;
 
+		viewerObject.transform.parent.transform.localRotation = Quaternion.Euler (0, -1f* PRESENCE.mobileInitialHeading, 0);
+	
 		#endif
 
 
@@ -318,34 +322,7 @@ public class UserHandler : MonoBehaviour
 			break;
 
 
-		case "callibratekinect":
-
-
-			GameObject k = GameObject.Find ("Kinect");
-
-			Vector3 p = k.transform.position;
-
-			p.y = PRESENCE.kinectHeight;
-
-			k.transform.position = p;
-
-			k.transform.localRotation = Quaternion.Euler (0, PRESENCE.kinectHeading, 0);
-
-
-			p = PRESENCE.kinectHomeDistance * (k.transform.localRotation * Vector3.forward);
-
-			p.y = 1.8f;
-
-			viewerObject.transform.localPosition = p;
-
-
-//			viewerObject.transform.localRotation = Quaternion.Euler (0, PRESENCE.kinectHeading+180f, 0);
-
-
-
-			done = true;
-
-			break;
+		
 		
 
 
@@ -537,7 +514,7 @@ public class UserHandler : MonoBehaviour
 
 				Vector3 viewerPositionV;
 
-				if (task.getVector3Value("viewerOrientation", out viewerPositionV)){
+				if (task.getVector3Value("viewerPosition", out viewerPositionV)){
 
 					viewerObject.transform.parent.transform.localPosition=viewerPositionV;
 
