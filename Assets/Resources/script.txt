@@ -6,7 +6,12 @@ createoverviewdebug
 callibratekinect
 createcallibrationdebug
 start networkserver
+start synchronise
 overview
+end
+
+#synchronise
+syncviewer
 end
 
 #networkserver
@@ -18,7 +23,6 @@ end
 
 #newclient
 goglobal
-syncviewer
 end
 
 

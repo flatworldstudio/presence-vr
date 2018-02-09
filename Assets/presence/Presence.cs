@@ -24,7 +24,7 @@ public static class PRESENCE {
 	public static float kinectHeading = 15;
 	public static float kinectHomeDistance =2;
 
-
+	public static Vector3 devicePosition;
 
 
 

@@ -154,8 +154,25 @@ public class DataHandler : MonoBehaviour
 
 		case "goglobal":
 
-			task.pointer.scope = SCOPE.GLOBAL;
-			task.pointer.modified = true;
+		//	task.pointer.scope = SCOPE.GLOBAL;
+		//	task.pointer.modified = true;
+
+			StoryPointer targetPointer = GENERAL.getPointerOnStoryline ("synchronise");
+
+			targetPointer.scope = SCOPE.GLOBAL;
+			targetPointer.modified = true;
+
+
+			Debug.Log (me + "sync pointer: " + targetPointer.ID);
+
+
+			targetPointer.currentTask.scope = SCOPE.GLOBAL;
+
+			targetPointer.currentTask.modified = true;
+
+			Debug.Log (me + "sync task: " + targetPointer.currentTask.ID);
+
+
 
 			done = true;
 
@@ -167,7 +184,7 @@ public class DataHandler : MonoBehaviour
 
 				// this should be the case, since we're only calling this on the server...
 			
-				StoryPointer targetPointer = GENERAL.getPointerOnStoryline ("userviewing");
+				 targetPointer = GENERAL.getPointerOnStoryline ("userviewing");
 				targetPointer.scope = SCOPE.GLOBAL;
 				targetPointer.modified = true;
 

@@ -12,7 +12,7 @@ public class UserHandler : MonoBehaviour
 
 	public GameObject overviewObject, viewerObject,headSet;
 
-
+	bool MirroredMovement=false;
 
 
 
@@ -267,7 +267,7 @@ public class UserHandler : MonoBehaviour
 
 			newNullObject = DebugObject.getNullObject (1f, 1f, 1f);
 			newNullObject.name = "viewernull";
-			newNullObject.transform.parent = viewerObject.transform;
+			newNullObject.transform.parent = headSet.transform;
 			newNullObject.transform.localPosition = Vector3.zero;
 			newNullObject.transform.localRotation =  Quaternion.identity;
 
@@ -296,6 +296,7 @@ public class UserHandler : MonoBehaviour
 			p.y = 1.8f;
 
 			viewerObject.transform.localPosition = p;
+
 			viewerObject.transform.localRotation = Quaternion.Euler (0, PRESENCE.kinectHeading+180f, 0);
 
 
@@ -328,17 +329,68 @@ public class UserHandler : MonoBehaviour
 			Quaternion deviceRotation;
 			float mobileInitialHeading;
 
-			if (task.getQuaternionValue("deviceRotation", out deviceRotation)){
+			if (task.getQuaternionValue("headRotation", out deviceRotation)){
+				
 				headSet.transform.localRotation = deviceRotation;
 
 			}
 
-			if (task.getFloatValue("mobileInitialHeading", out mobileInitialHeading)){
-				viewerObject.transform.localRotation = Quaternion.Euler (0, Mathf.Rad2Deg * mobileInitialHeading, 0);
+
+		//	if (task.getFloatValue("mobileInitialHeading", out mobileInitialHeading)){
+	//			viewerObject.transform.localRotation = Quaternion.Euler (0, Mathf.Rad2Deg * mobileInitialHeading, 0);
 //			task.setStringValue("debug",""+PRESENCE.mobileInitialHeading);
 
 
+		//	}
+
+			Vector3 hp = viewerObject.transform.localPosition;
+			hp.z +=0.1f *Time.deltaTime;
+
+			viewerObject.transform.localPosition =hp;
+
+
+			task.setVector3Value("devicePosition", viewerObject.transform.localPosition);
+
+
+
+
+
+			#endif
+
+
+			#if WIN
+
+
+			/*
+KinectManager manager = KinectManager.Instance;
+			
+
+			// get 1st player
+			uint playerID = manager != null ? manager.GetPlayer1ID() : 0;
+
+
+			if(playerID > 0){
+
+
+				Vector3 posPointMan = manager.GetUserPosition(playerID);
+				posPointMan.z = !MirroredMovement ? -posPointMan.z : posPointMan.z;
+
+
+				int joint = 3;
+
+				Vector3 posJoint = manager.GetJointPosition(playerID, joint);
+				posJoint.z = !MirroredMovement ? -posJoint.z : posJoint.z;
+
+
+
+
 			}
+
+
+*/
+
+
+
 
 
 

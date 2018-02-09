@@ -60,6 +60,15 @@ public class SetHandler : MonoBehaviour
 
 			break;
 
+
+		case "trackhead":
+
+
+
+			break;
+
+
+
 		case "showdepthdata":
 
 			if (IO.savedDepthCaptures.Count > 0) {
@@ -234,8 +243,7 @@ public class SetHandler : MonoBehaviour
 
 			break;
 
-
-
+		
 
 		case "recordkinect":
 
