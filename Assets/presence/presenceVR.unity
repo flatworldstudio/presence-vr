@@ -946,7 +946,7 @@ Prefab:
     - target: {fileID: 114537222341640082, guid: a7b96c05b61f9410a9b07a41f0fc226d,
         type: 2}
       propertyPath: launchWIN
-      value: servertest
+      value: clienttestvr
       objectReference: {fileID: 0}
     - target: {fileID: 114537222341640082, guid: a7b96c05b61f9410a9b07a41f0fc226d,
         type: 2}

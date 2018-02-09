@@ -501,9 +501,13 @@ public class UserHandler : MonoBehaviour
 			if (PRESENCE.isOverview) {
 				
 
-				task.setQuaternionValue ("setOrientation", setObject.transform.localRotation);
+//				task.setQuaternionValue ("setOrientation", setObject.transform.localRotation);
 
 				task.setQuaternionValue ("viewerOrientation", viewerObject.transform.parent.transform.localRotation);
+
+
+				task.setVector3Value ("viewerPosition", viewerObject.transform.parent.transform.localPosition);
+
 
 				string callBackName = uxController.update (overviewInterface);
 
@@ -518,20 +522,24 @@ public class UserHandler : MonoBehaviour
 
 			if (!PRESENCE.isOverview) {
 
-				Quaternion setOrientationQ;
 
-				if (task.getQuaternionValue("setOrientation", out setOrientationQ)){
-
-					setObject.transform.localRotation=setOrientationQ;
-
-
-				}
+				task.setStringValue ("debug", ""+PRESENCE.mobileInitialHeading);
+							
 
 				Quaternion viewerOrientationQ;
 
 				if (task.getQuaternionValue("viewerOrientation", out viewerOrientationQ)){
 
 					viewerObject.transform.parent.transform.localRotation=viewerOrientationQ;
+
+
+				}
+
+				Vector3 viewerPositionV;
+
+				if (task.getVector3Value("viewerOrientation", out viewerPositionV)){
+
+					viewerObject.transform.parent.transform.localPosition=viewerPositionV;
 
 
 				}
