@@ -591,9 +591,16 @@ public class UserHandler : MonoBehaviour
 			if (!PRESENCE.isOverview) {
 
 
-				task.setFloatValue ("compass",  Input.compass.magneticHeading );
-							
-				task.setStringValue ("debug", "" + Input.compass.magneticHeading);
+				float compassHeading = Input.compass.magneticHeading;
+				float headYaw =  headSet.transform.rotation.eulerAngles.y;
+
+
+
+				task.setFloatValue ("compass", compassHeading);
+
+				task.setFloatValue ("headyaw", headYaw);
+
+				task.setStringValue ("debug", "c: " + compassHeading + " h: " + headYaw + " d: " + headYaw - compassHeading);
 
 
 				Quaternion viewerOrientationQ;
