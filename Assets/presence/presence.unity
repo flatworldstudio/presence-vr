@@ -123,7 +123,6 @@ GameObject:
   - component: {fileID: 103973870}
   - component: {fileID: 103973869}
   - component: {fileID: 103973868}
-  - component: {fileID: 103973867}
   - component: {fileID: 103973866}
   m_Layer: 0
   m_Name: viewerCamera
@@ -153,21 +152,6 @@ Skybox:
   m_GameObject: {fileID: 103973864}
   m_Enabled: 1
   m_CustomSkybox: {fileID: 2100000, guid: eae358eaf3ee14cb8bf086324720a4af, type: 2}
---- !u!114 &103973867
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 103973864}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eb5dd43baba2d4dc1bab789615567e3d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  raycasterEventMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  maxRaycastHits: 64
 --- !u!81 &103973868
 AudioListener:
   m_ObjectHideFlags: 0
@@ -183,7 +167,7 @@ Behaviour:
     type: 2}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 103973864}
-  m_Enabled: 1
+  m_Enabled: 0
 --- !u!20 &103973870
 Camera:
   m_ObjectHideFlags: 0
@@ -677,14 +661,14 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 656684738}
-  m_LocalRotation: {x: 0.19509031, y: 0, z: 0, w: 0.98078537}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 1.8, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 358258922}
-  m_Father: {fileID: 0}
-  m_RootOrder: 10
-  m_LocalEulerAnglesHint: {x: 22.5, y: 0, z: 0}
+  m_Father: {fileID: 1408822078}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &726453872
 GameObject:
   m_ObjectHideFlags: 0
@@ -864,12 +848,12 @@ Prefab:
     - target: {fileID: 114537222341640082, guid: a7b96c05b61f9410a9b07a41f0fc226d,
         type: 2}
       propertyPath: launchWIN
-      value: servertest
+      value: clienttest
       objectReference: {fileID: 0}
     - target: {fileID: 114537222341640082, guid: a7b96c05b61f9410a9b07a41f0fc226d,
         type: 2}
       propertyPath: launchOSX
-      value: servertest
+      value: clienttest
       objectReference: {fileID: 0}
     - target: {fileID: 114537222341640082, guid: a7b96c05b61f9410a9b07a41f0fc226d,
         type: 2}
@@ -4569,6 +4553,7 @@ MonoBehaviour:
   overviewObject: {fileID: 1664362686}
   viewerObject: {fileID: 358258921}
   headSet: {fileID: 103973864}
+  correction: {fileID: 1408822077}
 --- !u!4 &1012313925
 Transform:
   m_ObjectHideFlags: 0
@@ -5014,6 +4999,35 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1403675707}
+--- !u!1 &1408822077
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 1408822078}
+  m_Layer: 0
+  m_Name: viewerCorrection
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1408822078
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1408822077}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 656684739}
+  m_Father: {fileID: 0}
+  m_RootOrder: 10
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1564836465
 GameObject:
   m_ObjectHideFlags: 0
@@ -8581,7 +8595,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   setController: {fileID: 861919365}
   cloud: {fileID: 894958394}
-  kinect: {fileID: 0}
+  kinect: {fileID: 1564836465}
 --- !u!4 &1988843643
 Transform:
   m_ObjectHideFlags: 0

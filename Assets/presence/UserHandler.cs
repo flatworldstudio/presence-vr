@@ -10,7 +10,7 @@ public class UserHandler : MonoBehaviour
 
 	public GameObject uxCanvas;
 
-	public GameObject overviewObject, viewerObject,headSet;
+	public GameObject overviewObject, viewerObject,headSet,correction;
 
 
 
@@ -330,7 +330,7 @@ public class UserHandler : MonoBehaviour
 
 		case "syncviewer":
 
-			#if OSX || WIN
+			#if SERVER
 
 			Quaternion deviceRotation;
 			float mobileInitialHeading;
@@ -374,7 +374,7 @@ public class UserHandler : MonoBehaviour
 //
 //			#endif
 
-			#if IOS
+			#if CLIENT
 
 			headRotation = headSet.transform.rotation;
 
@@ -463,6 +463,9 @@ public class UserHandler : MonoBehaviour
 		case "interfaceactive":
 
 			if (PRESENCE.isOverview) {
+				
+
+				task.setQuaternionValue ("correction", correction.transform.localRotation);
 
 
 				string callBackName = uxController.update (overviewInterface);
@@ -477,6 +480,15 @@ public class UserHandler : MonoBehaviour
 			}
 
 			if (!PRESENCE.isOverview) {
+
+				Quaternion correctionQuat;
+
+				if (task.getQuaternionValue("correction", out correctionQuat)){
+
+					correction.transform.localRotation=correctionQuat;
+
+
+				}
 
 //				Debug.Log ("viewer");
 				
@@ -502,8 +514,13 @@ public class UserHandler : MonoBehaviour
 
 			if (!PRESENCE.isOverview) {
 
+				// get testrotation
+
+
 
 				// get overviewer
+
+				/*
 			
 				Quaternion viewrotation;
 				Vector3 viewinterest;
@@ -530,6 +547,9 @@ public class UserHandler : MonoBehaviour
 				task.setVector3Value ("userinterest", userinterest);
 				task.setFloatValue ("userzoom", userzoom);
 
+
+*/
+
 				string callBackName = uxController.update (viewInterface);
 
 				if (!callBackName.Equals ("")) {
@@ -546,9 +566,13 @@ public class UserHandler : MonoBehaviour
 
 			if (PRESENCE.isOverview) {
 
+
+				// send testrotation
+
+
 				// get viewer
 
-
+				/*
 
 				Quaternion userrotation;
 				Vector3 userinterest;
@@ -575,7 +599,7 @@ public class UserHandler : MonoBehaviour
 				task.setFloatValue ("viewzoom", viewzoom);
 
 				//
-
+*/
 				string callBackName = uxController.update (overviewInterface);
 
 				if (!callBackName.Equals ("")) {
