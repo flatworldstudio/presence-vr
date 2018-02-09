@@ -500,13 +500,20 @@ public class UserHandler : MonoBehaviour
 				if (task.getFloatValue("compass", out comp) && task.getFloatValue("headyaw", out head)){
 
 				//	Debug.Log (me+"compass value: "+ comp);
-					PRESENCE.vrHeadOffset =  head-comp;
+					//PRESENCE.vrHeadOffset =  head-comp;
 
 					float vel = 0;
 
-					PRESENCE.vrHeadOffset = Mathf.SmoothDamp (PRESENCE.vrHeadOffset, head - comp, ref vel, 0.1f);
+					float newOffset = comp - head;
 
-					viewerObject.transform.parent.transform.localRotation = Quaternion.Euler (0,  PRESENCE.vrHeadOffset, 0);
+					if (newOffset < 0)
+						newOffset += 360f;
+				
+
+
+					PRESENCE.vrHeadOffset = Mathf.SmoothDamp (PRESENCE.vrHeadOffset, newOffset, ref vel, 0.1f);
+
+			viewerObject.transform.parent.transform.localRotation = Quaternion.Euler (0,  PRESENCE.vrHeadOffset, 0);
 
 				
 
