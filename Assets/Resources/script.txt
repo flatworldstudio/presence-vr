@@ -21,7 +21,6 @@ end
 
 #clienttestvr
 debugon
-compass
 createviewvr
 placekinect
 start userinterface

@@ -459,6 +459,8 @@ public class UserHandler : MonoBehaviour
 
 			break;
 
+			#if UNITY_IOS
+
 		case "compass":
 
 
@@ -485,6 +487,8 @@ public class UserHandler : MonoBehaviour
 
 
 			break;
+
+			#endif
 
 		case "interfaceactive":
 
@@ -623,7 +627,7 @@ public class UserHandler : MonoBehaviour
 
 				if (task.getVector3Value ("hrPosition", out hr)) {
 
-					handl.transform.localPosition = hr;
+					handr.transform.localPosition = hr;
 
 
 				}
