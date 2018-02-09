@@ -16,6 +16,12 @@ start userinterface
 start serversearch
 end
 
+#clienttestvr
+createviewvr
+start userinterface
+start serversearch
+end
+
 #serversearch
 startdiscover
 listenforserver

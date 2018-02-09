@@ -102,16 +102,52 @@ public class UserHandler : MonoBehaviour
 
 
 
+		case "createviewvr":
+			PRESENCE.isOverview = false;
+			viewInterface = new UxInterface ();
+
+			UxMapping  uxMap = new UxMapping ();
+
+
+			uxMap.ux_none += UxMethods.none;
+
+
+			uxMap.ux_tap_2d += UxMethods.highlightButton2d;
+			uxMap.ux_tap_3d += UxMethods.select3dObject;
+			uxMap.ux_tap_none += UxMethods.clearSelectedObjects;
+			uxMap.ux_tap_none += UxMethods.stopControls;
+
+			uxMap.ux_single_2d += UxMethods.drag2d;
+			uxMap.ux_single_3d += UxMethods.none;
+			uxMap.ux_single_none += UxMethods.none;
+
+			uxMap.ux_double_2d += UxMethods.drag2d;
+			uxMap.ux_double_3d += UxMethods.none;
+			uxMap.ux_double_none += UxMethods.none;
+
+			viewInterface.defaultUxMap = uxMap;
+
+			viewInterface.camera = new UxCamera (viewerObject);
+
+			viewInterface.camera.control = CAMERACONTROL.VOID;
+
+			viewInterface.camera.constraint = new UiConstraint ();
+
+			viewInterface.canvasObject = uxCanvas;
+
+
+			done = true;
+			break;
 
 
 		case "createview":
 
-			PRESENCE.isOverview = false;
+		PRESENCE.isOverview = false;
 
 
 		viewInterface = new UxInterface ();
 
-		UxMapping uxMap = new UxMapping ();
+		 uxMap = new UxMapping ();
 
 		
 
@@ -467,6 +503,7 @@ public class UserHandler : MonoBehaviour
 
 				task.setQuaternionValue ("setOrientation", setObject.transform.localRotation);
 
+				task.setQuaternionValue ("viewerOrientation", viewerObject.transform.parent.transform.localRotation);
 
 				string callBackName = uxController.update (overviewInterface);
 
@@ -486,6 +523,15 @@ public class UserHandler : MonoBehaviour
 				if (task.getQuaternionValue("setOrientation", out setOrientationQ)){
 
 					setObject.transform.localRotation=setOrientationQ;
+
+
+				}
+
+				Quaternion viewerOrientationQ;
+
+				if (task.getQuaternionValue("viewerOrientation", out viewerOrientationQ)){
+
+					viewerObject.transform.parent.transform.localRotation=viewerOrientationQ;
 
 
 				}
