@@ -10,7 +10,7 @@ public class UserHandler : MonoBehaviour
 
 	public GameObject uxCanvas;
 
-	public GameObject overviewObject, viewerObject, headSet, setObject;
+	public GameObject overviewObject, viewerObject, headSet, setObject, handl,handr;
 
 
 
@@ -494,55 +494,58 @@ public class UserHandler : MonoBehaviour
 
 				if (task.getFloatValue("compass", out comp)){
 
-					Debug.Log (me+"compass value: "+ comp);
+				//	Debug.Log (me+"compass value: "+ comp);
 				
 				}
 
 
-
-
 				KinectManager manager = KinectManager.Instance;
-
-		
+					
 
 				// get 1st player
 				uint playerID = manager != null ? manager.GetPlayer1ID () : 0;
 
 				if (playerID >= 0) {
-					bool MirroredMovement = true;
-					Quaternion initialRotation = Quaternion.identity;
+
+
+				//	bool MirroredMovement = true;
+				//	Quaternion initialRotation = Quaternion.identity;
 
 					// set the user position in space
-					Vector3 posPointMan = manager.GetUserPosition (playerID);
-					posPointMan.z = !MirroredMovement ? -posPointMan.z : posPointMan.z;
+				//	Vector3 posPointMan = manager.GetUserPosition (playerID);
+				//	posPointMan.z = !MirroredMovement ? -posPointMan.z : posPointMan.z;
 
-					int joint = 3; // head
+			//		int joint = 3; // head
 
-					Vector3 posJoint = manager.GetJointPosition (playerID, joint);
-					posJoint.z = !MirroredMovement ? -posJoint.z : posJoint.z;
 
-				//	Quaternion rotJoint = manager.GetJointOrientation (playerID, joint, !MirroredMovement);
-				//	rotJoint = initialRotation * rotJoint;
+				//	Vector3 posJoint = manager.GetJointPosition (playerID, joint);
+				//	posJoint.z = !MirroredMovement ? -posJoint.z : posJoint.z;
 
-			//		posJoint -= posPointMan;
 
-					posJoint.y -= PRESENCE.kinectHeight; // correct for sensorheigh because kinect takes it into account
+				//	posJoint.y -= PRESENCE.kinectHeight; // correct for sensorheigh because kinect takes it into account
 
-					if (MirroredMovement) {
-					posJoint.x = -posJoint.x;
-			//			posJoint.z = -posJoint.z;
-			}
+		//	//		if (MirroredMovement) {
+	//				posJoint.x = -posJoint.x;
+	//		}
+
+
+
+
 
 				//	Vector3
 
 					// project from kinect
 
-					Vector3 projected = PRESENCE.kinectRotation * posJoint;
-					projected += PRESENCE.kinectPosition;
+			//		Vector3 projected = PRESENCE.kinectRotation * posJoint;
+			//		projected += PRESENCE.kinectPosition;
 
 
 
-					viewerObject.transform.parent.transform.position = projected;
+					viewerObject.transform.parent.transform.position = getJoint(playerID,3); // head
+
+					handl.transform.position = getJoint (playerID, 7);
+					handr.transform.position = getJoint (playerID, 11);
+
 
 
 				}
@@ -561,10 +564,13 @@ public class UserHandler : MonoBehaviour
 
 //				task.setQuaternionValue ("setOrientation", setObject.transform.localRotation);
 
-				task.setQuaternionValue ("viewerOrientation", viewerObject.transform.parent.transform.localRotation);
+	//	task.setQuaternionValue ("viewerOrientation", viewerObject.transform.parent.transform.localRotation);
 
 
 				task.setVector3Value ("viewerPosition", viewerObject.transform.parent.transform.position);
+				task.setVector3Value ("hlPosition", handl.transform.position);
+				task.setVector3Value ("hrPosition",handr.transform.position);
+
 
 
 				string callBackName = uxController.update (overviewInterface);
@@ -583,7 +589,7 @@ public class UserHandler : MonoBehaviour
 
 				task.setFloatValue ("compass",  Input.compass.magneticHeading );
 							
-				task.setStringValue ("debug", "" + PRESENCE.mobileInitialHeading);
+				task.setStringValue ("debug", "" + Input.compass.magneticHeading);
 
 
 				Quaternion viewerOrientationQ;
@@ -603,6 +609,26 @@ public class UserHandler : MonoBehaviour
 
 
 				}
+
+				Vector3 hl;
+
+				if (task.getVector3Value ("hlPosition", out hl)) {
+
+					handl.transform.localPosition = hl;
+
+
+				}
+
+				Vector3 hr;
+
+				if (task.getVector3Value ("hrPosition", out hr)) {
+
+					handl.transform.localPosition = hr;
+
+
+				}
+
+
 
 //				Debug.Log ("viewer");
 				
@@ -737,6 +763,36 @@ public class UserHandler : MonoBehaviour
 		}
 
 		return done;
+
+	}
+
+	Vector3 getJoint (uint playerID, int joint){
+
+		KinectManager manager = KinectManager.Instance;
+		bool MirroredMovement = true;
+
+		Vector3 posJoint = manager.GetJointPosition (playerID, joint);
+		posJoint.z = !MirroredMovement ? -posJoint.z : posJoint.z;
+
+
+		posJoint.y -= PRESENCE.kinectHeight; // correct for sensorheigh because kinect takes it into account
+
+		if (MirroredMovement) {
+			posJoint.x = -posJoint.x;
+		}
+
+
+
+
+
+		//	Vector3
+
+		// project from kinect
+
+		Vector3 projected = PRESENCE.kinectRotation * posJoint;
+		projected += PRESENCE.kinectPosition;
+
+		return projected;
 
 	}
 

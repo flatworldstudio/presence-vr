@@ -20,6 +20,7 @@ start serversearch
 end
 
 #clienttestvr
+debugon
 compass
 createviewvr
 placekinect
