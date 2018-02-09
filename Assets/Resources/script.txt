@@ -2,6 +2,7 @@
 #servertest
 debugon
 networkguion
+startkinect
 createoverview
 placekinect
 start userinterface

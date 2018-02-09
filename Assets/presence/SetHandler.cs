@@ -8,7 +8,7 @@ public class SetHandler : MonoBehaviour
 	public SetController setController;
 	public GameObject cloud;
 
-	public GameObject kinect;
+	public GameObject kinectManagerObject;
 
 	#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 	KinectManager kinectManager;
@@ -33,7 +33,7 @@ public class SetHandler : MonoBehaviour
 
 		#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
-		kinectManager = kinect.GetComponent<KinectManager> ();
+		kinectManager = kinectManagerObject.GetComponent<KinectManager> ();
 
 		#endif
 	}
@@ -51,17 +51,23 @@ public class SetHandler : MonoBehaviour
 
 			GameObject k = GameObject.Find ("Kinect");
 
-			k.transform.localRotation = Quaternion.Euler (0, PRESENCE.kinectHeading, 0);
-
 			Vector3 p;
+			Quaternion q;
+			q = Quaternion.Euler (0, PRESENCE.kinectHeading, 0);
 
 
-			p = (-1f* PRESENCE.kinectHomeDistance) * (k.transform.localRotation * Vector3.forward);
+			k.transform.localRotation = q;
+
+			p = (-1f * PRESENCE.kinectHomeDistance) * (q * Vector3.forward);
 
 			p.y = PRESENCE.kinectHeight;
 
 			k.transform.position = p;
 
+
+			PRESENCE.kinectPosition = p;
+
+			PRESENCE.kinectRotation = q;
 
 
 			//
@@ -262,7 +268,7 @@ public class SetHandler : MonoBehaviour
 		case "startkinect":
 
 
-			kinect.SetActive (true);
+			kinectManagerObject.SetActive (true);
 
 			done = true;
 

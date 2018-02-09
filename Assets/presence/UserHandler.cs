@@ -10,7 +10,7 @@ public class UserHandler : MonoBehaviour
 
 	public GameObject uxCanvas;
 
-	public GameObject overviewObject, viewerObject,headSet,setObject;
+	public GameObject overviewObject, viewerObject, headSet, setObject;
 
 
 
@@ -87,17 +87,17 @@ public class UserHandler : MonoBehaviour
 
 	}
 
-	private static Quaternion GyroToUnity(Quaternion q)
+	private static Quaternion GyroToUnity (Quaternion q)
 	{
 
-		return new Quaternion(q.x, q.y, -q.z, -q.w);
+		return new Quaternion (q.x, q.y, -q.z, -q.w);
 		//		return new Quaternion(q.y, -q.x, q.z, q.w);
 
 	}
 
-//	static readonly Quaternion baseIdentity =  Quaternion.Euler(90, 0, 0);
-	static readonly Quaternion landscapeLeft =  Quaternion.Euler(0, 0, -90);
-	static readonly Quaternion baseIdentity =  Quaternion.Euler(90, 0, 0);
+	//	static readonly Quaternion baseIdentity =  Quaternion.Euler(90, 0, 0);
+	static readonly Quaternion landscapeLeft = Quaternion.Euler (0, 0, -90);
+	static readonly Quaternion baseIdentity = Quaternion.Euler (90, 0, 0);
 
 	public bool TaskHandler (StoryTask task)
 	{
@@ -112,7 +112,7 @@ public class UserHandler : MonoBehaviour
 			PRESENCE.isOverview = false;
 			viewInterface = new UxInterface ();
 
-			UxMapping  uxMap = new UxMapping ();
+			UxMapping uxMap = new UxMapping ();
 
 
 			uxMap.ux_none += UxMethods.none;
@@ -148,12 +148,12 @@ public class UserHandler : MonoBehaviour
 
 		case "createview":
 
-		PRESENCE.isOverview = false;
+			PRESENCE.isOverview = false;
 
 
-		viewInterface = new UxInterface ();
+			viewInterface = new UxInterface ();
 
-		 uxMap = new UxMapping ();
+			uxMap = new UxMapping ();
 
 		
 
@@ -209,14 +209,14 @@ public class UserHandler : MonoBehaviour
 
 			#endif
 
-		viewInterface.canvasObject = uxCanvas;
+			viewInterface.canvasObject = uxCanvas;
 
 
 
 
-		done = true;
+			done = true;
 
-		break;
+			break;
 
 
 
@@ -278,7 +278,7 @@ public class UserHandler : MonoBehaviour
 			newNullObject.transform.localPosition = Vector3.zero;
 			newNullObject.transform.localRotation = Quaternion.identity;
 
-			 newNullObject = DebugObject.getNullObject (0.05f, 0.05f, 0.1f);
+			newNullObject = DebugObject.getNullObject (0.05f, 0.05f, 0.1f);
 			newNullObject.transform.parent = GameObject.Find ("overviewInterest").transform;
 			newNullObject.transform.localPosition = Vector3.zero;
 			newNullObject.transform.localRotation = Quaternion.identity;
@@ -303,19 +303,19 @@ public class UserHandler : MonoBehaviour
 			newNullObject.name = "kinectnull";
 			newNullObject.transform.parent = GameObject.Find ("Kinect").transform;
 			newNullObject.transform.localPosition = Vector3.zero;
-			newNullObject.transform.localRotation =  Quaternion.identity;
+			newNullObject.transform.localRotation = Quaternion.identity;
 
 			newNullObject = DebugObject.getNullObject (1f, 1f, 1f);
 			newNullObject.name = "compassoffsetnull";
 			newNullObject.transform.parent = GameObject.Find ("SetHandler").transform;
 			newNullObject.transform.localPosition = Vector3.zero;
-			newNullObject.transform.localRotation =  Quaternion.identity;
+			newNullObject.transform.localRotation = Quaternion.identity;
 
 			newNullObject = DebugObject.getNullObject (1f, 1f, 1f);
 			newNullObject.name = "viewernull";
 			newNullObject.transform.parent = viewerObject.transform;
 			newNullObject.transform.localPosition = Vector3.zero;
-			newNullObject.transform.localRotation =  Quaternion.identity;
+			newNullObject.transform.localRotation = Quaternion.identity;
 
 
 			done = true;
@@ -436,7 +436,7 @@ public class UserHandler : MonoBehaviour
 
 
 		
-			task.setStringValue ("debug", gyroOn + " a: " + angle+ "z: "+ z.ToString());
+			task.setStringValue ("debug", gyroOn + " a: " + angle + "z: " + z.ToString ());
 
 
 
@@ -490,46 +490,61 @@ public class UserHandler : MonoBehaviour
 
 			if (PRESENCE.isOverview) {
 
+				float comp;
+
+				if (task.getFloatValue("compass", out comp)){
+
+					Debug.Log (me+"compass value: "+ comp);
+				
+				}
 
 
 				KinectManager manager = KinectManager.Instance;
 
-				if (manager != null) {
+		
 
-					// get 1st player
-					uint playerID = manager != null ? manager.GetPlayer1ID() : 0;
+				// get 1st player
+				uint playerID = manager != null ? manager.GetPlayer1ID () : 0;
 
-					if (playerID >= 0) {
-						bool MirroredMovement = false;
-						Quaternion initialRotation = Quaternion.identity;
+				if (playerID >= 0) {
+					bool MirroredMovement = false;
+					Quaternion initialRotation = Quaternion.identity;
 
-						// set the user position in space
-						Vector3 posPointMan = manager.GetUserPosition(playerID);
-						posPointMan.z = !MirroredMovement ? -posPointMan.z : posPointMan.z;
+					// set the user position in space
+					Vector3 posPointMan = manager.GetUserPosition (playerID);
+					posPointMan.z = !MirroredMovement ? -posPointMan.z : posPointMan.z;
 
-						int joint = 3; // head
+					int joint = 3; // head
 
-						Vector3 posJoint = manager.GetJointPosition(playerID, joint);
-						posJoint.z = !MirroredMovement ? -posJoint.z : posJoint.z;
+					Vector3 posJoint = manager.GetJointPosition (playerID, joint);
+					posJoint.z = !MirroredMovement ? -posJoint.z : posJoint.z;
 
-						Quaternion rotJoint = manager.GetJointOrientation(playerID, joint, !MirroredMovement);
-						rotJoint = initialRotation * rotJoint;
+					Quaternion rotJoint = manager.GetJointOrientation (playerID, joint, !MirroredMovement);
+					rotJoint = initialRotation * rotJoint;
 
-						posJoint -= posPointMan;
+					posJoint -= posPointMan;
 
-						if(MirroredMovement)
-						{
-							posJoint.x = -posJoint.x;
-							posJoint.z = -posJoint.z;
-						}
-
-						viewerObject.transform.parent.transform.position = posJoint;
-
-
+					if (MirroredMovement) {
+						posJoint.x = -posJoint.x;
+						posJoint.z = -posJoint.z;
 					}
+
+				//	Vector3
+
+					// project from kinect
+
+					Vector3 projected = PRESENCE.kinectRotation * posJoint;
+					projected += PRESENCE.kinectPosition;
+
+
+
+					viewerObject.transform.parent.transform.position = posJoint;
 
 
 				}
+
+
+
 
 
 
@@ -562,23 +577,23 @@ public class UserHandler : MonoBehaviour
 			if (!PRESENCE.isOverview) {
 
 
-				task.setStringValue ("debug", ""+PRESENCE.mobileInitialHeading + " "+PRESENCE.mobileInitialHeading1);
+				task.setFloatValue ("compass",  Input.compass.magneticHeading );
 							
 
 				Quaternion viewerOrientationQ;
 
-				if (task.getQuaternionValue("viewerOrientation", out viewerOrientationQ)){
+				if (task.getQuaternionValue ("viewerOrientation", out viewerOrientationQ)) {
 
-					viewerObject.transform.parent.transform.localRotation=viewerOrientationQ;
+					viewerObject.transform.parent.transform.localRotation = viewerOrientationQ;
 
 
 				}
 
 				Vector3 viewerPositionV;
 
-				if (task.getVector3Value("viewerPosition", out viewerPositionV)){
+				if (task.getVector3Value ("viewerPosition", out viewerPositionV)) {
 
-					viewerObject.transform.parent.transform.localPosition=viewerPositionV;
+					viewerObject.transform.parent.transform.localPosition = viewerPositionV;
 
 
 				}
