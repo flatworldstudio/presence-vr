@@ -19,6 +19,7 @@ start serversearch
 end
 
 #clienttestvr
+compass
 createviewvr
 placekinect
 start userinterface

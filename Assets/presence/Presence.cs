@@ -17,7 +17,9 @@ public enum STORYMODE
 
 public static class PRESENCE {
 
-	public static float mobileInitialHeading=0;
+	public static float mobileInitialHeading=-1;
+	public static float mobileInitialHeading1=-1;
+
 //	public static 
 //	public static Vector3 kinectPosition;
 	public static float kinectHeight =  1.175f;

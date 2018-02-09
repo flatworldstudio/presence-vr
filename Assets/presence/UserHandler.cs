@@ -34,10 +34,12 @@ public class UserHandler : MonoBehaviour
 
 		Input.compass.enabled = true;
 
-		PRESENCE.mobileInitialHeading = Input.compass.magneticHeading;
+		PRESENCE.mobileInitialHeading1 = Input.compass.magneticHeading;
+//		PRESENCE.mobileInitialHeading = Input.compass.magneticHeading;
 
 		viewerObject.transform.parent.transform.localRotation = Quaternion.Euler (0, -1f* PRESENCE.mobileInitialHeading, 0);
 	
+
 		#endif
 
 
@@ -463,10 +465,14 @@ public class UserHandler : MonoBehaviour
 
 			Input.compass.enabled = true;
 
-			float compassYaw=Input.compass.magneticHeading;
-			string compassOn = Input.compass.enabled ? "on " : "off ";
+//			float compassYaw=Input.compass.magneticHeading;
+//			string compassOn = Input.compass.enabled ? "on " : "off ";
+//
+//			task.setStringValue ("debug", compassOn + compassYaw);
 
-			task.setStringValue ("debug", compassOn + compassYaw);
+			PRESENCE.mobileInitialHeading = Input.compass.magneticHeading;
+
+			viewerObject.transform.parent.transform.localRotation = Quaternion.Euler (0, -1f* PRESENCE.mobileInitialHeading, 0);
 
 
 
@@ -500,7 +506,7 @@ public class UserHandler : MonoBehaviour
 			if (!PRESENCE.isOverview) {
 
 
-				task.setStringValue ("debug", ""+PRESENCE.mobileInitialHeading);
+				task.setStringValue ("debug", ""+PRESENCE.mobileInitialHeading + " "+PRESENCE.mobileInitialHeading1);
 							
 
 				Quaternion viewerOrientationQ;
