@@ -106,37 +106,14 @@ public class UserHandler : MonoBehaviour
 
 		case "createview":
 
+			PRESENCE.isOverview = false;
+
+
 		viewInterface = new UxInterface ();
 
 		UxMapping uxMap = new UxMapping ();
 
-		#if UNITY_EDITOR || UNITY_STANDALONE
-
-		uxMap.ux_none += UxMethods.none;
-
-
-		uxMap.ux_tap_2d += UxMethods.highlightButton2d;
-		uxMap.ux_tap_3d += UxMethods.select3dObject;
-		uxMap.ux_tap_none += UxMethods.clearSelectedObjects;
-		uxMap.ux_tap_none += UxMethods.stopControls;
-
-		uxMap.ux_single_2d += UxMethods.drag2d;
-		uxMap.ux_single_3d += UxMethods.rotateCamera;
-		uxMap.ux_single_none += UxMethods.rotateCamera;
-
-		uxMap.ux_double_2d += UxMethods.drag2d;
-		uxMap.ux_double_3d += UxMethods.panCamera;
-		uxMap.ux_double_3d += UxMethods.zoomCamera;
-		uxMap.ux_double_none += UxMethods.panCamera;
-		uxMap.ux_double_none += UxMethods.zoomCamera;
-
-		viewInterface.defaultUxMap = uxMap;
-
-		viewInterface.camera = new UxCamera (viewerObject);
-		viewInterface.camera.control = CAMERACONTROL.TURN;
-		viewInterface.camera.constraint = new UiConstraint ();
-
-		#endif
+		
 
 		#if UNITY_IOS
 
@@ -162,7 +139,33 @@ public class UserHandler : MonoBehaviour
 			viewInterface.camera.constraint = new UiConstraint ();
 
 
-		#endif
+		#else 
+
+			uxMap.ux_none += UxMethods.none;
+
+
+			uxMap.ux_tap_2d += UxMethods.highlightButton2d;
+			uxMap.ux_tap_3d += UxMethods.select3dObject;
+			uxMap.ux_tap_none += UxMethods.clearSelectedObjects;
+			uxMap.ux_tap_none += UxMethods.stopControls;
+
+			uxMap.ux_single_2d += UxMethods.drag2d;
+			uxMap.ux_single_3d += UxMethods.rotateCamera;
+			uxMap.ux_single_none += UxMethods.rotateCamera;
+
+			uxMap.ux_double_2d += UxMethods.drag2d;
+			uxMap.ux_double_3d += UxMethods.panCamera;
+			uxMap.ux_double_3d += UxMethods.zoomCamera;
+			uxMap.ux_double_none += UxMethods.panCamera;
+			uxMap.ux_double_none += UxMethods.zoomCamera;
+
+			viewInterface.defaultUxMap = uxMap;
+
+			viewInterface.camera = new UxCamera (viewerObject);
+			viewInterface.camera.control = CAMERACONTROL.TURN;
+			viewInterface.camera.constraint = new UiConstraint ();
+
+			#endif
 
 		viewInterface.canvasObject = uxCanvas;
 
@@ -183,6 +186,8 @@ public class UserHandler : MonoBehaviour
 
 		case "createoverview":
 
+
+			PRESENCE.isOverview = true;
 
 
 			overviewInterface = new UxInterface ();
@@ -296,7 +301,9 @@ public class UserHandler : MonoBehaviour
 			p.y = 1.8f;
 
 			viewerObject.transform.localPosition = p;
-			viewerObject.transform.localRotation = Quaternion.Euler (0, PRESENCE.kinectHeading+180f, 0);
+
+
+//			viewerObject.transform.localRotation = Quaternion.Euler (0, PRESENCE.kinectHeading+180f, 0);
 
 
 
@@ -346,10 +353,45 @@ public class UserHandler : MonoBehaviour
 
 			#endif
 
+
+			Quaternion headRotation;
+
+
+
+//			#if IOS && !UNITY_EDITOR
+//
+//			headRotation = UnityEngine.XR.InputTracking.GetLocalRotation(UnityEngine.XR.XRNode.CenterEye);
+//
+//			#endif
+//
+//
+//			#if IOS && UNITY_EDITOR
+//
+////			headRotation = UnityEngine.XR.InputTracking.GetLocalRotation(UnityEngine.XR.XRNode.CenterEye);
+//
+//			headRotation = headSet.transform.rotation;
+//
+//
+//			#endif
+
 			#if IOS
 
-			task.setQuaternionValue("deviceRotation",headSet.transform.rotation);
-			task.setFloatValue ("mobileInitialHeading",PRESENCE.mobileInitialHeading);
+			headRotation = headSet.transform.rotation;
+
+			task.setQuaternionValue("headRotation",headRotation);
+
+//			task.setFloatValue ("mobileInitialHeading",PRESENCE.mobileInitialHeading);
+
+			Vector3 dp;
+
+			if (task.getVector3Value("devicePosition",out dp))
+			{
+				viewerObject.transform.localPosition=dp;
+			}
+				
+
+
+//			task.setStringValue("debug",""+PRESENCE.mobileInitialHeading);
 
 			#endif
 
@@ -418,30 +460,48 @@ public class UserHandler : MonoBehaviour
 
 			break;
 
-		case "userview":
+		case "interfaceactive":
 
-			if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL ) {
-				GENERAL.STORYMODE = STORYMODE.OVERVIEW;
+			if (PRESENCE.isOverview) {
+
+
+				string callBackName = uxController.update (overviewInterface);
+
+				if (!callBackName.Equals ("")) {
+
+					task.setCallBack (callBackName);
+
+				}
 
 
 			}
 
-			if (GENERAL.AUTHORITY == AUTHORITY.LOCAL) {
-				GENERAL.STORYMODE = STORYMODE.VIEWER;
+			if (!PRESENCE.isOverview) {
 
+//				Debug.Log ("viewer");
+				
+				string callBackName = uxController.update (viewInterface);
+
+				if (!callBackName.Equals ("")) {
+
+					task.setCallBack (callBackName);
+
+				}
 
 			}
 
 
+			break;
 
-			if (GENERAL.STORYMODE == STORYMODE.VIEWER) {
-
-				viewInterface.camera.cameraReference.SetActive (true);
-
-				overviewInterface.camera.cameraReference.SetActive (false);
+		case "interfaceactive2":
 
 
-//				uxController.update (viewerInterface);
+
+
+
+
+			if (!PRESENCE.isOverview) {
+
 
 				// get overviewer
 			
@@ -481,28 +541,14 @@ public class UserHandler : MonoBehaviour
 				}
 
 
-
-//				Debug.Log ("quat " + userrotation.ToString());
-
-
-//				Vector3 forward =userrotation * Vector3.forward;
-//				Vector3 up = userrotation * Vector3.up;
-//				Vector3 right = userrotation * Vector3.right;
-//
-//				Debug.Log ("f " + forward.ToString () + "u " + up.ToString () + "r " + right.ToString ());
-
-
 			}
 
 
-			if (GENERAL.STORYMODE == STORYMODE.OVERVIEW) {
-
-				viewInterface.camera.cameraReference.SetActive (false);
-
-				overviewInterface.camera.cameraReference.SetActive (true);
-
+			if (PRESENCE.isOverview) {
 
 				// get viewer
+
+
 
 				Quaternion userrotation;
 				Vector3 userinterest;

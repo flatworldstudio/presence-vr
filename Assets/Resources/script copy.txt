@@ -1,0 +1,184 @@
+
+#servertest
+start userinterface
+start server
+
+
+
+#clienttest
+start userinterface
+start serversearch
+
+
+#serversearch
+startdiscover
+listenforserver
+end
+
+#foundserver
+stop userinterface
+startclient
+monitorconnection
+end
+
+#server
+startserver
+listenforclients
+end
+
+#userinterface
+interfaceactive
+end
+
+
+
+
+
+
+
+#presenceserver
+debugon
+networkguion
+createoverview
+createoverviewdebug
+callibratekinect
+createcallibrationdebug
+start networkserver
+start synchronise
+overview
+end
+
+#synchronise
+syncviewer
+end
+
+#networkserver
+startserver
+listenforclients
+end
+
+
+
+#newclient
+goglobal
+end
+
+
+
+#presenceheadsetvr
+debugon
+networkguion
+callibratekinect
+callibrateheadset
+createcallibrationdebug
+start networkclient
+end
+
+#networkclient
+startdiscover
+listenforserver
+end
+
+#foundserver
+startclient
+monitorconnection
+end
+
+#reconnect
+start networkclient
+end
+
+
+
+
+
+
+
+
+
+
+
+#develop
+start userviewing
+loaddepthdata
+showdepthdata
+end
+
+
+#iostest
+start gyro
+start compass
+end
+
+
+#gyro
+gyro
+end
+
+
+
+#test
+end
+
+#showdepth
+showdepthdata
+end
+
+#clouddemo
+start userviewing
+start network
+start cloud
+end
+
+#playdepthdata
+loaddepthdata
+start showdepth
+start network
+start userviewing
+end
+
+#kinect
+start userviewing
+startkinect
+kinect
+end
+
+
+#cloud
+pointcloud
+end
+
+#network
+stop foundserver
+startdiscover
+listenforserver
+startserver
+listenforclients
+end
+
+
+
+
+
+#userviewing
+userview
+end
+
+
+capture
+load
+playback
+
+#playdepth
+nextdepth
+fake
+end
+
+#recorddepth
+recordkinect
+end
+
+#stopdepth
+end
+
+setnetworkgui

@@ -1,142 +1,43 @@
-#presenceserver
+
+#servertest
 debugon
 networkguion
 createoverview
-createoverviewdebug
-callibratekinect
-createcallibrationdebug
-start networkserver
-overview
-end
-
-#networkserver
-startserver
-listenforclients
+start userinterface
+start server
 end
 
 
-
-#newclient
-goglobal
-syncviewer
-end
-
-
-
-#presenceheadsetvr
+#clienttest
 debugon
 networkguion
-callibratekinect
-callibrateheadset
-createcallibrationdebug
-start networkclient
+createview
+start userinterface
+start serversearch
 end
 
-#networkclient
+#serversearch
 startdiscover
 listenforserver
 end
 
 #foundserver
+stop userinterface
 startclient
 monitorconnection
 end
 
-#reconnect
-start networkclient
-end
-
-
-
-
-
-
-
-
-
-
-
-#develop
-start userviewing
-loaddepthdata
-showdepthdata
-end
-
-
-#iostest
-start gyro
-start compass
-end
-
-
-#gyro
-gyro
-end
-
-
-
-#test
-end
-
-#showdepth
-showdepthdata
-end
-
-#clouddemo
-start userviewing
-start network
-start cloud
-end
-
-#playdepthdata
-loaddepthdata
-start showdepth
-start network
-start userviewing
-end
-
-#kinect
-start userviewing
-startkinect
-kinect
-end
-
-
-#cloud
-pointcloud
-end
-
-#network
-stop foundserver
-startdiscover
-listenforserver
+#server
 startserver
 listenforclients
 end
 
-
-
-
-
-#userviewing
-userview
+#userinterface
+interfaceactive
 end
 
 
-capture
-load
-playback
-
-#playdepth
-nextdepth
-fake
+#newclient
+sync
 end
 
-#recorddepth
-recordkinect
-end
-
-#stopdepth
-end
-
-setnetworkgui

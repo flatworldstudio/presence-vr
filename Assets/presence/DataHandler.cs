@@ -13,6 +13,7 @@ public class DataHandler : MonoBehaviour
 
 	Capture capture;
 	GameObject captureTarget;
+	GameObject led;
 
 
 	public DataController dataController;
@@ -21,6 +22,9 @@ public class DataHandler : MonoBehaviour
 
 	void Start ()
 	{
+
+		led = GameObject.Find ("led");
+		led.SetActive (false);
 
 		dataController.addTaskHandler (TaskHandler);
 
@@ -76,6 +80,46 @@ public class DataHandler : MonoBehaviour
 
 		case "listenforserver":
 
+			if (listening) {
+
+				if (dataController.foundServer ()) {
+
+					Debug.Log (me + "Found broadcast server");
+
+					// Store network server address.
+
+					GENERAL.networkServer = GENERAL.broadcastServer;
+
+					dataController.stopBroadcast ();
+
+					task.setCallBack ("foundserver");
+
+					listening = false;
+
+					done = true;
+
+				}
+
+				/*
+				// Optional time out.
+
+				if (Time.time - startListening > 10f) {
+
+					dataController.networkBroadcastStop ();
+
+					done = true;
+
+				}
+				*/
+
+			}
+
+			break;
+
+
+			/*
+		case "listenforserver":
+
 			if (listening)  
 			{
 
@@ -112,7 +156,7 @@ public class DataHandler : MonoBehaviour
 			}
 
 			break;
-
+*/
 		
 
 //		case "startserver":
@@ -161,6 +205,65 @@ public class DataHandler : MonoBehaviour
 
 			break;
 
+
+		case "sync":
+
+
+
+			if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL) {
+
+				// this should be the case, since we're only calling this on the server...
+
+				StoryPointer targetPointer = GENERAL.getPointerOnStoryline ("userinterface");
+
+				targetPointer.scope = SCOPE.GLOBAL;
+				targetPointer.modified = true;
+
+				Debug.Log (me + "sync pointer: " + targetPointer.ID);
+
+				targetPointer.currentTask.scope = SCOPE.GLOBAL;
+
+				targetPointer.currentTask.markAllAsModified ();
+
+				Debug.Log (me + "sync task: " + targetPointer.currentTask.ID);
+
+
+			} else {
+
+				Debug.LogWarning (me + "Syncing but no global authority.");
+			}
+
+
+			/*
+			if (GENERAL.SCOPE == SCOPE.GLOBAL) {
+
+				// this should be the case, since we're only calling this on the server...
+			
+				StoryPointer targetPointer = GENERAL.getPointerOnStoryline ("userviewing");
+
+				targetPointer.scope = SCOPE.GLOBAL;
+				targetPointer.hasChanged = true;
+
+
+				Debug.Log (me + "sync pointer: " + targetPointer.ID);
+
+
+				targetPointer.currentTask.scope = SCOPE.GLOBAL;
+
+				targetPointer.currentTask.hasChanged = true;
+
+				Debug.Log (me + "sync task: " + targetPointer.currentTask.ID);
+
+
+			}
+			*/
+
+			done = true;
+
+			break;
+
+			/*
+
 		case "sync":
 
 			if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL) {
@@ -206,7 +309,7 @@ public class DataHandler : MonoBehaviour
 
 			break;
 
-
+*/
 		case "monitorconnection":
 
 			if (!dataController.clientIsConnected ()) {
@@ -218,7 +321,9 @@ public class DataHandler : MonoBehaviour
 
 					//					task.setCallBack ("reconnect");
 
-					task.setCallBack ("reconnect");
+//					task.setCallBack ("reconnect");
+
+					task.setCallBack ("serversearch");
 
 
 					done = true; // we'll fall throught to the next line in the script, since there is no longer a connection to monitor.
@@ -247,7 +352,9 @@ public class DataHandler : MonoBehaviour
 			//
 			//			}
 
+
 //			led.SetActive (GENERAL.wasConnected);
+			led.SetActive (GENERAL.wasConnected);
 
 			break;
 
