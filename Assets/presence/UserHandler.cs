@@ -10,7 +10,7 @@ public class UserHandler : MonoBehaviour
 
 	public GameObject uxCanvas;
 
-	public GameObject overviewObject, viewerObject,headSet,correction;
+	public GameObject overviewObject, viewerObject,headSet,setObject;
 
 
 
@@ -465,7 +465,7 @@ public class UserHandler : MonoBehaviour
 			if (PRESENCE.isOverview) {
 				
 
-				task.setQuaternionValue ("correction", correction.transform.localRotation);
+				task.setQuaternionValue ("setOrientation", setObject.transform.localRotation);
 
 
 				string callBackName = uxController.update (overviewInterface);
@@ -481,11 +481,11 @@ public class UserHandler : MonoBehaviour
 
 			if (!PRESENCE.isOverview) {
 
-				Quaternion correctionQuat;
+				Quaternion setOrientationQ;
 
-				if (task.getQuaternionValue("correction", out correctionQuat)){
+				if (task.getQuaternionValue("setOrientation", out setOrientationQ)){
 
-					correction.transform.localRotation=correctionQuat;
+					setObject.transform.localRotation=setOrientationQ;
 
 
 				}
