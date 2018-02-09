@@ -472,17 +472,47 @@ public class UserHandler : MonoBehaviour
 
 			PRESENCE.mobileInitialHeading = Input.compass.magneticHeading;
 
-			viewerObject.transform.parent.transform.localRotation = Quaternion.Euler (0, -1f* PRESENCE.mobileInitialHeading, 0);
+			viewerObject.transform.parent.transform.localRotation = Quaternion.Euler (0, -1f * PRESENCE.mobileInitialHeading, 0);
 
 
 
+			done = true;
 
 			break;
 
 		case "interfaceactive":
 
 			if (PRESENCE.isOverview) {
-				
+
+
+
+				KinectManager manager = KinectManager.Instance;
+
+				if (manager != null) {
+
+					// get 1st player
+					uint playerID = manager != null ? manager.GetPlayer1ID() : 0;
+
+					if (playerID >= 0) {
+
+
+
+
+
+
+					}
+
+
+				}
+
+
+
+
+
+
+
+
+
 
 //				task.setQuaternionValue ("setOrientation", setObject.transform.localRotation);
 
