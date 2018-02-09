@@ -23,7 +23,7 @@ public static class PRESENCE {
 //	public static 
 //	public static Vector3 kinectPosition;
 	public static float kinectHeight =  1.175f;
-	public static float kinectHeading = 293;
+	public static float kinectHeading = 25;
 	public static float kinectHomeDistance =2;
 	public static Vector3 kinectPosition;
 	public static Quaternion kinectRotation;

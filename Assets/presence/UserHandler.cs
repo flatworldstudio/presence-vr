@@ -495,12 +495,18 @@ public class UserHandler : MonoBehaviour
 			if (PRESENCE.isOverview) {
 
 				float comp;
+				float head;
 
-				if (task.getFloatValue("compass", out comp)){
+				if (task.getFloatValue("compass", out comp) && task.getFloatValue("headyaw", out head)){
 
 				//	Debug.Log (me+"compass value: "+ comp);
+
 				
 				}
+
+
+
+			
 
 
 				KinectManager manager = KinectManager.Instance;
@@ -568,7 +574,7 @@ public class UserHandler : MonoBehaviour
 
 //				task.setQuaternionValue ("setOrientation", setObject.transform.localRotation);
 
-	//	task.setQuaternionValue ("viewerOrientation", viewerObject.transform.parent.transform.localRotation);
+		task.setQuaternionValue ("viewerOrientation", viewerObject.transform.parent.transform.localRotation);
 
 
 				task.setVector3Value ("viewerPosition", viewerObject.transform.parent.transform.position);
@@ -600,7 +606,7 @@ public class UserHandler : MonoBehaviour
 
 				task.setFloatValue ("headyaw", headYaw);
 
-				task.setStringValue ("debug", "c: " + compassHeading + " h: " + headYaw + " d: " + headYaw - compassHeading);
+				task.setStringValue ("debug", "c: " + compassHeading + " h: " + headYaw + " d: " +( headYaw - compassHeading));
 
 
 				Quaternion viewerOrientationQ;
