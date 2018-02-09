@@ -20,7 +20,6 @@ start serversearch
 end
 
 #clienttestvr
-debugon
 createviewvr
 placekinect
 start userinterface

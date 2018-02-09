@@ -536,7 +536,19 @@ public class DataHandler : MonoBehaviour
 	void Update ()
 	{
 
+		// HACK
+		string inputString = Input.inputString;
+		if (inputString.Length > 0) {
 
+			if (inputString == "d") {
+
+				Debug.Log (me + "Simulating disconnect/pause ...");
+
+				dataController.StopNetworkClient ();
+
+			}
+
+		}
 		
 	}
 
