@@ -210,7 +210,7 @@ public class SetHandler : MonoBehaviour
 						task.getIntValue ("frameWidth", out width);
 						task.getIntValue ("frameHeight", out height);
 
-						ParticleCloud.setLifeTime (0.1f);
+//						ParticleCloud.setLifeTime (0.1f);
 
 						int mx = width / sample;
 						int my = height / sample;
@@ -235,6 +235,7 @@ public class SetHandler : MonoBehaviour
 									point.x = -point.x;
 									point.y = -point.y;
 									point.y += PRESENCE.kinectHeight;
+									point.z += 0.05f;
 
 									ParticleCloud.Emit (point);
 									particleIndex++;
