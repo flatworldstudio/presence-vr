@@ -27,8 +27,9 @@ end
 #clienttestvr
 createviewvr
 dummykinect
-placekinect
+placeset
 setdebug
+handdebug
 start userinterface
 start cloud
 start serversearch

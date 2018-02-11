@@ -539,6 +539,8 @@ public class UserHandler : MonoBehaviour
 
 					task.setFloatValue ("viewerYawOffset", PRESENCE.vrHeadOffset);
 
+				//	task.setStringValue ("debug", "c: " + comp);
+
 				}
 
 				Quaternion q;
@@ -589,27 +591,41 @@ public class UserHandler : MonoBehaviour
 
 
 
-				float headYaw = headSet.transform.localRotation.eulerAngles.y;
+			
+				Vector3 euler = headSet.transform.localRotation.eulerAngles;
 
-				float compassHeading = headYaw;
+			
 
-				#if UNITY_IOS
+				float pitch = euler.x >= 0 ? euler.x : euler.x + 360f;
 
-				if (Input.compass.enabled) {
+				if (pitch > -15 && pitch < 15) {
+
+					task.setFloatValue ("headyaw", euler.y);
+
+					float compassHeading = euler.y;
+
+
+					#if UNITY_IOS
+
+					if (Input.compass.enabled) {
 
 					compassHeading = Input.compass.magneticHeading;
 
+					}
+
+					#endif
+
+					task.setFloatValue ("compass", compassHeading);
+
+					task.setStringValue ("debug", "c: " + compassHeading + " h: " + headYaw + " d: " + (headYaw - compassHeading));
+
+
 				}
 
-				#endif
 
-
-
-				task.setFloatValue ("compass", compassHeading);
-				task.setFloatValue ("headyaw", headYaw);
+			
 				task.setQuaternionValue ("headrotation", headSet.transform.localRotation);
 
-				task.setStringValue ("debug", "c: " + compassHeading + " h: " + headYaw + " d: " + (headYaw - compassHeading));
 
 				// get
 
