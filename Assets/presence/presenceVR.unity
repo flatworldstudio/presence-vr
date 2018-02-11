@@ -4156,7 +4156,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 589693008}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -537.4426, y: 360, z: 0}
+  m_LocalPosition: {x: -640, y: 360, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 397158817}
@@ -4378,12 +4378,12 @@ Prefab:
     - target: {fileID: 224597965918260180, guid: a7b96c05b61f9410a9b07a41f0fc226d,
         type: 2}
       propertyPath: m_LocalPosition.x
-      value: 683
+      value: 640
       objectReference: {fileID: 0}
     - target: {fileID: 224597965918260180, guid: a7b96c05b61f9410a9b07a41f0fc226d,
         type: 2}
       propertyPath: m_LocalPosition.y
-      value: 457.5
+      value: 360
       objectReference: {fileID: 0}
     - target: {fileID: 114537222341640082, guid: a7b96c05b61f9410a9b07a41f0fc226d,
         type: 2}
@@ -4669,7 +4669,7 @@ MonoBehaviour:
   handl: {fileID: 589512547}
   handr: {fileID: 958343184}
   Kinect: {fileID: 1564836465}
-  SetHandler: {fileID: 0}
+  SetHandler: {fileID: 1348691418}
   compass: {fileID: 1551334104}
 --- !u!4 &1012313925
 Transform:
@@ -4826,8 +4826,8 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1059995036}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 683, y: 457.5, z: 0}
-  m_LocalScale: {x: 1.2708334, y: 1.2708334, z: 1.2708334}
+  m_LocalPosition: {x: 640, y: 360, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 589693009}
   - {fileID: 2055519344}
