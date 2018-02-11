@@ -10,10 +10,10 @@ public class SetHandler : MonoBehaviour
 
 	public GameObject kinectManagerObject;
 
-	#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-	KinectManager kinectManager;
+//	#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+	//KinectManager kinectManager;
 
-	#endif
+//	#endif
 
 
 	ushort[] depthMap;
@@ -34,11 +34,11 @@ public class SetHandler : MonoBehaviour
 
 		ParticleCloud.init (GameObject.Find ("Cloud"));
 
-		#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+	//	#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
-		kinectManager = kinectManagerObject.GetComponent<KinectManager> ();
+	//	kinectManager = kinectManagerObject.GetComponent<KinectManager> ();
 
-		#endif
+		//#endif
 	}
 
 

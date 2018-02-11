@@ -19,6 +19,8 @@ public class DataHandler : MonoBehaviour
 	ushort[] depthMap;
 	float timeStamp;
 
+	GameObject go;
+
 	public DataController dataController;
 
 	string me = "Data handler: ";
@@ -46,7 +48,21 @@ public class DataHandler : MonoBehaviour
 
 		// KINECT
 
-	
+		case "dummykinect":
+
+			 go = GameObject.Find ("Kinect");
+
+			PRESENCE.pKinect = new PKinect ();
+
+			PRESENCE.pKinect.InitDummy (go);
+
+
+
+
+			done = true;
+
+			break;
+
 
 		// Code specific to Kinect, to be compiled and run on windows only.
 
@@ -87,6 +103,8 @@ public class DataHandler : MonoBehaviour
 
 				Debug.LogWarning (me + "Non windows platform: dummy kinect.");
 				kinectstatus = "dummy";
+
+
 
 				#endif
 

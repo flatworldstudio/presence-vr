@@ -16,14 +16,18 @@ end
 debugon
 networkguion
 createview
+dummykinect
 placekinect
+setdebug
 start userinterface
 start serversearch
 end
 
 #clienttestvr
 createviewvr
+dummykinect
 placekinect
+setdebug
 start userinterface
 start serversearch
 end
