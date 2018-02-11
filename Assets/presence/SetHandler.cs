@@ -59,6 +59,8 @@ public class SetHandler : MonoBehaviour
 			int sample;
 			int dataSize;
 			Vector3 point;
+			int particleIndex;
+
 			ParticleSystem.Particle[] allParticles;
 			ParticleSystem.Particle particle;
 
@@ -81,7 +83,7 @@ public class SetHandler : MonoBehaviour
 
 					dataSize = (height / sample) * (width / sample);
 
-					int pi=0;
+					particleIndex=0;
 
 					newFrame = new ushort [dataSize];
 					allParticles = new ParticleSystem.Particle[dataSize];
@@ -117,7 +119,7 @@ public class SetHandler : MonoBehaviour
 
 								point.y = -point.y;
 
-								point.y += PRESENCE.kinectHeight;
+					//			point.y += PRESENCE.kinectHeight;
 								//point.y += 1.5f;
 
 								//particle = new ParticleSystem.Particle ();
@@ -128,7 +130,7 @@ public class SetHandler : MonoBehaviour
 						//		particle.startLifetime=0.1f;
 					//			particle.remainingLifetime=0.1f;
 					//			allParticles[pi]=particle;
-								pi++;
+								particleIndex++;
 
 								ParticleCloud.Emit (point);
 
@@ -144,7 +146,7 @@ public class SetHandler : MonoBehaviour
 
 					}
 
-					task.setStringValue( "debug",""+pi);
+			//		task.setStringValue( "debug","f: "+PRESENCE.frame+" p: "+pi);
 
 			//		ParticleCloud.SetParticles(allParticles,pi);
 
@@ -167,6 +169,7 @@ public class SetHandler : MonoBehaviour
 
 			if (GENERAL.AUTHORITY == AUTHORITY.LOCAL) {
 
+			
 
 				int getFrame;
 
@@ -175,6 +178,7 @@ public class SetHandler : MonoBehaviour
 					if (getFrame > PRESENCE.frame) {
 
 						// newer frame available
+
 
 						task.getUshortValue ("frameData", out newFrame);
 						task.getIntValue ("frameSampleSize", out sample);
@@ -186,6 +190,8 @@ public class SetHandler : MonoBehaviour
 						int mx = width / sample;
 						int my = height / sample;
 						int i;
+
+						particleIndex=0;
 
 						for (int y = 0; y < my; y++) {
 
@@ -206,13 +212,17 @@ public class SetHandler : MonoBehaviour
 									point.y += PRESENCE.kinectHeight;
 
 									ParticleCloud.Emit (point);
+									particleIndex++;
 								}
 
 							}
 
 						} // end of plotting loop
 							
+					
 						PRESENCE.frame = getFrame;
+						task.setStringValue( "debug","f: "+PRESENCE.frame+" p: "+	particleIndex);
+
 
 					}
 
