@@ -25,6 +25,7 @@ start serversearch
 end
 
 #clienttestvr
+debugon
 createviewvr
 dummykinect
 placekinect
@@ -41,7 +42,7 @@ end
 
 #foundserver
 stop userinterface
-stop kinectcloud
+stop cloud
 startclient
 monitorconnection
 end

@@ -50,7 +50,7 @@ public class DataHandler : MonoBehaviour
 
 		case "dummykinect":
 
-			 go = GameObject.Find ("Kinect");
+			go = GameObject.Find ("Kinect");
 
 			PRESENCE.pKinect = new PKinect ();
 
@@ -477,23 +477,50 @@ public class DataHandler : MonoBehaviour
 
 
 		case "sync":
-			
+			StoryPointer targetPointer;
+
 			if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL) {
 
 				// this should be the case, since we're only calling this on the server...
 
-				StoryPointer targetPointer = GENERAL.getPointerOnStoryline ("userinterface");
+				targetPointer = GENERAL.getPointerOnStoryline ("userinterface");
 
-				targetPointer.scope = SCOPE.GLOBAL;
-				targetPointer.modified = true;
+				if (targetPointer != null) {
+					targetPointer.scope = SCOPE.GLOBAL;
+					targetPointer.modified = true;
 
-				Debug.Log (me + "sync pointer: " + targetPointer.ID);
+					Debug.Log (me + "sync pointer: " + targetPointer.ID);
 
-				targetPointer.currentTask.scope = SCOPE.GLOBAL;
+					targetPointer.currentTask.scope = SCOPE.GLOBAL;
 
-				targetPointer.currentTask.markAllAsModified ();
+					targetPointer.currentTask.markAllAsModified ();
 
-				Debug.Log (me + "sync task: " + targetPointer.currentTask.ID);
+					Debug.Log (me + "sync task: " + targetPointer.currentTask.ID);
+				}
+
+
+
+
+
+				targetPointer = GENERAL.getPointerOnStoryline ("cloud");
+
+				if (targetPointer != null) {
+					targetPointer.scope = SCOPE.GLOBAL;
+					targetPointer.modified = true;
+
+					Debug.Log (me + "sync pointer: " + targetPointer.ID);
+
+					targetPointer.currentTask.scope = SCOPE.GLOBAL;
+
+					targetPointer.currentTask.markAllAsModified ();
+
+					Debug.Log (me + "sync task: " + targetPointer.currentTask.ID);
+
+				}
+
+
+
+
 
 
 			} else {
