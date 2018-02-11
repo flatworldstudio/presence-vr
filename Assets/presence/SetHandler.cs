@@ -270,6 +270,21 @@ public class SetHandler : MonoBehaviour
 
 			break;
 
+		case "handdebug":
+
+			c = GameObject.Find ("HandLeft");
+			g = DebugObject.getNullObject (0.1f);
+			g.transform.SetParent (c.transform, false);
+
+			c = GameObject.Find ("HandRight");
+			g = DebugObject.getNullObject (0.1f);
+			g.transform.SetParent (c.transform, false);
+
+			done = true;
+
+			break;
+
+
 
 		case "placeset":
 
