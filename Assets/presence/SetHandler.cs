@@ -132,6 +132,7 @@ public class SetHandler : MonoBehaviour
 								point.x = -point.x;
 
 								point.y = -point.y;
+								point.z += 0.05f;
 
 							point.y += PRESENCE.kinectHeight;
 								//point.y += 1.5f;

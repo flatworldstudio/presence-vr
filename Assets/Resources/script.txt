@@ -63,3 +63,7 @@ end
 #cloud
 kinectcloud
 end
+
+#screentap
+toggleview
+end

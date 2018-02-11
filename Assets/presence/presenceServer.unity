@@ -273,7 +273,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.03
+  near clip plane: 0.1
   far clip plane: 1000
   field of view: 60
   orthographic: 0
@@ -639,9 +639,9 @@ MonoBehaviour:
   TwoUsers: 0
   ComputeUserMap: 1
   ComputeColorMap: 0
-  DisplayUserMap: 1
+  DisplayUserMap: 0
   DisplayColorMap: 0
-  DisplaySkeletonLines: 1
+  DisplaySkeletonLines: 0
   DisplayMapsWidthPercent: 25
   SensorHeight: 0
   SensorAngle: 0

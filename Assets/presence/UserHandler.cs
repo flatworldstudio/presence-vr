@@ -243,7 +243,7 @@ public class UserHandler : MonoBehaviour
 
 			overviewMap.ux_tap_2d += UxMethods.highlightButton2d;
 			overviewMap.ux_tap_3d += UxMethods.none;
-			overviewMap.ux_tap_none += UxMethods.none;
+			overviewMap.ux_tap_none += UxMethods.tapNone;
 
 			overviewMap.ux_single_2d += UxMethods.drag2d;
 			overviewMap.ux_single_3d += UxMethods.rotateCamera;
@@ -267,12 +267,36 @@ public class UserHandler : MonoBehaviour
 			overviewInterface.camera.constraint.pitchClampMax = 80f;
 
 			overviewInterface.canvasObject = uxCanvas;
+			overviewInterface.tapNoneCallback = "screentap";
+
+			/*
+			UiConstraint asc = new UiConstraint ();
+
+			asc.hardClamp = true;
+			asc.hardClampMin = new Vector3 (0, 0);
+			asc.hardClampMax = new Vector3 (0, 0);
+
+
+
+			GameObject g = GameObject.Find ("AllScreen");
+
+			UiButton AllScreen = new UiButton ("AllScreen", g, asc);
+			AllScreen.callback = "screentap";
+			overviewInterface.uiButtons.Add ("AllScreen", AllScreen);
+*/
+			done = true;
+
+			break;
+
+		case "toggleview":
+			Camera cam = overviewObject.GetComponentInChildren<Camera> ();
+
+			cam.enabled = !cam.enabled;
 
 
 			done = true;
 
 			break;
-
 
 		case "createoverviewdebug":
 
