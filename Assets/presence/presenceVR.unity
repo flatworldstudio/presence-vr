@@ -4796,6 +4796,7 @@ MonoBehaviour:
   handr: {fileID: 958343184}
   Kinect: {fileID: 1564836465}
   SetHandler: {fileID: 1988843641}
+  compass: {fileID: 1551334104}
 --- !u!4 &1012313925
 Transform:
   m_ObjectHideFlags: 0

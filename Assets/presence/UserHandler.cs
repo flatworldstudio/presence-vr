@@ -10,7 +10,7 @@ public class UserHandler : MonoBehaviour
 
 	public GameObject uxCanvas;
 
-	public GameObject overviewObject, viewerObject, headSet, setObject, handl, handr,Kinect,SetHandler;
+	public GameObject overviewObject, viewerObject, headSet, setObject, handl, handr, Kinect, SetHandler, compass;
 
 
 
@@ -543,7 +543,7 @@ public class UserHandler : MonoBehaviour
 
 				Quaternion q;
 
-				if (task.getQuaternionValue ("headrotation", out q) ) {
+				if (task.getQuaternionValue ("headrotation", out q)) {
 
 					headSet.transform.localRotation = q;
 
@@ -551,25 +551,24 @@ public class UserHandler : MonoBehaviour
 
 				// put
 
-
+			
 				task.setVector3Value ("viewerPosition", viewerObject.transform.parent.transform.position);
 				task.setVector3Value ("hlPosition", handl.transform.position);
 				task.setVector3Value ("hrPosition", handr.transform.position);
 
-			//	Vector3 t;
+				// send once
 
-			//	if (!task.getVector3Value ("kinectPosition", out  t)) {
+				task.setVector3Value ("compassPosition", compass.transform.position);
+				task.setQuaternionValue ("compassRotation", compass.transform.rotation);
 
-					// send once
+				task.setVector3Value ("kinectPosition", Kinect.transform.position);
+				task.setQuaternionValue ("kinectRotation", Kinect.transform.rotation);
 
-					task.setVector3Value ("kinectPosition", Kinect.transform.position);
-					task.setQuaternionValue ("kinectRotation", Kinect.transform.rotation);
-
-					task.setVector3Value ("setPosition", SetHandler.transform.position);
-					task.setQuaternionValue ("setRotation", SetHandler.transform.rotation);
+				task.setVector3Value ("setPosition", SetHandler.transform.position);
+				task.setQuaternionValue ("setRotation", SetHandler.transform.rotation);
 
 
-			//	}
+				//	}
 
 				string callBackName = uxController.update (overviewInterface);
 
@@ -614,10 +613,14 @@ public class UserHandler : MonoBehaviour
 
 				// get
 
-				Vector3 kp,sp;
-				Quaternion kq,sq;
+				Vector3 kp, sp,cp;
+				Quaternion kq, sq,cq;
 
-				if (task.getVector3Value ("kinectPosition", out  kp) && task.getVector3Value ("setPosition", out  sp) &&  task.getQuaternionValue ("kinectRotation", out  kq) && task.getQuaternionValue ("setRotation", out  sq) ) {
+				if (task.getVector3Value ("kinectPosition", out  kp) && task.getVector3Value ("setPosition", out  sp) 
+					&& task.getQuaternionValue ("kinectRotation", out  kq) && task.getQuaternionValue ("setRotation", out  sq)
+					&&task.getVector3Value ("compassPosition", out  cp)&& task.getQuaternionValue ("compassRotation", out  cq)
+				
+				) {
 
 					// set all the time
 
@@ -626,6 +629,9 @@ public class UserHandler : MonoBehaviour
 
 					SetHandler.transform.position = sp;
 					SetHandler.transform.rotation = sq;
+
+					compass.transform.position = sp;
+					compass.transform.rotation = sq;
 
 				}
 
