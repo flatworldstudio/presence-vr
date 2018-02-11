@@ -23,6 +23,9 @@ public class SetHandler : MonoBehaviour
 
 	int interval = 0;
 	int interval2=0;
+	Quaternion q;
+	Vector3 p;
+	GameObject c,g;
 
 	void Start ()
 	{
@@ -46,13 +49,152 @@ public class SetHandler : MonoBehaviour
 
 		switch (task.description) {
 
+		case "kinect":
+
+
+			ParticleCloud.setLifeTime (0.1f);
+
+
+			if (interval == 4) {
+				interval = 0;
+
+				depthMap = PRESENCE.pKinect.kinectManager.GetRawDepthMap ();
+
+				width = PRESENCE.pKinect.kinectManager.getUserDepthWidth ();
+				height = PRESENCE.pKinect.kinectManager.getUserDepthHeight ();
+
+
+
+				int sample = 8;
+				Vector3 point;
+
+				for (int y = 0; y < height; y += sample) {
+
+					for (int x = 0; x < width; x += sample) {
+
+						int i = y * width + x;
+
+						ushort userMap = (ushort)(depthMap [i] & 7);
+						ushort userDepth = (ushort)(depthMap [i] >> 3);
+
+						if (userMap != 0) {
+							point = depthToWorld (x, y, userDepth);
+							point.y = -point.y;
+							point.y += 1.5f;
+
+							ParticleCloud.Emit (point);
+						}
+
+					}
+
+
+
+				}
+
+
+
+
+
+			}
+
+
+
+
+			interval++;
+
+
+			//			int y = i / kinectManager.getUserDepthWidth;
+			//			int x = i - y * usersMapHeight;
+
+
+
+			// test plot into cloud at 1/4 resolution
+
+			//			if (x % 8 == 0 && y % 8 == 0) {
+			//
+			//				point = depthToWorld (x, y, userDepth);
+			//				point.y = -point.y;
+			//				point.y += 1.5f;
+			//
+			//				ParticleCloud.Emit (point);
+			//
+			//
+			//			}
+
+
+
+
+			break;
+
+		case "setdebug":
+
+			c = GameObject.Find ("Compass");
+			 g = DebugObject.getNullObject (1, 1, 5);
+			g.transform.SetParent (c.transform, false);
+
+			c = GameObject.Find ("Kinect");
+			g = DebugObject.getNullObject (1, 1, 1);
+			g.transform.SetParent (c.transform, false);
+
+
+
+			done = true;
+
+			break;
+
+		case "viewerdebug":
+
+			c = GameObject.Find ("viewerCamera");
+			g = DebugObject.getNullObject (0.25f, 0.25f, 0.5f);
+			g.transform.SetParent (c.transform, false);
+
+
+
+			done = true;
+
+			break;
+
+
+		case "placeset":
+			GameObject s = GameObject.Find ("SetHandler");
+			GameObject vi = GameObject.Find ("viewerInterest");
+			GameObject k = GameObject.Find ("Kinect");
+			c = GameObject.Find ("Compass");
+
+			c.transform.rotation = Quaternion.Euler (0, -PRESENCE.kinectHeading, 0);
+			s.transform.rotation = c.transform.rotation;
+
+			p = PRESENCE.kinectHomeDistance * Vector3.forward;
+
+			s.transform.position = p;
+			c.transform.position = p;
+
+			p.y = vi.transform.position.y;
+
+			vi.transform.position = p;
+
+			p = Vector3.zero;
+			p.y = PRESENCE.kinectHeight;
+
+			k.transform.position = p;
+
+
+
+			PRESENCE.pKinect.centered = true;
+
+			done = true;
+
+			break;
+
+
+
 		case "placekinect":
 
 
-			GameObject k = GameObject.Find ("Kinect");
+			 k = GameObject.Find ("Kinect");
 
-			Vector3 p;
-			Quaternion q;
+		//	Vector3 p;
+		//	Quaternion q;
 			q = Quaternion.Euler (0, PRESENCE.kinectHeading, 0);
 
 
@@ -65,34 +207,11 @@ public class SetHandler : MonoBehaviour
 			k.transform.position = p;
 
 
-			PRESENCE.kinectPosition = p;
+			PRESENCE.pKinect.kinectPosition = p;
 
-			PRESENCE.kinectRotation = q;
+			PRESENCE.pKinect.kinectRotation = q;
 
-			KinectManager manager = KinectManager.Instance;
-
-			if (manager && manager.IsInitialized ()) {
-
-		//		manager.SensorHeight =PRESENCE.kinectHeight;
-
-			}
-
-
-
-
-
-
-
-			//
-			//
-			//			p.y = 1.8f;
-			//
-			//			viewerObject.transform.localPosition = p;
-
-
-			//			viewerObject.transform.localRotation = Quaternion.Euler (0, PRESENCE.kinectHeading+180f, 0);
-
-
+			PRESENCE.pKinect.centered = false;
 
 			done = true;
 
@@ -274,127 +393,7 @@ public class SetHandler : MonoBehaviour
 
 
 
-		#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-
-			// Code specific to Kinect, to be compiled and run on windows only.
-
-		case "startkinect":
-
-
-			kinectManagerObject.SetActive (true);
-
-
-			done = true;
-
-			break;
-
-
-
-
-		case "recordkinect":
-
-			// we grab a frame and write it to disk...
-
-			Debug.LogWarning (me + "writing depth to disk at " + Application.persistentDataPath);
-
-			width = kinectManager.getUserDepthWidth ();
-			height = kinectManager.getUserDepthHeight ();
-
-			depthMap = kinectManager.GetRawDepthMap ();
-
-			DepthCapture dc = new DepthCapture (width, height);
-			DepthCapture.current = dc;
-
-			dc.put (depthMap);
-
-			IO.SaveDepthCaptures ();
-
-
-
-
-
-			done = true;
-
-			break;
-
-		case "kinect":
-
-
-			ParticleCloud.setLifeTime (0.1f);
-
-
-			if (interval == 4) {
-				interval = 0;
-
-				depthMap = kinectManager.GetRawDepthMap ();
-
-				width = kinectManager.getUserDepthWidth ();
-				height = kinectManager.getUserDepthHeight ();
-
-
-
-				int sample = 8;
-				Vector3 point;
-
-				for (int y = 0; y < height; y += sample) {
-
-					for (int x = 0; x < width; x += sample) {
-
-						int i = y * width + x;
-
-						ushort userMap = (ushort)(depthMap [i] & 7);
-						ushort userDepth = (ushort)(depthMap [i] >> 3);
-
-						if (userMap != 0) {
-							point = depthToWorld (x, y, userDepth);
-							point.y = -point.y;
-							point.y += 1.5f;
-
-							ParticleCloud.Emit (point);
-						}
-
-					}
-
-
-
-				}
-
-
-
-
-
-			}
-
-
-
-
-			interval++;
-
-
-			//			int y = i / kinectManager.getUserDepthWidth;
-			//			int x = i - y * usersMapHeight;
-
-
-
-			// test plot into cloud at 1/4 resolution
-
-			//			if (x % 8 == 0 && y % 8 == 0) {
-			//
-			//				point = depthToWorld (x, y, userDepth);
-			//				point.y = -point.y;
-			//				point.y += 1.5f;
-			//
-			//				ParticleCloud.Emit (point);
-			//
-			//
-			//			}
-
-
-
-
-			break;
-
-			#endif
+		
 			
 		case "pointcloud":
 

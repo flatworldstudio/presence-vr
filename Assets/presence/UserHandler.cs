@@ -10,7 +10,7 @@ public class UserHandler : MonoBehaviour
 
 	public GameObject uxCanvas;
 
-	public GameObject overviewObject, viewerObject, headSet, setObject, handl,handr;
+	public GameObject overviewObject, viewerObject, headSet, setObject, handl, handr,Kinect,SetHandler;
 
 
 
@@ -261,9 +261,11 @@ public class UserHandler : MonoBehaviour
 			overviewInterface.camera = new UxCamera (overviewObject);
 			overviewInterface.camera.control = CAMERACONTROL.ORBIT;
 			overviewInterface.camera.constraint = new UiConstraint ();
+			overviewInterface.camera.constraint.pitchClamp = true;
+			overviewInterface.camera.constraint.pitchClampMin = 10f;
+			overviewInterface.camera.constraint.pitchClampMax = 80f;
 
 			overviewInterface.canvasObject = uxCanvas;
-
 
 
 			done = true;
@@ -324,8 +326,6 @@ public class UserHandler : MonoBehaviour
 
 
 		
-		
-
 
 		case "overview":
 
@@ -333,6 +333,7 @@ public class UserHandler : MonoBehaviour
 
 
 			break;
+
 
 
 		case "view":
@@ -494,111 +495,69 @@ public class UserHandler : MonoBehaviour
 
 			if (PRESENCE.isOverview) {
 
+				if (PRESENCE.pKinect.IsLive ()) {
+
+					KinectManager manager = PRESENCE.pKinect.kinectManager;
+
+					uint playerID = manager != null ? manager.GetPlayer1ID () : 0;
+
+					if (playerID >= 0) {
+					
+						viewerObject.transform.parent.transform.position = PRESENCE.pKinect.getJoint (playerID, 3); // head
+
+						handl.transform.position = PRESENCE.pKinect.getJoint (playerID, 7);
+						handr.transform.position = PRESENCE.pKinect.getJoint (playerID, 11);
+
+					}
+
+				}
+
+				// get
+
 				float comp;
 				float head;
 
-				if (task.getFloatValue("compass", out comp) && task.getFloatValue("headyaw", out head)){
+				if (task.getFloatValue ("compass", out comp) && task.getFloatValue ("headyaw", out head)) {
 
-				//	Debug.Log (me+"compass value: "+ comp);
-					//PRESENCE.vrHeadOffset =  head-comp;
+					// values from mobile
 
 					float vel = 0;
 
-					float newOffset = comp - head;
+					float newOffset = comp - head +PRESENCE.north;
 
 					if (newOffset < 0)
 						newOffset += 360f;
-				
-
 
 					PRESENCE.vrHeadOffset = Mathf.SmoothDamp (PRESENCE.vrHeadOffset, newOffset, ref vel, 0.1f);
 
-			viewerObject.transform.parent.transform.localRotation = Quaternion.Euler (0,  PRESENCE.vrHeadOffset, 0);
+					viewerObject.transform.parent.transform.localRotation = Quaternion.Euler (0, PRESENCE.vrHeadOffset, 0);
 
-				
-
-
-				
-				}
-
-
-
-			
-
-
-				KinectManager manager = KinectManager.Instance;
-					
-
-				// get 1st player
-				uint playerID = manager != null ? manager.GetPlayer1ID () : 0;
-
-				if (playerID >= 0) {
-
-
-				//	bool MirroredMovement = true;
-				//	Quaternion initialRotation = Quaternion.identity;
-
-					// set the user position in space
-				//	Vector3 posPointMan = manager.GetUserPosition (playerID);
-				//	posPointMan.z = !MirroredMovement ? -posPointMan.z : posPointMan.z;
-
-			//		int joint = 3; // head
-
-
-				//	Vector3 posJoint = manager.GetJointPosition (playerID, joint);
-				//	posJoint.z = !MirroredMovement ? -posJoint.z : posJoint.z;
-
-
-				//	posJoint.y -= PRESENCE.kinectHeight; // correct for sensorheigh because kinect takes it into account
-
-		//	//		if (MirroredMovement) {
-	//				posJoint.x = -posJoint.x;
-	//		}
-
-
-
-
-
-				//	Vector3
-
-					// project from kinect
-
-			//		Vector3 projected = PRESENCE.kinectRotation * posJoint;
-			//		projected += PRESENCE.kinectPosition;
-
-
-
-					viewerObject.transform.parent.transform.position = getJoint(playerID,3); // head
-
-					handl.transform.position = getJoint (playerID, 7);
-					handr.transform.position = getJoint (playerID, 11);
-
-
+					task.setFloatValue ("viewerYawOffset", PRESENCE.vrHeadOffset);
 
 				}
 
 
-
-
-
-
-
-
-
-
-
-
-
-//				task.setQuaternionValue ("setOrientation", setObject.transform.localRotation);
-
-		task.setQuaternionValue ("viewerOrientation", viewerObject.transform.parent.transform.localRotation);
+				// put
 
 
 				task.setVector3Value ("viewerPosition", viewerObject.transform.parent.transform.position);
 				task.setVector3Value ("hlPosition", handl.transform.position);
-				task.setVector3Value ("hrPosition",handr.transform.position);
+				task.setVector3Value ("hrPosition", handr.transform.position);
+
+				Vector3 t;
+
+				if (!task.getVector3Value ("kinectPosition", out  t)) {
+
+					// send once
+
+					task.setVector3Value ("kinectPosition", Kinect.transform.position);
+					task.setQuaternionValue ("kinectRotation", Kinect.transform.rotation);
+
+					task.setVector3Value ("setPosition", SetHandler.transform.position);
+					task.setQuaternionValue ("setRotation", SetHandler.transform.rotation);
 
 
+				}
 
 				string callBackName = uxController.update (overviewInterface);
 
@@ -613,25 +572,43 @@ public class UserHandler : MonoBehaviour
 
 			if (!PRESENCE.isOverview) {
 
+				// VIEWER
+
+				// put
 
 				float compassHeading = Input.compass.magneticHeading;
-				float headYaw =  headSet.transform.localRotation.eulerAngles.y;
-
-
+				float headYaw = headSet.transform.localRotation.eulerAngles.y;
 
 				task.setFloatValue ("compass", compassHeading);
-
 				task.setFloatValue ("headyaw", headYaw);
+				task.setQuaternionValue ("headrotation", headSet.transform.localRotation);
 
-				task.setStringValue ("debug", "c: " + compassHeading + " h: " + headYaw + " d: " +( headYaw - compassHeading));
+				task.setStringValue ("debug", "c: " + compassHeading + " h: " + headYaw + " d: " + (headYaw - compassHeading));
+
+				// get
+
+				Vector3 kp,sp;
+				Quaternion kq,sq;
+
+				if (task.getVector3Value ("kinectPosition", out  kp) && task.getVector3Value ("setPosition", out  sp) &&  task.getQuaternionValue ("kinectRotation", out  kq) && task.getQuaternionValue ("setRotation", out  sq) ) {
+
+					// set all the time
+
+					Kinect.transform.position = kp;
+					Kinect.transform.rotation = kq;
+					SetHandler.transform.position = sp;
+					SetHandler.transform.rotation = sq;
+
+				}
 
 
-				Quaternion viewerOrientationQ;
+				float viewerYawOffset;
 
-				if (task.getQuaternionValue ("viewerOrientation", out viewerOrientationQ)) {
+				if (task.getFloatValue ("viewerYawOffset", out viewerYawOffset)) {
 
-					viewerObject.transform.parent.transform.localRotation = viewerOrientationQ;
+					// we're letting server tell us the offset all the time. could localise.
 
+					viewerObject.transform.parent.transform.localRotation = Quaternion.Euler (0, viewerYawOffset, 0);
 
 				}
 
@@ -641,7 +618,6 @@ public class UserHandler : MonoBehaviour
 
 					viewerObject.transform.parent.transform.localPosition = viewerPositionV;
 
-
 				}
 
 				Vector3 hl;
@@ -649,7 +625,6 @@ public class UserHandler : MonoBehaviour
 				if (task.getVector3Value ("hlPosition", out hl)) {
 
 					handl.transform.localPosition = hl;
-
 
 				}
 
@@ -659,13 +634,8 @@ public class UserHandler : MonoBehaviour
 
 					handr.transform.localPosition = hr;
 
-
 				}
 
-
-
-//				Debug.Log ("viewer");
-				
 				string callBackName = uxController.update (viewInterface);
 
 				if (!callBackName.Equals ("")) {
@@ -800,35 +770,6 @@ public class UserHandler : MonoBehaviour
 
 	}
 
-	Vector3 getJoint (uint playerID, int joint){
-
-		KinectManager manager = KinectManager.Instance;
-		bool MirroredMovement = true;
-
-		Vector3 posJoint = manager.GetJointPosition (playerID, joint);
-		posJoint.z = !MirroredMovement ? -posJoint.z : posJoint.z;
-
-
-		posJoint.y -= PRESENCE.kinectHeight; // correct for sensorheigh because kinect takes it into account
-
-		if (MirroredMovement) {
-			posJoint.x = -posJoint.x;
-		}
-
-
-
-
-
-		//	Vector3
-
-		// project from kinect
-
-		Vector3 projected = PRESENCE.kinectRotation * posJoint;
-		projected += PRESENCE.kinectPosition;
-
-		return projected;
-
-	}
 
 	void Update ()
 	{

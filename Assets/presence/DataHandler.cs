@@ -14,7 +14,10 @@ public class DataHandler : MonoBehaviour
 	Capture capture;
 	GameObject captureTarget;
 	GameObject led;
-
+	int interval;
+	int width, height;
+	ushort[] depthMap;
+	float timeStamp;
 
 	public DataController dataController;
 
@@ -41,20 +44,150 @@ public class DataHandler : MonoBehaviour
 
 		switch (task.description) {
 
-		case "loaddepthdata":
+		// KINECT
 
-			// load depth data from resources
+	
 
-			IO.LoadDepthCapturesResource ();
+		// Code specific to Kinect, to be compiled and run on windows only.
 
-			if (IO.savedDepthCaptures.Count > 0) {
-				IO.depthIndex = 0;
+
+		case "startkinect":
+
+			// attempts to start live kinect.
+
+
+			string kinectstatus;
+
+			if (!task.getStringValue ("kinectstatus", out kinectstatus)) {
+				kinectstatus = "void";
+
 			}
+
+
+			switch (kinectstatus) {
+
+
+			case "void":
+
+				// first run.
+
+		//		PRESENCE.kinectObject = GameObject.Find ("Kinect");
+
+				#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+
+				GameObject kinectObject = GameObject.Find ("Kinect");
+
+				PRESENCE.pKinect = new PKinect ();
+
+				PRESENCE.pKinect.InitLive (kinectObject);
+
+				kinectstatus = "initialising";
+
+				#else
+
+				Debug.LogWarning (me + "Non windows platform: dummy kinect.");
+				kinectstatus = "dummy";
+
+				#endif
+
+				timeStamp = Time.time;
+
+				break;
+
+
+			case "initialising":
+
+				//Debug.Log( me+ "kinect awake? "+ PRESENCE.pKinect.KinectManager.am
+
+				if (PRESENCE.pKinect.IsLive ()) {
+
+					kinectstatus = "live";
+
+					Debug.Log (me + "Kinect live in : " + (Time.time - timeStamp));
+
+					kinectstatus = "live";
+
+				} else {
+
+					// Time out
+
+					if ((Time.time - timeStamp) > 1f) {
+						
+						Debug.LogWarning (me + "Kinect timed out.");
+
+						kinectstatus = "dummy";
+
+					}
+
+
+				}
+				break;
+
+			case "live":
+				
+				done = true;
+				break;
+
+
+
+			case "dummy":
+
+				done = true;
+
+				break;
+
+
+
+			default:
+
+				break;
+
+
+
+			}
+
+
+			task.setStringValue ("kinectstatus", kinectstatus);
+
+
+			break;
+
+
+
+
+		case "recordkinect":
+
+			// we grab a frame and write it to disk...
+
+			Debug.LogWarning (me + "writing depth to disk at " + Application.persistentDataPath);
+
+			width = PRESENCE.pKinect.kinectManager.getUserDepthWidth ();
+			height = PRESENCE.pKinect.kinectManager.getUserDepthHeight ();
+
+			depthMap = PRESENCE.pKinect.kinectManager.GetRawDepthMap ();
+
+			DepthCapture dc = new DepthCapture (width, height);
+			DepthCapture.current = dc;
+
+			dc.put (depthMap);
+
+			IO.SaveDepthCaptures ();
+
+
+
+
 
 			done = true;
 
 			break;
 
+		
+
+	
+
+
+
+		// NETWORKING
 
 		case "networkguion":
 
@@ -67,9 +200,6 @@ public class DataHandler : MonoBehaviour
 		case "startdiscover":
 
 			dataController.startBroadcastClient ();
-
-//			dataController.networkBroadcastInit ();
-//			dataController.networkBroadcastStartAsClient ();
 
 			startListening = Time.time;
 			listening = true;
@@ -115,79 +245,16 @@ public class DataHandler : MonoBehaviour
 			}
 
 			break;
-
-
-			/*
-		case "listenforserver":
-
-			if (listening)  
-			{
-
-				if (dataController.foundServer ()) {
-
-					Debug.Log (me + "found server, now use callback!");
-
-//					GENERAL.networkServer
-					GENERAL.networkServer = GENERAL.broadcastServer;
-
-					task.setCallBack ("foundserver");
-
-//					dataController.networkBroadcastStop ();
-
-					dataController.stopBroadcast ();
-
-					listening = false;
-
-					done = true;
-				
-				}
-//
-//				if (Time.time - startListening > 1f) {
-//
-////					dataController.networkBroadcastStop ();
-//
-//					dataController.stopBroadcast ();
-//
-//
-//					done = true;
-//
-//				}
-
-			}
-
-			break;
-*/
-		
-
-//		case "startserver":
-//			
-////			Debug.Log (me + "start server");
-//
-//			dataController.startBroadcastServer ();
-//			dataController.startNetworkServer ();
-//
-//
-////			dataController.networkBroadcastInit ();
-////			dataController.networkBroadcastStartAsServer ();
-////
-////			dataController.networkStartServer ();
-//
-//			done = true;
-//
-//			break;
-
+	
 		case "listenforclients":
-
-//			int newClient = dataController.getAD ().newClientConnection ();
 
 			task.setStringValue ("debug", "" + dataController.serverConnections ());
 
-
-			int newClient = GENERAL.GETNEWCONNECTION();
+			int newClient = GENERAL.GETNEWCONNECTION ();
 
 			if (newClient != -1) {
 
-				Debug.Log (me + "New client on connection "+newClient);
+				Debug.Log (me + "New client on connection " + newClient);
 
 				task.setCallBack ("newclient");
 
@@ -195,121 +262,6 @@ public class DataHandler : MonoBehaviour
 
 			break;
 
-
-		case "goglobal":
-
-			task.pointer.scope = SCOPE.GLOBAL;
-			task.pointer.modified = true;
-
-			done = true;
-
-			break;
-
-
-		case "sync":
-
-
-
-			if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL) {
-
-				// this should be the case, since we're only calling this on the server...
-
-				StoryPointer targetPointer = GENERAL.getPointerOnStoryline ("userinterface");
-
-				targetPointer.scope = SCOPE.GLOBAL;
-				targetPointer.modified = true;
-
-				Debug.Log (me + "sync pointer: " + targetPointer.ID);
-
-				targetPointer.currentTask.scope = SCOPE.GLOBAL;
-
-				targetPointer.currentTask.markAllAsModified ();
-
-				Debug.Log (me + "sync task: " + targetPointer.currentTask.ID);
-
-
-			} else {
-
-				Debug.LogWarning (me + "Syncing but no global authority.");
-			}
-
-
-			/*
-			if (GENERAL.SCOPE == SCOPE.GLOBAL) {
-
-				// this should be the case, since we're only calling this on the server...
-			
-				StoryPointer targetPointer = GENERAL.getPointerOnStoryline ("userviewing");
-
-				targetPointer.scope = SCOPE.GLOBAL;
-				targetPointer.hasChanged = true;
-
-
-				Debug.Log (me + "sync pointer: " + targetPointer.ID);
-
-
-				targetPointer.currentTask.scope = SCOPE.GLOBAL;
-
-				targetPointer.currentTask.hasChanged = true;
-
-				Debug.Log (me + "sync task: " + targetPointer.currentTask.ID);
-
-
-			}
-			*/
-
-			done = true;
-
-			break;
-
-			/*
-
-		case "sync":
-
-			if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL) {
-
-				// this should be the case, since we're only calling this on the server...
-			
-				StoryPointer targetPointer = GENERAL.getPointerOnStoryline ("userviewing");
-				targetPointer.scope = SCOPE.GLOBAL;
-				targetPointer.modified = true;
-
-
-				Debug.Log (me + "sync pointer: " + targetPointer.ID);
-
-
-				targetPointer.currentTask.scope = SCOPE.GLOBAL;
-
-				targetPointer.currentTask.modified = true;
-
-				Debug.Log (me + "sync task: " + targetPointer.currentTask.ID);
-
-
-
-				 targetPointer = GENERAL.getPointerOnStoryline ("showdepth");
-				targetPointer.scope = SCOPE.GLOBAL;
-				targetPointer.modified = true;
-
-
-				Debug.Log (me + "sync pointer: " + targetPointer.ID);
-
-
-				targetPointer.currentTask.scope = SCOPE.GLOBAL;
-
-				targetPointer.currentTask.modified = true;
-
-				Debug.Log (me + "sync task: " + targetPointer.currentTask.ID);
-
-
-
-
-			}
-
-			done = true;
-
-			break;
-
-*/
 		case "monitorconnection":
 
 			if (!dataController.clientIsConnected ()) {
@@ -318,10 +270,6 @@ public class DataHandler : MonoBehaviour
 
 					GENERAL.wasConnected = false;
 					task.setStringValue ("debug", "lost connection");
-
-					//					task.setCallBack ("reconnect");
-
-//					task.setCallBack ("reconnect");
 
 					task.setCallBack ("serversearch");
 
@@ -341,26 +289,12 @@ public class DataHandler : MonoBehaviour
 				task.setStringValue ("debug", "connected");
 
 			}
-			//
-			//			if (GENERAL.LOSTCONNECTION) {
-			//
-			//				GENERAL.LOSTCONNECTION = false;
-			//
-			//				Debug.Log (me + "Lost connection to server.");
-			//
-			//				task.setCallBack ("remote");
-			//
-			//			}
 
-
-//			led.SetActive (GENERAL.wasConnected);
 			led.SetActive (GENERAL.wasConnected);
 
 			break;
 
-
 		case "startclient":
-
 
 			Debug.Log (me + "Starting network client.");
 
@@ -385,34 +319,27 @@ public class DataHandler : MonoBehaviour
 
 
 
+		// IO
 
 
-//		case "monitorconnection":
-//
-//			if (GENERAL.LOSTCONNECTION) {
-//
-//
-//				Debug.Log (me + "Lost connection to server.");
-//
-//				task.setCallBack ("network");
-//
-//
-//			}
-//
-//			break;
+		case "loaddepthdata":
 
-		case "someothertask":
-		case "someothertask2":
-			
-		case "globaltask":
+			// load depth data from resources
+
+			IO.LoadDepthCapturesResource ();
+
+			if (IO.savedDepthCaptures.Count > 0) {
+				IO.depthIndex = 0;
+			}
+
+			done = true;
 
 			break;
-
 
 		case "playback":
 
 			if (Capture.playing) {
-				
+
 				Frame f;
 
 				if (!capture.read (out f)) {
@@ -422,8 +349,8 @@ public class DataHandler : MonoBehaviour
 
 
 				} else {
-					captureTarget.transform.position = f.getPosition();
-					captureTarget.transform.rotation = f.getRotation();
+					captureTarget.transform.position = f.getPosition ();
+					captureTarget.transform.rotation = f.getRotation ();
 
 				}
 
@@ -432,7 +359,7 @@ public class DataHandler : MonoBehaviour
 
 				capture = Capture.current;
 
-				capture.play();
+				capture.play ();
 
 				captureTarget = GameObject.Find ("camB_object");
 
@@ -449,7 +376,7 @@ public class DataHandler : MonoBehaviour
 			if (Capture.capturing) {
 
 				Vector3 pos = captureTarget.transform.position;
-				Quaternion orient =captureTarget.transform.rotation;
+				Quaternion orient = captureTarget.transform.rotation;
 
 				if (!capture.log (pos, orient)) {
 
@@ -461,10 +388,10 @@ public class DataHandler : MonoBehaviour
 
 
 			} else {
-				
+
 				capture = new Capture ();
 				Capture.current = capture;
-				capture.capture();
+				capture.capture ();
 
 				captureTarget = GameObject.Find ("camB_object");
 
@@ -487,7 +414,7 @@ public class DataHandler : MonoBehaviour
 			Capture.current = IO.savedCaptures [0];
 
 
-//			Debug.Log (me + "loaded with name " + Capture.current.knight.name);
+			//			Debug.Log (me + "loaded with name " + Capture.current.knight.name);
 
 			//					Game.current = testgame;
 
@@ -502,13 +429,13 @@ public class DataHandler : MonoBehaviour
 		case "save":
 
 
-//			Capture testgame = new Capture ();
+			//			Capture testgame = new Capture ();
 
-//			testgame.knight.name = "My uuid: " + UUID.getID ();
+			//			testgame.knight.name = "My uuid: " + UUID.getID ();
 
-//			Debug.Log (me + "saving with name " + testgame.knight.name);
+			//			Debug.Log (me + "saving with name " + testgame.knight.name);
 
-//			Capture.current = testgame;
+			//			Capture.current = testgame;
 
 			Debug.Log (me + "Saving capture.");
 
@@ -518,6 +445,53 @@ public class DataHandler : MonoBehaviour
 
 			break;
 
+
+		// MISC / WIP
+
+		case "goglobal":
+
+			task.pointer.scope = SCOPE.GLOBAL;
+			task.pointer.modified = true;
+
+			done = true;
+
+			break;
+
+
+		case "sync":
+			
+			if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL) {
+
+				// this should be the case, since we're only calling this on the server...
+
+				StoryPointer targetPointer = GENERAL.getPointerOnStoryline ("userinterface");
+
+				targetPointer.scope = SCOPE.GLOBAL;
+				targetPointer.modified = true;
+
+				Debug.Log (me + "sync pointer: " + targetPointer.ID);
+
+				targetPointer.currentTask.scope = SCOPE.GLOBAL;
+
+				targetPointer.currentTask.markAllAsModified ();
+
+				Debug.Log (me + "sync task: " + targetPointer.currentTask.ID);
+
+
+			} else {
+
+				Debug.LogWarning (me + "Syncing but no global authority.");
+			}
+
+
+		
+
+			done = true;
+
+			break;
+
+
+		
 
 
 		default:

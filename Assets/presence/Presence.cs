@@ -17,16 +17,18 @@ public enum STORYMODE
 
 public static class PRESENCE {
 
-	public static float mobileInitialHeading=-1;
-	public static float mobileInitialHeading1=-1;
-
-//	public static 
-//	public static Vector3 kinectPosition;
+	// KINECT INFO
+//	public static GameObject kinectObject;
+	public static float north=0;
 	public static float kinectHeight =  1.175f;
 	public static float kinectHeading = 25;
 	public static float kinectHomeDistance =2;
-	public static Vector3 kinectPosition;
-	public static Quaternion kinectRotation;
+
+	public static PKinect pKinect;
+
+	public static float mobileInitialHeading=-1;
+	public static float mobileInitialHeading1=-1;
+
 
 	public static float vrHeadOffset=0;
 

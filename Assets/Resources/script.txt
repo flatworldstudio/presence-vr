@@ -1,10 +1,12 @@
 
 #servertest
 debugon
-networkguion
 startkinect
+networkguion
 createoverview
 placekinect
+setdebug
+viewerdebug
 start userinterface
 start server
 end
