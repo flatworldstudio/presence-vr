@@ -21,11 +21,13 @@ public class SetHandler : MonoBehaviour
 
 	string me = "Task handler: ";
 
-	int interval = 0;
+	int interval = -1;
 	int interval2 = 0;
 	Quaternion q;
 	Vector3 p;
 	GameObject c, g;
+
+	float frameStamp;
 
 	void Start ()
 	{
@@ -68,11 +70,23 @@ public class SetHandler : MonoBehaviour
 
 				#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 			
+				if (interval==-1){
+					
+					frameStamp = Time.time;
+					interval++;
+				}
 
-				ParticleCloud.setLifeTime (0.1f);
+
 
 				if (interval == 4) {
+					
 					interval = 0;
+
+					float frameDuration = Time.time - frameStamp;
+
+					ParticleCloud.setLifeTime (frameDuration+ 0.015f);
+
+					frameStamp = Time.time;
 
 					depthMap = PRESENCE.pKinect.kinectManager.GetRawDepthMap ();
 
@@ -119,7 +133,7 @@ public class SetHandler : MonoBehaviour
 
 								point.y = -point.y;
 
-					//			point.y += PRESENCE.kinectHeight;
+							point.y += PRESENCE.kinectHeight;
 								//point.y += 1.5f;
 
 								//particle = new ParticleSystem.Particle ();
@@ -179,6 +193,17 @@ public class SetHandler : MonoBehaviour
 
 						// newer frame available
 
+						if (interval==-1){
+
+							frameStamp = Time.time;
+							interval++;
+						}
+
+						float frameDuration = Time.time - frameStamp;
+
+						ParticleCloud.setLifeTime (frameDuration+ 0.015f);
+
+						frameStamp = Time.time;
 
 						task.getUshortValue ("frameData", out newFrame);
 						task.getIntValue ("frameSampleSize", out sample);
@@ -209,7 +234,7 @@ public class SetHandler : MonoBehaviour
 									point = depthToWorld (x * sample, y * sample, userDepth);
 									point.x = -point.x;
 									point.y = -point.y;
-							//		point.y += PRESENCE.kinectHeight;
+									point.y += PRESENCE.kinectHeight;
 
 									ParticleCloud.Emit (point);
 									particleIndex++;

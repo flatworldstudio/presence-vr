@@ -109,7 +109,7 @@ public  class PKinect {
 			posJoint.z = !MirroredMovement ? -posJoint.z : posJoint.z;
 
 
-		
+			posJoint.y += PRESENCE.kinectHeight;
 
 			if (MirroredMovement) {
 				posJoint.x = -posJoint.x;

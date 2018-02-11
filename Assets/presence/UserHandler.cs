@@ -617,7 +617,7 @@ public class UserHandler : MonoBehaviour
 
 					task.setFloatValue ("compass", compassHeading);
 
-					task.setStringValue ("debug", "c: " + compassHeading + " h: " + headYaw + " d: " + (headYaw - compassHeading));
+					task.setStringValue ("debug", "c: " + compassHeading + " h: " + euler.y + " d: " + (euler.y - compassHeading));
 
 
 				}
