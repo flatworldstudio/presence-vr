@@ -28,6 +28,7 @@ public class UserHandler : MonoBehaviour
 		uxController = new UxController ();
 
 
+
 		#if UNITY_IOS
 
 		// Callibration: rotate headset so that north is always north.
@@ -540,6 +541,13 @@ public class UserHandler : MonoBehaviour
 
 				}
 
+				Quaternion q;
+
+				if (task.getQuaternionValue ("headrotation", out q) ) {
+
+					headSet.transform.localRotation = q;
+
+				}
 
 				// put
 
@@ -580,8 +588,23 @@ public class UserHandler : MonoBehaviour
 
 				// put
 
-				float compassHeading = Input.compass.magneticHeading;
+
+
 				float headYaw = headSet.transform.localRotation.eulerAngles.y;
+
+				float compassHeading = headYaw;
+
+				#if UNITY_IOS
+
+				if (Input.compass.enabled) {
+
+					compassHeading = Input.compass.magneticHeading;
+
+				}
+
+				#endif
+
+
 
 				task.setFloatValue ("compass", compassHeading);
 				task.setFloatValue ("headyaw", headYaw);
