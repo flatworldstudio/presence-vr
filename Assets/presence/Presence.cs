@@ -34,7 +34,7 @@ public static class PRESENCE {
 
 	public static bool isOverview = true;
 
-
+	public static int frame;
 
 
 

@@ -613,14 +613,12 @@ public class UserHandler : MonoBehaviour
 
 				// get
 
-				Vector3 kp, sp,cp;
-				Quaternion kq, sq,cq;
+				Vector3 kp, sp, cp;
+				Quaternion kq, sq, cq;
 
-				if (task.getVector3Value ("kinectPosition", out  kp) && task.getVector3Value ("setPosition", out  sp) 
-					&& task.getQuaternionValue ("kinectRotation", out  kq) && task.getQuaternionValue ("setRotation", out  sq)
-					&&task.getVector3Value ("compassPosition", out  cp)&& task.getQuaternionValue ("compassRotation", out  cq)
-				
-				) {
+				if (task.getVector3Value ("kinectPosition", out  kp) && task.getVector3Value ("setPosition", out  sp)
+				    && task.getQuaternionValue ("kinectRotation", out  kq) && task.getQuaternionValue ("setRotation", out  sq)
+				    && task.getVector3Value ("compassPosition", out  cp) && task.getQuaternionValue ("compassRotation", out  cq)) {
 
 					// set all the time
 

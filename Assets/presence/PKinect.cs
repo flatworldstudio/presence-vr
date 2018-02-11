@@ -109,7 +109,7 @@ public  class PKinect {
 			posJoint.z = !MirroredMovement ? -posJoint.z : posJoint.z;
 
 
-			posJoint.y -= PRESENCE.kinectHeight; // correct for sensorheigh because kinect takes it into account
+		
 
 			if (MirroredMovement) {
 				posJoint.x = -posJoint.x;
@@ -120,8 +120,9 @@ public  class PKinect {
 			if (!centered) {
 
 				posJoint = kinectRotation * posJoint;
-				posJoint += kinectPosition;
+				posJoint += new Vector3 (kinectPosition.x,0,kinectPosition.z);
 
+		//		posJoint.y -= PRESENCE.kinectHeight; // correct for sensorheigh because kinect takes it into account
 			}
 
 

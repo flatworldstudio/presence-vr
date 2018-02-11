@@ -8,6 +8,7 @@ placeset
 setdebug
 viewerdebug
 start userinterface
+start cloud
 start server
 end
 
@@ -29,6 +30,7 @@ dummykinect
 placekinect
 setdebug
 start userinterface
+start cloud
 start serversearch
 end
 
@@ -39,6 +41,7 @@ end
 
 #foundserver
 stop userinterface
+stop kinectcloud
 startclient
 monitorconnection
 end
@@ -57,3 +60,6 @@ end
 sync
 end
 
+#cloud
+kinectcloud
+end

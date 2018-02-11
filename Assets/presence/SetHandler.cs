@@ -10,10 +10,10 @@ public class SetHandler : MonoBehaviour
 
 	public GameObject kinectManagerObject;
 
-//	#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+	//	#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 	//KinectManager kinectManager;
 
-//	#endif
+	//	#endif
 
 
 	ushort[] depthMap;
@@ -22,10 +22,10 @@ public class SetHandler : MonoBehaviour
 	string me = "Task handler: ";
 
 	int interval = 0;
-	int interval2=0;
+	int interval2 = 0;
 	Quaternion q;
 	Vector3 p;
-	GameObject c,g;
+	GameObject c, g;
 
 	void Start ()
 	{
@@ -34,9 +34,9 @@ public class SetHandler : MonoBehaviour
 
 		ParticleCloud.init (GameObject.Find ("Cloud"));
 
-	//	#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+		//	#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
-	//	kinectManager = kinectManagerObject.GetComponent<KinectManager> ();
+		//	kinectManager = kinectManagerObject.GetComponent<KinectManager> ();
 
 		//#endif
 	}
@@ -49,91 +49,187 @@ public class SetHandler : MonoBehaviour
 
 		switch (task.description) {
 
-		#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-
-		case "kinect":
-
-
-			ParticleCloud.setLifeTime (0.1f);
-
-
-			if (interval == 4) {
-				interval = 0;
-
-				depthMap = PRESENCE.pKinect.kinectManager.GetRawDepthMap ();
-
-				width = PRESENCE.pKinect.kinectManager.getUserDepthWidth ();
-				height = PRESENCE.pKinect.kinectManager.getUserDepthHeight ();
 
 
 
-				int sample = 8;
-				Vector3 point;
 
-				for (int y = 0; y < height; y += sample) {
+		case "kinectcloud":
 
-					for (int x = 0; x < width; x += sample) {
+			ushort[] newFrame;
+			int sample;
+			int dataSize;
+			Vector3 point;
+			ParticleSystem.Particle[] allParticles;
+			ParticleSystem.Particle particle;
 
-						int i = y * width + x;
+			if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL) {
 
-						ushort userMap = (ushort)(depthMap [i] & 7);
-						ushort userDepth = (ushort)(depthMap [i] >> 3);
+				#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+			
 
-						if (userMap != 0) {
-							point = depthToWorld (x, y, userDepth);
-							point.y = -point.y;
-							point.y += 1.5f;
+				ParticleCloud.setLifeTime (0.1f);
 
-							ParticleCloud.Emit (point);
+				if (interval == 4) {
+					interval = 0;
+
+					depthMap = PRESENCE.pKinect.kinectManager.GetRawDepthMap ();
+
+					width = PRESENCE.pKinect.kinectManager.getUserDepthWidth ();
+					height = PRESENCE.pKinect.kinectManager.getUserDepthHeight ();
+
+					sample = 8;
+
+					dataSize = (height / sample) * (width / sample);
+
+					int pi=0;
+
+					newFrame = new ushort [dataSize];
+					allParticles = new ParticleSystem.Particle[dataSize];
+
+				//	allParticles = ParticleCloud.ps.GetParticles();
+
+						
+					PRESENCE.frame++;
+
+					int dataIndex = 0;
+
+					for (int y = 0; y < height; y += sample) {
+
+						for (int x = 0; x < width; x += sample) {
+
+							int i = y * width + x;
+
+
+
+							newFrame [dataIndex] = (ushort)(depthMap [i]);
+
+							dataIndex++;
+
+
+							ushort userMap = (ushort)(depthMap [i] & 7);
+							ushort userDepth = (ushort)(depthMap [i] >> 3);
+
+
+							if (userMap != 0) {
+
+								point = depthToWorld (x, y, userDepth);
+								point.x = -point.x;
+
+								point.y = -point.y;
+
+								point.y += PRESENCE.kinectHeight;
+								//point.y += 1.5f;
+
+								//particle = new ParticleSystem.Particle ();
+					//			allParticles[pi].position = point;
+					//			allParticles[pi].startSize = 0.5f;
+					//			allParticles[pi].startLifetime = 0.5f;
+							//	particle.startSize =0.1f;
+						//		particle.startLifetime=0.1f;
+					//			particle.remainingLifetime=0.1f;
+					//			allParticles[pi]=particle;
+								pi++;
+
+								ParticleCloud.Emit (point);
+
+
+
+							}
+
+						
+
 						}
+
+
 
 					}
 
+					task.setStringValue( "debug",""+pi);
 
+			//		ParticleCloud.SetParticles(allParticles,pi);
+
+
+					task.setUshortValue ("frameData", newFrame);
+					task.setIntValue ("frame", PRESENCE.frame);
+					task.setIntValue ("frameSampleSize", sample);
+					task.setIntValue ("frameWidth", width);
+					task.setIntValue ("frameHeight", height);
 
 				}
 
 
+				interval++;
 
 
+				#endif
+
+			}
+
+			if (GENERAL.AUTHORITY == AUTHORITY.LOCAL) {
+
+
+				int getFrame;
+
+				if (task.getIntValue ("frame", out getFrame)) {
+
+					if (getFrame > PRESENCE.frame) {
+
+						// newer frame available
+
+						task.getUshortValue ("frameData", out newFrame);
+						task.getIntValue ("frameSampleSize", out sample);
+						task.getIntValue ("frameWidth", out width);
+						task.getIntValue ("frameHeight", out height);
+
+						ParticleCloud.setLifeTime (0.1f);
+
+						int mx = width / sample;
+						int my = height / sample;
+						int i;
+
+						for (int y = 0; y < my; y++) {
+
+							for (int x = 0; x < mx; x++) {
+
+								i = y * mx + x;
+
+								//	newFrame [framei] = (ushort)(depthMap [i]);
+
+								ushort userMap = (ushort)(newFrame [i] & 7);
+								ushort userDepth = (ushort)(newFrame [i] >> 3);
+
+								if (userMap != 0) {
+
+									point = depthToWorld (x * sample, y * sample, userDepth);
+									point.x = -point.x;
+									point.y = -point.y;
+									point.y += PRESENCE.kinectHeight;
+
+									ParticleCloud.Emit (point);
+								}
+
+							}
+
+						} // end of plotting loop
+							
+						PRESENCE.frame = getFrame;
+
+					}
+
+				}
 
 			}
 
 
 
-
-			interval++;
-
-
-			//			int y = i / kinectManager.getUserDepthWidth;
-			//			int x = i - y * usersMapHeight;
-
-
-
-			// test plot into cloud at 1/4 resolution
-
-			//			if (x % 8 == 0 && y % 8 == 0) {
-			//
-			//				point = depthToWorld (x, y, userDepth);
-			//				point.y = -point.y;
-			//				point.y += 1.5f;
-			//
-			//				ParticleCloud.Emit (point);
-			//
-			//
-			//			}
-
-
-
-
 			break;
-		#endif
+	
 
 
 		case "setdebug":
 
 			c = GameObject.Find ("Compass");
-			 g = DebugObject.getNullObject (1, 1, 5);
+			g = DebugObject.getNullObject (1, 1, 5);
 			g.transform.SetParent (c.transform, false);
 
 			c = GameObject.Find ("Kinect");
@@ -199,7 +295,7 @@ public class SetHandler : MonoBehaviour
 		case "placekinect":
 
 
-			 k = GameObject.Find ("Kinect");
+			k = GameObject.Find ("Kinect");
 
 		//	Vector3 p;
 		//	Quaternion q;
@@ -295,8 +391,8 @@ public class SetHandler : MonoBehaviour
 			} else {
 
 				int ind;
-				if (task.getIntValue("index",out ind))
-					IO.depthIndex=ind;
+				if (task.getIntValue ("index", out ind))
+					IO.depthIndex = ind;
 
 			}
 
@@ -355,8 +451,9 @@ public class SetHandler : MonoBehaviour
 					width = DepthCapture.current.getUserDepthWidth ();
 					height = DepthCapture.current.getUserDepthHeight ();
 
-					int sample = 8;
-					Vector3 point;
+					sample = 8;
+
+					//	Vector3 point;
 
 					for (int y = 0; y < height; y += sample) {
 
@@ -457,16 +554,20 @@ public class SetHandler : MonoBehaviour
 	double cy_d = 2.4273913761751615e+02;
 
 
- Vector3 depthToWorld (int x, int y, int depthValue){
+	Vector3 depthToWorld (int x, int y, int depthValue)
+	{
+		
 		Vector3 result = Vector3.zero;
 
 		//double depth = depthLookUp [depthValue];
 		//float depth = rawDepthToMeters(depthValue);
-		float depth = depthValue/1000f;
+
+		float depth = depthValue / 1000f;
 
 		result.x = (float)((x - cx_d) * depth * fx_d);
 		result.y = (float)((y - cy_d) * depth * fy_d);
 		result.z = (float)(depth);
+
 		return result;
 
 	}

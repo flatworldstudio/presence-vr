@@ -2,8 +2,8 @@
 
 public static class ParticleCloud  {
 
-	static ParticleSystem ps;
-	static ParticleSystem.EmitParams emitParams;
+	public static ParticleSystem ps;
+	public static ParticleSystem.EmitParams emitParams;
 
 	static GameObject e1,e2;
 	static float r1,r2;
@@ -11,7 +11,9 @@ public static class ParticleCloud  {
 
 
 	public static void init (GameObject particleSystem) {
+		
 		ps = particleSystem.GetComponent<ParticleSystem> ();
+
 		emitParams = new ParticleSystem.EmitParams();
 
 		var main = ps.main;
@@ -24,6 +26,15 @@ public static class ParticleCloud  {
 
 	}
 
+	public static void SetParticles (ParticleSystem.Particle [] particles, int number){
+
+
+
+		ps.SetParticles (particles, number);
+
+
+
+	}
 
 
 	public static void Emit (Vector3 pos){
