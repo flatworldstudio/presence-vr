@@ -160,12 +160,16 @@ public class SetHandler : MonoBehaviour
 
 
 		case "placeset":
+
 			GameObject s = GameObject.Find ("SetHandler");
 			GameObject vi = GameObject.Find ("viewerInterest");
 			GameObject k = GameObject.Find ("Kinect");
+
 			c = GameObject.Find ("Compass");
 
-			c.transform.rotation = Quaternion.Euler (0, -PRESENCE.kinectHeading, 0);
+			PRESENCE.north = -PRESENCE.kinectHeading;
+
+			c.transform.rotation = Quaternion.Euler (0, PRESENCE.north, 0);
 			s.transform.rotation = c.transform.rotation;
 
 			p = PRESENCE.kinectHomeDistance * Vector3.forward;

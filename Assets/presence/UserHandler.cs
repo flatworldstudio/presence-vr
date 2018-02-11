@@ -528,7 +528,7 @@ public class UserHandler : MonoBehaviour
 
 					float vel = 0;
 
-					float newOffset = comp - head +PRESENCE.north;
+					float newOffset = comp - head + PRESENCE.north;
 
 					if (newOffset < 0)
 						newOffset += 360f;
@@ -556,9 +556,9 @@ public class UserHandler : MonoBehaviour
 				task.setVector3Value ("hlPosition", handl.transform.position);
 				task.setVector3Value ("hrPosition", handr.transform.position);
 
-				Vector3 t;
+			//	Vector3 t;
 
-				if (!task.getVector3Value ("kinectPosition", out  t)) {
+			//	if (!task.getVector3Value ("kinectPosition", out  t)) {
 
 					// send once
 
@@ -569,7 +569,7 @@ public class UserHandler : MonoBehaviour
 					task.setQuaternionValue ("setRotation", SetHandler.transform.rotation);
 
 
-				}
+			//	}
 
 				string callBackName = uxController.update (overviewInterface);
 
@@ -623,6 +623,7 @@ public class UserHandler : MonoBehaviour
 
 					Kinect.transform.position = kp;
 					Kinect.transform.rotation = kq;
+
 					SetHandler.transform.position = sp;
 					SetHandler.transform.rotation = sq;
 
@@ -643,7 +644,7 @@ public class UserHandler : MonoBehaviour
 
 				if (task.getVector3Value ("viewerPosition", out viewerPositionV)) {
 
-					viewerObject.transform.parent.transform.localPosition = viewerPositionV;
+					viewerObject.transform.parent.transform.position = viewerPositionV;
 
 				}
 
