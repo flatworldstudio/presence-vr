@@ -209,7 +209,7 @@ public class SetHandler : MonoBehaviour
 									point = depthToWorld (x * sample, y * sample, userDepth);
 									point.x = -point.x;
 									point.y = -point.y;
-									point.y += PRESENCE.kinectHeight;
+							//		point.y += PRESENCE.kinectHeight;
 
 									ParticleCloud.Emit (point);
 									particleIndex++;
