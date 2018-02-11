@@ -258,7 +258,13 @@ public class SetHandler : MonoBehaviour
 			g = DebugObject.getNullObject (0.25f, 0.25f, 0.5f);
 			g.transform.SetParent (c.transform, false);
 
+			c = GameObject.Find ("HandLeft");
+			g = DebugObject.getNullObject (0.25f);
+			g.transform.SetParent (c.transform, false);
 
+			c = GameObject.Find ("HandRight");
+			g = DebugObject.getNullObject (0.25f);
+			g.transform.SetParent (c.transform, false);
 
 			done = true;
 
