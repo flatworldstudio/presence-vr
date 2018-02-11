@@ -2,7 +2,6 @@
 #servertest
 debugon
 startkinect
-networkguion
 createoverview
 placeset
 setdebug

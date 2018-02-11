@@ -264,11 +264,11 @@ public class SetHandler : MonoBehaviour
 		case "setdebug":
 
 			c = GameObject.Find ("Compass");
-			g = DebugObject.getNullObject (1, 1, 5);
+			g = DebugObject.getNullObject (0.5f, 0.5f, 2.5f);
 			g.transform.SetParent (c.transform, false);
 
 			c = GameObject.Find ("Kinect");
-			g = DebugObject.getNullObject (1, 1, 1);
+			g = DebugObject.getNullObject (0.25f, 0.25f, 0.5f);
 			g.transform.SetParent (c.transform, false);
 
 
