@@ -94,27 +94,48 @@ public  class PKinect {
 
 	public Vector3 getJoint (uint playerID, int joint){
 
-	//	KinectManager manager = KinectManager.Instance;
-		bool MirroredMovement = true;
-
-		Vector3 posJoint = kinectManager.GetJointPosition (playerID, joint);
-		posJoint.z = !MirroredMovement ? -posJoint.z : posJoint.z;
+		Vector3 posJoint = Vector3.zero;
 
 
-		posJoint.y -= PRESENCE.kinectHeight; // correct for sensorheigh because kinect takes it into account
+		if (live) {
 
-		if (MirroredMovement) {
-			posJoint.x = -posJoint.x;
-		}
+			#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
-		if (!centered) {
 
-			Vector3 projected = kinectRotation * posJoint;
-			projected += kinectPosition;
-			return projected;
-		}
+			bool MirroredMovement = true;
+
+			posJoint = kinectManager.GetJointPosition (playerID, joint);
+
+			posJoint.z = !MirroredMovement ? -posJoint.z : posJoint.z;
+
+
+			posJoint.y -= PRESENCE.kinectHeight; // correct for sensorheigh because kinect takes it into account
+
+			if (MirroredMovement) {
+				posJoint.x = -posJoint.x;
+			}
+
+			#endif
+
+			if (!centered) {
+
+				posJoint = kinectRotation * posJoint;
+				posJoint += kinectPosition;
+
+			}
+
+
+
+			return posJoint;
+
+		} 
+
 
 		return posJoint;
+
+
+
+
 
 	}
 

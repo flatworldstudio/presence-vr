@@ -497,6 +497,8 @@ public class UserHandler : MonoBehaviour
 
 				if (PRESENCE.pKinect.IsLive ()) {
 
+					#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+
 					KinectManager manager = PRESENCE.pKinect.kinectManager;
 
 					uint playerID = manager != null ? manager.GetPlayer1ID () : 0;
@@ -509,6 +511,8 @@ public class UserHandler : MonoBehaviour
 						handr.transform.position = PRESENCE.pKinect.getJoint (playerID, 11);
 
 					}
+
+					#endif
 
 				}
 

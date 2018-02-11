@@ -172,7 +172,7 @@ public class DataHandler : MonoBehaviour
 
 
 
-
+			#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 		case "recordkinect":
 
 			// we grab a frame and write it to disk...
@@ -199,7 +199,7 @@ public class DataHandler : MonoBehaviour
 
 			break;
 
-		
+		#endif
 
 	
 

@@ -49,6 +49,8 @@ public class SetHandler : MonoBehaviour
 
 		switch (task.description) {
 
+		#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+
 		case "kinect":
 
 
@@ -125,6 +127,8 @@ public class SetHandler : MonoBehaviour
 
 
 			break;
+		#endif
+
 
 		case "setdebug":
 
