@@ -4,7 +4,7 @@ debugon
 startkinect
 networkguion
 createoverview
-placekinect
+placeset
 setdebug
 viewerdebug
 start userinterface

@@ -4794,8 +4794,8 @@ MonoBehaviour:
   setObject: {fileID: 1988843641}
   handl: {fileID: 589512547}
   handr: {fileID: 958343184}
-  Kinect: {fileID: 0}
-  SetHandler: {fileID: 0}
+  Kinect: {fileID: 1564836465}
+  SetHandler: {fileID: 1988843641}
 --- !u!4 &1012313925
 Transform:
   m_ObjectHideFlags: 0
