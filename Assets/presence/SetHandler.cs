@@ -27,7 +27,8 @@ public class SetHandler : MonoBehaviour
 	Vector3 p;
 	GameObject c, g;
 
-	float frameStamp;
+	float serverFrameStamp,clientFrameStamp;
+	float serverFrameDuration,clientFrameDuration;
 
 	void Start ()
 	{
@@ -72,9 +73,13 @@ public class SetHandler : MonoBehaviour
 			
 				if (interval==-1){
 					
-					frameStamp = Time.time;
+					serverFrameStamp = Time.time;
+					clientFrameStamp = Time.time;
 					interval++;
 				}
+
+				if (!task.getFloatValue("clientFrameDuration",out clientFrameDuration ))
+					clientFrameDuration	= 1/50f;
 
 
 
@@ -82,11 +87,11 @@ public class SetHandler : MonoBehaviour
 					
 					interval = 0;
 
-					float frameDuration = Time.time - frameStamp;
+					serverFrameDuration = Time.time - serverFrameStamp;
 
-					ParticleCloud.setLifeTime (frameDuration+ 0.015f);
+					ParticleCloud.setLifeTime (serverFrameDuration+ 0.015f);
 
-					frameStamp = Time.time;
+					serverFrameStamp = Time.time;
 
 					depthMap = PRESENCE.pKinect.kinectManager.GetRawDepthMap ();
 
@@ -166,11 +171,23 @@ public class SetHandler : MonoBehaviour
 			//		ParticleCloud.SetParticles(allParticles,pi);
 
 
-					task.setUshortValue ("frameData", newFrame);
-					task.setIntValue ("frame", PRESENCE.frame);
-					task.setIntValue ("frameSampleSize", sample);
-					task.setIntValue ("frameWidth", width);
-					task.setIntValue ("frameHeight", height);
+					if (Time.time-clientFrameStamp>clientFrameDuration){
+						
+						task.setUshortValue ("frameData", newFrame);
+						task.setIntValue ("frame", PRESENCE.frame);
+
+						task.setIntValue ("frameSampleSize", sample);
+						task.setIntValue ("frameWidth", width);
+						task.setIntValue ("frameHeight", height);
+
+						clientFrameStamp=Time.time;
+
+					}
+
+					// only send at the interval the client can more or less handle
+
+					task.setStringValue( "debug","s: "+1f/serverFrameDuration+" c: "+	1f/clientFrameDuration);
+			
 
 				}
 
@@ -196,15 +213,15 @@ public class SetHandler : MonoBehaviour
 
 						if (interval==-1){
 
-							frameStamp = Time.time;
+							clientFrameStamp = Time.time;
 							interval++;
 						}
 
-						float frameDuration = Time.time - frameStamp;
+						clientFrameDuration = Time.time - clientFrameStamp;
 
-						ParticleCloud.setLifeTime (frameDuration+ 0.015f);
+						ParticleCloud.setLifeTime (clientFrameDuration+ 0.015f);
 
-						frameStamp = Time.time;
+						clientFrameStamp = Time.time;
 
 						task.getUshortValue ("frameData", out newFrame);
 						task.getIntValue ("frameSampleSize", out sample);
@@ -248,7 +265,10 @@ public class SetHandler : MonoBehaviour
 							
 					
 						PRESENCE.frame = getFrame;
-						task.setStringValue( "debug","f: "+PRESENCE.frame+" p: "+	particleIndex);
+
+						task.setFloatValue ("clientFrameDuration", clientFrameDuration);
+
+			//			task.setStringValue( "debug","f: "+PRESENCE.frame+" p: "+	particleIndex);
 
 
 					}

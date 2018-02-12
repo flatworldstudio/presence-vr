@@ -25,6 +25,31 @@ public class DataHandler : MonoBehaviour
 
 	string me = "Data handler: ";
 
+	void Awake (){
+
+		// Engine modules.
+
+		Log.SetModuleLevel ("Assistant director", LOGLEVEL.WARNINGS);
+		Log.SetModuleLevel ("Director", LOGLEVEL.WARNINGS);
+		Log.SetModuleLevel ("Deus controller", LOGLEVEL.WARNINGS);
+		Log.SetModuleLevel ("User controller", LOGLEVEL.WARNINGS);
+		Log.SetModuleLevel ("Set controller", LOGLEVEL.WARNINGS);
+		Log.SetModuleLevel ("Network manager", LOGLEVEL.WARNINGS);
+		Log.SetModuleLevel ("Networkbroadcast", LOGLEVEL.WARNINGS);
+		Log.SetModuleLevel ("Script", LOGLEVEL.WARNINGS);
+		Log.SetModuleLevel ("Storypointer", LOGLEVEL.WARNINGS);
+		Log.SetModuleLevel ("Storytask", LOGLEVEL.WARNINGS);
+		Log.SetModuleLevel ("Taskupdate", LOGLEVEL.WARNINGS);
+		Log.SetModuleLevel ("Uxcontroller", LOGLEVEL.WARNINGS);
+
+
+
+		// Custom modules.
+
+
+	}
+
+
 	void Start ()
 	{
 
