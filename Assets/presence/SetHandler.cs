@@ -31,7 +31,7 @@ public class SetHandler : MonoBehaviour
 	float serverFrameRate, clientFrameRate;
 
 
-	float targetFrameRate=0.2f;
+	float targetFrameRate=0.15f;
 	float safeFrameRate=0.1f;
 
 	int droppedFrames=0;
