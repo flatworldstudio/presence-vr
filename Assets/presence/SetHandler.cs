@@ -27,11 +27,15 @@ public class SetHandler : MonoBehaviour
 	Vector3 p;
 	GameObject c, g;
 
-	float serverFrameStamp,clientFrameStamp;
-	float serverFrameRate,clientFrameRate;
+	float serverFrameStamp, clientFrameStamp;
+	float serverFrameRate, clientFrameRate;
+
 
 	float targetFrameRate=1f/10f;
 	int droppedFrames=0;
+
+
+
 
 	void Start ()
 	{
@@ -74,15 +78,15 @@ public class SetHandler : MonoBehaviour
 
 				#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 			
-				if (interval==-1){
+				if (interval == -1) {
 					
-				serverFrameStamp = Time.time-targetFrameRate;
-				clientFrameStamp = Time.time-targetFrameRate;
+					serverFrameStamp = Time.time - targetFrameRate;
+					clientFrameStamp = Time.time - targetFrameRate;
 					interval++;
 				}
 
-				if (!task.getFloatValue("clientFrameRate",out clientFrameRate ))
-				clientFrameRate	= targetFrameRate;
+				if (!task.getFloatValue ("clientFrameRate", out clientFrameRate))
+					clientFrameRate	= targetFrameRate;
 
 
 
@@ -92,13 +96,13 @@ public class SetHandler : MonoBehaviour
 
 					//serverFrameRate = Time.time - serverFrameStamp;
 
-					serverFrameRate=Mathf.Lerp(serverFrameRate,Time.time-serverFrameStamp,0.1f);
+					serverFrameRate = Mathf.Lerp (serverFrameRate, Time.time - serverFrameStamp, 0.1f);
 
 
-				serverFrameStamp = Time.time;
+					serverFrameStamp = Time.time;
 
 
-					ParticleCloud.setLifeTime (serverFrameRate+ 0.015f);
+					ParticleCloud.setLifeTime (serverFrameRate + 0.015f);
 
 
 					depthMap = PRESENCE.pKinect.kinectManager.GetRawDepthMap ();
@@ -110,12 +114,12 @@ public class SetHandler : MonoBehaviour
 
 					dataSize = (height / sample) * (width / sample);
 
-					particleIndex=0;
+					particleIndex = 0;
 
 					newFrame = new ushort [dataSize];
 					allParticles = new ParticleSystem.Particle[dataSize];
 
-				//	allParticles = ParticleCloud.ps.GetParticles();
+					//	allParticles = ParticleCloud.ps.GetParticles();
 
 						
 					PRESENCE.frame++;
@@ -147,17 +151,17 @@ public class SetHandler : MonoBehaviour
 								point.y = -point.y;
 								point.z += 0.05f;
 
-							point.y += PRESENCE.kinectHeight;
+								point.y += PRESENCE.kinectHeight;
 								//point.y += 1.5f;
 
 								//particle = new ParticleSystem.Particle ();
-					//			allParticles[pi].position = point;
-					//			allParticles[pi].startSize = 0.5f;
-					//			allParticles[pi].startLifetime = 0.5f;
-							//	particle.startSize =0.1f;
-						//		particle.startLifetime=0.1f;
-					//			particle.remainingLifetime=0.1f;
-					//			allParticles[pi]=particle;
+								//			allParticles[pi].position = point;
+								//			allParticles[pi].startSize = 0.5f;
+								//			allParticles[pi].startLifetime = 0.5f;
+								//	particle.startSize =0.1f;
+								//		particle.startLifetime=0.1f;
+								//			particle.remainingLifetime=0.1f;
+								//			allParticles[pi]=particle;
 								particleIndex++;
 
 								ParticleCloud.Emit (point);
@@ -174,14 +178,14 @@ public class SetHandler : MonoBehaviour
 
 					}
 
-			//		task.setStringValue( "debug","f: "+PRESENCE.frame+" p: "+pi);
+					//		task.setStringValue( "debug","f: "+PRESENCE.frame+" p: "+pi);
 
-			//		ParticleCloud.SetParticles(allParticles,pi);
+					//		ParticleCloud.SetParticles(allParticles,pi);
 
 
-				if (Time.time-clientFrameStamp>=targetFrameRate){
+					if (Time.time - clientFrameStamp >= targetFrameRate) {
 
-						clientFrameStamp=Time.time;
+						clientFrameStamp = Time.time;
 
 						task.setUshortValue ("frameData", newFrame);
 						task.setIntValue ("frame", PRESENCE.frame);
@@ -196,7 +200,10 @@ public class SetHandler : MonoBehaviour
 
 					// only send at the interval the client can more or less handle
 
-				task.setStringValue( "debug","s: "+Mathf.Round(100f*serverFrameRate)+" c: "+Mathf.Round(100f*	clientFrameRate));
+				//	if (clientFrameRate>targetFrameRate)
+
+
+					task.setStringValue ("debug", "s: " + Mathf.Round (100f * serverFrameRate) + " c: " + Mathf.Round (100f *	clientFrameRate));
 
 			
 
@@ -231,8 +238,8 @@ public class SetHandler : MonoBehaviour
 							clientFrameStamp = Time.time - targetFrameRate; // we start perfectly on rate.
 
 						}
-					//	clientFrameRate = Time.time - clientFrameStamp;
-						clientFrameRate=Mathf.Lerp(clientFrameRate,Time.time-clientFrameStamp,0.1f);
+						//	clientFrameRate = Time.time - clientFrameStamp;
+						clientFrameRate = Mathf.Lerp (clientFrameRate, Time.time - clientFrameStamp, 0.1f);
 
 						clientFrameStamp = Time.time;
 
@@ -261,7 +268,7 @@ public class SetHandler : MonoBehaviour
 						int my = height / sample;
 						int i;
 
-						particleIndex=0;
+						particleIndex = 0;
 
 						for (int y = 0; y < my; y++) {
 
@@ -300,7 +307,7 @@ public class SetHandler : MonoBehaviour
 
 						task.setFloatValue ("clientFrameRate", clientFrameRate);
 
-			//			task.setStringValue( "debug","f: "+PRESENCE.frame+" p: "+	particleIndex);
+						//			task.setStringValue( "debug","f: "+PRESENCE.frame+" p: "+	particleIndex);
 
 
 					}
