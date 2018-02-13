@@ -31,6 +31,7 @@ public class SetHandler : MonoBehaviour
 	float serverFrameRate,clientFrameRate;
 
 	float targetFrameRate=1f/10f;
+	int droppedFrames=0;
 
 	void Start ()
 	{
@@ -290,7 +291,12 @@ public class SetHandler : MonoBehaviour
 						} // end of plotting loop
 							
 					
+
+						droppedFrames += PRESENCE.frame - getFrame - 1;
+
 						PRESENCE.frame = getFrame;
+
+						task.setIntValue ("dropped", droppedFrames);
 
 						task.setFloatValue ("clientFrameRate", clientFrameRate);
 
