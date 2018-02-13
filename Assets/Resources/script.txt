@@ -23,7 +23,6 @@ start serversearch
 end
 
 #clienttestvr
-debugon
 createviewvr
 dummykinect
 placekinect
