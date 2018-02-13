@@ -202,8 +202,14 @@ public class SetHandler : MonoBehaviour
 
 				//	if (clientFrameRate>targetFrameRate)
 
+					int droppedFrames=0;
 
-					task.setStringValue ("debug", "s: " + Mathf.Round (100f * serverFrameRate) + " c: " + Mathf.Round (100f *	clientFrameRate));
+					task.getIntValue ("dropped",out droppedFrames);
+
+
+
+
+					task.setStringValue ("debug", "s: " + Mathf.Round (100f * serverFrameRate) + " c: " + Mathf.Round (100f *	clientFrameRate) + " d: "+droppedFrames);
 
 			
 
@@ -299,7 +305,7 @@ public class SetHandler : MonoBehaviour
 							
 					
 
-						droppedFrames += PRESENCE.frame - getFrame - 1;
+						droppedFrames += PRESENCE.frame - getFrame + 1;
 
 						PRESENCE.frame = getFrame;
 
