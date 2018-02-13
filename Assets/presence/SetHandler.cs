@@ -31,7 +31,7 @@ public class SetHandler : MonoBehaviour
 	float serverFrameRate, clientFrameRate;
 
 
-	float targetFrameRate=1f/10f;
+	float targetFrameRate=0.2f;
 	int droppedFrames=0;
 
 
@@ -122,7 +122,7 @@ public class SetHandler : MonoBehaviour
 					//	allParticles = ParticleCloud.ps.GetParticles();
 
 						
-					PRESENCE.frame++;
+				
 
 					int dataIndex = 0;
 
@@ -184,7 +184,7 @@ public class SetHandler : MonoBehaviour
 
 
 					if (Time.time - clientFrameStamp >= targetFrameRate) {
-
+						
 						clientFrameStamp = Time.time;
 
 						task.setUshortValue ("frameData", newFrame);
@@ -194,7 +194,7 @@ public class SetHandler : MonoBehaviour
 						task.setIntValue ("frameWidth", width);
 						task.setIntValue ("frameHeight", height);
 
-						
+						PRESENCE.frame++;
 
 					}
 
@@ -209,7 +209,7 @@ public class SetHandler : MonoBehaviour
 
 
 
-					task.setStringValue ("debug", "s: " + Mathf.Round (100f * serverFrameRate) + " c: " + Mathf.Round (100f *	clientFrameRate) + " d: "+droppedFrames);
+					task.setStringValue ("debug", "f: "+PRESENCE.frame+ "s: " + Mathf.Round (100f * serverFrameRate) + " c: " + Mathf.Round (100f *	clientFrameRate) + " d: "+droppedFrames);
 
 			
 
@@ -305,7 +305,7 @@ public class SetHandler : MonoBehaviour
 							
 					
 
-						droppedFrames += PRESENCE.frame - getFrame + 1;
+						droppedFrames += getFrame - PRESENCE.frame - 1;
 
 						PRESENCE.frame = getFrame;
 
