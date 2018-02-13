@@ -89,11 +89,15 @@ public class SetHandler : MonoBehaviour
 					
 					interval = 0;
 
-					serverFrameRate = Time.time - serverFrameStamp;
+					//serverFrameRate = Time.time - serverFrameStamp;
+
+					serverFrameRate=Mathf.Lerp(serverFrameRate,Time.time-serverFrameStamp,0.1f);
+
+
 				serverFrameStamp = Time.time;
 
 
-					ParticleCloud.setLifeTime (serverFrameDuration+ 0.015f);
+					ParticleCloud.setLifeTime (serverFrameRate+ 0.015f);
 
 
 					depthMap = PRESENCE.pKinect.kinectManager.GetRawDepthMap ();
@@ -226,7 +230,8 @@ public class SetHandler : MonoBehaviour
 							clientFrameStamp = Time.time - targetFrameRate; // we start perfectly on rate.
 
 						}
-						clientFrameRate = Time.time - clientFrameStamp;
+					//	clientFrameRate = Time.time - clientFrameStamp;
+						clientFrameRate=Mathf.Lerp(clientFrameRate,Time.time-clientFrameStamp,0.1f);
 
 						clientFrameStamp = Time.time;
 
