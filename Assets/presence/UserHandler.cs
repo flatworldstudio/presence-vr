@@ -14,7 +14,7 @@ public class UserHandler : MonoBehaviour
 
 
 
-
+	float heading, lastHeading, smoothOffset,northOffset;
 
 	string me = "Task handler: ";
 
@@ -34,6 +34,7 @@ public class UserHandler : MonoBehaviour
 		// Callibration: rotate headset so that north is always north.
 
 		Input.compass.enabled = true;
+		Input.compensateSensors=false;
 
 //		PRESENCE.mobileInitialHeading1 = Input.compass.magneticHeading;
 //		PRESENCE.mobileInitialHeading = Input.compass.magneticHeading;
@@ -109,8 +110,12 @@ public class UserHandler : MonoBehaviour
 
 
 
+
+
 		case "createviewvr":
+			
 			PRESENCE.isOverview = false;
+
 			viewInterface = new UxInterface ();
 
 			UxMapping uxMap = new UxMapping ();
@@ -119,16 +124,16 @@ public class UserHandler : MonoBehaviour
 			uxMap.ux_none += UxMethods.none;
 
 
-			uxMap.ux_tap_2d += UxMethods.highlightButton2d;
-			uxMap.ux_tap_3d += UxMethods.select3dObject;
-			uxMap.ux_tap_none += UxMethods.clearSelectedObjects;
-			uxMap.ux_tap_none += UxMethods.stopControls;
+			uxMap.ux_tap_2d += UxMethods.none;
+			uxMap.ux_tap_3d += UxMethods.none;
+//			uxMap.ux_tap_none += UxMethods.clearSelectedObjects;
+			uxMap.ux_tap_none += UxMethods.tapNone;
 
-			uxMap.ux_single_2d += UxMethods.drag2d;
+			uxMap.ux_single_2d += UxMethods.none;
 			uxMap.ux_single_3d += UxMethods.none;
 			uxMap.ux_single_none += UxMethods.none;
 
-			uxMap.ux_double_2d += UxMethods.drag2d;
+			uxMap.ux_double_2d += UxMethods.none;
 			uxMap.ux_double_3d += UxMethods.none;
 			uxMap.ux_double_none += UxMethods.none;
 
@@ -142,6 +147,7 @@ public class UserHandler : MonoBehaviour
 
 			viewInterface.canvasObject = uxCanvas;
 
+			viewInterface.tapNoneCallback = "calibrate"; 
 
 			done = true;
 			break;
@@ -516,6 +522,55 @@ public class UserHandler : MonoBehaviour
 
 			#endif
 
+
+		case "calibrate":
+
+			// rotate the headset towards the kinect.
+
+
+		
+			// kinect as at an angle of
+
+			Vector3 kinectPosition = Kinect.transform.position - headSet.transform.position;
+
+			float kinectAtAngle = Mathf.Atan2 (kinectPosition.x, kinectPosition.z)*Mathf.Rad2Deg;
+
+			Debug.Log  ("kinect: " + kinectAtAngle);
+
+			// headset is (locally) rotated at an angle of
+
+			Vector3 euler = headSet.transform.localRotation.eulerAngles;
+
+			float headYaw = euler.y;
+
+			Debug.Log ("headYaw: " + headYaw);
+
+			// which leaves a delta of
+
+			viewerObject.transform.parent.transform.rotation = Quaternion.Euler (0, kinectAtAngle-headYaw, 0);
+
+
+
+
+
+			done = true;
+
+			break;
+
+		case "checkforcalibration":
+			
+			string callBackName = uxController.update (viewInterface);
+
+			if (!callBackName.Equals ("")) {
+
+				task.setCallBack (callBackName);
+
+			}
+
+
+
+			break;
+
 		case "interfaceactive":
 
 			if (PRESENCE.isOverview) {
@@ -596,7 +651,7 @@ public class UserHandler : MonoBehaviour
 
 				//	}
 
-				string callBackName = uxController.update (overviewInterface);
+				 callBackName = uxController.update (overviewInterface);
 
 				if (!callBackName.Equals ("")) {
 
@@ -609,14 +664,63 @@ public class UserHandler : MonoBehaviour
 
 			if (!PRESENCE.isOverview) {
 
-				// VIEWER
+				// skipping the compass because of inaccuracy...
+				// perhaps use markers.
 
-				// put
+			/*
+
+				Vector3 euler = headSet.transform.localRotation.eulerAngles;
+
+				float yaw = euler.y;
+
+				float pitch = euler.x <= 180 ? euler.x : euler.x - 360f;
+				float roll = euler.z <= 180 ? euler.z : euler.z - 360f;
+
+				heading = Input.compass.magneticHeading;
+
+				#if UNITY_EDITOR
+
+				heading =yaw; // in de editor we start with point of device north, so heading and yaw are always the same. in effect this is facing east.
+
+				#endif
+
+				float relativeNorth = 270f - heading;
+
+				lastHeading = heading;
+
+				if (pitch < 40 && pitch > -40 && roll < 40 && roll > -40) {
 
 
+					 northOffset = relativeNorth + yaw;
+					compass.transform.localRotation = Quaternion.Euler (0, northOffset, 0);
+
+
+
+				}
+
+
+				float vel=0;
+
+				smoothOffset = Mathf.SmoothDampAngle (smoothOffset, northOffset, ref vel, 0.5f);
+
+//				viewerObject.transform.parent.transform.rotation= Quaternion.Euler (0, -northOffset, 0);
+
+
+
+				task.setStringValue ("debug", "N: " + Mathf.Round(relativeNorth)+ " D: "
+					+ Mathf.Round(heading-lastHeading) 
+					+" P "+Mathf.Round(pitch)
+					+" R "+Mathf.Round(roll)
+					+" Y "+Mathf.Round(yaw)
+				
+				) ;
+
+*/
+
+
+				/*
 
 			
-				Vector3 euler = headSet.transform.localRotation.eulerAngles;
 
 			
 
@@ -646,7 +750,7 @@ public class UserHandler : MonoBehaviour
 
 				}
 
-
+*/
 			
 				task.setQuaternionValue ("headrotation", headSet.transform.localRotation);
 
@@ -676,14 +780,14 @@ public class UserHandler : MonoBehaviour
 
 				float viewerYawOffset;
 
-				if (task.getFloatValue ("viewerYawOffset", out viewerYawOffset)) {
-
-					// we're letting server tell us the offset all the time. could localise.
-
-					viewerObject.transform.parent.transform.localRotation = Quaternion.Euler (0, viewerYawOffset, 0);
-
-				}
-
+//				if (task.getFloatValue ("viewerYawOffset", out viewerYawOffset)) {
+//
+//					// we're letting server tell us the offset all the time. could localise.
+//
+//					viewerObject.transform.parent.transform.localRotation = Quaternion.Euler (0, viewerYawOffset, 0);
+//
+//				}
+//
 				Vector3 viewerPositionV;
 
 				if (task.getVector3Value ("viewerPosition", out viewerPositionV)) {
@@ -708,13 +812,13 @@ public class UserHandler : MonoBehaviour
 
 				}
 
-				string callBackName = uxController.update (viewInterface);
-
-				if (!callBackName.Equals ("")) {
-
-					task.setCallBack (callBackName);
-
-				}
+//				string callBackName = uxController.update (viewInterface);
+//
+//				if (!callBackName.Equals ("")) {
+//
+//					task.setCallBack (callBackName);
+//
+//				}
 
 			}
 
@@ -766,7 +870,7 @@ public class UserHandler : MonoBehaviour
 
 */
 
-				string callBackName = uxController.update (viewInterface);
+				 callBackName = uxController.update (viewInterface);
 
 				if (!callBackName.Equals ("")) {
 
@@ -816,7 +920,7 @@ public class UserHandler : MonoBehaviour
 
 				//
 */
-				string callBackName = uxController.update (overviewInterface);
+				 callBackName = uxController.update (overviewInterface);
 
 				if (!callBackName.Equals ("")) {
 

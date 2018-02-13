@@ -24,14 +24,24 @@ start serversearch
 end
 
 #clienttestvr
+debugon
 createviewvr
 dummykinect
-placeset
+placekinect
 setdebug
 handdebug
+start vrcalibration
 start userinterface
 start cloud
 start serversearch
+end
+
+#vrcalibration
+checkforcalibration
+end
+
+#calibrate
+calibrate
 end
 
 #serversearch
