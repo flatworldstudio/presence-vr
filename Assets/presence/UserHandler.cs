@@ -295,10 +295,14 @@ public class UserHandler : MonoBehaviour
 			break;
 
 		case "toggleview":
-			Camera cam = overviewObject.GetComponentInChildren<Camera> ();
 
-			cam.enabled = !cam.enabled;
+			if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL) {
 
+				// only execute on server
+
+				Camera cam = overviewObject.GetComponentInChildren<Camera> ();
+				cam.enabled = !cam.enabled;
+			}
 
 			done = true;
 
@@ -626,7 +630,7 @@ public class UserHandler : MonoBehaviour
 
 				if (task.getQuaternionValue ("headrotation", out q)) {
 
-					headSet.transform.localRotation = q;
+					headSet.transform.rotation = q;
 
 				}
 
@@ -752,7 +756,7 @@ public class UserHandler : MonoBehaviour
 
 */
 			
-				task.setQuaternionValue ("headrotation", headSet.transform.localRotation);
+				task.setQuaternionValue ("headrotation", headSet.transform.rotation);
 
 
 				// get

@@ -32,6 +32,8 @@ public class SetHandler : MonoBehaviour
 
 
 	float targetFrameRate=0.2f;
+	float safeFrameRate=0.1f;
+
 	int droppedFrames=0;
 
 
@@ -202,14 +204,28 @@ public class SetHandler : MonoBehaviour
 
 				//	if (clientFrameRate>targetFrameRate)
 
+
+
+
+
 					int droppedFrames=0;
 
 					task.getIntValue ("dropped",out droppedFrames);
 
+					if (droppedFrames==0 ){
+
+						targetFrameRate = Mathf.Lerp(targetFrameRate,safeFrameRate,0.01f);
+
+					} else {
+
+						safeFrameRate+=0.01f;
+
+						targetFrameRate+=0.01f;
+
+					}
 
 
-
-					task.setStringValue ("debug", "f: "+PRESENCE.frame+ "s: " + Mathf.Round (100f * serverFrameRate) + " c: " + Mathf.Round (100f *	clientFrameRate) + " d: "+droppedFrames);
+					task.setStringValue ("debug", "s: " + Mathf.Round (100f * serverFrameRate) +" c: " + Mathf.Round (100f * clientFrameRate) +" t: " + Mathf.Round (100f * targetFrameRate) + " sf: " + Mathf.Round (100f *	safeFrameRate) + " d: "+droppedFrames);
 
 			
 
@@ -305,7 +321,7 @@ public class SetHandler : MonoBehaviour
 							
 					
 
-						droppedFrames += getFrame - PRESENCE.frame - 1;
+						droppedFrames = getFrame - PRESENCE.frame - 1;
 
 						PRESENCE.frame = getFrame;
 
