@@ -1,6 +1,5 @@
 
 #servertest
-debugon
 startkinect
 createoverview
 placeset
