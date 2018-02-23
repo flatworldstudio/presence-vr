@@ -4,6 +4,44 @@ using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 
+
+
+
+
+[System.Serializable]
+public class CloudSequence
+{
+	public static CloudSequence current;
+
+	public CloudFrame[] Frames;
+
+	public CloudSequence (int size){
+		Frames = new CloudFrame[size];
+	}
+
+
+
+}
+
+
+
+
+[System.Serializable]
+public class CloudFrame
+{
+
+	public Vector3 [] Points;
+
+	public CloudFrame (){
+		
+	}
+
+}
+
+
+
+
+
 [System.Serializable]
 public class DepthCapture
 {

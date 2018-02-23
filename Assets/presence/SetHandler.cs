@@ -6,9 +6,12 @@ public class SetHandler : MonoBehaviour
 {
 
 	public SetController setController;
-	public GameObject cloud;
+
+	//public GameObject cloud;
 
 	public GameObject kinectManagerObject;
+
+	ParticleCloud[] clouds;
 
 	//	#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 	//KinectManager kinectManager;
@@ -31,10 +34,10 @@ public class SetHandler : MonoBehaviour
 	float serverFrameRate, clientFrameRate;
 
 
-	float targetFrameRate=0.15f;
-	float safeFrameRate=0.1f;
+	float targetFrameRate = 0.15f;
+	float safeFrameRate = 0.1f;
 
-	int droppedFrames=0;
+	int droppedFrames = 0;
 
 
 
@@ -44,7 +47,10 @@ public class SetHandler : MonoBehaviour
 
 		setController.addTaskHandler (TaskHandler);
 
-		ParticleCloud.init (GameObject.Find ("Cloud"));
+
+		//	ParticleCloud.init (GameObject.Find ("Cloud"));
+
+
 
 		//	#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
@@ -52,6 +58,16 @@ public class SetHandler : MonoBehaviour
 
 		//#endif
 	}
+	//	ParticleSystem.Particle[] allParticles;
+	int dataSize;
+	ushort[] newFrame;
+	int sample;
+	//	int dataSize;
+	Vector3 point;
+
+	int particleIndex;
+	int count;
+	ParticleCloud cloud, mirror;
 
 
 	public bool TaskHandler (StoryTask task)
@@ -62,69 +78,57 @@ public class SetHandler : MonoBehaviour
 		switch (task.description) {
 
 
+		case "createcloud":
 
+			clouds = new ParticleCloud[2];
 
+			clouds [0] = new ParticleCloud (2500);
+			clouds [1] = new ParticleCloud (2500);
+
+			done = true;
+
+			break;
 
 		case "kinectcloud":
-
-			ushort[] newFrame;
-			int sample;
-			int dataSize;
-			Vector3 point;
-			int particleIndex;
-
-			ParticleSystem.Particle[] allParticles;
-			ParticleSystem.Particle particle;
+			
+			string init;
 
 			if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL) {
 
 				#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-			
-				if (interval == -1) {
-					
+	
+
+				if (!task.getStringValue ("init", out init)) {
+					task.setStringValue ("init", "done");
+
+					cloud = clouds [0];
+					mirror = clouds [1];
+
 					serverFrameStamp = Time.time - targetFrameRate;
 					clientFrameStamp = Time.time - targetFrameRate;
-					interval++;
-				}
-
-				if (!task.getFloatValue ("clientFrameRate", out clientFrameRate))
-					clientFrameRate	= targetFrameRate;
-
-
-
-				if (interval == 4) {
-					
-					interval = 0;
-
-					//serverFrameRate = Time.time - serverFrameStamp;
-
-					serverFrameRate = Mathf.Lerp (serverFrameRate, Time.time - serverFrameStamp, 0.1f);
-
-
-					serverFrameStamp = Time.time;
-
-
-					ParticleCloud.setLifeTime (serverFrameRate + 0.015f);
-
-
-					depthMap = PRESENCE.pKinect.kinectManager.GetRawDepthMap ();
-
-					width = PRESENCE.pKinect.kinectManager.getUserDepthWidth ();
-					height = PRESENCE.pKinect.kinectManager.getUserDepthHeight ();
 
 					sample = 8;
 
+					width = PRESENCE.pKinect.kinectManager.getUserDepthWidth ();
+					height = PRESENCE.pKinect.kinectManager.getUserDepthHeight ();
 					dataSize = (height / sample) * (width / sample);
+
+
+
+				}
+
+					if (!task.getFloatValue ("clientFrameRate", out clientFrameRate))
+						clientFrameRate	= targetFrameRate;
+
+					serverFrameRate = Mathf.Lerp (serverFrameRate, Time.time - serverFrameStamp, 0.1f);
+
+					serverFrameStamp = Time.time;
+
+					depthMap = PRESENCE.pKinect.kinectManager.GetRawDepthMap ();
 
 					particleIndex = 0;
 
 					newFrame = new ushort [dataSize];
-					allParticles = new ParticleSystem.Particle[dataSize];
-
-					//	allParticles = ParticleCloud.ps.GetParticles();
-
-						
-				
 
 					int dataIndex = 0;
 
@@ -134,16 +138,10 @@ public class SetHandler : MonoBehaviour
 
 							int i = y * width + x;
 
-
-
 							newFrame [dataIndex] = (ushort)(depthMap [i]);
-
-							dataIndex++;
-
 
 							ushort userMap = (ushort)(depthMap [i] & 7);
 							ushort userDepth = (ushort)(depthMap [i] >> 3);
-
 
 							if (userMap != 0) {
 
@@ -154,39 +152,33 @@ public class SetHandler : MonoBehaviour
 								point.z += 0.05f;
 
 								point.y += PRESENCE.kinectHeight;
-								//point.y += 1.5f;
 
-								//particle = new ParticleSystem.Particle ();
-								//			allParticles[pi].position = point;
-								//			allParticles[pi].startSize = 0.5f;
-								//			allParticles[pi].startLifetime = 0.5f;
-								//	particle.startSize =0.1f;
-								//		particle.startLifetime=0.1f;
-								//			particle.remainingLifetime=0.1f;
-								//			allParticles[pi]=particle;
+								cloud.allParticles [particleIndex].position = point;
+
+								point.z *= -1;
+								point.z += 2;
+
+								mirror.allParticles [particleIndex].position = point;
+
+
 								particleIndex++;
-
-								ParticleCloud.Emit (point);
-
-
 
 							}
 
-						
+							dataIndex++;
 
 						}
 
-
-
 					}
 
-					//		task.setStringValue( "debug","f: "+PRESENCE.frame+" p: "+pi);
 
-					//		ParticleCloud.SetParticles(allParticles,pi);
+					cloud.ApplyParticles (particleIndex);
+					mirror.ApplyParticles (particleIndex);
 
+					//task.setStringValue ("debug",""+particleIndex );
 
 					if (Time.time - clientFrameStamp >= targetFrameRate) {
-						
+
 						clientFrameStamp = Time.time;
 
 						task.setUshortValue ("frameData", newFrame);
@@ -202,42 +194,75 @@ public class SetHandler : MonoBehaviour
 
 					// only send at the interval the client can more or less handle
 
-				//	if (clientFrameRate>targetFrameRate)
+					//	if (clientFrameRate>targetFrameRate)
 
 
 
 
 
-					int droppedFrames=0;
+					int droppedFrames = 0;
 
-					task.getIntValue ("dropped",out droppedFrames);
+					task.getIntValue ("dropped", out droppedFrames);
 
-					if (droppedFrames==0 ){
+					if (droppedFrames == 0) {
 
-						targetFrameRate = Mathf.Lerp(targetFrameRate,safeFrameRate,0.01f);
+						targetFrameRate = Mathf.Lerp (targetFrameRate, safeFrameRate, 0.01f);
 
 					} else {
 
-						safeFrameRate+=0.01f;
+						safeFrameRate += 0.01f;
 
-						targetFrameRate+=0.01f;
+						targetFrameRate += 0.01f;
 
 					}
 
 
-					task.setStringValue ("debug", "s: " + Mathf.Round (100f * serverFrameRate) +" c: " + Mathf.Round (100f * clientFrameRate) +" t: " + Mathf.Round (100f * targetFrameRate) + " sf: " + Mathf.Round (100f *	safeFrameRate) + " d: "+droppedFrames);
+					task.setStringValue ("debug", "s: " + Mathf.Round (100f * serverFrameRate) + " c: " + Mathf.Round (100f * clientFrameRate) + " t: " + Mathf.Round (100f * targetFrameRate) + " sf: " + Mathf.Round (100f *	safeFrameRate) + " d: " + droppedFrames);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			}
+
+
 
 			
 
-				}
+
+			//	if (interval == 1) {
+					
+			//		interval = 0;
+			
+
+					
 
 
-				interval++;
+			//	interval++;
 
 
 				#endif
 
-			}
+			//}
 
 			if (GENERAL.AUTHORITY == AUTHORITY.LOCAL) {
 
@@ -276,7 +301,7 @@ public class SetHandler : MonoBehaviour
 
 //						clientFrameDuration = Time.time - clientFrameStamp;
 
-						ParticleCloud.setLifeTime (clientFrameRate + 0.015f);
+						cloud.setLifeTime (clientFrameRate + 0.015f);
 
 
 						task.getUshortValue ("frameData", out newFrame);
@@ -311,7 +336,7 @@ public class SetHandler : MonoBehaviour
 									point.y += PRESENCE.kinectHeight;
 									point.z += 0.05f;
 
-									ParticleCloud.Emit (point);
+									cloud.Emit (point);
 									particleIndex++;
 								}
 
@@ -477,6 +502,8 @@ public class SetHandler : MonoBehaviour
 
 		case "showdepthdata":
 
+			cloud = clouds [0];
+
 			if (IO.savedDepthCaptures.Count > 0) {
 
 				interval2++;
@@ -608,7 +635,7 @@ public class SetHandler : MonoBehaviour
 								point.y = -point.y;
 								point.y += 1.5f;
 
-								ParticleCloud.Emit (point);
+								cloud.Emit (point);
 							}
 
 						}
@@ -640,10 +667,10 @@ public class SetHandler : MonoBehaviour
 		
 			
 		case "pointcloud":
+			cloud = clouds [0];
+			cloud.setLifeTime (0.5f);
 
-			ParticleCloud.setLifeTime (0.5f);
-
-			ParticleCloud.update ();
+			cloud.update ();
 
 
 

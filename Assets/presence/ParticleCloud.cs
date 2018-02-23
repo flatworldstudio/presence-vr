@@ -1,16 +1,44 @@
 ﻿using UnityEngine;
 
-public static class ParticleCloud  {
+public  class ParticleCloud  {
 
-	public static ParticleSystem ps;
-	public static ParticleSystem.EmitParams emitParams;
+	public  ParticleSystem ps;
+	public  ParticleSystem.EmitParams emitParams;
+	public GameObject CloudObject;
 
-	static GameObject e1,e2;
-	static float r1,r2;
-	static int count=0;
+	 GameObject e1,e2;
+	 float r1,r2;
+	 int count=0;
+
+	public ParticleSystem.Particle[] allParticles;
+
+	public ParticleCloud (int size){
+
+		// CLONE CLOUD
+		CloudObject = Object.Instantiate(Resources.Load("Cloud", typeof(GameObject))) as GameObject;
+
+		ps = CloudObject.GetComponent<ParticleSystem> ();
+		emitParams = new ParticleSystem.EmitParams();
+
+		var main = ps.main;
+		main.maxParticles = size;
+
+		// Emit a batch of particles and stash them.
+		initialEmit(size);
+		allParticles = new ParticleSystem.Particle[size];
+		ps.GetParticles(allParticles);
+
+	}
 
 
-	public static void init (GameObject particleSystem) {
+
+
+
+
+
+
+
+	public  void init (GameObject particleSystem) {
 		
 		ps = particleSystem.GetComponent<ParticleSystem> ();
 
@@ -26,7 +54,13 @@ public static class ParticleCloud  {
 
 	}
 
-	public static void SetParticles (ParticleSystem.Particle [] particles, int number){
+	public void ApplyParticles (int number){
+		
+		ps.SetParticles (allParticles, number);
+
+	}
+
+	public  void SetParticles (ParticleSystem.Particle [] particles, int number){
 
 
 
@@ -36,8 +70,25 @@ public static class ParticleCloud  {
 
 	}
 
+	public void initialEmit(int number){
 
-	public static void Emit (Vector3 pos){
+		emitParams = new ParticleSystem.EmitParams();
+
+		for (int p=0;p<number;p++){
+			
+		Vector3 pos = new Vector3 (Random.value * 5, Random.value * 5, Random.value * 5);
+
+		emitParams.position = pos;
+			ps.Emit(emitParams, 1);
+		}
+
+
+
+
+
+	}
+
+	public  void Emit (Vector3 pos){
 
 
 		emitParams.position =pos;
@@ -46,7 +97,7 @@ public static class ParticleCloud  {
 
 
 	}
-	public static void setLifeTime (float value){
+	public  void setLifeTime (float value){
 
 		var main = ps.main;
 
@@ -54,7 +105,7 @@ public static class ParticleCloud  {
 
 	}
 
-	public static void update () {
+	public  void update () {
 
 
 		if (count == 2) {
@@ -68,7 +119,7 @@ public static class ParticleCloud  {
 
 	}
 
-	static void DoEmit()
+	 void DoEmit()
 	{
 
 

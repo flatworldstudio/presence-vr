@@ -36,6 +36,7 @@ public static class PRESENCE {
 
 	public static int frame;
 
+	public static bool capturing;
 
 
 }

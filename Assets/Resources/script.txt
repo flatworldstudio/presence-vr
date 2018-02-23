@@ -1,5 +1,6 @@
 
 #servertest
+debugon
 startkinect
 createoverview
 placeset
@@ -9,6 +10,8 @@ start userinterface
 start cloud
 start server
 end
+
+
 
 
 #clienttest
@@ -69,6 +72,7 @@ sync
 end
 
 #cloud
+createcloud
 kinectcloud
 end
 
