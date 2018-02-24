@@ -19,6 +19,22 @@ public class CloudSequence
 		Frames = new CloudFrame[size];
 	}
 
+	public void Wrap () {
+
+		for (int f = 0; f < Frames.Length; f++) {
+			Frames [f].Wrap ();
+		}
+
+	}
+
+	public void UnWrap () {
+
+		for (int f = 0; f < Frames.Length; f++) {
+			Frames [f].UnWrap ();
+		}
+
+	}
+
 
 
 }
@@ -30,13 +46,50 @@ public class CloudSequence
 public class CloudFrame
 {
 
-	public Vector3 [] Points;
 
-	public CloudFrame (){
-		
+ [System.NonSerialized] public Vector3 [] Points;
+
+	public float[] pointsX;
+	public float[] pointsY;
+	public float[] pointsZ;
+
+
+	public CloudFrame (int size){
+
+		Points = new Vector3[size];
 	}
 
+	public void Wrap(){
+
+		pointsX = new float[Points.Length];
+		pointsY = new float[Points.Length];
+		pointsZ = new float[Points.Length];
+
+		for (int p = 0; p < Points.Length; p++) {
+		
+			pointsX[p] = Points [p].x;
+			pointsY[p] = Points [p].y;
+			pointsZ[p] = Points [p].z;
+					
+		}
+
+	}
+
+	public void UnWrap(){
+
+		Points = new Vector3[pointsX.Length];
+	
+		for (int p = 0; p < Points.Length; p++) {
+
+			Points [p] = new Vector3 (pointsX [p], pointsY [p], pointsZ [p]);
+
+		}
+
+	}
+
+
 }
+
 
 
 
@@ -261,6 +314,70 @@ public static class IO
 			stream.Close ();
 		}
 	}
+
+	public static void SaveCloudSequence (CloudSequence sequence)
+	{
+
+		sequence.Wrap ();
+
+
+		BinaryFormatter bf = new BinaryFormatter ();
+
+		FileStream file = File.Create (Application.persistentDataPath + "/savedSequence.csq");
+
+		bf.Serialize (file, sequence);
+
+		file.Close ();
+
+	}
+
+	public static CloudSequence LoadCloudSequence ()
+	{
+		CloudSequence sequence=null;
+
+		if (File.Exists (Application.persistentDataPath + "/savedSequence.csq")) {
+
+			BinaryFormatter bf = new BinaryFormatter ();
+			FileStream stream = File.Open (Application.persistentDataPath + "/savedSequence.csq", FileMode.Open);
+
+				 sequence = (CloudSequence)bf.Deserialize (stream);
+
+			stream.Close ();
+
+			sequence.UnWrap ();
+		}
+
+		return sequence;
+
+	}
+
+	public static CloudSequence LoadCloudSequenceFromResources ()
+	{
+
+		// Load data from resources. The textasset route is a bit of a trick but allows us to get a raw stream.
+
+		TextAsset asset = Resources.Load ("savedSequence") as TextAsset;
+		CloudSequence sequence=null;
+
+		if (asset != null) {
+
+			Stream stream = new MemoryStream (asset.bytes);
+			BinaryFormatter bf = new BinaryFormatter ();
+			sequence = (CloudSequence)bf.Deserialize (stream);
+
+			sequence.UnWrap ();
+			Debug.Log (me + "Local seq loaded."); 
+
+		} else {
+
+			Debug.Log (me + "No local seq  found."); 
+		}
+
+		return sequence;
+	}
+
+
+
 
 	public static void SaveDepthCaptures ()
 	{

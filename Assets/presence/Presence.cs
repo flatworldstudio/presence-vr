@@ -38,7 +38,12 @@ public static class PRESENCE {
 
 	public static bool capturing;
 
+	public static CloudSequence capture;
+	public static int CaptureFrame;
 
+	public static int FrameSize;
+	public static Vector3[] PointCloud;
+	public static float TimeStamp;
 }
 
 

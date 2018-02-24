@@ -5634,7 +5634,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   setController: {fileID: 861919365}
-  cloud: {fileID: 0}
   kinectManagerObject: {fileID: 353864663}
 --- !u!4 &1988843643
 Transform:

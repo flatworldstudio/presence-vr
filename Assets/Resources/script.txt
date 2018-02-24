@@ -1,6 +1,17 @@
 
 #servertest
 debugon
+dummykinect
+createoverview
+placeset
+setdebug
+viewerdebug
+start userinterface
+start playsequence
+end
+
+#servertest2
+debugon
 startkinect
 createoverview
 placeset
@@ -9,9 +20,24 @@ viewerdebug
 start userinterface
 start cloud
 start server
+start capture
 end
 
 
+#capture
+waitforposition
+capture
+savecapture
+stop cloud
+loadsequence
+playsequence
+end
+
+#playsequence
+createsinglecloud
+loadsequenceresource
+playsequence
+end
 
 
 #clienttest

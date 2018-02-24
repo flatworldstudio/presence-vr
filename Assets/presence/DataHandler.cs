@@ -414,7 +414,7 @@ public class DataHandler : MonoBehaviour
 
 			break;
 
-		case "capture":
+		case "captureLEGACY":
 
 			if (Capture.capturing) {
 
@@ -467,7 +467,46 @@ public class DataHandler : MonoBehaviour
 
 			break;
 
+		case "savecapture":
 
+
+		
+
+			IO.SaveCloudSequence (PRESENCE.capture);
+
+			done = true;
+
+			break;
+
+		case "loadsequence":
+
+			PRESENCE.CaptureFrame = 0;
+			PRESENCE.TimeStamp = Time.time;
+
+			PRESENCE.capture = IO.LoadCloudSequence ();
+
+			if (PRESENCE.capture != null) {
+				done = true;
+			}
+
+		
+
+			break;
+
+		case "loadsequenceresource":
+
+			PRESENCE.CaptureFrame = 0;
+			PRESENCE.TimeStamp = Time.time;
+
+			PRESENCE.capture = IO.LoadCloudSequenceFromResources ();
+
+			if (PRESENCE.capture != null) {
+				done = true;
+			}
+
+
+
+			break;
 
 		case "save":
 

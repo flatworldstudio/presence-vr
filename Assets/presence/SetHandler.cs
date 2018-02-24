@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class SetHandler : MonoBehaviour
 {
@@ -85,9 +86,90 @@ public class SetHandler : MonoBehaviour
 			clouds [0] = new ParticleCloud (2500);
 			clouds [1] = new ParticleCloud (2500);
 
+			PRESENCE.PointCloud = new Vector3[2500];
+
+
 			done = true;
 
 			break;
+
+		case "createsinglecloud":
+
+			clouds = new ParticleCloud[1];
+
+			clouds [0] = new ParticleCloud (2500);
+
+			PRESENCE.PointCloud = new Vector3[2500];
+
+
+			done = true;
+
+			break;
+
+
+		case "playsequence":
+
+			if (Time.time - PRESENCE.TimeStamp > 0.04f) {
+
+				PRESENCE.TimeStamp = Time.time;
+
+				CloudFrame currentFrame = PRESENCE.capture.Frames [PRESENCE.CaptureFrame];
+
+				int pointCount = currentFrame.Points.Length;
+
+
+				for (int p = 0; p < pointCount; p++) {
+
+					clouds[0].allParticles [p].position = currentFrame.Points [p];
+
+				}
+	
+
+				clouds [0].ApplyParticles (pointCount);
+
+				PRESENCE.CaptureFrame++;
+
+				if (PRESENCE.CaptureFrame == PRESENCE.capture.Frames.Length) {
+
+					PRESENCE.CaptureFrame = 0;
+				}
+
+				task.setStringValue ("debug", "" + PRESENCE.CaptureFrame);
+
+			}
+
+			break;
+
+		case "capture":
+
+			if (Time.time - PRESENCE.TimeStamp > 0.04f) {
+				
+				PRESENCE.TimeStamp = Time.time;
+
+				CloudFrame newFrame = new CloudFrame (PRESENCE.FrameSize);
+
+				Array.Copy (PRESENCE.PointCloud, newFrame.Points, PRESENCE.FrameSize);
+
+				PRESENCE.capture.Frames [PRESENCE.CaptureFrame] = newFrame;
+
+				PRESENCE.CaptureFrame++;
+
+			//	Debug.Log (PRESENCE.CaptureFrame + " " + PRESENCE.capture.Frames.Length);
+
+				if (PRESENCE.CaptureFrame == PRESENCE.capture.Frames.Length) {
+
+					done = true;
+
+				}
+
+				task.setStringValue ("debug", "" + PRESENCE.CaptureFrame);
+
+
+			}
+
+
+			break;
+
 
 		case "kinectcloud":
 			
@@ -154,6 +236,8 @@ public class SetHandler : MonoBehaviour
 								point.y += PRESENCE.kinectHeight;
 
 								cloud.allParticles [particleIndex].position = point;
+							PRESENCE.PointCloud[particleIndex] = point;
+
 
 								point.z *= -1;
 								point.z += 2;
@@ -174,6 +258,9 @@ public class SetHandler : MonoBehaviour
 
 					cloud.ApplyParticles (particleIndex);
 					mirror.ApplyParticles (particleIndex);
+				PRESENCE.FrameSize=particleIndex;
+
+			
 
 					//task.setStringValue ("debug",""+particleIndex );
 

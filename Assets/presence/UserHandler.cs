@@ -12,7 +12,7 @@ public class UserHandler : MonoBehaviour
 
 	public GameObject overviewObject, viewerObject, headSet, setObject, handl, handr, Kinect, SetHandler, compass;
 
-
+	float timer=0;
 
 	float heading, lastHeading, smoothOffset,northOffset;
 
@@ -571,6 +571,42 @@ public class UserHandler : MonoBehaviour
 
 			}
 
+
+
+			break;
+
+		case "waitforposition":
+
+			// Detect user start position
+
+			Vector2 startPos = new Vector2 (0, 3);
+			Vector2 userPos = new Vector2 (viewerObject.transform.parent.transform.position.x, viewerObject.transform.parent.transform.position.z);
+
+
+
+			float delta = Vector2.Distance (startPos, userPos);
+
+			if (delta < 1f) {
+
+				timer += Time.deltaTime;
+
+				if (timer > 2f) {
+
+					PRESENCE.capture = new CloudSequence (250);
+					PRESENCE.CaptureFrame = 0;
+					PRESENCE.TimeStamp = Time.time;
+
+					done = true;
+
+				}
+
+			} else {
+
+				timer = 0f;
+
+			}
+
+			task.setStringValue ("debug", "" + timer);
 
 
 			break;
