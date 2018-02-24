@@ -1,5 +1,33 @@
 
-#servertest
+
+#serverrework
+debugon
+start server
+start globalstory
+end
+
+
+#globalstory
+isglobal
+dummytask
+end
+
+
+#clientrework
+debugon
+start serversearch
+end
+
+
+#newclient
+sendglobalstories
+end
+
+
+
+
+
+#serverplayback
 debugon
 dummykinect
 createoverview
@@ -10,7 +38,7 @@ start userinterface
 start playsequence
 end
 
-#servertest2
+#servercapture
 debugon
 startkinect
 createoverview
@@ -51,7 +79,21 @@ start userinterface
 start serversearch
 end
 
-#clienttestvr
+
+#clientvrplayback
+createviewvr
+dummykinect
+placekinect
+setdebug
+handdebug
+start vrcalibration
+start userinterface
+start playsequence
+start serversearch
+end
+
+
+#clientvr
 createviewvr
 dummykinect
 placekinect
@@ -93,9 +135,7 @@ interfaceactive
 end
 
 
-#newclient
-sync
-end
+
 
 #cloud
 createcloud

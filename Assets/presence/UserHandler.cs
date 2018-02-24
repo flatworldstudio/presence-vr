@@ -611,6 +611,84 @@ public class UserHandler : MonoBehaviour
 
 			break;
 
+		case "streamuser":
+			
+			if (PRESENCE.isOverview) {
+
+				if (PRESENCE.pKinect.IsLive ()) {
+
+					#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+
+					KinectManager manager = PRESENCE.pKinect.kinectManager;
+
+					uint playerID = manager != null ? manager.GetPlayer1ID () : 0;
+
+					if (playerID >= 0) {
+
+					viewerObject.transform.parent.transform.position = PRESENCE.pKinect.getJoint (playerID, 3); // head
+
+					handl.transform.position = PRESENCE.pKinect.getJoint (playerID, 7);
+					handr.transform.position = PRESENCE.pKinect.getJoint (playerID, 11);
+
+					}
+
+					#endif
+
+				}
+
+				// get head rotation 
+
+				Quaternion q;
+
+				if (task.getQuaternionValue ("headrotation", out q)) {
+
+					headSet.transform.rotation = q;
+
+				}
+
+				// put head and hand position
+
+				task.setVector3Value ("head", viewerObject.transform.parent.transform.position);
+				task.setVector3Value ("lefthand", handl.transform.position);
+				task.setVector3Value ("righthand", handr.transform.position);
+
+			}
+
+			if (!PRESENCE.isOverview) {
+
+				// put head rotation
+
+				task.setQuaternionValue ("headrotation", headSet.transform.rotation);
+
+				// get head and hand position
+
+				task.getVector3Value ("head", out viewerObject.transform.parent.transform.position);
+				task.getVector3Value ("lefthand", out handl.transform.localPosition);
+				task.getVector3Value ("righthand", out handr.transform.localPosition);
+
+			}
+
+			break;
+
+
+		case "overviewinterface":
+
+			if (PRESENCE.isOverview) {
+
+				callBackName = uxController.update (overviewInterface);
+
+				if (!callBackName.Equals ("")) {
+
+					task.setCallBack (callBackName);
+
+				}
+
+			}
+
+			break;
+
+
+
 		case "interfaceactive":
 
 			if (PRESENCE.isOverview) {

@@ -7835,17 +7835,17 @@ Prefab:
     - target: {fileID: 114537222341640082, guid: a7b96c05b61f9410a9b07a41f0fc226d,
         type: 2}
       propertyPath: launchWIN
-      value: clienttestvr
+      value: clientvrplayback
       objectReference: {fileID: 0}
     - target: {fileID: 114537222341640082, guid: a7b96c05b61f9410a9b07a41f0fc226d,
         type: 2}
       propertyPath: launchOSX
-      value: clienttestvr
+      value: clientvrplayback
       objectReference: {fileID: 0}
     - target: {fileID: 114537222341640082, guid: a7b96c05b61f9410a9b07a41f0fc226d,
         type: 2}
       propertyPath: launchIOS
-      value: clienttestvr
+      value: clientvrplayback
       objectReference: {fileID: 0}
     - target: {fileID: 114537222341640082, guid: a7b96c05b61f9410a9b07a41f0fc226d,
         type: 2}
@@ -8782,7 +8782,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   setController: {fileID: 828846654}
-  cloud: {fileID: 221736194}
   kinectManagerObject: {fileID: 1740067173}
 --- !u!4 &1348691420
 Transform:
