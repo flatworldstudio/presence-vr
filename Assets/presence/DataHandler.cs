@@ -29,19 +29,7 @@ public class DataHandler : MonoBehaviour
 
 		// Engine modules.
 
-		Log.SetModuleLevel ("Assistant director", LOGLEVEL.WARNINGS);
-		Log.SetModuleLevel ("Director", LOGLEVEL.WARNINGS);
-		Log.SetModuleLevel ("Deus controller", LOGLEVEL.WARNINGS);
-		Log.SetModuleLevel ("User controller", LOGLEVEL.WARNINGS);
-		Log.SetModuleLevel ("Set controller", LOGLEVEL.WARNINGS);
-		Log.SetModuleLevel ("Network manager", LOGLEVEL.WARNINGS);
-		Log.SetModuleLevel ("Networkbroadcast", LOGLEVEL.WARNINGS);
-		Log.SetModuleLevel ("Script", LOGLEVEL.WARNINGS);
-		Log.SetModuleLevel ("Storypointer", LOGLEVEL.WARNINGS);
-		Log.SetModuleLevel ("Storytask", LOGLEVEL.WARNINGS);
-		Log.SetModuleLevel ("Taskupdate", LOGLEVEL.WARNINGS);
-		Log.SetModuleLevel ("Uxcontroller", LOGLEVEL.WARNINGS);
-
+//		Log.SetModuleLevel ("AssitantDirector", LOGLEVEL.NORMAL);
 
 
 		// Custom modules.
@@ -540,45 +528,126 @@ public class DataHandler : MonoBehaviour
 			break;
 
 
+		case "isglobal":
+			
+			if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL) {
+
+				task.pointer.scope = SCOPE.GLOBAL;
+
+			}
+
+			done = true;
+
+			break;
+
+		case "globaltask":
+
+//			if (task.scope == SCOPE.GLOBAL) {
+//
+//				task.setStringValue ("debug", "global");
+//
+//
+//			} else {
+//
+//				task.setStringValue ("debug", "local");
+//			}
+
+
+			break;
+
+		case "sometask1":
+
+			if (GENERAL.AUTHORITY == AUTHORITY.LOCAL) {
+
+				GENERAL.GLOBALS.setStringValue ("test", "hello world");
+
+//				task.setStringValue ("debug", "" + Random.value);
+
+			}
+
+			done = true;
+
+			break;
+
+		case "sometask2":
+
+			if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL) {
+
+				string test;
+
+				if (GENERAL.GLOBALS.getStringValue ("test", out test)) {
+					
+					task.setStringValue ("debug", test);
+
+				}
+
+//				task.setStringValue ("debug", "" + Random.value);
+
+			}
+
+			break;
+
+
+		case "passglobal":
+
+			// go over all pointers 
+
+			foreach (StoryTask theTask in GENERAL.ALLTASKS) {
+
+				if (theTask.scope == SCOPE.GLOBAL) {
+
+//					task.modified = true; // force send network update
+					theTask.MarkAllAsModified ();
+
+				}
+
+			}
+
+			done = true;
+
+			break;
+
+			/*
 		case "sync":
+			
 			StoryPointer targetPointer;
 
 			if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL) {
 
 				// this should be the case, since we're only calling this on the server...
 
-				targetPointer = GENERAL.getPointerOnStoryline ("userinterface");
+				targetPointer = GENERAL.getPointerForStoryline ("userinterface");
 
 				if (targetPointer != null) {
 					targetPointer.scope = SCOPE.GLOBAL;
 					targetPointer.modified = true;
 
-					Debug.Log (me + "sync pointer: " + targetPointer.ID);
+//					Debug.Log (me + "sync pointer: " + targetPointer.ID);
 
 					targetPointer.currentTask.scope = SCOPE.GLOBAL;
 
 					targetPointer.currentTask.markAllAsModified ();
 
-					Debug.Log (me + "sync task: " + targetPointer.currentTask.ID);
+//					Debug.Log (me + "sync task: " + targetPointer.currentTask.ID);
 				}
 
 
 
 
 
-				targetPointer = GENERAL.getPointerOnStoryline ("cloud");
+				targetPointer = GENERAL.getPointerForStoryline ("cloud");
 
 				if (targetPointer != null) {
 					targetPointer.scope = SCOPE.GLOBAL;
 					targetPointer.modified = true;
 
-					Debug.Log (me + "sync pointer: " + targetPointer.ID);
+//					Debug.Log (me + "sync pointer: " + targetPointer.ID);
 
 					targetPointer.currentTask.scope = SCOPE.GLOBAL;
 
 					targetPointer.currentTask.markAllAsModified ();
 
-					Debug.Log (me + "sync task: " + targetPointer.currentTask.ID);
+//					Debug.Log (me + "sync task: " + targetPointer.currentTask.ID);
 
 				}
 
@@ -600,7 +669,7 @@ public class DataHandler : MonoBehaviour
 			break;
 
 
-		
+		*/
 
 
 		default:

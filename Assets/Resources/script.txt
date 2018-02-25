@@ -1,26 +1,60 @@
 
 
-#serverrework
+#servermain
 debugon
+startkinect
+placeset
+setdebug
+viewerdebug
 start server
-start globalstory
+start serverview
+start cloud
+end
+
+#streamuser
+streamuser
 end
 
 
-#globalstory
+#serverview
+createoverview
+overviewinterface
+end
+
+#newclient
+start presencelive
+end
+
+
+#cloud
+createcloud
+kinectcloud
+end
+
+
+
+
+#presencelive
 isglobal
-dummytask
+createcloud
+
 end
 
 
-#clientrework
+
+#clientmain
 debugon
 start serversearch
 end
 
+#serversearch
+startdiscover
+listenforserver
+end
 
-#newclient
-sendglobalstories
+#foundserver
+startclient
+monitorconnection
 end
 
 
@@ -113,12 +147,9 @@ end
 calibrate
 end
 
-#serversearch
-startdiscover
-listenforserver
-end
 
-#foundserver
+
+#foundserver2
 stop userinterface
 stop cloud
 startclient
@@ -137,10 +168,7 @@ end
 
 
 
-#cloud
-createcloud
-kinectcloud
-end
+
 
 #screentap
 toggleview

@@ -362,12 +362,13 @@ public class UserHandler : MonoBehaviour
 
 		
 
-		case "overview":
-
-			uxController.update (overviewInterface);
-
-
-			break;
+//		case "overview":
+//
+//			uxController.update (overviewInterface);
+//
+//
+//
+//			break;
 
 
 
@@ -662,10 +663,18 @@ public class UserHandler : MonoBehaviour
 
 				// get head and hand position
 
-				task.getVector3Value ("head", out viewerObject.transform.parent.transform.position);
-				task.getVector3Value ("lefthand", out handl.transform.localPosition);
-				task.getVector3Value ("righthand", out handr.transform.localPosition);
+				Vector3 head, lefthand, righthand;
 
+				if (task.getVector3Value ("head", out head))
+					viewerObject.transform.parent.transform.position = head;
+
+
+				if (task.getVector3Value ("lefthand", out lefthand))
+					handl.transform.localPosition = lefthand;
+
+				if(task.getVector3Value ("righthand", out righthand))
+				handr.transform.localPosition=righthand;
+				
 			}
 
 			break;
@@ -675,13 +684,19 @@ public class UserHandler : MonoBehaviour
 
 			if (PRESENCE.isOverview) {
 
-				callBackName = uxController.update (overviewInterface);
+				UserCallBack callBack = uxController.updateUx (overviewInterface);
 
-				if (!callBackName.Equals ("")) {
-
-					task.setCallBack (callBackName);
-
+				if (callBack.trigger) {
+					task.setCallBack (callBack.label);
 				}
+
+//				callBackName = uxController.update (overviewInterface);
+
+//				if (!callBackName.Equals ("")) {
+//
+//					task.setCallBack (callBackName);
+//
+//				}
 
 			}
 

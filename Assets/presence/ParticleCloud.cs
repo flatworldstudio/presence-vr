@@ -76,7 +76,8 @@ public  class ParticleCloud  {
 
 		for (int p=0;p<number;p++){
 			
-		Vector3 pos = new Vector3 (Random.value * 5, Random.value * 5, Random.value * 5);
+			Vector3 pos = new Vector3 ((Random.value-0.5f) * 5f, Random.value * 2.5f, (Random.value-0.5f) * 5f);
+
 
 		emitParams.position = pos;
 			ps.Emit(emitParams, 1);
