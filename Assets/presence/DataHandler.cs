@@ -29,7 +29,7 @@ public class DataHandler : MonoBehaviour
 
 		// Engine modules.
 
-		Log.SetModuleLevel ("AssitantDirector", LOGLEVEL.WARNINGS);
+		Log.SetModuleLevel ("AssitantDirector", LOGLEVEL.NORMAL);
 
 
 		// Custom modules.
