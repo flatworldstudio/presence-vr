@@ -6,15 +6,15 @@ public class UserHandler : MonoBehaviour
 {
 
 	public UserController userController;
-	UxInterface overviewInterface, viewInterface;
+	UxInterface overviewInterface, viewInterface, serverInterface;
 
 	public GameObject uxCanvas;
 
-	public GameObject overviewObject, viewerObject, headSet, setObject, handl, handr, Kinect, SetHandler, compass;
+	public GameObject overviewObject, viewerObject, headSet, setObject, handl, handr, Kinect, SetHandler, compass,startPosition;
+	//	UxMapping overviewMap;
+	float timer = 0;
 
-	float timer=0;
-
-	float heading, lastHeading, smoothOffset,northOffset;
+	float heading, lastHeading, smoothOffset, northOffset;
 
 	string me = "Task handler: ";
 
@@ -108,7 +108,214 @@ public class UserHandler : MonoBehaviour
 
 		switch (task.description) {
 
+		case "waitforuser":
 
+			// Detect user start position
+		///	GameObject.Find("startposition");
+
+
+		//	Vector3 startPos3d = startPos.transform.position;
+			Vector2 startPos = new Vector2 (startPosition.transform.position.x,startPosition.transform.position.z);
+			Vector2 userPos = new Vector2 (viewerObject.transform.parent.transform.position.x, viewerObject.transform.parent.transform.position.z);
+
+			float delta = Vector2.Distance (startPos, userPos);
+
+			if (delta < 1f) {
+
+				timer += Time.deltaTime;
+
+				if (timer > 2f) {
+
+				//	PRESENCE.capture = new CloudSequence (PRESENCE.captureLength);
+				//	PRESENCE.CaptureFrame = 0;
+				//	GENERAL.GLOBALS.setIntValue ("setcaptureframe", 0);
+
+				//		PRESENCE.TimeStamp = Time.time;
+
+					done = true;
+
+				}
+
+			} else {
+
+				timer = 0f;
+
+			}
+
+			task.setStringValue ("debug", "" + timer);
+
+			break;
+
+		case "sessiontimer":
+
+
+			if (PRESENCE.CaptureFrame == PRESENCE.sessionLength) {
+
+				done = true;
+			}
+
+
+			break;
+
+		case "userstream":
+
+			if (PRESENCE.deviceMode == DEVICEMODE.SERVER) {
+
+				// get head and hands position.
+
+				if (SpatialData.IsLive ()) {
+					
+					#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+
+					KinectManager manager = SpatialData.kinectManager;
+
+					uint playerID = manager != null ? manager.GetPlayer1ID () : 0;
+
+					if (playerID >= 0) {
+
+						viewerObject.transform.parent.transform.position = SpatialData.getJoint (playerID, 3); // head
+
+						handl.transform.position = SpatialData.getJoint (playerID, 7);
+						handr.transform.position = SpatialData.getJoint (playerID, 11);
+
+					} else {
+
+						Debug.Log ("playerid is 0");
+					}
+
+					#endif
+
+				} else {
+					Debug.Log ("kinect not live");
+
+				}
+
+				// retrieve head orientation
+
+				Quaternion q;
+
+				if (task.getQuaternionValue ("headrotation", out q)) {
+
+					headSet.transform.rotation = q;
+
+				}
+
+				// push head and hand position
+
+				task.setVector3Value ("head", viewerObject.transform.parent.transform.position);
+				task.setVector3Value ("lefthand", handl.transform.position);
+				task.setVector3Value ("righthand", handr.transform.position);
+
+			}
+
+			if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT) {
+
+				// put head rotation
+
+				task.setQuaternionValue ("headrotation", headSet.transform.rotation);
+
+				// retrieve head and hand position
+
+				Vector3 head, lefthand, righthand;
+
+				if (task.getVector3Value ("head", out head))
+					viewerObject.transform.parent.transform.position = head;
+
+
+				if (task.getVector3Value ("lefthand", out lefthand))
+					handl.transform.localPosition = lefthand;
+
+				if (task.getVector3Value ("righthand", out righthand))
+					handr.transform.localPosition = righthand;
+
+			}
+
+			break;
+
+
+
+
+		case "makeservercontrols":
+			
+		
+
+			serverInterface = new UxInterface ();
+
+			UxMapping serverMapping = new UxMapping ();
+
+			serverMapping.ux_none += UxMethods.none;
+
+			serverMapping.ux_tap_2d += UxMethods.highlightButton2d;
+			serverMapping.ux_tap_3d += UxMethods.none;
+			serverMapping.ux_tap_none += UxMethods.tapNone;
+
+			serverMapping.ux_single_2d += UxMethods.drag2d;
+			serverMapping.ux_single_3d += UxMethods.rotateCamera;
+			serverMapping.ux_single_none += UxMethods.rotateCamera;
+
+			serverMapping.ux_double_2d += UxMethods.drag2d;
+			serverMapping.ux_double_3d += UxMethods.panCamera;
+
+			serverMapping.ux_double_3d += UxMethods.zoomCamera;
+
+			serverMapping.ux_double_none += UxMethods.panCamera;
+			serverMapping.ux_double_none += UxMethods.zoomCamera;
+
+			serverInterface.defaultUxMap = serverMapping;
+
+			serverInterface.camera = new UxCamera (overviewObject);
+			serverInterface.camera.control = CAMERACONTROL.ORBIT;
+
+			serverInterface.camera.constraint = new UiConstraint ();
+			serverInterface.camera.constraint.pitchClamp = true;
+			serverInterface.camera.constraint.pitchClampMin = 10f;
+			serverInterface.camera.constraint.pitchClampMax = 80f;
+
+			serverInterface.canvasObject = uxCanvas;
+			serverInterface.tapNoneCallback = "screentap";
+
+			UiConstraint constraint = new UiConstraint ();
+
+			constraint.hardClamp = true;
+			constraint.hardClampMin = new Vector3 (0, -250);
+			constraint.hardClampMax = new Vector3 (0, -250);
+
+			GameObject menu = GameObject.Find ("servermenu");
+
+			UiButton control = new UiButton ("live", menu, constraint);
+			control.callback = "startlive";
+			serverInterface.addButton (control);
+
+			control = new UiButton ("mirror", menu, constraint);
+			control.callback = "startmirror";
+			serverInterface.addButton (control);
+
+			control = new UiButton ("echo", menu, constraint);
+			control.callback = "startecho";
+			serverInterface.addButton (control);
+
+			control = new UiButton ("stop", menu, constraint);
+			control.callback = "stopsession";
+			serverInterface.addButton (control);
+
+
+			done = true;
+
+			break;
+
+		case "servercontrol":
+
+		
+			UserCallBack serverCallback = uxController.updateUx (serverInterface);
+
+			if (serverCallback.trigger) {
+				task.setCallBack (serverCallback.label);
+			}
+
+
+
+
+			break;
 
 
 
@@ -538,9 +745,9 @@ public class UserHandler : MonoBehaviour
 
 			Vector3 kinectPosition = Kinect.transform.position - headSet.transform.position;
 
-			float kinectAtAngle = Mathf.Atan2 (kinectPosition.x, kinectPosition.z)*Mathf.Rad2Deg;
+			float kinectAtAngle = Mathf.Atan2 (kinectPosition.x, kinectPosition.z) * Mathf.Rad2Deg;
 
-			Debug.Log  ("kinect: " + kinectAtAngle);
+			Debug.Log ("kinect: " + kinectAtAngle);
 
 			// headset is (locally) rotated at an angle of
 
@@ -552,7 +759,7 @@ public class UserHandler : MonoBehaviour
 
 			// which leaves a delta of
 
-			viewerObject.transform.parent.transform.rotation = Quaternion.Euler (0, kinectAtAngle-headYaw, 0);
+			viewerObject.transform.parent.transform.rotation = Quaternion.Euler (0, kinectAtAngle - headYaw, 0);
 
 
 
@@ -576,108 +783,9 @@ public class UserHandler : MonoBehaviour
 
 			break;
 
-		case "waitforposition":
-
-			// Detect user start position
-
-			Vector2 startPos = new Vector2 (0, 3);
-			Vector2 userPos = new Vector2 (viewerObject.transform.parent.transform.position.x, viewerObject.transform.parent.transform.position.z);
 
 
-
-			float delta = Vector2.Distance (startPos, userPos);
-
-			if (delta < 1f) {
-
-				timer += Time.deltaTime;
-
-				if (timer > 2f) {
-
-					PRESENCE.capture = new CloudSequence (250);
-					PRESENCE.CaptureFrame = 0;
-					PRESENCE.TimeStamp = Time.time;
-
-					done = true;
-
-				}
-
-			} else {
-
-				timer = 0f;
-
-			}
-
-			task.setStringValue ("debug", "" + timer);
-
-
-			break;
-
-		case "streamuser":
-			
-			if (PRESENCE.isOverview) {
-
-				if (PRESENCE.pKinect.IsLive ()) {
-
-					#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-
-					KinectManager manager = PRESENCE.pKinect.kinectManager;
-
-					uint playerID = manager != null ? manager.GetPlayer1ID () : 0;
-
-					if (playerID >= 0) {
-
-					viewerObject.transform.parent.transform.position = PRESENCE.pKinect.getJoint (playerID, 3); // head
-
-					handl.transform.position = PRESENCE.pKinect.getJoint (playerID, 7);
-					handr.transform.position = PRESENCE.pKinect.getJoint (playerID, 11);
-
-					}
-
-					#endif
-
-				}
-
-				// get head rotation 
-
-				Quaternion q;
-
-				if (task.getQuaternionValue ("headrotation", out q)) {
-
-					headSet.transform.rotation = q;
-
-				}
-
-				// put head and hand position
-
-				task.setVector3Value ("head", viewerObject.transform.parent.transform.position);
-				task.setVector3Value ("lefthand", handl.transform.position);
-				task.setVector3Value ("righthand", handr.transform.position);
-
-			}
-
-			if (!PRESENCE.isOverview) {
-
-				// put head rotation
-
-				task.setQuaternionValue ("headrotation", headSet.transform.rotation);
-
-				// get head and hand position
-
-				Vector3 head, lefthand, righthand;
-
-				if (task.getVector3Value ("head", out head))
-					viewerObject.transform.parent.transform.position = head;
-
-
-				if (task.getVector3Value ("lefthand", out lefthand))
-					handl.transform.localPosition = lefthand;
-
-				if(task.getVector3Value ("righthand", out righthand))
-				handr.transform.localPosition=righthand;
-				
-			}
-
-			break;
+		
 
 
 		case "overviewinterface":
@@ -708,20 +816,20 @@ public class UserHandler : MonoBehaviour
 
 			if (PRESENCE.isOverview) {
 
-				if (PRESENCE.pKinect.IsLive ()) {
+				if (SpatialData.IsLive ()) {
 
 					#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
-					KinectManager manager = PRESENCE.pKinect.kinectManager;
+					KinectManager manager = SpatialData.kinectManager;
 
 					uint playerID = manager != null ? manager.GetPlayer1ID () : 0;
 
 					if (playerID >= 0) {
 					
-						viewerObject.transform.parent.transform.position = PRESENCE.pKinect.getJoint (playerID, 3); // head
+						viewerObject.transform.parent.transform.position = SpatialData.getJoint (playerID, 3); // head
 
-						handl.transform.position = PRESENCE.pKinect.getJoint (playerID, 7);
-						handr.transform.position = PRESENCE.pKinect.getJoint (playerID, 11);
+						handl.transform.position = SpatialData.getJoint (playerID, 7);
+						handr.transform.position = SpatialData.getJoint (playerID, 11);
 
 					}
 
@@ -751,7 +859,7 @@ public class UserHandler : MonoBehaviour
 
 					task.setFloatValue ("viewerYawOffset", PRESENCE.vrHeadOffset);
 
-				//	task.setStringValue ("debug", "c: " + comp);
+					//	task.setStringValue ("debug", "c: " + comp);
 
 				}
 
@@ -784,7 +892,7 @@ public class UserHandler : MonoBehaviour
 
 				//	}
 
-				 callBackName = uxController.update (overviewInterface);
+				callBackName = uxController.update (overviewInterface);
 
 				if (!callBackName.Equals ("")) {
 
@@ -800,7 +908,7 @@ public class UserHandler : MonoBehaviour
 				// skipping the compass because of inaccuracy...
 				// perhaps use markers.
 
-			/*
+				/*
 
 				Vector3 euler = headSet.transform.localRotation.eulerAngles;
 
@@ -1003,7 +1111,7 @@ public class UserHandler : MonoBehaviour
 
 */
 
-				 callBackName = uxController.update (viewInterface);
+				callBackName = uxController.update (viewInterface);
 
 				if (!callBackName.Equals ("")) {
 
@@ -1053,7 +1161,7 @@ public class UserHandler : MonoBehaviour
 
 				//
 */
-				 callBackName = uxController.update (overviewInterface);
+				callBackName = uxController.update (overviewInterface);
 
 				if (!callBackName.Equals ("")) {
 

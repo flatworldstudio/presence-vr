@@ -29,7 +29,7 @@ public class DataHandler : MonoBehaviour
 
 		// Engine modules.
 
-//		Log.SetModuleLevel ("AssitantDirector", LOGLEVEL.NORMAL);
+		Log.SetModuleLevel ("AssitantDirector", LOGLEVEL.WARNINGS);
 
 
 		// Custom modules.
@@ -59,15 +59,111 @@ public class DataHandler : MonoBehaviour
 
 		switch (task.description) {
 
+		case "amserver":
+			
+			PRESENCE.deviceMode = DEVICEMODE.SERVER;
+			done = true;
+
+			break;
+
+		case "amvrclient":
+
+			PRESENCE.deviceMode = DEVICEMODE.VRCLIENT;
+			done = true;
+
+			break;
+
+		case "setmodetolive":
+
+			GENERAL.GLOBALS.setStringValue ("mode", "live");
+
+			done = true;
+
+			break;
+
+		case "setmodetomirror":
+
+			GENERAL.GLOBALS.setStringValue ("mode", "mirror");
+
+			done = true;
+
+			break;
+
+		case "setmodetoecho":
+
+			GENERAL.GLOBALS.setStringValue ("mode", "echo");
+
+			done = true;
+
+			break;
+
+		case "setmodetoserveronly":
+
+			GENERAL.GLOBALS.setStringValue ("mode", "serveronly");
+
+			done = true;
+
+			break;
+
+		case "captureframezero":
+
+			PRESENCE.CaptureFrame = 0;
+
+			done = true;
+			break;
+
+		case"setsession":
+
+			if (PRESENCE.deviceMode == DEVICEMODE.SERVER) {
+
+				PRESENCE.capture = new CloudSequence (PRESENCE.captureLength);
+
+				// pass values to client
+
+				GENERAL.GLOBALS.setIntValue ("echooffset", PRESENCE.echoOffset);
+				GENERAL.GLOBALS.setIntValue ("capturelength", PRESENCE.captureLength);
+
+
+				done = true;
+			}
+
+			if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT) {
+
+				int captureLength,echooffset;
+			
+
+				// get values from globals
+
+				if (GENERAL.GLOBALS.getIntValue ("capturelength", out captureLength)) {
+
+					PRESENCE.captureLength = captureLength;
+					PRESENCE.capture = new CloudSequence (PRESENCE.captureLength);
+
+					if (GENERAL.GLOBALS.getIntValue ("echooffset", out echooffset)) {
+
+						PRESENCE.echoOffset = echooffset;
+
+						done = true;
+
+					}
+
+
+				}
+
+			}
+
+			break;
+
+
 		// KINECT
 
 		case "dummykinect":
 
 			go = GameObject.Find ("Kinect");
 
-			PRESENCE.pKinect = new PKinect ();
+		//	SpatialData = new SpatialData ();
 
-			PRESENCE.pKinect.InitDummy (go);
+	//		SpatialData.InitDummy (go);
 
 
 
@@ -78,9 +174,16 @@ public class DataHandler : MonoBehaviour
 
 
 		// Code specific to Kinect, to be compiled and run on windows only.
+		case "stopspatialdata":
+
+			SpatialData.SetActive (false);
 
 
-		case "startkinect":
+			done = true;
+
+			break;
+
+		case "startspatialdata":
 
 			// attempts to start live kinect.
 
@@ -100,15 +203,11 @@ public class DataHandler : MonoBehaviour
 
 				// first run.
 
-		//		PRESENCE.kinectObject = GameObject.Find ("Kinect");
-
 				#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
-				GameObject kinectObject = GameObject.Find ("Kinect");
-
-				PRESENCE.pKinect = new PKinect ();
-
-				PRESENCE.pKinect.InitLive (kinectObject);
+				//GameObject kinectObject = GameObject.Find ("Kinect");
+			//	SpatialData = new SpatialData ();
+				SpatialData.SetActive (true);
 
 				kinectstatus = "initialising";
 
@@ -128,9 +227,9 @@ public class DataHandler : MonoBehaviour
 
 			case "initialising":
 
-				//Debug.Log( me+ "kinect awake? "+ PRESENCE.pKinect.KinectManager.am
+				//Debug.Log( me+ "kinect awake? "+ SpatialData.KinectManager.am
 
-				if (PRESENCE.pKinect.IsLive ()) {
+				if (SpatialData.IsLive ()) {
 
 					kinectstatus = "live";
 
@@ -192,10 +291,10 @@ public class DataHandler : MonoBehaviour
 
 			Debug.LogWarning (me + "writing depth to disk at " + Application.persistentDataPath);
 
-			width = PRESENCE.pKinect.kinectManager.getUserDepthWidth ();
-			height = PRESENCE.pKinect.kinectManager.getUserDepthHeight ();
+			width = SpatialData.kinectManager.getUserDepthWidth ();
+			height = SpatialData.kinectManager.getUserDepthHeight ();
 
-			depthMap = PRESENCE.pKinect.kinectManager.GetRawDepthMap ();
+			depthMap = SpatialData.kinectManager.GetRawDepthMap ();
 
 			DepthCapture dc = new DepthCapture (width, height);
 			DepthCapture.current = dc;

@@ -78,8 +78,30 @@ public class SetHandler : MonoBehaviour
 
 		switch (task.description) {
 
+		case "displaycheck":
 
-		case "createcloud":
+			Debug.Log (me + "displays connected: " + Display.displays.Length);
+
+			// Display.displays[0] is the primary, default display and is always ON.
+			// Check if additional displays are available and activate each.
+
+			if (Display.displays.Length > 1) {
+				Display.displays [1].Activate ();
+
+			}
+
+			if (Display.displays.Length > 2) {
+				Display.displays [2].Activate ();
+
+			}
+
+
+			done = true;
+
+			break;
+
+
+		case "createclouds":
 
 			clouds = new ParticleCloud[2];
 
@@ -88,6 +110,20 @@ public class SetHandler : MonoBehaviour
 
 			PRESENCE.PointCloud = new Vector3[2500];
 
+			cloud = clouds [0];
+			mirror = clouds [1];
+
+
+			done = true;
+
+			break;
+
+		case "resetclouds":
+
+			foreach (ParticleCloud pc in clouds) {
+				pc.ApplyParticles (0);
+
+			}
 
 			done = true;
 
@@ -120,7 +156,7 @@ public class SetHandler : MonoBehaviour
 
 				for (int p = 0; p < pointCount; p++) {
 
-					clouds[0].allParticles [p].position = currentFrame.Points [p];
+					clouds [0].allParticles [p].position = currentFrame.Points [p];
 
 				}
 	
@@ -154,7 +190,7 @@ public class SetHandler : MonoBehaviour
 
 				PRESENCE.CaptureFrame++;
 
-			//	Debug.Log (PRESENCE.CaptureFrame + " " + PRESENCE.capture.Frames.Length);
+				//	Debug.Log (PRESENCE.CaptureFrame + " " + PRESENCE.capture.Frames.Length);
 
 				if (PRESENCE.CaptureFrame == PRESENCE.capture.Frames.Length) {
 
@@ -170,141 +206,224 @@ public class SetHandler : MonoBehaviour
 
 			break;
 
-
-		case "kinectcloud":
+		
+		case "cloudstream":
 			
-			string init;
 
-			if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL) {
+
+			string mode = "live";
+
+			GENERAL.GLOBALS.getStringValue ("mode", out mode);
+
+
+
+
+
+			// SERVER SIDE
+
+
+			if (PRESENCE.deviceMode == DEVICEMODE.SERVER) {
 
 				#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-	
+
+				string init;
 
 				if (!task.getStringValue ("init", out init)) {
 					task.setStringValue ("init", "done");
 
-					cloud = clouds [0];
-					mirror = clouds [1];
 
 					serverFrameStamp = Time.time - targetFrameRate;
 					clientFrameStamp = Time.time - targetFrameRate;
 
 					sample = 8;
 
-					width = PRESENCE.pKinect.kinectManager.getUserDepthWidth ();
-					height = PRESENCE.pKinect.kinectManager.getUserDepthHeight ();
+					width = SpatialData.kinectManager.getUserDepthWidth ();
+					height = SpatialData.kinectManager.getUserDepthHeight ();
 					dataSize = (height / sample) * (width / sample);
 
 
 
 				}
 
-					if (!task.getFloatValue ("clientFrameRate", out clientFrameRate))
-						clientFrameRate	= targetFrameRate;
+				if (!task.getFloatValue ("clientFrameRate", out clientFrameRate))
+					clientFrameRate	= targetFrameRate;
 
-					serverFrameRate = Mathf.Lerp (serverFrameRate, Time.time - serverFrameStamp, 0.1f);
+				serverFrameRate = Mathf.Lerp (serverFrameRate, Time.time - serverFrameStamp, 0.1f);
 
-					serverFrameStamp = Time.time;
+				serverFrameStamp = Time.time;
 
-					depthMap = PRESENCE.pKinect.kinectManager.GetRawDepthMap ();
+				depthMap = SpatialData.kinectManager.GetRawDepthMap ();
 
-					particleIndex = 0;
+				particleIndex = 0;
 
-					newFrame = new ushort [dataSize];
+				newFrame = new ushort [dataSize];
 
-					int dataIndex = 0;
+				int dataIndex = 0;
 
-					for (int y = 0; y < height; y += sample) {
+				for (int y = 0; y < height; y += sample) {
 
-						for (int x = 0; x < width; x += sample) {
+					for (int x = 0; x < width; x += sample) {
 
-							int i = y * width + x;
+						int i = y * width + x;
 
-							newFrame [dataIndex] = (ushort)(depthMap [i]);
+						newFrame [dataIndex] = (ushort)(depthMap [i]);
 
-							ushort userMap = (ushort)(depthMap [i] & 7);
-							ushort userDepth = (ushort)(depthMap [i] >> 3);
+						ushort userMap = (ushort)(depthMap [i] & 7);
+						ushort userDepth = (ushort)(depthMap [i] >> 3);
 
-							if (userMap != 0) {
+						if (userMap != 0) {
 
-								point = depthToWorld (x, y, userDepth);
-								point.x = -point.x;
+							point = depthToWorld (x, y, userDepth);
+							point.x = -point.x;
 
-								point.y = -point.y;
-								point.z += 0.05f;
+							point.y = -point.y;
+							point.z += 0.05f;
 
-								point.y += PRESENCE.kinectHeight;
+							point.y += PRESENCE.kinectHeight;
 
-								cloud.allParticles [particleIndex].position = point;
-							PRESENCE.PointCloud[particleIndex] = point;
+							cloud.allParticles [particleIndex].position = point;
+							PRESENCE.PointCloud [particleIndex] = point;
 
+							if (mode == "mirror") {
 
 								point.z *= -1;
 								point.z += 2;
 
 								mirror.allParticles [particleIndex].position = point;
-
-
-								particleIndex++;
-
 							}
 
-							dataIndex++;
+							particleIndex++;
 
 						}
 
+						dataIndex++;
+
+					}
+
+				}
+
+				PRESENCE.FrameSize = particleIndex;
+
+				switch (mode) {
+
+				case "live":
+				case "serveronly":
+					cloud.ApplyParticles (particleIndex);
+					mirror.ApplyParticles (0);
+
+					break;
+
+				case "mirror":
+					cloud.ApplyParticles (particleIndex);
+
+					mirror.ApplyParticles (particleIndex);
+
+					break;
+
+
+				case "echo":
+					cloud.ApplyParticles (particleIndex);
+
+					if (PRESENCE.CaptureFrame < PRESENCE.capture.Frames.Length) {
+											
+						CloudFrame newFrame = new CloudFrame (PRESENCE.FrameSize);
+
+						Array.Copy (PRESENCE.PointCloud, newFrame.Points, PRESENCE.FrameSize);
+
+						PRESENCE.capture.Frames [PRESENCE.CaptureFrame] = newFrame;
+
+
+
+						//	Debug.Log (PRESENCE.CaptureFrame + " " + PRESENCE.capture.Frames.Length);
+
+				
+
+					}
+					if (PRESENCE.CaptureFrame > 50 && PRESENCE.CaptureFrame < PRESENCE.capture.Frames.Length + PRESENCE.echoOffset) {
+
+						CloudFrame currentFrame = PRESENCE.capture.Frames [PRESENCE.CaptureFrame - PRESENCE.echoOffset];
+
+						if (currentFrame != null) {
+
+
+							int pointCount = currentFrame.Points.Length;
+
+
+							for (int p = 0; p < pointCount; p++) {
+
+								mirror.allParticles [p].position = currentFrame.Points [p];
+
+							}
+
+
+							mirror.ApplyParticles (pointCount);
+						}
+
+
 					}
 
 
-					cloud.ApplyParticles (particleIndex);
-					mirror.ApplyParticles (particleIndex);
-				PRESENCE.FrameSize=particleIndex;
+
+
+
+
+					break;
+				default:
+					break;
+
+
+				}
+
+
+				PRESENCE.CaptureFrame++;
+
+
 
 			
 
-					//task.setStringValue ("debug",""+particleIndex );
+				//task.setStringValue ("debug",""+particleIndex );
 
-					if (Time.time - clientFrameStamp >= targetFrameRate) {
+				if (Time.time - clientFrameStamp >= targetFrameRate) {
 
-						clientFrameStamp = Time.time;
+					clientFrameStamp = Time.time;
 
-						task.setUshortValue ("frameData", newFrame);
-						task.setIntValue ("frame", PRESENCE.frame);
+					task.setUshortValue ("frameData", newFrame);
+					task.setIntValue ("frame", PRESENCE.frame);
 
-						task.setIntValue ("frameSampleSize", sample);
-						task.setIntValue ("frameWidth", width);
-						task.setIntValue ("frameHeight", height);
+					task.setIntValue ("frameSampleSize", sample);
+					task.setIntValue ("frameWidth", width);
+					task.setIntValue ("frameHeight", height);
 
-						PRESENCE.frame++;
+					PRESENCE.frame++;
 
-					}
+				}
 
-					// only send at the interval the client can more or less handle
+				// only send at the interval the client can more or less handle
 
-					//	if (clientFrameRate>targetFrameRate)
-
-
+				//	if (clientFrameRate>targetFrameRate)
 
 
 
-					int droppedFrames = 0;
-
-					task.getIntValue ("dropped", out droppedFrames);
-
-					if (droppedFrames == 0) {
-
-						targetFrameRate = Mathf.Lerp (targetFrameRate, safeFrameRate, 0.01f);
-
-					} else {
-
-						safeFrameRate += 0.01f;
-
-						targetFrameRate += 0.01f;
-
-					}
 
 
-					task.setStringValue ("debug", "s: " + Mathf.Round (100f * serverFrameRate) + " c: " + Mathf.Round (100f * clientFrameRate) + " t: " + Mathf.Round (100f * targetFrameRate) + " sf: " + Mathf.Round (100f *	safeFrameRate) + " d: " + droppedFrames);
+				int droppedFrames = 0;
+
+				task.getIntValue ("dropped", out droppedFrames);
+
+				if (droppedFrames == 0) {
+
+					targetFrameRate = Mathf.Lerp (targetFrameRate, safeFrameRate, 0.01f);
+
+				} else {
+
+					safeFrameRate += 0.01f;
+
+					targetFrameRate += 0.01f;
+
+				}
+
+
+				task.setStringValue ("debug", "s: " + Mathf.Round (100f * serverFrameRate) + " c: " + Mathf.Round (100f * clientFrameRate) + " t: " + Mathf.Round (100f * targetFrameRate) + " sf: " + Mathf.Round (100f *	safeFrameRate) + " d: " + droppedFrames);
 
 
 
@@ -333,25 +452,11 @@ public class SetHandler : MonoBehaviour
 
 
 
-			
+
+			// CLIENT SIDE
 
 
-			//	if (interval == 1) {
-					
-			//		interval = 0;
-			
-
-					
-
-
-			//	interval++;
-
-
-
-
-			//}
-
-			if (GENERAL.AUTHORITY == AUTHORITY.LOCAL) {
+			if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT) {
 
 			
 
@@ -423,14 +528,116 @@ public class SetHandler : MonoBehaviour
 									point.y += PRESENCE.kinectHeight;
 									point.z += 0.05f;
 
-									cloud.Emit (point);
+
+
+									//		cloud.Emit (point);
+
+
+
+									cloud.allParticles [particleIndex].position = point;
+									PRESENCE.PointCloud [particleIndex] = point;
+
+									if (mode == "mirror") {
+
+										point.z *= -1;
+										point.z += 2;
+
+										mirror.allParticles [particleIndex].position = point;
+									}
+
+
+
+
+
 									particleIndex++;
+
+
 								}
 
 							}
 
 						} // end of plotting loop
 							
+
+
+						PRESENCE.FrameSize = particleIndex;
+
+						switch (mode) {
+
+						case "serveronly":
+							cloud.ApplyParticles (0);
+							mirror.ApplyParticles (0);
+
+							break;
+						case "live":
+
+							cloud.ApplyParticles (particleIndex);
+							mirror.ApplyParticles (0);
+
+							break;
+
+						case "mirror":
+							cloud.ApplyParticles (particleIndex);
+
+							mirror.ApplyParticles (particleIndex);
+
+							break;
+
+
+						case "echo":
+							cloud.ApplyParticles (particleIndex);
+
+							if (PRESENCE.CaptureFrame < PRESENCE.capture.Frames.Length) {
+
+								CloudFrame newFrame = new CloudFrame (PRESENCE.FrameSize);
+
+								Array.Copy (PRESENCE.PointCloud, newFrame.Points, PRESENCE.FrameSize);
+
+								PRESENCE.capture.Frames [PRESENCE.CaptureFrame] = newFrame;
+
+
+
+								//	Debug.Log (PRESENCE.CaptureFrame + " " + PRESENCE.capture.Frames.Length);
+
+
+
+							}
+							if (PRESENCE.CaptureFrame > 50 && PRESENCE.CaptureFrame < PRESENCE.capture.Frames.Length + PRESENCE.echoOffset) {
+
+								CloudFrame currentFrame = PRESENCE.capture.Frames [PRESENCE.CaptureFrame - PRESENCE.echoOffset];
+
+								int pointCount = currentFrame.Points.Length;
+
+
+								for (int p = 0; p < pointCount; p++) {
+
+									mirror.allParticles [p].position = currentFrame.Points [p];
+
+								}
+
+
+								mirror.ApplyParticles (pointCount);
+
+
+
+							}
+
+
+
+
+
+
+							break;
+						default:
+							break;
+
+
+						}
+
+
+						PRESENCE.CaptureFrame++;
+
+
 					
 
 						droppedFrames = getFrame - PRESENCE.frame - 1;
@@ -456,23 +663,21 @@ public class SetHandler : MonoBehaviour
 	
 
 
-		case "setdebug":
+		case "addkinectnull":
 
-			c = GameObject.Find ("Compass");
-			g = DebugObject.getNullObject (0.5f, 0.5f, 2.5f);
-			g.transform.SetParent (c.transform, false);
+		//	c = GameObject.Find ("Compass");
+		//	g = DebugObject.getNullObject (0.5f, 0.5f, 2.5f);
+		//	g.transform.SetParent (c.transform, false);
 
 			c = GameObject.Find ("Kinect");
 			g = DebugObject.getNullObject (0.25f, 0.25f, 0.5f);
 			g.transform.SetParent (c.transform, false);
 
-
-
 			done = true;
 
 			break;
 
-		case "viewerdebug":
+		case "addviewernulls":
 
 			c = GameObject.Find ("viewerCamera");
 			g = DebugObject.getNullObject (0.25f, 0.25f, 0.5f);
@@ -490,7 +695,7 @@ public class SetHandler : MonoBehaviour
 
 			break;
 
-		case "handdebug":
+		case "addhandnulls":
 
 			c = GameObject.Find ("HandLeft");
 			g = DebugObject.getNullObject (0.1f);
@@ -506,36 +711,45 @@ public class SetHandler : MonoBehaviour
 
 
 
-		case "placeset":
+		case "alignset":
 
-			GameObject s = GameObject.Find ("SetHandler");
-			GameObject vi = GameObject.Find ("viewerInterest");
-			GameObject k = GameObject.Find ("Kinect");
+			// Position set and user relative to kinect.
 
-			c = GameObject.Find ("Compass");
+			if (PRESENCE.kinectIsOrigin) {
 
-			PRESENCE.north = -PRESENCE.kinectHeading;
+				GameObject set = GameObject.Find ("SetHandler");
+				GameObject viewer = GameObject.Find ("viewerInterest");
+				GameObject kinectObject = GameObject.Find ("Kinect");
 
-			c.transform.rotation = Quaternion.Euler (0, PRESENCE.north, 0);
-			s.transform.rotation = c.transform.rotation;
+				//	c = GameObject.Find ("Compass");
 
-			p = PRESENCE.kinectHomeDistance * Vector3.forward;
+				PRESENCE.north = -PRESENCE.kinectHeading;
 
-			s.transform.position = p;
-			c.transform.position = p;
+				//	c.transform.rotation = Quaternion.Euler (0, PRESENCE.north, 0);
 
-			p.y = vi.transform.position.y;
+				set.transform.rotation = Quaternion.Euler (0, PRESENCE.north, 0);
 
-			vi.transform.position = p;
+				p = PRESENCE.kinectCentreDistance * Vector3.forward;
 
-			p = Vector3.zero;
-			p.y = PRESENCE.kinectHeight;
+				set.transform.position = p;
+				//	c.transform.position = p;
 
-			k.transform.position = p;
+				p.y = viewer.transform.position.y;
 
+				viewer.transform.position = p;
 
+				p = Vector3.zero;
+				p.y = PRESENCE.kinectHeight;
 
-			PRESENCE.pKinect.centered = true;
+				kinectObject.transform.position = p;
+
+			} else {
+
+				Debug.LogWarning ("Kinect not at origin, not aligning.");
+
+			}
+
+			//SpatialData.centered = true;
 
 			done = true;
 
@@ -546,27 +760,27 @@ public class SetHandler : MonoBehaviour
 		case "placekinect":
 
 
-			k = GameObject.Find ("Kinect");
+			GameObject kinect = GameObject.Find ("Kinect");
 
 		//	Vector3 p;
 		//	Quaternion q;
 			q = Quaternion.Euler (0, PRESENCE.kinectHeading, 0);
 
 
-			k.transform.localRotation = q;
+			kinect.transform.localRotation = q;
 
-			p = (-1f * PRESENCE.kinectHomeDistance) * (q * Vector3.forward);
+			p = (-1f * PRESENCE.kinectCentreDistance) * (q * Vector3.forward);
 
 			p.y = PRESENCE.kinectHeight;
 
-			k.transform.position = p;
+			kinect.transform.position = p;
 
 
-			PRESENCE.pKinect.kinectPosition = p;
+			SpatialData.kinectPosition = p;
 
-			PRESENCE.pKinect.kinectRotation = q;
+			SpatialData.kinectRotation = q;
 
-			PRESENCE.pKinect.centered = false;
+			SpatialData.centered = false;
 
 			done = true;
 
@@ -763,27 +977,7 @@ public class SetHandler : MonoBehaviour
 
 			break;
 
-		case "initialise":
-			
-			if (GENERAL.STORYMODE == STORYMODE.VIEWER) {
-				
-				task.setIntValue ("customvalue", 191);
-				task.setIntValue ("othervalue", 55);
-
-				Debug.Log (me + "Setting value customvalue.");
-			} 
-
-			int v, v2;
-
-			if (task.getIntValue ("customvalue", out v)) {
-				task.getIntValue ("othervalue", out v2);
-				Debug.Log (me + "Value customvalue: " + v);
-				Debug.Log (me + "Value othervalue: " + v2);
-
-				done = true;
-			}
-
-			break;
+		
 
 
 		default:
