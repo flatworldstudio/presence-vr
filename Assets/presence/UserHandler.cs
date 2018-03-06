@@ -321,7 +321,7 @@ public class UserHandler : MonoBehaviour
 
 		case "createviewvr":
 			
-			PRESENCE.isOverview = false;
+//			PRESENCE.isOverview = false;
 
 			viewInterface = new UxInterface ();
 

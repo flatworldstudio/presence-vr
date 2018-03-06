@@ -96,9 +96,11 @@ debugon
 amvrclient
 alignset
 addkinectnull
-addviewernulls
+addhandnulls
 createclouds
+createviewvr
 start serversearch
+start vrcalibration
 end
 
 
@@ -111,7 +113,9 @@ end
 passglobal
 end
 
-
+#vrcalibration
+checkforcalibration
+end
 
 
 
@@ -258,9 +262,7 @@ start cloud
 start serversearch
 end
 
-#vrcalibration
-checkforcalibration
-end
+
 
 #calibrate
 calibrate
