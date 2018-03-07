@@ -306,10 +306,18 @@ public class SetHandler : MonoBehaviour
 
 				switch (mode) {
 
-				case "live":
+			
 				case "serveronly":
+				case "preview":
 					cloud.ApplyParticles (particleIndex);
 					mirror.ApplyParticles (0);
+
+					break;
+
+				case "live":
+					cloud.ApplyParticles (particleIndex);
+					mirror.ApplyParticles (0);
+					PRESENCE.CaptureFrame++;
 
 					break;
 
@@ -317,6 +325,7 @@ public class SetHandler : MonoBehaviour
 					cloud.ApplyParticles (particleIndex);
 
 					mirror.ApplyParticles (particleIndex);
+					PRESENCE.CaptureFrame++;
 
 					break;
 
@@ -363,6 +372,7 @@ public class SetHandler : MonoBehaviour
 
 					}
 
+					PRESENCE.CaptureFrame++;
 
 
 
@@ -376,7 +386,6 @@ public class SetHandler : MonoBehaviour
 				}
 
 
-				PRESENCE.CaptureFrame++;
 
 
 
