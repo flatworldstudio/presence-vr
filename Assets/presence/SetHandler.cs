@@ -607,7 +607,7 @@ public class SetHandler : MonoBehaviour
 							
 							cloud.ApplyParticles (particleIndex);
 
-//							if (PRESENCE.capture != null) {
+							if (PRESENCE.capture != null) {
 
 								if (PRESENCE.CaptureFrame < PRESENCE.capture.Frames.Length) {
 
@@ -643,7 +643,7 @@ public class SetHandler : MonoBehaviour
 
 
 								}
-//							}
+							}
 
 
 							PRESENCE.CaptureFrame++;
