@@ -92,7 +92,7 @@ end
 
 
 #presenceclient
-debugon
+debugoff
 amvrclient
 alignset
 addkinectnull
