@@ -570,11 +570,19 @@ public class SetHandler : MonoBehaviour
 							mirror.ApplyParticles (0);
 
 							break;
-						case "live":
+
+						case "preview":
 
 							cloud.ApplyParticles (particleIndex);
 							mirror.ApplyParticles (0);
 
+							break;
+
+						case "live":
+
+							cloud.ApplyParticles (particleIndex);
+							mirror.ApplyParticles (0);
+							PRESENCE.CaptureFrame++;
 							break;
 
 						case "mirror":
@@ -582,50 +590,54 @@ public class SetHandler : MonoBehaviour
 
 							mirror.ApplyParticles (particleIndex);
 
+							PRESENCE.CaptureFrame++;
 							break;
 
 
 						case "echo":
+							
 							cloud.ApplyParticles (particleIndex);
 
-							if (PRESENCE.CaptureFrame < PRESENCE.capture.Frames.Length) {
+//							if (PRESENCE.capture != null) {
 
-								CloudFrame newFrame = new CloudFrame (PRESENCE.FrameSize);
+								if (PRESENCE.CaptureFrame < PRESENCE.capture.Frames.Length) {
 
-								Array.Copy (PRESENCE.PointCloud, newFrame.Points, PRESENCE.FrameSize);
+									CloudFrame newFrame = new CloudFrame (PRESENCE.FrameSize);
 
-								PRESENCE.capture.Frames [PRESENCE.CaptureFrame] = newFrame;
+									Array.Copy (PRESENCE.PointCloud, newFrame.Points, PRESENCE.FrameSize);
 
-
-
-								//	Debug.Log (PRESENCE.CaptureFrame + " " + PRESENCE.capture.Frames.Length);
+									PRESENCE.capture.Frames [PRESENCE.CaptureFrame] = newFrame;
 
 
 
-							}
-							if (PRESENCE.CaptureFrame > PRESENCE.echoOffset && PRESENCE.CaptureFrame < PRESENCE.capture.Frames.Length + PRESENCE.echoOffset) {
-
-								CloudFrame currentFrame = PRESENCE.capture.Frames [PRESENCE.CaptureFrame - PRESENCE.echoOffset];
-
-								int pointCount = currentFrame.Points.Length;
+									//	Debug.Log (PRESENCE.CaptureFrame + " " + PRESENCE.capture.Frames.Length);
 
 
-								for (int p = 0; p < pointCount; p++) {
-
-									mirror.allParticles [p].position = currentFrame.Points [p];
 
 								}
+								if (PRESENCE.CaptureFrame > PRESENCE.echoOffset && PRESENCE.CaptureFrame < PRESENCE.capture.Frames.Length + PRESENCE.echoOffset) {
+
+									CloudFrame currentFrame = PRESENCE.capture.Frames [PRESENCE.CaptureFrame - PRESENCE.echoOffset];
+
+									int pointCount = currentFrame.Points.Length;
 
 
-								mirror.ApplyParticles (pointCount);
+									for (int p = 0; p < pointCount; p++) {
+
+										mirror.allParticles [p].position = currentFrame.Points [p];
+
+									}
+
+
+									mirror.ApplyParticles (pointCount);
 
 
 
-							}
+								}
+//							}
 
 
-
-
+							PRESENCE.CaptureFrame++;
 
 
 							break;
@@ -636,7 +648,7 @@ public class SetHandler : MonoBehaviour
 						}
 
 
-						PRESENCE.CaptureFrame++;
+
 
 
 					

@@ -24,7 +24,7 @@ end
 
 #startlive
 startspatialdata
-setmodetolive
+setmodetopreview
 start cloudstreaming
 start userstreaming
 waitforuser
@@ -51,7 +51,7 @@ end
 
 #startmirror
 startspatialdata
-setmodetolive
+setmodetopreview
 start cloudstreaming
 start userstreaming
 waitforuser
@@ -63,7 +63,7 @@ end
 
 #startecho
 startspatialdata
-setmodetolive
+setmodetopreview
 start cloudstreaming
 start userstreaming
 waitforuser

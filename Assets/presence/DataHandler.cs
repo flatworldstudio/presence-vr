@@ -73,6 +73,14 @@ public class DataHandler : MonoBehaviour
 
 			break;
 
+		case "setmodetopreview":
+
+			GENERAL.GLOBALS.setStringValue ("mode", "preview");
+
+			done = true;
+
+			break;
+
 		case "setmodetolive":
 
 			GENERAL.GLOBALS.setStringValue ("mode", "live");
