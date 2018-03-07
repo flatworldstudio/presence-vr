@@ -48,9 +48,9 @@ public static class PRESENCE {
 
 	public static CloudSequence capture;
 	public static int CaptureFrame;
-	public static int sessionLength=600;
-	public static int captureLength = 500;
-	public static int echoOffset = 50;
+	public static int sessionLength=1750;
+	public static int captureLength = 1500;
+	public static int echoOffset = 75;
 
 
 	public static int FrameSize;
