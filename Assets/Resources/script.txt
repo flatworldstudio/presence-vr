@@ -67,7 +67,6 @@ setmodetomirror
 start startsession
 sessiontimer
 setmodetoserveronly
-start endsession
 end
 
 #startecho
@@ -80,7 +79,6 @@ start startsession
 setmodetoecho
 sessiontimer
 setmodetoserveronly
-start endsession
 end
 
 #stopsession
@@ -100,10 +98,6 @@ setsession
 captureframezero
 end
 
-#endsession
-isglobal
-playsignal
-end
 
 
 
