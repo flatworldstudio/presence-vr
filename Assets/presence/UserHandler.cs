@@ -16,6 +16,10 @@ public class UserHandler : MonoBehaviour
 
 	float heading, lastHeading, smoothOffset, northOffset;
 
+	public 	AudioSource signalSound;
+
+//	public 
+
 	string me = "Task handler: ";
 
 	UxController uxController;
@@ -156,6 +160,17 @@ public class UserHandler : MonoBehaviour
 
 
 			break;
+
+
+		case "playsignal":
+
+			signalSound.Play ();
+
+			done = true;
+
+			break;
+
+
 
 		case "userstream":
 
