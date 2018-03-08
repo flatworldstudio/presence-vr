@@ -27,11 +27,19 @@ startspatialdata
 setmodetopreview
 start cloudstreaming
 start userstreaming
+end
+
+#startliveSESSION
+startspatialdata
+setmodetopreview
+start cloudstreaming
+start userstreaming
 waitforuser
 start startsession
 sessiontimer
 setmodetoserveronly
 end
+
 
 #cloudstreaming
 isglobal

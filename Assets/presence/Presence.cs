@@ -24,7 +24,7 @@ public static class PRESENCE {
 
 	public static float north=0;
 
-	public static float kinectHeight =  1.175f;
+	public static float kinectHeight =  1.35f;
 
 	public static float kinectHeading = 45f;
 

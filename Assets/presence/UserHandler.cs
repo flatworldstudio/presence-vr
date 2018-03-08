@@ -10,7 +10,7 @@ public class UserHandler : MonoBehaviour
 
 	public GameObject uxCanvas;
 
-	public GameObject overviewObject, viewerObject, headSet, setObject, handl, handr, Kinect, SetHandler, compass,startPosition;
+	public GameObject overviewObject, viewerObject,projectionObject, headSet, setObject, handl, handr, Kinect, SetHandler, compass,startPosition;
 	//	UxMapping overviewMap;
 	float timer = 0;
 
@@ -507,8 +507,43 @@ public class UserHandler : MonoBehaviour
 
 				// only execute on server
 
-				Camera cam = overviewObject.GetComponentInChildren<Camera> ();
-				cam.enabled = !cam.enabled;
+				Camera viewCam = overviewObject.GetComponentInChildren<Camera> ();
+				Camera userCam = viewerObject.GetComponentInChildren<Camera> ();
+				Camera projectionCam = projectionObject.GetComponentInChildren<Camera> ();
+
+
+
+				if (projectionCam.targetDisplay==1) {
+				//	cam.enabled = !cam.enabled;
+
+					// were in overview mode, so switch to pov mode. 
+
+					userCam.targetDisplay = 1;
+				//	userCam.enabled = true;
+
+					projectionCam.targetDisplay = 2;
+
+
+			//		viewCam.enabled = true;
+				//	viewCam.targetDisplay = 0;
+
+
+				} else {
+
+					userCam.targetDisplay = 2;
+
+					projectionCam.targetDisplay = 1;
+
+
+
+				}
+
+
+
+
+
+
+
 			}
 
 			done = true;
