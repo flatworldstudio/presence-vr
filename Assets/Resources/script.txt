@@ -6,6 +6,7 @@
 debugon
 amserver
 displaycheck
+initstream
 alignset
 addkinectnull
 addviewernulls
@@ -28,7 +29,6 @@ end
 #startlive
 startspatialdata
 setmodetopreview
-initstream
 start cloudstreaming
 start userstreaming
 end
@@ -108,6 +108,7 @@ end
 #presenceclient
 debugon
 amvrclient
+initstream
 alignset
 addkinectnull
 addhandnulls
