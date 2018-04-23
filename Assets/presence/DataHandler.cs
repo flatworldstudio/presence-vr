@@ -128,10 +128,11 @@ public class DataHandler : MonoBehaviour
 
                                 frame = getFrame;
                                 Debug.Log("data " + getVideo.Length);
-                                
 
-                                StreamSDK.UpdateStreamRemote(getVideo);
+                                Debug.Log("frame " + frame);
 
+                              //  StreamSDK.UpdateStreamRemote(getVideo);
+                              StreamSDK.UpdateStreamRemote(getVideo);
                                 
                                
 
