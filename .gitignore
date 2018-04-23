@@ -9,7 +9,7 @@
 /Assets/AssetStoreTools*
 sysinfo.txt
 *.pidb.meta
- 
+
 # VS/Rider/MD/Consulo
 ExportedObj/
 .consulo/
@@ -24,7 +24,8 @@ ExportedObj/
 *.pidb
 *.booproj
 *.svd
- 
+.vs
+
 # Builds
 *.apk
 *.unitypackage
