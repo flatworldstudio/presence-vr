@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
 
 
 
@@ -18,6 +18,9 @@ public class DataHandler : MonoBehaviour
 	int width, height;
 	ushort[] depthMap;
 	float timeStamp;
+    public RawImage kinectImage;
+
+    int frame = 0;
 
 	GameObject go;
 
@@ -29,16 +32,17 @@ public class DataHandler : MonoBehaviour
 
 		// Engine modules.
 
-		Log.SetModuleLevel ("AssitantDirector", LOGLEVEL.NORMAL);
+		Log.SetModuleLevel ("AssitantDirector", LOGLEVEL.ERRORS);
+        Log.SetModuleLevel("Director", LOGLEVEL.ERRORS);
 
 
-		// Custom modules.
+        // Custom modules.
 
 
-	}
+    }
 
 
-	void Start ()
+    void Start ()
 	{
 
 		led = GameObject.Find ("led");
@@ -58,8 +62,101 @@ public class DataHandler : MonoBehaviour
 		bool done = false;
 
 		switch (task.description) {
+            case "initstream":
+                {
+                    if (StreamSDK.instance != null)
+                    {
+                        StreamSDK.instance.width = 320;
+                        StreamSDK.instance.height = 240;
+                        StreamSDK.instance.quality = 20;
 
-		case "amserver":
+                        StreamSDK.instance.framerate = 30;
+
+                        StreamSDK.instance.InitVideo();
+                    } else
+                    {
+
+                        Log.Error("stream sdk not initialised");
+                    }
+
+                    done = true;
+                    break;
+                }
+            case "cloudstream2":
+                              
+                {
+
+                    if (PRESENCE.deviceMode == DEVICEMODE.SERVER)
+                    {
+
+                        if (KinectManager.Instance != null && StreamSDK.instance != null)
+                        {
+
+                            kinectImage.texture = KinectManager.Instance.GetUsersLblTex();
+
+                            byte[] video = StreamSDK.GetVideo();
+                            if (video != null)
+
+                            {
+                                frame++;
+
+                                task.setIntValue("frame", frame);
+
+                                task.setByteValue("video",video);
+
+                                StreamSDK.UpdateStreamRemote(video);
+
+                                task.setStringValue("debug", "frame: " + frame + "data: "+video.Length);
+
+                            }
+
+
+
+                        }
+
+                    }
+
+                    if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT)
+                    {
+                        if (StreamSDK.instance != null)
+                        {
+                            int getFrame;
+                            byte[] getVideo;
+
+                            if (task.getIntValue("frame",out getFrame) && frame != getFrame && task.getByteValue("video",out getVideo))
+                            {
+
+                                if (getVideo != null)
+                                {
+
+                                    StreamSDK.UpdateStreamRemote(getVideo);
+
+                                }
+
+                                frame = getFrame;
+
+
+
+                            }
+
+
+
+
+                        }
+
+
+
+                    }
+                    
+
+
+
+                        break;
+
+
+                }
+
+            case "amserver":
 			
 			PRESENCE.deviceMode = DEVICEMODE.SERVER;
 			done = true;

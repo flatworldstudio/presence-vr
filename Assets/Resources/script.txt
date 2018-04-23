@@ -1,4 +1,7 @@
 
+
+
+
 #presenceserver
 debugon
 amserver
@@ -25,6 +28,7 @@ end
 #startlive
 startspatialdata
 setmodetopreview
+initstream
 start cloudstreaming
 start userstreaming
 end
@@ -43,7 +47,7 @@ end
 
 #cloudstreaming
 isglobal
-cloudstream
+cloudstream2
 end
 
 #userstreaming
@@ -102,7 +106,7 @@ end
 
 
 #presenceclient
-debugoff
+debugon
 amvrclient
 alignset
 addkinectnull
