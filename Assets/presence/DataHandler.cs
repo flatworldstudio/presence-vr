@@ -92,7 +92,7 @@ public class DataHandler : MonoBehaviour
                         if (KinectManager.Instance != null && StreamSDK.instance != null)
                         {
 
-                            kinectImage.texture = KinectManager.Instance.GetUsersLblTex();
+                      //      kinectImage.texture = KinectManager.Instance.GetUsersLblTex();
 
                             byte[] video = StreamSDK.GetVideo();
                             if (video != null)
@@ -126,14 +126,14 @@ public class DataHandler : MonoBehaviour
                             if (task.getIntValue("frame",out getFrame) && frame != getFrame && task.getByteValue("video",out getVideo))
                             {
 
-                                if (getVideo != null)
-                                {
-
-                                    StreamSDK.UpdateStreamRemote(getVideo);
-
-                                }
-
                                 frame = getFrame;
+                                Debug.Log("data " + getVideo.Length);
+                                
+
+                                StreamSDK.UpdateStreamRemote(getVideo);
+
+                                
+                               
 
 
 
