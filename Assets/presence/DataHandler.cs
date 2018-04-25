@@ -8,31 +8,32 @@ using UnityEngine.UI;
 public class DataHandler : MonoBehaviour
 {
 
-	float startListening = 0f;
-	bool listening = false;
+    float startListening = 0f;
+    bool listening = false;
 
-	Capture capture;
-	GameObject captureTarget;
-	GameObject led;
-	int interval;
-	int width, height;
-	ushort[] depthMap;
-	float timeStamp;
+    Capture capture;
+    GameObject captureTarget;
+    GameObject led;
+    int interval;
+    int width, height;
+    ushort[] depthMap;
+    float timeStamp;
     public RawImage kinectImage;
 
     int frame = 0;
 
-	GameObject go;
+    GameObject go;
 
-	public DataController dataController;
+    public DataController dataController;
 
-	string me = "Data handler: ";
+    string me = "Data handler: ";
 
-	void Awake (){
+    void Awake()
+    {
 
-		// Engine modules.
+        // Engine modules.
 
-		Log.SetModuleLevel ("AssitantDirector", LOGLEVEL.ERRORS);
+        Log.SetModuleLevel("AssitantDirector", LOGLEVEL.ERRORS);
         Log.SetModuleLevel("Director", LOGLEVEL.ERRORS);
 
 
@@ -42,38 +43,40 @@ public class DataHandler : MonoBehaviour
     }
 
 
-    void Start ()
-	{
+    void Start()
+    {
 
-		led = GameObject.Find ("led");
-		led.SetActive (false);
+        led = GameObject.Find("led");
+        led.SetActive(false);
 
-		dataController.addTaskHandler (TaskHandler);
-
-
+        dataController.addTaskHandler(TaskHandler);
 
 
 
-	}
 
-	public bool TaskHandler (StoryTask task)
-	{
-		
-		bool done = false;
 
-		switch (task.description) {
+    }
+
+    public bool TaskHandler(StoryTask task)
+    {
+
+        bool done = false;
+
+        switch (task.description)
+        {
             case "initstream":
                 {
                     if (StreamSDK.instance != null)
                     {
                         StreamSDK.instance.width = 320;
                         StreamSDK.instance.height = 240;
-                        StreamSDK.instance.quality = 20;
+                        StreamSDK.instance.quality = 90;
 
                         StreamSDK.instance.framerate = 30;
 
                         StreamSDK.instance.InitVideo();
-                    } else
+                    }
+                    else
                     {
 
                         Log.Error("stream sdk not initialised");
@@ -83,7 +86,7 @@ public class DataHandler : MonoBehaviour
                     break;
                 }
             case "cloudstream2":
-                              
+
                 {
 
                     if (PRESENCE.deviceMode == DEVICEMODE.SERVER)
@@ -92,9 +95,12 @@ public class DataHandler : MonoBehaviour
                         if (KinectManager.Instance != null && StreamSDK.instance != null)
                         {
 
-                            kinectImage.texture = KinectManager.Instance.GetUsersLblTex();
+                            kinectImage.texture = DepthTransport.GetDepthTexture();
+                  
 
                             byte[] video = StreamSDK.GetVideo();
+
+
                             if (video != null)
 
                             {
@@ -102,15 +108,16 @@ public class DataHandler : MonoBehaviour
 
                                 task.setIntValue("frame", frame);
 
-                                task.setByteValue("video",video);
+                                task.setByteValue("video", video);
 
-                                StreamSDK.UpdateStreamRemote(video);
+                                task.setIntValue("min", DepthTransport.DepthMin.Int);
+                                task.setIntValue("max", DepthTransport.DepthMax.Int);
 
-                                task.setStringValue("debug", "frame: " + frame + "data: "+video.Length);
+
+
+                                task.setStringValue("debug", "frame: " + frame + "data: " + video.Length);
 
                             }
-
-
 
                         }
 
@@ -124,21 +131,21 @@ public class DataHandler : MonoBehaviour
                             byte[] getVideo;
 
 
-                 
 
-                            if (task.getIntValue("frame",out getFrame) && frame != getFrame && task.getByteValue("video",out getVideo))
+
+                            if (task.getIntValue("frame", out getFrame) && frame != getFrame && task.getByteValue("video", out getVideo))
                             {
 
                                 frame = getFrame;
-                           //    Debug.Log("data " + getVideo.Length);
+                                //    Debug.Log("data " + getVideo.Length);
 
-                             //   Debug.Log("frame " + frame);
+                                //   Debug.Log("frame " + frame);
 
                                 StreamSDK.UpdateStreamRemote(getVideo);
 
-                          //    StreamSDK.UpdateStreamRemote(getVideo);
-                                
-                               
+                                //    StreamSDK.UpdateStreamRemote(getVideo);
+
+
 
 
 
@@ -152,671 +159,709 @@ public class DataHandler : MonoBehaviour
 
 
                     }
-                    
 
 
 
-                        break;
+
+                    break;
 
 
                 }
 
             case "amserver":
-			
-			PRESENCE.deviceMode = DEVICEMODE.SERVER;
-			done = true;
 
-			break;
+                PRESENCE.deviceMode = DEVICEMODE.SERVER;
+                done = true;
 
-		case "amvrclient":
+                break;
 
-			PRESENCE.deviceMode = DEVICEMODE.VRCLIENT;
-			done = true;
+            case "amvrclient":
 
-			break;
+                PRESENCE.deviceMode = DEVICEMODE.VRCLIENT;
+                done = true;
 
-		case "setmodetopreview":
+                break;
 
-			GENERAL.GLOBALS.setStringValue ("mode", "preview");
+            case "setmodetopreview":
 
-			done = true;
+                GENERAL.GLOBALS.setStringValue("mode", "preview");
 
-			break;
+                done = true;
 
-		case "setmodetolive":
+                break;
 
-			GENERAL.GLOBALS.setStringValue ("mode", "live");
+            case "setmodetolive":
 
-			done = true;
+                GENERAL.GLOBALS.setStringValue("mode", "live");
 
-			break;
+                done = true;
 
-		case "setmodetomirror":
+                break;
 
-			GENERAL.GLOBALS.setStringValue ("mode", "mirror");
+            case "setmodetomirror":
 
-			done = true;
+                GENERAL.GLOBALS.setStringValue("mode", "mirror");
 
-			break;
+                done = true;
 
-		case "setmodetoecho":
+                break;
 
-			GENERAL.GLOBALS.setStringValue ("mode", "echo");
+            case "setmodetoecho":
 
-			done = true;
+                GENERAL.GLOBALS.setStringValue("mode", "echo");
 
-			break;
+                done = true;
 
-		case "setmodetoserveronly":
+                break;
 
-			GENERAL.GLOBALS.setStringValue ("mode", "serveronly");
+            case "setmodetoserveronly":
 
-			done = true;
+                GENERAL.GLOBALS.setStringValue("mode", "serveronly");
 
-			break;
+                done = true;
 
-		case "captureframezero":
+                break;
 
-			PRESENCE.CaptureFrame = 0;
+            case "captureframezero":
 
-			done = true;
-			break;
+                PRESENCE.CaptureFrame = 0;
 
-		case"setsession":
+                done = true;
+                break;
 
-			if (PRESENCE.deviceMode == DEVICEMODE.SERVER) {
+            case "setsession":
 
-				PRESENCE.capture = new CloudSequence (PRESENCE.captureLength);
+                if (PRESENCE.deviceMode == DEVICEMODE.SERVER)
+                {
 
-				// pass values to client
+                    PRESENCE.capture = new CloudSequence(PRESENCE.captureLength);
 
-				GENERAL.GLOBALS.setIntValue ("echooffset", PRESENCE.echoOffset);
-				GENERAL.GLOBALS.setIntValue ("capturelength", PRESENCE.captureLength);
+                    // pass values to client
 
+                    GENERAL.GLOBALS.setIntValue("echooffset", PRESENCE.echoOffset);
+                    GENERAL.GLOBALS.setIntValue("capturelength", PRESENCE.captureLength);
 
-				done = true;
-			}
 
-			if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT) {
+                    done = true;
+                }
 
-				int captureLength,echooffset;
-			
+                if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT)
+                {
 
-				// get values from globals
+                    int captureLength, echooffset;
 
-				if (GENERAL.GLOBALS.getIntValue ("capturelength", out captureLength)) {
 
-					PRESENCE.captureLength = captureLength;
-					PRESENCE.capture = new CloudSequence (PRESENCE.captureLength);
+                    // get values from globals
 
-					if (GENERAL.GLOBALS.getIntValue ("echooffset", out echooffset)) {
+                    if (GENERAL.GLOBALS.getIntValue("capturelength", out captureLength))
+                    {
 
-						PRESENCE.echoOffset = echooffset;
+                        PRESENCE.captureLength = captureLength;
+                        PRESENCE.capture = new CloudSequence(PRESENCE.captureLength);
 
-						done = true;
+                        if (GENERAL.GLOBALS.getIntValue("echooffset", out echooffset))
+                        {
 
-					}
+                            PRESENCE.echoOffset = echooffset;
 
+                            done = true;
 
-				}
+                        }
 
-			}
 
-			break;
+                    }
 
+                }
 
-		// KINECT
+                break;
 
-		case "dummykinect":
 
-			go = GameObject.Find ("Kinect");
+            // KINECT
 
-		//	SpatialData = new SpatialData ();
+            case "dummykinect":
 
-	//		SpatialData.InitDummy (go);
+                go = GameObject.Find("Kinect");
 
+                //	DepthTransport = new DepthTransport ();
 
+                //		DepthTransport.InitDummy (go);
 
 
-			done = true;
 
-			break;
 
+                done = true;
 
-		// Code specific to Kinect, to be compiled and run on windows only.
-		case "stopspatialdata":
+                break;
 
-			SpatialData.SetActive (false);
 
+            // Code specific to Kinect, to be compiled and run on windows only.
+            case "stopspatialdata":
 
-			done = true;
+                DepthTransport.SetActive(false);
 
-			break;
 
-		case "startspatialdata":
+                done = true;
 
-			// attempts to start live kinect.
+                break;
 
+            case "startspatialdata":
 
-			string kinectstatus;
+                // attempts to start live kinect.
 
-			if (!task.getStringValue ("kinectstatus", out kinectstatus)) {
-				kinectstatus = "void";
 
-			}
+                string kinectstatus;
 
+                if (!task.getStringValue("kinectstatus", out kinectstatus))
+                {
+                    kinectstatus = "void";
 
-			switch (kinectstatus) {
+                }
 
 
-			case "void":
+                switch (kinectstatus)
+                {
 
-				// first run.
 
-				#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+                    case "void":
 
-				//GameObject kinectObject = GameObject.Find ("Kinect");
-			//	SpatialData = new SpatialData ();
-				SpatialData.SetActive (true);
+                        // first run.
 
-				kinectstatus = "initialising";
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
-				#else
+                        //GameObject kinectObject = GameObject.Find ("Kinect");
+                        //	DepthTransport = new DepthTransport ();
+                        DepthTransport.SetActive(true);
+
+                        kinectstatus = "initialising";
+
+#else
 
 				Debug.LogWarning (me + "Non windows platform: dummy kinect.");
 				kinectstatus = "dummy";
 
 
 
-				#endif
+#endif
 
-				timeStamp = Time.time;
+                        timeStamp = Time.time;
 
-				break;
+                        break;
 
 
-			case "initialising":
+                    case "initialising":
 
-				//Debug.Log( me+ "kinect awake? "+ SpatialData.KinectManager.am
+                        //Debug.Log( me+ "kinect awake? "+ DepthTransport.KinectManager.am
 
-				if (SpatialData.IsLive ()) {
+                        if (DepthTransport.IsLive())
+                        {
 
-					kinectstatus = "live";
+                            kinectstatus = "live";
 
-					Debug.Log (me + "Kinect live in : " + (Time.time - timeStamp));
+                            Debug.Log(me + "Kinect live in : " + (Time.time - timeStamp));
 
-					kinectstatus = "live";
+                            kinectstatus = "live";
 
-				} else {
+                        }
+                        else
+                        {
 
-					// Time out
+                            // Time out
 
-					if ((Time.time - timeStamp) > 1f) {
-						
-						Debug.LogWarning (me + "Kinect timed out.");
+                            if ((Time.time - timeStamp) > 1f)
+                            {
 
-						kinectstatus = "dummy";
+                                Debug.LogWarning(me + "Kinect timed out.");
 
-					}
+                                kinectstatus = "dummy";
 
+                            }
 
-				}
-				break;
 
-			case "live":
-				
-				done = true;
-				break;
+                        }
+                        break;
 
+                    case "live":
 
+                        done = true;
+                        break;
 
-			case "dummy":
 
-				done = true;
 
-				break;
+                    case "dummy":
 
+                        done = true;
 
+                        break;
 
-			default:
 
-				break;
 
+                    default:
 
+                        break;
 
-			}
 
 
-			task.setStringValue ("kinectstatus", kinectstatus);
+                }
 
 
-			break;
+                task.setStringValue("kinectstatus", kinectstatus);
 
 
+                break;
 
-			#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-		case "recordkinect":
 
-			// we grab a frame and write it to disk...
 
-			Debug.LogWarning (me + "writing depth to disk at " + Application.persistentDataPath);
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+            case "recordkinect":
 
-			width = SpatialData.kinectManager.getUserDepthWidth ();
-			height = SpatialData.kinectManager.getUserDepthHeight ();
+                // we grab a frame and write it to disk...
 
-			depthMap = SpatialData.kinectManager.GetRawDepthMap ();
+                Debug.LogWarning(me + "writing depth to disk at " + Application.persistentDataPath);
 
-			DepthCapture dc = new DepthCapture (width, height);
-			DepthCapture.current = dc;
+                width = DepthTransport.Width;
+                height = DepthTransport.Height;
 
-			dc.put (depthMap);
+                depthMap = DepthTransport.GetRawDepthMap();
 
-			IO.SaveDepthCaptures ();
+                DepthCapture dc = new DepthCapture(width, height);
+                DepthCapture.current = dc;
 
+                dc.put(depthMap);
 
+                IO.SaveDepthCaptures();
 
 
 
-			done = true;
 
-			break;
 
-		#endif
+                done = true;
 
-	
+                break;
 
+#endif
 
 
-		// NETWORKING
 
-		case "networkguion":
 
-			dataController.displayNetworkGUI (true);
 
-			done = true;
+            // NETWORKING
 
-			break;
+            case "networkguion":
 
-		case "startdiscover":
+                dataController.displayNetworkGUI(true);
 
-			dataController.startBroadcastClient ();
+                done = true;
 
-			startListening = Time.time;
-			listening = true;
+                break;
 
-			done = true;
+            case "startdiscover":
 
-			break;
+                dataController.startBroadcastClient();
 
-		case "listenforserver":
+                startListening = Time.time;
+                listening = true;
 
-			if (listening) {
+                done = true;
 
-				if (dataController.foundServer ()) {
+                break;
 
-					Debug.Log (me + "Found broadcast server");
+            case "listenforserver":
 
-					// Store network server address.
+                if (listening)
+                {
 
-					GENERAL.networkServer = GENERAL.broadcastServer;
+                    if (dataController.foundServer())
+                    {
 
-					dataController.stopBroadcast ();
+                        Debug.Log(me + "Found broadcast server");
 
-					task.setCallBack ("foundserver");
+                        // Store network server address.
 
-					listening = false;
+                        GENERAL.networkServer = GENERAL.broadcastServer;
 
-					done = true;
+                        dataController.stopBroadcast();
 
-				}
+                        task.setCallBack("foundserver");
 
-				/*
-				// Optional time out.
+                        listening = false;
 
-				if (Time.time - startListening > 10f) {
+                        done = true;
 
-					dataController.networkBroadcastStop ();
+                    }
 
-					done = true;
+                    /*
+                    // Optional time out.
 
-				}
-				*/
+                    if (Time.time - startListening > 10f) {
 
-			}
+                        dataController.networkBroadcastStop ();
 
-			break;
-	
-		case "listenforclients":
+                        done = true;
 
-			task.setStringValue ("debug", "" + dataController.serverConnections ());
+                    }
+                    */
 
-			int newClient = GENERAL.GETNEWCONNECTION ();
+                }
 
-			if (newClient != -1) {
+                break;
 
-				Debug.Log (me + "New client on connection " + newClient);
+            case "listenforclients":
 
-				task.setCallBack ("newclient");
+                task.setStringValue("debug", "" + dataController.serverConnections());
 
-			}
+                int newClient = GENERAL.GETNEWCONNECTION();
 
-			break;
+                if (newClient != -1)
+                {
 
-		case "monitorconnection":
+                    Debug.Log(me + "New client on connection " + newClient);
 
-			if (!dataController.clientIsConnected ()) {
+                    task.setCallBack("newclient");
 
-				if (GENERAL.wasConnected) {
+                }
 
-					GENERAL.wasConnected = false;
-					task.setStringValue ("debug", "lost connection");
+                break;
 
-					task.setCallBack ("serversearch");
+            case "monitorconnection":
 
+                if (!dataController.clientIsConnected())
+                {
 
-					done = true; // we'll fall throught to the next line in the script, since there is no longer a connection to monitor.
+                    if (GENERAL.wasConnected)
+                    {
 
-				} else {
+                        GENERAL.wasConnected = false;
+                        task.setStringValue("debug", "lost connection");
 
-					task.setStringValue ("debug", "no connection yet");
+                        task.setCallBack("serversearch");
 
-				}
 
-			} else {
+                        done = true; // we'll fall throught to the next line in the script, since there is no longer a connection to monitor.
 
-				GENERAL.wasConnected = true;
+                    }
+                    else
+                    {
 
-				task.setStringValue ("debug", "connected");
+                        task.setStringValue("debug", "no connection yet");
 
-			}
+                    }
 
-			led.SetActive (GENERAL.wasConnected);
+                }
+                else
+                {
 
-			break;
+                    GENERAL.wasConnected = true;
 
-		case "startclient":
+                    task.setStringValue("debug", "connected");
 
-			Debug.Log (me + "Starting network client.");
+                }
 
-			dataController.startNetworkClient (GENERAL.networkServer);
+                led.SetActive(GENERAL.wasConnected);
 
-			done = true;
+                break;
 
-			break;
+            case "startclient":
 
-		case "startserver":
+                Debug.Log(me + "Starting network client.");
 
-			Debug.Log (me + "Starting network server");
+                dataController.startNetworkClient(GENERAL.networkServer);
 
-			dataController.startBroadcastServer ();
-			dataController.startNetworkServer ();
+                done = true;
 
-			done = true;
+                break;
 
-			break;
+            case "startserver":
 
+                Debug.Log(me + "Starting network server");
 
+                dataController.startBroadcastServer();
+                dataController.startNetworkServer();
 
+                done = true;
 
+                break;
 
-		// IO
 
 
-		case "loaddepthdata":
 
-			// load depth data from resources
 
-			IO.LoadDepthCapturesResource ();
+            // IO
 
-			if (IO.savedDepthCaptures.Count > 0) {
-				IO.depthIndex = 0;
-			}
 
-			done = true;
+            case "loaddepthdata":
 
-			break;
+                // load depth data from resources
 
-		case "playback":
+                IO.LoadDepthCapturesResource();
 
-			if (Capture.playing) {
+                if (IO.savedDepthCaptures.Count > 0)
+                {
+                    IO.depthIndex = 0;
+                }
 
-				Frame f;
+                done = true;
 
-				if (!capture.read (out f)) {
+                break;
 
+            case "playback":
 
-					done = true;
+                if (Capture.playing)
+                {
 
+                    Frame f;
 
-				} else {
-					captureTarget.transform.position = f.getPosition ();
-					captureTarget.transform.rotation = f.getRotation ();
+                    if (!capture.read(out f))
+                    {
 
-				}
 
+                        done = true;
 
-			} else {
 
-				capture = Capture.current;
+                    }
+                    else
+                    {
+                        captureTarget.transform.position = f.getPosition();
+                        captureTarget.transform.rotation = f.getRotation();
 
-				capture.play ();
+                    }
 
-				captureTarget = GameObject.Find ("camB_object");
 
+                }
+                else
+                {
 
-			}
+                    capture = Capture.current;
 
+                    capture.play();
 
+                    captureTarget = GameObject.Find("camB_object");
 
 
-			break;
+                }
 
-		case "captureLEGACY":
 
-			if (Capture.capturing) {
 
-				Vector3 pos = captureTarget.transform.position;
-				Quaternion orient = captureTarget.transform.rotation;
 
-				if (!capture.log (pos, orient)) {
+                break;
 
-					// if log filled, end task
+            case "captureLEGACY":
 
-					done = true;
+                if (Capture.capturing)
+                {
 
-				}
+                    Vector3 pos = captureTarget.transform.position;
+                    Quaternion orient = captureTarget.transform.rotation;
 
+                    if (!capture.log(pos, orient))
+                    {
 
-			} else {
+                        // if log filled, end task
 
-				capture = new Capture ();
-				Capture.current = capture;
-				capture.capture ();
+                        done = true;
 
-				captureTarget = GameObject.Find ("camB_object");
+                    }
 
 
-				Debug.Log (me + "Starting new capture.");
+                }
+                else
+                {
 
+                    capture = new Capture();
+                    Capture.current = capture;
+                    capture.capture();
 
+                    captureTarget = GameObject.Find("camB_object");
 
-			}
 
+                    Debug.Log(me + "Starting new capture.");
 
-			break;
 
 
-		case "load":
+                }
 
-			IO.LoadUserCaptures ();
 
+                break;
 
-			Capture.current = IO.savedCaptures [0];
 
+            case "load":
 
-			//			Debug.Log (me + "loaded with name " + Capture.current.knight.name);
+                IO.LoadUserCaptures();
 
-			//					Game.current = testgame;
 
-			//					SaveLoad.Save ();
+                Capture.current = IO.savedCaptures[0];
 
-			done = true;
 
-			break;
+                //			Debug.Log (me + "loaded with name " + Capture.current.knight.name);
 
-		case "savecapture":
+                //					Game.current = testgame;
 
+                //					SaveLoad.Save ();
 
-		
+                done = true;
 
-			IO.SaveCloudSequence (PRESENCE.capture);
+                break;
 
-			done = true;
+            case "savecapture":
 
-			break;
 
-		case "loadsequence":
 
-			PRESENCE.CaptureFrame = 0;
-			PRESENCE.TimeStamp = Time.time;
 
-			PRESENCE.capture = IO.LoadCloudSequence ();
+                IO.SaveCloudSequence(PRESENCE.capture);
 
-			if (PRESENCE.capture != null) {
-				done = true;
-			}
+                done = true;
 
-		
+                break;
 
-			break;
+            case "loadsequence":
 
-		case "loadsequenceresource":
+                PRESENCE.CaptureFrame = 0;
+                PRESENCE.TimeStamp = Time.time;
 
-			PRESENCE.CaptureFrame = 0;
-			PRESENCE.TimeStamp = Time.time;
+                PRESENCE.capture = IO.LoadCloudSequence();
 
-			PRESENCE.capture = IO.LoadCloudSequenceFromResources ();
+                if (PRESENCE.capture != null)
+                {
+                    done = true;
+                }
 
-			if (PRESENCE.capture != null) {
-				done = true;
-			}
 
 
+                break;
 
-			break;
+            case "loadsequenceresource":
 
-		case "save":
+                PRESENCE.CaptureFrame = 0;
+                PRESENCE.TimeStamp = Time.time;
 
+                PRESENCE.capture = IO.LoadCloudSequenceFromResources();
 
-			//			Capture testgame = new Capture ();
+                if (PRESENCE.capture != null)
+                {
+                    done = true;
+                }
 
-			//			testgame.knight.name = "My uuid: " + UUID.getID ();
 
-			//			Debug.Log (me + "saving with name " + testgame.knight.name);
 
-			//			Capture.current = testgame;
+                break;
 
-			Debug.Log (me + "Saving capture.");
+            case "save":
 
-			IO.SaveUserCaptures ();
 
-			done = true;
+                //			Capture testgame = new Capture ();
 
-			break;
+                //			testgame.knight.name = "My uuid: " + UUID.getID ();
 
+                //			Debug.Log (me + "saving with name " + testgame.knight.name);
 
-		// MISC / WIP
+                //			Capture.current = testgame;
 
-		case "goglobal":
+                Debug.Log(me + "Saving capture.");
 
-			task.pointer.scope = SCOPE.GLOBAL;
-			task.pointer.modified = true;
+                IO.SaveUserCaptures();
 
-			done = true;
+                done = true;
 
-			break;
+                break;
 
 
-		case "isglobal":
-			
-			if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL) {
+            // MISC / WIP
 
-				task.pointer.scope = SCOPE.GLOBAL;
+            case "goglobal":
 
-			}
+                task.pointer.scope = SCOPE.GLOBAL;
+                task.pointer.modified = true;
 
-			done = true;
+                done = true;
 
-			break;
+                break;
 
-		case "globaltask":
 
-//			if (task.scope == SCOPE.GLOBAL) {
-//
-//				task.setStringValue ("debug", "global");
-//
-//
-//			} else {
-//
-//				task.setStringValue ("debug", "local");
-//			}
+            case "isglobal":
 
+                if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL)
+                {
 
-			break;
+                    task.pointer.scope = SCOPE.GLOBAL;
 
-		case "sometask1":
+                }
 
-			if (GENERAL.AUTHORITY == AUTHORITY.LOCAL) {
+                done = true;
 
-				GENERAL.GLOBALS.setStringValue ("test", "hello world");
+                break;
 
-//				task.setStringValue ("debug", "" + Random.value);
+            case "globaltask":
 
-			}
+                //			if (task.scope == SCOPE.GLOBAL) {
+                //
+                //				task.setStringValue ("debug", "global");
+                //
+                //
+                //			} else {
+                //
+                //				task.setStringValue ("debug", "local");
+                //			}
 
-			done = true;
 
-			break;
+                break;
 
-		case "sometask2":
+            case "sometask1":
 
-			if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL) {
+                if (GENERAL.AUTHORITY == AUTHORITY.LOCAL)
+                {
 
-				string test;
+                    GENERAL.GLOBALS.setStringValue("test", "hello world");
 
-				if (GENERAL.GLOBALS.getStringValue ("test", out test)) {
-					
-					task.setStringValue ("debug", test);
+                    //				task.setStringValue ("debug", "" + Random.value);
 
-				}
+                }
 
-//				task.setStringValue ("debug", "" + Random.value);
+                done = true;
 
-			}
+                break;
 
-			break;
+            case "sometask2":
 
+                if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL)
+                {
 
-		case "passglobal":
+                    string test;
 
-			// go over all pointers 
+                    if (GENERAL.GLOBALS.getStringValue("test", out test))
+                    {
 
-			foreach (StoryTask theTask in GENERAL.ALLTASKS) {
+                        task.setStringValue("debug", test);
 
-				if (theTask.scope == SCOPE.GLOBAL) {
+                    }
 
-//					task.modified = true; // force send network update
-					theTask.MarkAllAsModified ();
+                    //				task.setStringValue ("debug", "" + Random.value);
 
-				}
+                }
 
-			}
+                break;
 
-			done = true;
 
-			break;
+            case "passglobal":
 
-			/*
+                // go over all pointers 
+
+                foreach (StoryTask theTask in GENERAL.ALLTASKS)
+                {
+
+                    if (theTask.scope == SCOPE.GLOBAL)
+                    {
+
+                        //					task.modified = true; // force send network update
+                        theTask.MarkAllAsModified();
+
+                    }
+
+                }
+
+                done = true;
+
+                break;
+
+            /*
 		case "sync":
 			
 			StoryPointer targetPointer;
@@ -881,36 +926,38 @@ public class DataHandler : MonoBehaviour
 		*/
 
 
-		default:
+            default:
 
-			// Default is caught in 
-			done = true;
+                // Default is caught in 
+                done = true;
 
-			break;
+                break;
 
-		}
+        }
 
-		return done;
+        return done;
 
-	}
+    }
 
-	void Update ()
-	{
+    void Update()
+    {
 
-		// HACK
-		string inputString = Input.inputString;
-		if (inputString.Length > 0) {
+        // HACK
+        string inputString = Input.inputString;
+        if (inputString.Length > 0)
+        {
 
-			if (inputString == "d") {
+            if (inputString == "d")
+            {
 
-				Debug.Log (me + "Simulating disconnect/pause ...");
+                Debug.Log(me + "Simulating disconnect/pause ...");
 
-				dataController.StopNetworkClient ();
+                dataController.StopNetworkClient();
 
-			}
+            }
 
-		}
-		
-	}
+        }
+
+    }
 
 }

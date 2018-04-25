@@ -178,20 +178,20 @@ public class UserHandler : MonoBehaviour
 
 				// get head and hands position.
 
-				if (SpatialData.IsLive ()) {
+				if (DepthTransport.IsLive ()) {
 					
 					#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
-					KinectManager manager = SpatialData.kinectManager;
+					//KinectManager manager = DepthTransport.kinectManager;
 
-					uint playerID = manager != null ? manager.GetPlayer1ID () : 0;
+					uint playerID = KinectManager.Instance != null ? KinectManager.Instance.GetPlayer1ID () : 0;
 
 					if (playerID >= 0) {
 
-						viewerObject.transform.parent.transform.position = SpatialData.getJoint (playerID, 3); // head
+						viewerObject.transform.parent.transform.position = DepthTransport.getJoint (playerID, 3); // head
 
-						handl.transform.position = SpatialData.getJoint (playerID, 7);
-						handr.transform.position = SpatialData.getJoint (playerID, 11);
+						handl.transform.position = DepthTransport.getJoint (playerID, 7);
+						handr.transform.position = DepthTransport.getJoint (playerID, 11);
 
 					} else {
 
@@ -866,20 +866,20 @@ public class UserHandler : MonoBehaviour
 
 			if (PRESENCE.isOverview) {
 
-				if (SpatialData.IsLive ()) {
+				if (DepthTransport.IsLive ()) {
 
 					#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
-					KinectManager manager = SpatialData.kinectManager;
+				//	KinectManager manager = DepthTransport.kinectManager;
 
-					uint playerID = manager != null ? manager.GetPlayer1ID () : 0;
+					uint playerID = KinectManager.Instance != null ? KinectManager.Instance.GetPlayer1ID () : 0;
 
 					if (playerID >= 0) {
 					
-						viewerObject.transform.parent.transform.position = SpatialData.getJoint (playerID, 3); // head
+						viewerObject.transform.parent.transform.position = DepthTransport.getJoint (playerID, 3); // head
 
-						handl.transform.position = SpatialData.getJoint (playerID, 7);
-						handr.transform.position = SpatialData.getJoint (playerID, 11);
+						handl.transform.position = DepthTransport.getJoint (playerID, 7);
+						handr.transform.position = DepthTransport.getJoint (playerID, 11);
 
 					}
 

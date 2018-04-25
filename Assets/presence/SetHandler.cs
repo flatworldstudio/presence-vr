@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using System;
 
 public class SetHandler : MonoBehaviour
@@ -22,6 +23,8 @@ public class SetHandler : MonoBehaviour
 
 	ushort[] depthMap;
 	int width, height;
+
+    public RawImage PreviewImage;
 
 	string me = "Task handler: ";
 
@@ -69,7 +72,7 @@ public class SetHandler : MonoBehaviour
 	int particleIndex;
 	int count;
 	ParticleCloud cloud, mirror;
-
+    int frame = -1;
 
 	public bool TaskHandler (StoryTask task)
 	{
@@ -105,8 +108,8 @@ public class SetHandler : MonoBehaviour
 
 			clouds = new ParticleCloud[2];
 
-			clouds [0] = new ParticleCloud (2500);
-			clouds [1] = new ParticleCloud (2500);
+			clouds [0] = new ParticleCloud (20000);
+			clouds [1] = new ParticleCloud (20000);
 
 			PRESENCE.PointCloud = new Vector3[2500];
 
@@ -206,7 +209,79 @@ public class SetHandler : MonoBehaviour
 
 			break;
 
+            case "cloudstream2":
 
+
+                // Get the raw depth and plot it into a particle cloud.
+
+                if (DepthTransport.IsLive())
+                {
+
+                    ComputeParticles(DepthTransport.GetRawDepthMap(), DepthTransport.Width, DepthTransport.Height, 2, new Vector3(0, PRESENCE.kinectHeight, 0), clouds[0]);
+
+                    //     Debug.Log("type " + PreviewImage.texture.GetType().ToString());
+
+                    //      var texture = PreviewImage.texture;
+
+
+
+                    
+
+                    if (PreviewImage.texture != null)
+                    {
+
+
+
+                        //StreamSDK.UpdateStreamRemote(video);
+
+
+                      //  ComputeParticles(DepthTransport.TextureToRawDepth((Texture2D)PreviewImage.texture),DepthTransport.Width, DepthTransport.Height, 2, new Vector3(0, PRESENCE.kinectHeight, 0), clouds[1]);
+
+
+                    }
+
+
+
+
+                } else
+                {
+
+                    Debug.LogError("depth transport not live");
+                }
+
+                if (StreamSDK.instance != null)
+                {
+                    int getFrame;
+                    byte[] getVideo;
+                    int min, max;
+                    
+                    if (task.getIntValue("frame", out getFrame) && frame != getFrame && task.getByteValue("video", out getVideo) && task.getIntValue("min", out min)&& task.getIntValue("max",out max))
+                    {
+
+                        frame = getFrame;
+                  
+                        StreamSDK.UpdateStreamRemote(getVideo);
+                     //   DepthTransport.DepthMin = min;
+                    //    DepthTransport.DepthMax = max;
+                        
+                      
+                      int DepthWidth = StreamSDK.instance.width;
+                        int DepthHeight = StreamSDK.instance.height;
+                       
+
+                        ComputeParticles(DepthTransport.TextureToRawDepth((Texture2D)PreviewImage.texture,min,max), DepthWidth, DepthHeight, 1, new Vector3(0, PRESENCE.kinectHeight, 0), clouds[1]);
+
+
+                    }
+
+
+
+
+                }
+
+
+
+                break;
 
 
             case "cloudstream":
@@ -239,8 +314,8 @@ public class SetHandler : MonoBehaviour
 
 					sample = 8;
 
-					width = SpatialData.kinectManager.getUserDepthWidth ();
-					height = SpatialData.kinectManager.getUserDepthHeight ();
+					width = DepthTransport.Width;
+					height = DepthTransport.Height;
 					dataSize = (height / sample) * (width / sample);
 
 
@@ -254,7 +329,7 @@ public class SetHandler : MonoBehaviour
 
 				serverFrameStamp = Time.time;
 
-				depthMap = SpatialData.kinectManager.GetRawDepthMap ();
+				depthMap = DepthTransport.GetRawDepthMap ();
 
 				particleIndex = 0;
 
@@ -773,7 +848,7 @@ public class SetHandler : MonoBehaviour
 
 			}
 
-			//SpatialData.centered = true;
+			//DepthTransport.centered = true;
 
 			done = true;
 
@@ -800,11 +875,11 @@ public class SetHandler : MonoBehaviour
 			kinect.transform.position = p;
 
 
-			SpatialData.kinectPosition = p;
+			DepthTransport.kinectPosition = p;
 
-			SpatialData.kinectRotation = q;
+			DepthTransport.kinectRotation = q;
 
-			SpatialData.centered = false;
+			DepthTransport.centered = false;
 
 			done = true;
 
@@ -1044,7 +1119,60 @@ public class SetHandler : MonoBehaviour
 	}
 
 
-	void Update ()
+    public void ComputeParticles(ushort[] DepthMap, int Width,int Height, int Sample, Vector3 Transform, ParticleCloud Cloud)
+    {
+
+        // takes a kinect styled uint[] RawDepthMap, Width, Height.
+        // and plots the points (at sample intervals) into a Particle Cloud with a given Transform.
+                
+        int ParticleIndex = 0;
+        int Scale = 640 / Width;
+
+        for (int y = 0; y < Height; y += Sample)
+        {
+
+            for (int x = 0; x < Width; x += Sample)
+            {
+
+                int i = y * Width + x;
+                
+                ushort userMap = (ushort)(DepthMap[i] & 7);
+                ushort userDepth = (ushort)(DepthMap[i] >> 3);
+
+                if (userMap != 0)
+                {
+
+                    point = depthToWorld(x*Scale, y*Scale, userDepth);
+                    point.x = -point.x;
+                    point.y = -point.y;
+                    point += Transform;
+                    
+                    Cloud.allParticles[ParticleIndex].position = point;
+                         
+                    ParticleIndex++;
+                    if (ParticleIndex == Cloud.allParticles.Length)
+                    {
+                        // abort
+                        x = Width;
+                        y = Height;
+                        
+                    }
+
+                   // ParticleIndex = ParticleIndex % Cloud.allParticles.Length;
+
+                }
+
+            }
+
+        }
+
+        Cloud.ApplyParticles(ParticleIndex);
+
+    }
+
+
+
+    void Update ()
 	{
 		
 	}

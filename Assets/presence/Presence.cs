@@ -32,7 +32,7 @@ public static class PRESENCE {
 	public static bool kinectIsOrigin =true;
 
 
-//	public static SpatialData pKinect;
+//	public static DepthTransport pKinect;
 
 	public static float mobileInitialHeading=-1;
 	public static float mobileInitialHeading1=-1;
