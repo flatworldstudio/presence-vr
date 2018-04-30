@@ -1,4 +1,26 @@
+#test
+depthreadtest
+end
 
+#transferserver
+debugon
+amserver
+initstream
+start server
+start transfertest
+end
+
+#transfertest
+isglobal
+transfertest
+end
+
+#transferclient
+debugon
+amvrclient
+initstream
+start serversearch
+end
 
 
 

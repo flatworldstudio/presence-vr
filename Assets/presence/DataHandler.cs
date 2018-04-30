@@ -15,15 +15,19 @@ public class DataHandler : MonoBehaviour
     GameObject captureTarget;
     GameObject led;
     int interval;
-    int width, height;
+    //int width, height;
     ushort[] depthMap;
     float timeStamp;
-    public RawImage kinectImage;
+    public RawImage kinectImage, previewImage;
+    public Text FPS;
+
+
+    Texture2D DepthTexture, PreviewTexture;
 
     int frame = 0;
 
     GameObject go;
-
+    int testSize = 10000;
     public DataController dataController;
 
     string me = "Data handler: ";
@@ -64,6 +68,138 @@ public class DataHandler : MonoBehaviour
 
         switch (task.description)
         {
+            case "depthwritetest":
+
+
+                RawDepthSequence sequence = new RawDepthSequence();
+
+                ushort[] faux = new ushort[640 * 480];
+
+                sequence.Put(faux);
+                sequence.SaveAs("testsequence");
+                done = true;
+
+
+
+                break;
+
+
+            case "depthloadtest":
+
+
+                RawDepthSequence load = new RawDepthSequence();
+
+                //ushort[] faux = new ushort[640 * 480];
+
+                //sequence.Add(faux);
+                load.LoadFrom("testsequence");
+
+                ushort[] loaddata = load.Get(0);
+
+
+                done = true;
+
+
+
+                break;
+
+            case "transfertest":
+
+                if (PRESENCE.deviceMode == DEVICEMODE.SERVER)
+
+                {
+
+                    if (previewImage.texture == null)
+                    {
+
+                        PreviewTexture = new Texture2D(DepthTransport.Width, DepthTransport.Height);
+                        previewImage.texture = PreviewTexture;
+
+                    }
+
+
+
+                    if (Input.GetKeyUp("="))
+                    {
+
+                        //   testSize += 250;
+                        StreamSDK.instance.quality += 5;
+                        if (StreamSDK.instance.quality < 0)
+                        {
+                            StreamSDK.instance.quality = 0;
+                        }
+                    }
+
+
+                    if (Input.GetKeyUp("-"))
+                    {
+                        StreamSDK.instance.quality -= 5;
+                        if (StreamSDK.instance.quality > 100)
+                        {
+                            StreamSDK.instance.quality = 100;
+                        }
+                        // testSize += 250;
+
+                    }
+
+                    Application.targetFrameRate = 35;
+                    QualitySettings.vSyncCount = 0;
+
+
+                    //byte[] data = new byte[testSize];
+
+
+                    byte[] data = StreamSDK.GetVideo();
+
+                    if (data != null)
+                    {
+
+                        task.setByteValue("data", data);
+                        task.setStringValue("debug", "datasize: " + data.Length);
+
+                        FPS.text = ("FPS: " + 1f / Time.smoothDeltaTime);
+
+                        StreamSDK.UpdateStreamRemote(data);
+
+
+                        //  outline detection.
+                        // re-apply outline to streamed img.
+
+                        //DepthTransport.Edge(ushort[] depthMap, Texture2D texture);
+
+
+                    }
+
+                }
+
+                if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT)
+                {
+
+                    byte[] data;
+
+                    if (task.getByteValue("data", out data))
+                    {
+
+                        //  previ
+                        Application.targetFrameRate = 30;
+                        QualitySettings.vSyncCount = 0;
+                        //task.setStringValue("debug", "datasize: " + data.Length);
+                        FPS.text = ("FPS: " + 1 / Time.smoothDeltaTime + "UPD " + task.LastUpdatesPerFrame);
+                        StreamSDK.UpdateStreamRemote(data);
+
+                    }
+
+
+
+                }
+
+
+
+                break;
+
+
+               
+
             case "initstream":
                 {
                     if (StreamSDK.instance != null)
@@ -92,36 +228,49 @@ public class DataHandler : MonoBehaviour
                     if (PRESENCE.deviceMode == DEVICEMODE.SERVER)
                     {
 
-                        if (KinectManager.Instance != null && StreamSDK.instance != null)
+                        if (StreamSDK.instance == null)
                         {
+                            Debug.LogError("Streamsdk null.");
 
-                            kinectImage.texture = DepthTransport.GetDepthTexture();
-                  
+                        }
 
-                            byte[] video = StreamSDK.GetVideo();
+                        if (DepthTexture == null)
+                        {
+                            DepthTexture = new Texture2D(DepthTransport.Width, DepthTransport.Height);
+
+                        }
+
+                        ushort[] DepthMap = DepthTransport.GetRawDepthMap();
+                        kinectImage.texture = DepthTransport.RawDepthToTexture(DepthMap, DepthTexture);
+
+                        byte[] video = StreamSDK.GetVideo();
+
+                        if (video != null)
+
+                        {
+                            frame++;
+
+                            task.setIntValue("frame", frame);
+
+                            task.setByteValue("video", video);
+
+                            task.setIntValue("min", DepthTransport.DepthMin.Int);
+                            task.setIntValue("max", DepthTransport.DepthMax.Int);
+
+                            task.setStringValue("debug", "frame: " + frame + "data: " + video.Length);
+
+                            StreamSDK.UpdateStreamRemote(video);
 
 
-                            if (video != null)
-
-                            {
-                                frame++;
-
-                                task.setIntValue("frame", frame);
-
-                                task.setByteValue("video", video);
-
-                                task.setIntValue("min", DepthTransport.DepthMin.Int);
-                                task.setIntValue("max", DepthTransport.DepthMax.Int);
+                            DepthTransport.ApplyEdge(DepthMap, PreviewTexture);
 
 
-
-                                task.setStringValue("debug", "frame: " + frame + "data: " + video.Length);
-
-                            }
 
                         }
 
                     }
+
+
 
                     if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT)
                     {
@@ -297,7 +446,10 @@ public class DataHandler : MonoBehaviour
             // Code specific to Kinect, to be compiled and run on windows only.
             case "stopspatialdata":
 
-                DepthTransport.SetActive(false);
+                //DepthTransport.SetActive(false);
+                //DepthTransport.SetMode(DEPTHMODE.OFF);
+
+                DepthTransport.Mode = DEPTHMODE.OFF;
 
 
                 done = true;
@@ -307,7 +459,7 @@ public class DataHandler : MonoBehaviour
             case "startspatialdata":
 
                 // attempts to start live kinect.
-
+                // can be simplified because depthtransport returns a value regardless of kinect status
 
                 string kinectstatus;
 
@@ -331,13 +483,15 @@ public class DataHandler : MonoBehaviour
                         //GameObject kinectObject = GameObject.Find ("Kinect");
                         //	DepthTransport = new DepthTransport ();
                         DepthTransport.SetActive(true);
+                        DepthTransport.Mode=DEPTHMODE.LIVE;
+
 
                         kinectstatus = "initialising";
 
 #else
 
-				Debug.LogWarning (me + "Non windows platform: dummy kinect.");
-				kinectstatus = "dummy";
+                        Debug.LogWarning(me + "Non windows platform: dummy kinect.");
+                        kinectstatus = "dummy";
 
 
 
@@ -352,7 +506,7 @@ public class DataHandler : MonoBehaviour
 
                         //Debug.Log( me+ "kinect awake? "+ DepthTransport.KinectManager.am
 
-                        if (DepthTransport.IsLive())
+                        if (DepthTransport.Mode == DEPTHMODE.LIVE)
                         {
 
                             kinectstatus = "live";

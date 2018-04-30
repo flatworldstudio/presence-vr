@@ -2,17 +2,34 @@
 using System;
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
+
+public enum DEPTHMODE
+{
+    OFF,
+    LIVE,
+    RECORD,
+    PLAYBACK
 
 
+}
 
 
 public static class DepthTransport
 {
 
+    // transport raw depth from kinect or file
+    // encode/decode raw depth for streaming
 
-    static string me = "Spatial data: ";
+
+    static string me = "Depthtransport: ";
 
     // KINECT INFO
+
+
+
     static public bool centered = true;
 
     static public GameObject kinectObject;
@@ -21,38 +38,250 @@ public static class DepthTransport
 
     static public bool live = false;
 
+    static public int Width, Height; // W & H for raw depth.
+
+    static public RawDepthSequence depthSequence;
+
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
     static public GameObject km;
 
-    //   static public KinectManager kinectManager;
-    static public int Width, Height;
-    // static public int DepthMin, DepthMax;
-    static public RovingValue DepthMin, DepthMax;
+
 
 #endif
+
+    //   static public KinectManager kinectManager;
+
+
+
+    // static public int DepthMin, DepthMax;
+    static private DEPTHMODE __mode = DEPTHMODE.OFF;
+
+    static public DEPTHMODE Mode
+    {
+
+        get
+        {
+
+            return __mode;
+
+        }
+        set
+        {
+
+            __mode = value;
+
+
+            //depthMode = mode;
+
+            switch (__mode)
+            {
+
+                case DEPTHMODE.LIVE:
+                case DEPTHMODE.RECORD:
+
+
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+
+
+                if (!KinectManager.Instance.IsInitialized())
+
+                {
+                Debug.Log(me + "Waking up Kinectmanager.");
+                KinectManager.Instance.WakeUp();
+                if (KinectManager.Instance.IsInitialized())
+            {
+                Debug.Log(me + "Kinectmanager initialised.");
+                Height = KinectManager.Instance.getUserDepthHeight();
+                Width = KinectManager.Instance.getUserDepthWidth();
+
+
+            }
+            else
+            {
+
+                Debug.LogWarning(me + "Kinectmanager not initialised.");
+            }
+
+                }
+
+#endif
+
+                    break;
+
+
+                case DEPTHMODE.PLAYBACK:
+                case DEPTHMODE.OFF:
+
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+                if (KinectManager.Instance.IsInitialized()){
+
+                KinectManager.Instance.shutDown();
+
+            Debug.Log(me + "Shutting down Kinectmanager.");
+
+                }
+
+#endif
+
+
+                default:
+                    break;
+
+
+
+            }
+
+        }
+
+    }
+
+
+
+
+    static public RovingValue DepthMin, DepthMax;
+
+    //public void 
+
+    public static void ApplyEdge(ushort[] depthMap, Texture2D texture){
+
+        // should be same size.
+
+        int width = texture.width;
+        int height = texture.height;
+
+        Color[] ImageMap = texture.GetPixels();
+
+        for (int i = 0; i < ImageMap.Length;i++){
+            //ushort userMap = (ushort)(DepthMap[i] & 7);
+
+
+            if ((depthMap[i]&7)!=0) {
+
+                // non empty pixel.
+                int x = i & width;
+                int y = i / width;
+
+                if ((x>0 && depthMap[i-1]==0)||
+                    (x < width-1 && depthMap[i + 1] == 0) ||
+                    (y > 0 && depthMap[i - width] == 0) ||
+                    (y < height -1 && depthMap[i + width] == 0)){
+
+
+
+
+
+
+                }
+
+
+
+
+
+            }
+
+
+
+
+        }.
+
+
+
+    }
+
 
     public static ushort[] GetRawDepthMap()
     {
 
-        if (IsLive())
+        // Get raw depth map, so depth plus user map in a ushort[]
+
+        switch (Mode)
         {
 
-            return KinectManager.Instance.GetRawDepthMap();
+            case DEPTHMODE.LIVE:
+
+                if (KinectManager.Instance.IsInitialized())
+                {
+
+                    return KinectManager.Instance.GetRawDepthMap();
+
+                }
+                else
+                {
+
+                    return new ushort[Width * Height];
+
+                }
+
+            case DEPTHMODE.RECORD:
+
+                if (depthSequence == null)
+                {
+                    depthSequence = new RawDepthSequence();
+                }
+
+                ushort[] data;
+
+                if (KinectManager.Instance.IsInitialized())
+                {
+
+                    data = KinectManager.Instance.GetRawDepthMap();
+
+                }
+                else
+                {
+
+                    data = new ushort[Width * Height];
+
+                }
+
+                depthSequence.Put(data);
+
+                return data;
+
+
+            case DEPTHMODE.PLAYBACK:
+
+                if (depthSequence == null)
+                {
+                    depthSequence = new RawDepthSequence();
+                    depthSequence.LoadFrom("testsequence");
+                }
+
+                return depthSequence.GetNext();
+
+
+            case DEPTHMODE.OFF:
+default:
+
+                return new ushort[Width * Height];
 
         }
 
-        return new ushort[0];
+
+
+
+        //if (IsLive())
+        //{
+
+        //    return KinectManager.Instance.GetRawDepthMap();
+
+        //}
+
+
+
+
+
 
     }
-    static Texture2D DepthTexture;
+
+
+
+    //static Texture2D DepthTexture;
+
 
     public static ushort[] TextureToRawDepth(Texture2D Texture, int min, int max)
     {
-
-
-
-
 
 
 
@@ -61,16 +290,16 @@ public static class DepthTransport
             return new ushort[0];
         }
 
-       
+
 
 
         Color[] ImageMap = Texture.GetPixels();
-      //  int sample = (Width * Height) / ImageMap.Length ; // texture can be 640 320 160
+        //  int sample = (Width * Height) / ImageMap.Length ; // texture can be 640 320 160
 
-    // Debug.Log("sample " + sample);
+        // Debug.Log("sample " + sample);
 
 
-     //   ushort[] DepthMap = new ushort[Width * Height];
+        //   ushort[] DepthMap = new ushort[Width * Height];
         ushort[] DepthMap = new ushort[ImageMap.Length];
         ushort userMap, depthValue;
 
@@ -85,12 +314,12 @@ public static class DepthTransport
             {
                 userMap = 1; // user 1
 
-                int userDepth = min + (int) ((max-min) * v);
-                                
+                int userDepth = min + (int)((max - min) * v);
+
 
                 depthValue = (ushort)((userDepth << 3) | userMap);
 
-//                DepthMap[i*sample] = depthValue;
+                //                DepthMap[i*sample] = depthValue;
                 DepthMap[i] = depthValue;
 
             }
@@ -291,164 +520,159 @@ public static class DepthTransport
 
     }
 
-   
 
-    public static Texture2D GetDepthTexture()
+
+    public static Texture2D RawDepthToTexture(ushort[] RawDepth, Texture2D Texture)
     {
 
-        if (IsLive())
+
+
+        //ushort[] DepthMap = KinectManager.Instance.GetRawDepthMap();
+
+        if (Texture == null)
+        {
+            Texture = new Texture2D(Width, Height);
+        }
+
+
+        int min = 999999;
+        int max = -999999;
+
+        ushort[] UserChannel = new ushort[RawDepth.Length];
+        ushort[] DepthChannel = new ushort[RawDepth.Length];
+
+
+
+
+        for (int i = 0; i < RawDepth.Length; i++)
+        {
+            UserChannel[i] = (ushort)(RawDepth[i] & 7);
+            DepthChannel[i] = (ushort)((RawDepth[i] >> 3));
+
+
+            if (UserChannel[i] != 0)
+            {
+                //   ushort userDepth = (ushort)((DepthMap[i] >> 3));
+                min = Mathf.Min(min, DepthChannel[i]);
+                max = Mathf.Max(max, DepthChannel[i]);
+            }
+
+        }
+
+        if (DepthMin == null)
+        {
+            DepthMin = new RovingValue(10);
+            DepthMax = new RovingValue(10);
+
+
+        }
+        DepthMin.Rove(min);
+        DepthMax.Rove(max);
+
+        min = DepthMin.Int;
+        max = DepthMax.Int;
+
+        Color[] ImageMap = new Color[RawDepth.Length];
+
+
+        for (int i = 0; i < RawDepth.Length; i++)
         {
 
-            ushort[] DepthMap = KinectManager.Instance.GetRawDepthMap();
 
-            if (DepthTexture == null)
+            //     ushort userMap = (ushort)(DepthMap[i] & 7);
+            //   ushort userDepth = (ushort)((DepthMap[i] >> 3));
+            ushort userMap = UserChannel[i];
+            ushort userDepth = DepthChannel[i];
+
+
+
+
+            if (userMap != 0)
             {
-                DepthTexture = new Texture2D(Width, Height);
+
+                float value = (float)(userDepth - min) / (float)(max - min);
+                value = Mathf.Clamp01(value);
+
+                Color col = new Color(0, value, 1);
+
+                ImageMap[i] = col;
             }
-
-
-            int min = 999999;
-            int max = -999999;
-
-            ushort[] UserChannel = new ushort[DepthMap.Length];
-            ushort[] DepthChannel = new ushort[DepthMap.Length];
-
-
-
-
-            for (int i = 0; i < DepthMap.Length; i++)
+            else
             {
-                UserChannel[i] = (ushort)(DepthMap[i] & 7);
-                DepthChannel[i] = (ushort)((DepthMap[i] >> 3));
 
+                int x = i & Width;
+                int y = i / Width;
 
-                if (UserChannel[i] != 0)
+                int t = 0;
+                int w = 0;
+
+                if (x > 0 && UserChannel[i - 1] != 0)
                 {
-                 //   ushort userDepth = (ushort)((DepthMap[i] >> 3));
-                    min = Mathf.Min(min, DepthChannel[i]);
-                    max = Mathf.Max(max, DepthChannel[i]);
+                    t += DepthChannel[i - 1];
+                    w++;
+                }
+                if (y > 0 && UserChannel[i - Width] != 0)
+                {
+                    t += DepthChannel[i - Width];
+                    w++;
+                }
+                if (x < Width - 1 && UserChannel[i + 1] != 0)
+                {
+                    t += DepthChannel[i + 1];
+                    w++;
+                }
+                if (y < Height - 1 && UserChannel[i + Width] != 0)
+                {
+                    t += DepthChannel[i + Width];
+                    w++;
                 }
 
-            }
-
-            if (DepthMin == null)
-            {
-                DepthMin = new RovingValue(10);
-                DepthMax = new RovingValue(10);
-
-
-            }
-            DepthMin.Rove(min);
-            DepthMax.Rove(max);
-
-             min = DepthMin.Int;
-             max = DepthMax.Int;
-
-            Color[] ImageMap = new Color[DepthMap.Length];
-
-
-            for (int i = 0; i < DepthMap.Length; i++)
-            {
-
-
-                //     ushort userMap = (ushort)(DepthMap[i] & 7);
-                //   ushort userDepth = (ushort)((DepthMap[i] >> 3));
-                ushort userMap = UserChannel[i];
-                ushort userDepth = DepthChannel[i];
-                
-
-
-
-                if (userMap != 0)
+                if (w > 0)
                 {
 
-                    float value = (float)(userDepth -min) / (float)(max - min);
-                    value = Mathf.Clamp01(value);
+                    float cud = t / w;
+                    float value = (float)(cud - min) / (float)(max - min);
 
-                    Color col = new Color(0, value, 1);
+                    Color col = new Color(0, value, 0);
 
                     ImageMap[i] = col;
+
+
+
                 }
                 else
                 {
 
-                    int x = i & Width;
-                    int y = i / Width;
+                    ImageMap[i] = Color.black;
 
-                    int t = 0;
-                    int w = 0;
-
-                    if (x>0 && UserChannel[i - 1] != 0)
-                    {
-                        t += DepthChannel[i - 1];
-                        w++;
-                    }
-                    if (y > 0 && UserChannel[i - Width] != 0)
-                    {
-                        t += DepthChannel[i - Width];
-                        w++;
-                    }
-                    if (x < Width-1 && UserChannel[i + 1] != 0)
-                    {
-                        t += DepthChannel[i + 1];
-                        w++;
-                    }
-                    if (y < Height-1 && UserChannel[i + Width] != 0)
-                    {
-                        t += DepthChannel[i + Width];
-                        w++;
-                    }
-
-                    if (w > 0)
-                    {
-
-                        float cud = t / w;
-                        float value = (float)(cud - min) / (float)(max - min);
-
-                        Color col = new Color(0, value, 0);
-
-                        ImageMap[i] = col;
-
-
-
-                    }
-                    else
-                    {
-
-                        ImageMap[i] = Color.black;
-
-
-                    }
-
-
-                   
-
-                    //ImageMap[i] =new Color32(0, 0, 0,255);
-                 
 
                 }
 
 
 
 
+                //ImageMap[i] =new Color32(0, 0, 0,255);
+
+
             }
 
 
-            DepthTexture.SetPixels(ImageMap);
-            DepthTexture.Apply();
 
-            return DepthTexture;
-
-            //return KinectManager.Instance.GetUsersLblTex();
 
         }
 
-        return new Texture2D(1, 1);
+
+        Texture.SetPixels(ImageMap);
+        Texture.Apply();
+
+        return Texture;
+
+
 
     }
 
 
-
+    /*
     public static Texture2D GetDepthTextureV3()
     {
 
@@ -616,14 +840,14 @@ public static class DepthTransport
 
                 if (userMap != 0)
                 {
-                    /*
-                    byte value = (byte)(userDepth / 16);
-
-                    ImageMap[i].r = value;
-                    ImageMap[i].g = 0;
-                    ImageMap[i].b = 0;
-                    ImageMap[i].a = 255;
-                    */
+                    
+                //    byte value = (byte)(userDepth / 16);
+    //
+           //         ImageMap[i].r = value;
+       //             ImageMap[i].g = 0;
+       //             ImageMap[i].b = 0;
+       //             ImageMap[i].a = 255;
+                    
 
                     float h = (userDepth % 256) / 256f;
                     //     h = 0;
@@ -661,6 +885,14 @@ public static class DepthTransport
         return new Texture2D(1, 1);
 
     }
+
+*/
+
+
+
+
+
+    /*
     public static void SetActive(bool state)
     {
 
@@ -732,7 +964,7 @@ public static class DepthTransport
 #else
 
 
-		Debug.LogError (me + "Unable to run live kinect on non windows platform.");
+        Debug.LogError(me + "Unable to run live kinect on non windows platform.");
 
 
 #endif
@@ -748,7 +980,7 @@ public static class DepthTransport
         live = false;
 
     }
-
+*/
     public static Vector3 getJoint(uint playerID, int joint)
     {
 
@@ -806,7 +1038,94 @@ public static class DepthTransport
 
 }
 
+[System.Serializable]
 
+public class RawDepthSequence
+{
+
+    // raw ushort depth data - sequence container
+
+    List<ushort[]> Frames;
+
+    [NonSerialized]
+    int Index;
+
+    public RawDepthSequence()
+    {
+
+        Frames = new List<ushort[]>();
+        Index = 0;
+
+    }
+
+    public void Put(ushort[] data)
+    {
+
+        Frames.Add(data);
+
+    }
+
+
+    public ushort[] Get(int index)
+    {
+
+        if (index >= 0 && index < Frames.Count)
+        {
+
+            return Frames[index];
+        }
+
+        return null;
+
+    }
+
+
+    public ushort[] GetNext()
+    {
+        Index++;
+
+        if (Index == Frames.Count)
+        {
+            Index = 0;
+
+        }
+
+        return Frames[Index];
+
+    }
+
+    public void SaveAs(string fileName)
+    {
+
+        BinaryFormatter bf = new BinaryFormatter();
+
+        FileStream file = File.Create(Application.persistentDataPath + fileName + ".dep");
+
+        bf.Serialize(file, this);
+
+        file.Close();
+
+    }
+
+    public void LoadFrom(string fileName)
+    {
+        string fullPath = Application.persistentDataPath + fileName + ".dep";
+
+        if (File.Exists(fullPath))
+        {
+            BinaryFormatter bf = new BinaryFormatter();
+            FileStream file = File.Open(fullPath, FileMode.Open);
+            IO.savedCaptures = (List<Capture>)bf.Deserialize(file);
+            file.Close();
+
+        }
+
+    }
+
+
+
+
+}
 
 
 
