@@ -61,6 +61,8 @@ public class DataHandler : MonoBehaviour
 
     }
 
+    float recordStart;
+
     public bool TaskHandler(StoryTask task)
     {
 
@@ -68,6 +70,57 @@ public class DataHandler : MonoBehaviour
 
         switch (task.description)
         {
+
+
+            case "depthlive":
+
+
+                DepthTransport.Mode = DEPTHMODE.LIVE;
+
+                done = true;
+
+                break;
+            case "depthrecord":
+
+
+                DepthTransport.Mode = DEPTHMODE.RECORD;
+                recordStart = Time.time;
+                done = true;
+
+                break;
+
+            case "depthplayback":
+            
+                DepthTransport.Mode = DEPTHMODE.PLAYBACK;
+                done = true;
+
+                break;
+
+            case "recorddepth":
+                Application.targetFrameRate = 30;
+                QualitySettings.vSyncCount = 0;
+                FPS.text = ("FPS: " + 1f / Time.smoothDeltaTime);
+
+                if (Time.time - recordStart > 5)
+                {
+
+                    DepthTransport.Mode = DEPTHMODE.OFF;
+                    DepthTransport.depthSequence.SaveAs("depthCapture");
+                    done = true;
+                }
+
+
+
+
+                break;
+
+            case "playdepth":
+                Application.targetFrameRate = 30;
+                QualitySettings.vSyncCount = 0;
+                FPS.text = ("FPS: " + 1f / Time.smoothDeltaTime);
+
+                break;
+
             case "depthwritetest":
 
 
@@ -482,7 +535,7 @@ public class DataHandler : MonoBehaviour
 
                         //GameObject kinectObject = GameObject.Find ("Kinect");
                         //	DepthTransport = new DepthTransport ();
-                        DepthTransport.SetActive(true);
+                    //    DepthTransport.SetActive(true);
                         DepthTransport.Mode=DEPTHMODE.LIVE;
 
 
@@ -572,8 +625,8 @@ public class DataHandler : MonoBehaviour
 
                 Debug.LogWarning(me + "writing depth to disk at " + Application.persistentDataPath);
 
-                width = DepthTransport.Width;
-                height = DepthTransport.Height;
+                int width = DepthTransport.Width;
+                int height = DepthTransport.Height;
 
                 depthMap = DepthTransport.GetRawDepthMap();
 

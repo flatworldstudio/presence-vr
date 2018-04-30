@@ -84,26 +84,26 @@ public static class DepthTransport
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
 
-                if (!KinectManager.Instance.IsInitialized())
+                    if (!KinectManager.Instance.IsInitialized())
 
-                {
-                Debug.Log(me + "Waking up Kinectmanager.");
-                KinectManager.Instance.WakeUp();
-                if (KinectManager.Instance.IsInitialized())
-            {
-                Debug.Log(me + "Kinectmanager initialised.");
-                Height = KinectManager.Instance.getUserDepthHeight();
-                Width = KinectManager.Instance.getUserDepthWidth();
+                    {
+                        Debug.Log(me + "Waking up Kinectmanager.");
+                        KinectManager.Instance.WakeUp();
+                        if (KinectManager.Instance.IsInitialized())
+                        {
+                            Debug.Log(me + "Kinectmanager initialised.");
+                            Height = KinectManager.Instance.getUserDepthHeight();
+                            Width = KinectManager.Instance.getUserDepthWidth();
 
 
-            }
-            else
-            {
+                        }
+                        else
+                        {
 
-                Debug.LogWarning(me + "Kinectmanager not initialised.");
-            }
+                            Debug.LogWarning(me + "Kinectmanager not initialised.");
+                        }
 
-                }
+                    }
 
 #endif
 
@@ -113,17 +113,24 @@ public static class DepthTransport
                 case DEPTHMODE.PLAYBACK:
                 case DEPTHMODE.OFF:
 
+                    Height = 480;
+                    Width = 640;
+
+
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-                if (KinectManager.Instance.IsInitialized()){
 
-                KinectManager.Instance.shutDown();
+                    if (KinectManager.Instance.IsInitialized())
+                    {
 
-            Debug.Log(me + "Shutting down Kinectmanager.");
+                        KinectManager.Instance.shutDown();
 
-                }
+                        Debug.Log(me + "Shutting down Kinectmanager.");
+
+                    }
 
 #endif
 
+                    break;
 
                 default:
                     break;
@@ -143,7 +150,8 @@ public static class DepthTransport
 
     //public void 
 
-    public static void ApplyEdge(ushort[] depthMap, Texture2D texture){
+    public static void ApplyEdge(ushort[] depthMap, Texture2D texture)
+    {
 
         // should be same size.
 
@@ -152,20 +160,23 @@ public static class DepthTransport
 
         Color[] ImageMap = texture.GetPixels();
 
-        for (int i = 0; i < ImageMap.Length;i++){
+        for (int i = 0; i < ImageMap.Length; i++)
+        {
             //ushort userMap = (ushort)(DepthMap[i] & 7);
 
 
-            if ((depthMap[i]&7)!=0) {
+            if ((depthMap[i] & 7) != 0)
+            {
 
                 // non empty pixel.
                 int x = i & width;
                 int y = i / width;
 
-                if ((x>0 && depthMap[i-1]==0)||
-                    (x < width-1 && depthMap[i + 1] == 0) ||
+                if ((x > 0 && depthMap[i - 1] == 0) ||
+                    (x < width - 1 && depthMap[i + 1] == 0) ||
                     (y > 0 && depthMap[i - width] == 0) ||
-                    (y < height -1 && depthMap[i + width] == 0)){
+                    (y < height - 1 && depthMap[i + width] == 0))
+                {
 
 
 
@@ -183,7 +194,7 @@ public static class DepthTransport
 
 
 
-        }.
+        }
 
 
 
@@ -245,14 +256,14 @@ public static class DepthTransport
                 if (depthSequence == null)
                 {
                     depthSequence = new RawDepthSequence();
-                    depthSequence.LoadFrom("testsequence");
+                    depthSequence.LoadFrom("depthCapture");
                 }
 
                 return depthSequence.GetNext();
 
 
             case DEPTHMODE.OFF:
-default:
+            default:
 
                 return new ushort[Width * Height];
 
@@ -1099,7 +1110,7 @@ public class RawDepthSequence
 
         BinaryFormatter bf = new BinaryFormatter();
 
-        FileStream file = File.Create(Application.persistentDataPath + fileName + ".dep");
+        FileStream file = File.Create(Application.persistentDataPath +"/"+ fileName + ".dep");
 
         bf.Serialize(file, this);
 
@@ -1109,14 +1120,17 @@ public class RawDepthSequence
 
     public void LoadFrom(string fileName)
     {
-        string fullPath = Application.persistentDataPath + fileName + ".dep";
+        string fullPath = Application.persistentDataPath + "/" + fileName + ".dep";
 
         if (File.Exists(fullPath))
         {
             BinaryFormatter bf = new BinaryFormatter();
             FileStream file = File.Open(fullPath, FileMode.Open);
-            IO.savedCaptures = (List<Capture>)bf.Deserialize(file);
+
+            RawDepthSequence loaded = (RawDepthSequence)bf.Deserialize(file);
             file.Close();
+
+            this.Frames = loaded.Frames;
 
         }
 

@@ -193,21 +193,24 @@ public class UserHandler : MonoBehaviour
 
                         // THis should all move into depthtransport.
 
-					//KinectManager manager = DepthTransport.kinectManager;
+                        //KinectManager manager = DepthTransport.kinectManager;
 
-					uint playerID = KinectManager.Instance != null ? KinectManager.Instance.GetPlayer1ID () : 0;
+                        uint playerID = KinectManager.Instance != null ? KinectManager.Instance.GetPlayer1ID() : 0;
 
-					if (playerID >= 0) {
+                        if (playerID >= 0)
+                        {
 
-						viewerObject.transform.parent.transform.position = DepthTransport.getJoint (playerID, 3); // head
+                            viewerObject.transform.parent.transform.position = DepthTransport.getJoint(playerID, 3); // head
 
-						handl.transform.position = DepthTransport.getJoint (playerID, 7);
-						handr.transform.position = DepthTransport.getJoint (playerID, 11);
+                            handl.transform.position = DepthTransport.getJoint(playerID, 7);
+                            handr.transform.position = DepthTransport.getJoint(playerID, 11);
 
-					} else {
+                        }
+                        else
+                        {
 
-						Debug.Log ("playerid is 0");
-					}
+                            Debug.Log("playerid is 0");
+                        }
 
 #endif
 
@@ -895,18 +898,19 @@ public class UserHandler : MonoBehaviour
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
-				//	KinectManager manager = DepthTransport.kinectManager;
+                        //	KinectManager manager = DepthTransport.kinectManager;
 
-					uint playerID = KinectManager.Instance != null ? KinectManager.Instance.GetPlayer1ID () : 0;
+                        uint playerID = KinectManager.Instance != null ? KinectManager.Instance.GetPlayer1ID() : 0;
 
-					if (playerID >= 0) {
-					
-						viewerObject.transform.parent.transform.position = DepthTransport.getJoint (playerID, 3); // head
+                        if (playerID >= 0)
+                        {
 
-						handl.transform.position = DepthTransport.getJoint (playerID, 7);
-						handr.transform.position = DepthTransport.getJoint (playerID, 11);
+                            viewerObject.transform.parent.transform.position = DepthTransport.getJoint(playerID, 3); // head
 
-					}
+                            handl.transform.position = DepthTransport.getJoint(playerID, 7);
+                            handr.transform.position = DepthTransport.getJoint(playerID, 11);
+
+                        }
 
 #endif
 

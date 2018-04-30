@@ -1459,7 +1459,7 @@ Prefab:
     - target: {fileID: 114537222341640082, guid: a7b96c05b61f9410a9b07a41f0fc226d,
         type: 2}
       propertyPath: launchWIN
-      value: presenceserver
+      value: play
       objectReference: {fileID: 0}
     - target: {fileID: 114537222341640082, guid: a7b96c05b61f9410a9b07a41f0fc226d,
         type: 2}
@@ -1527,7 +1527,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   kinectImage: {fileID: 797720137}
-  previewImage: {fileID: 0}
+  previewImage: {fileID: 251673386}
   FPS: {fileID: 531371152}
   dataController: {fileID: 861919368}
 --- !u!4 &849450656

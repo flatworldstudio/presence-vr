@@ -82,6 +82,14 @@ public class SetHandler : MonoBehaviour
         switch (task.description)
         {
 
+            case "recorddepth":
+            case "playdepth":
+                
+                ComputeParticles(DepthTransport.GetRawDepthMap(), DepthTransport.Width, DepthTransport.Height, 2, new Vector3(0, PRESENCE.kinectHeight, 0), clouds[0]);
+
+                break;
+
+
             case "displaycheck":
 
                 Debug.Log(me + "displays connected: " + Display.displays.Length);
@@ -140,7 +148,7 @@ public class SetHandler : MonoBehaviour
 
                 clouds = new ParticleCloud[1];
 
-                clouds[0] = new ParticleCloud(2500);
+                clouds[0] = new ParticleCloud(20000);
 
                 PRESENCE.PointCloud = new Vector3[2500];
 

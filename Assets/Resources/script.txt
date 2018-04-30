@@ -1,5 +1,17 @@
-#test
-depthreadtest
+#play
+debugon
+amserver
+createsinglecloud
+depthplayback
+playdepth
+end
+
+#record
+debugon
+amserver
+createsinglecloud
+depthrecord
+recorddepth
 end
 
 #transferserver
