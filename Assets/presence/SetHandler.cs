@@ -84,11 +84,19 @@ public class SetHandler : MonoBehaviour
 
             case "recorddepth":
             case "playdepth":
-                
+
                 ComputeParticles(DepthTransport.GetRawDepthMap(), DepthTransport.Width, DepthTransport.Height, 2, new Vector3(0, PRESENCE.kinectHeight, 0), clouds[0]);
 
                 break;
 
+            case "depthcompress":
+
+                ushort[] depth;
+                if (task.getUshortValue("depth", out depth))
+                {
+                    ComputeParticles(depth, DepthTransport.Width, DepthTransport.Height, 2, new Vector3(0, PRESENCE.kinectHeight, 0), clouds[0]);
+                }
+                break;
 
             case "displaycheck":
 

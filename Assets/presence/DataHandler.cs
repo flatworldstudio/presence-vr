@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.XR.WSA.Input;
 
 
 
@@ -62,6 +63,9 @@ public class DataHandler : MonoBehaviour
     }
 
     float recordStart;
+    ushort[] rawDepthPrev, rawDepthCur;
+
+    int minPrev, minCur, maxPrev, maxCur;
 
     public bool TaskHandler(StoryTask task)
     {
@@ -71,6 +75,94 @@ public class DataHandler : MonoBehaviour
         switch (task.description)
         {
 
+            case "depthcompress":
+                Application.targetFrameRate = 30;
+                QualitySettings.vSyncCount = 0;
+                FPS.text = ("FPS: " + 1f / Time.smoothDeltaTime);
+
+                ushort[] getRawDepth = DepthTransport.GetRawDepthMap();
+                rawDepthPrev = rawDepthCur;
+                rawDepthCur = getRawDepth;
+
+
+               
+
+                if (rawDepthPrev == null)
+                    rawDepthPrev = new ushort[640*480];
+
+                ushort[] rawDepth = rawDepthCur;
+
+                if (kinectImage.texture == null)
+                {
+
+                    DepthTexture = new Texture2D(DepthTransport.Width, DepthTransport.Height);
+                    kinectImage.texture = DepthTexture;
+
+                }
+
+                //if (previewImage.texture == null)
+                //{
+
+                //    PreviewTexture = new Texture2D(DepthTransport.Width, DepthTransport.Height);
+                //    previewImage.texture = PreviewTexture;
+
+                //}
+
+                DepthTransport.RawDepthToTexture(rawDepth, DepthTexture);
+
+                minPrev = minCur;
+                maxPrev = maxCur;
+
+
+                 minCur = DepthTransport.Min;
+                 maxCur = DepthTransport.Max;
+
+
+
+                byte[] data = StreamSDK.GetVideo();
+
+
+
+                if (data != null)
+                {
+
+                    //task.setByteValue("data", data);
+                    //task.setStringValue("debug", "datasize: " + data.Length);
+
+                    //FPS.text = ("FPS: " + 1f / Time.smoothDeltaTime);
+
+                    StreamSDK.UpdateStreamRemote(data);
+
+                    DepthTransport.ApplyEdge(rawDepthPrev, (Texture2D)previewImage.texture,minPrev,maxPrev);
+
+
+                }
+
+                //previewImage.texture = PreviewTexture;
+
+
+                //Texture2D testTexture = new Texture2D(DepthTransport.Width, DepthTransport.Height);
+
+
+                //DepthTransport.RawDepthToTexture(rawDepth, DepthTexture);
+                //previewImage.texture = DepthPreviewTextureTexture;
+
+                //ushort[] decodeDepth = DepthTransport.TextureToRawDepth(DepthTexture, min, max);
+
+
+                ushort[] decodeDepth = DepthTransport.TextureToRawDepth((Texture2D)previewImage.texture, minPrev, maxPrev);
+
+                task.setUshortValue("depth", decodeDepth);
+
+
+
+                //ComputeParticles(DepthTransport.GetRawDepthMap(), DepthTransport.Width, DepthTransport.Height, 2, new Vector3(0, PRESENCE.kinectHeight, 0), clouds[0]);
+
+
+
+
+
+                break;
 
             case "depthlive":
 
@@ -90,7 +182,7 @@ public class DataHandler : MonoBehaviour
                 break;
 
             case "depthplayback":
-            
+
                 DepthTransport.Mode = DEPTHMODE.PLAYBACK;
                 done = true;
 
@@ -202,17 +294,17 @@ public class DataHandler : MonoBehaviour
                     //byte[] data = new byte[testSize];
 
 
-                    byte[] data = StreamSDK.GetVideo();
+                    byte[] vidData = StreamSDK.GetVideo();
 
-                    if (data != null)
+                    if (vidData != null)
                     {
 
-                        task.setByteValue("data", data);
-                        task.setStringValue("debug", "datasize: " + data.Length);
+                        task.setByteValue("data", vidData);
+                        task.setStringValue("debug", "datasize: " + vidData.Length);
 
                         FPS.text = ("FPS: " + 1f / Time.smoothDeltaTime);
 
-                        StreamSDK.UpdateStreamRemote(data);
+                        StreamSDK.UpdateStreamRemote(vidData);
 
 
                         //  outline detection.
@@ -228,9 +320,9 @@ public class DataHandler : MonoBehaviour
                 if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT)
                 {
 
-                    byte[] data;
+                    byte[] data2;
 
-                    if (task.getByteValue("data", out data))
+                    if (task.getByteValue("data", out data2))
                     {
 
                         //  previ
@@ -238,7 +330,7 @@ public class DataHandler : MonoBehaviour
                         QualitySettings.vSyncCount = 0;
                         //task.setStringValue("debug", "datasize: " + data.Length);
                         FPS.text = ("FPS: " + 1 / Time.smoothDeltaTime + "UPD " + task.LastUpdatesPerFrame);
-                        StreamSDK.UpdateStreamRemote(data);
+                        StreamSDK.UpdateStreamRemote(data2);
 
                     }
 
@@ -251,15 +343,15 @@ public class DataHandler : MonoBehaviour
                 break;
 
 
-               
+
 
             case "initstream":
                 {
                     if (StreamSDK.instance != null)
                     {
-                        StreamSDK.instance.width = 320;
-                        StreamSDK.instance.height = 240;
-                        StreamSDK.instance.quality = 90;
+                        StreamSDK.instance.width = 640;
+                        StreamSDK.instance.height = 480;
+                        StreamSDK.instance.quality = 65;
 
                         StreamSDK.instance.framerate = 30;
 
@@ -315,7 +407,7 @@ public class DataHandler : MonoBehaviour
                             StreamSDK.UpdateStreamRemote(video);
 
 
-                            DepthTransport.ApplyEdge(DepthMap, PreviewTexture);
+                            //DepthTransport.ApplyEdge(DepthMap, PreviewTexture);
 
 
 

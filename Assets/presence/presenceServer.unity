@@ -413,14 +413,14 @@ RectTransform:
   m_GameObject: {fileID: 251673384}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
+  m_LocalScale: {x: 1, y: -1, z: 1}
   m_Children: []
   m_Father: {fileID: 1059995040}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -307.09, y: 229.71}
+  m_AnchoredPosition: {x: -215.14, y: 52.3}
   m_SizeDelta: {x: 640, y: 480}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &251673386
@@ -1256,7 +1256,7 @@ GameObject:
   - component: {fileID: 797720136}
   - component: {fileID: 797720138}
   - component: {fileID: 797720137}
-  m_Layer: 5
+  m_Layer: 9
   m_Name: KinectRaw
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1454,7 +1454,7 @@ Prefab:
     - target: {fileID: 114537222341640082, guid: a7b96c05b61f9410a9b07a41f0fc226d,
         type: 2}
       propertyPath: launchOSX
-      value: transferserver
+      value: play
       objectReference: {fileID: 0}
     - target: {fileID: 114537222341640082, guid: a7b96c05b61f9410a9b07a41f0fc226d,
         type: 2}
@@ -2085,7 +2085,7 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 512
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 2
@@ -2583,7 +2583,7 @@ GameObject:
   - component: {fileID: 1441028698}
   - component: {fileID: 1441028697}
   - component: {fileID: 1441028696}
-  m_Layer: 5
+  m_Layer: 9
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6671,7 +6671,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &2143278482
 MeshRenderer:
   m_ObjectHideFlags: 0

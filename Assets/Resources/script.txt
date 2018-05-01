@@ -1,9 +1,10 @@
 #play
 debugon
 amserver
+initstream
 createsinglecloud
 depthplayback
-playdepth
+depthcompress
 end
 
 #record

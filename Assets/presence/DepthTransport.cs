@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using NUnit.Framework.Constraints;
 
 public enum DEPTHMODE
 {
@@ -28,7 +29,7 @@ public static class DepthTransport
 
     // KINECT INFO
 
-
+    static public int Min, Max;
 
     static public bool centered = true;
 
@@ -150,7 +151,7 @@ public static class DepthTransport
 
     //public void 
 
-    public static void ApplyEdge(ushort[] depthMap, Texture2D texture)
+    public static void ApplyEdge(ushort[] depthMap, Texture2D texture,int min, int max)
     {
 
         // should be same size.
@@ -172,11 +173,21 @@ public static class DepthTransport
                 int x = i & width;
                 int y = i / width;
 
-                if ((x > 0 && depthMap[i - 1] == 0) ||
-                    (x < width - 1 && depthMap[i + 1] == 0) ||
-                    (y > 0 && depthMap[i - width] == 0) ||
-                    (y < height - 1 && depthMap[i + width] == 0))
+
+                if ((x > 0 && (depthMap[i - 1]&7) == 0) ||
+                    (x < width - 1 && (depthMap[i + 1]&7) == 0) ||
+                    (y > 0 && (depthMap[i - width]&7) == 0) ||
+                    (y < height - 1 && (depthMap[i + width]&7) == 0))
                 {
+
+                    int userDepth = depthMap[i] >> 3;
+
+
+                    float value = (float)(userDepth - min) / (float)(max - min);
+                    value = Mathf.Clamp01(value);
+
+
+                    ImageMap[i] = new Color(0, value, 1);
 
 
 
@@ -196,6 +207,8 @@ public static class DepthTransport
 
         }
 
+        texture.SetPixels(ImageMap);
+        texture.Apply();
 
 
     }
@@ -580,8 +593,11 @@ public static class DepthTransport
         DepthMin.Rove(min);
         DepthMax.Rove(max);
 
-        min = DepthMin.Int;
-        max = DepthMax.Int;
+        //min = DepthMin.Int;
+        //max = DepthMax.Int;
+
+       Min = min;
+        Max = max;
 
         Color[] ImageMap = new Color[RawDepth.Length];
 
@@ -610,7 +626,7 @@ public static class DepthTransport
             }
             else
             {
-
+                /*
                 int x = i & Width;
                 int y = i / Width;
 
@@ -658,9 +674,10 @@ public static class DepthTransport
 
 
                 }
+                */
 
 
-
+                ImageMap[i] = Color.black;
 
                 //ImageMap[i] =new Color32(0, 0, 0,255);
 
