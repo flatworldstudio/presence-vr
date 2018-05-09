@@ -2,34 +2,39 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UserHandler : MonoBehaviour
+using StoryEngine;
+
+namespace Presence
 {
 
-    public UserController userController;
-    UxInterface overviewInterface, viewInterface, serverInterface;
-
-    public GameObject uxCanvas;
-
-    public GameObject overviewObject, viewerObject, projectionObject, headSet, setObject, handl, handr, Kinect, SetHandler, compass, startPosition;
-    //	UxMapping overviewMap;
-    float timer = 0;
-
-    float heading, lastHeading, smoothOffset, northOffset;
-
-    public AudioSource signalSound;
-
-    //	public 
-
-    string me = "Task handler: ";
-
-    UxController uxController;
-
-    void Start()
+    public class UserHandler : MonoBehaviour
     {
 
-        userController.addTaskHandler(TaskHandler);
+        public UserController userController;
+        UxInterface overviewInterface, viewInterface, serverInterface;
 
-        uxController = new UxController();
+        public GameObject uxCanvas;
+
+        public GameObject overviewObject, viewerObject, projectionObject, headSet, setObject, handl, handr, Kinect, SetHandler, compass, startPosition;
+        //	UxMapping overviewMap;
+        float timer = 0;
+
+        float heading, lastHeading, smoothOffset, northOffset;
+
+        public AudioSource signalSound;
+
+        //	public 
+
+        string me = "Task handler: ";
+
+        UxController uxController;
+
+        void Start()
+        {
+
+            userController.addTaskHandler(TaskHandler);
+
+            uxController = new UxController();
 
 
 
@@ -53,140 +58,140 @@ public class UserHandler : MonoBehaviour
 
 
 
-        //		viewerInterface.camera.cameraReference.SetActive (false);
+            //		viewerInterface.camera.cameraReference.SetActive (false);
 
-        /*
-		overviewInterface.camera.cameraReference.SetActive (true);
-
-
-		UiConstraint simpleConstraint = new UiConstraint ();
-
-		simpleConstraint.edgeSprings = true;
-		simpleConstraint.edgeSpringMin = new Vector3 (0, 0);
-		simpleConstraint.edgeSpringMax = new Vector3 (0, 0);
-
-		simpleConstraint.hardClamp = true;
-		simpleConstraint.hardClampMin = new Vector3 (-100, -50);
-		simpleConstraint.hardClampMax = new Vector3 (100, 50);
-
-		GameObject menu = GameObject.Find ("menu");
-
-		UiButton but = new UiButton ("record", menu, simpleConstraint);
-		but.callback = "recorddepth";
-		overviewInterface.uiButtons.Add ("record", but);
-		viewerInterface.uiButtons.Add ("record", but);
+            /*
+            overviewInterface.camera.cameraReference.SetActive (true);
 
 
-		but = new UiButton ("stop", menu, simpleConstraint);
-		but.callback = "stopdepth";
-		overviewInterface.uiButtons.Add ("stop", but);
-		viewerInterface.uiButtons.Add ("stop", but);
+            UiConstraint simpleConstraint = new UiConstraint ();
+
+            simpleConstraint.edgeSprings = true;
+            simpleConstraint.edgeSpringMin = new Vector3 (0, 0);
+            simpleConstraint.edgeSpringMax = new Vector3 (0, 0);
+
+            simpleConstraint.hardClamp = true;
+            simpleConstraint.hardClampMin = new Vector3 (-100, -50);
+            simpleConstraint.hardClampMax = new Vector3 (100, 50);
+
+            GameObject menu = GameObject.Find ("menu");
+
+            UiButton but = new UiButton ("record", menu, simpleConstraint);
+            but.callback = "recorddepth";
+            overviewInterface.uiButtons.Add ("record", but);
+            viewerInterface.uiButtons.Add ("record", but);
 
 
-		but = new UiButton ("play", menu, simpleConstraint);
-		but.callback = "playdepth";
-		overviewInterface.uiButtons.Add ("play", but);
-		viewerInterface.uiButtons.Add ("play", but);
-
-*/
+            but = new UiButton ("stop", menu, simpleConstraint);
+            but.callback = "stopdepth";
+            overviewInterface.uiButtons.Add ("stop", but);
+            viewerInterface.uiButtons.Add ("stop", but);
 
 
-    }
+            but = new UiButton ("play", menu, simpleConstraint);
+            but.callback = "playdepth";
+            overviewInterface.uiButtons.Add ("play", but);
+            viewerInterface.uiButtons.Add ("play", but);
 
-    private static Quaternion GyroToUnity(Quaternion q)
-    {
+    */
 
-        return new Quaternion(q.x, q.y, -q.z, -q.w);
-        //		return new Quaternion(q.y, -q.x, q.z, q.w);
 
-    }
+        }
 
-    //	static readonly Quaternion baseIdentity =  Quaternion.Euler(90, 0, 0);
-    static readonly Quaternion landscapeLeft = Quaternion.Euler(0, 0, -90);
-    static readonly Quaternion baseIdentity = Quaternion.Euler(90, 0, 0);
-
-    public bool TaskHandler(StoryTask task)
-    {
-
-        bool done = false;
-
-        switch (task.description)
+        private static Quaternion GyroToUnity(Quaternion q)
         {
 
-            case "waitforuser":
+            return new Quaternion(q.x, q.y, -q.z, -q.w);
+            //		return new Quaternion(q.y, -q.x, q.z, q.w);
 
-                // Detect user start position
-                ///	GameObject.Find("startposition");
+        }
+
+        //	static readonly Quaternion baseIdentity =  Quaternion.Euler(90, 0, 0);
+        static readonly Quaternion landscapeLeft = Quaternion.Euler(0, 0, -90);
+        static readonly Quaternion baseIdentity = Quaternion.Euler(90, 0, 0);
+
+        public bool TaskHandler(StoryTask task)
+        {
+
+            bool done = false;
+
+            switch (task.description)
+            {
+
+                case "waitforuser":
+
+                    // Detect user start position
+                    ///	GameObject.Find("startposition");
 
 
-                //	Vector3 startPos3d = startPos.transform.position;
-                Vector2 startPos = new Vector2(startPosition.transform.position.x, startPosition.transform.position.z);
-                Vector2 userPos = new Vector2(viewerObject.transform.parent.transform.position.x, viewerObject.transform.parent.transform.position.z);
+                    //	Vector3 startPos3d = startPos.transform.position;
+                    Vector2 startPos = new Vector2(startPosition.transform.position.x, startPosition.transform.position.z);
+                    Vector2 userPos = new Vector2(viewerObject.transform.parent.transform.position.x, viewerObject.transform.parent.transform.position.z);
 
-                float delta = Vector2.Distance(startPos, userPos);
+                    float delta = Vector2.Distance(startPos, userPos);
 
-                if (delta < 1f)
-                {
-
-                    timer += Time.deltaTime;
-
-                    if (timer > 2f)
+                    if (delta < 1f)
                     {
 
-                        //	PRESENCE.capture = new CloudSequence (PRESENCE.captureLength);
-                        //	PRESENCE.CaptureFrame = 0;
-                        //	GENERAL.GLOBALS.setIntValue ("setcaptureframe", 0);
+                        timer += Time.deltaTime;
 
-                        //		PRESENCE.TimeStamp = Time.time;
+                        if (timer > 2f)
+                        {
 
-                        done = true;
+                            //	PRESENCE.capture = new CloudSequence (PRESENCE.captureLength);
+                            //	PRESENCE.CaptureFrame = 0;
+                            //	GENERAL.GLOBALS.setIntValue ("setcaptureframe", 0);
+
+                            //		PRESENCE.TimeStamp = Time.time;
+
+                            done = true;
+
+                        }
+
+                    }
+                    else
+                    {
+
+                        timer = 0f;
 
                     }
 
-                }
-                else
-                {
+                    task.setStringValue("debug", "" + timer);
 
-                    timer = 0f;
+                    break;
 
-                }
-
-                task.setStringValue("debug", "" + timer);
-
-                break;
-
-            case "sessiontimer":
+                case "sessiontimer":
 
 
-                if (PRESENCE.CaptureFrame == PRESENCE.sessionLength)
-                {
+                    if (PRESENCE.CaptureFrame == PRESENCE.sessionLength)
+                    {
+
+                        done = true;
+                    }
+
+
+                    break;
+
+
+                case "playsignal":
+
+                    signalSound.Play();
 
                     done = true;
-                }
 
-
-                break;
-
-
-            case "playsignal":
-
-                signalSound.Play();
-
-                done = true;
-
-                break;
+                    break;
 
 
 
-            case "userstream":
+                case "userstream":
 
-                if (PRESENCE.deviceMode == DEVICEMODE.SERVER)
-                {
-
-                    // get head and hands position.
-
-                    if (DepthTransport.Mode == DEPTHMODE.LIVE)
+                    if (PRESENCE.deviceMode == DEVICEMODE.SERVER)
                     {
+
+                        // get head and hands position.
+
+                        if (DepthTransport.Mode == DEPTHMODE.LIVE)
+                        {
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
@@ -214,194 +219,194 @@ public class UserHandler : MonoBehaviour
 
 #endif
 
+                        }
+                        else
+                        {
+                            Debug.Log("kinect not live");
+
+                        }
+
+                        // retrieve head orientation
+
+                        Quaternion q;
+
+                        if (task.getQuaternionValue("headrotation", out q))
+                        {
+
+                            headSet.transform.rotation = q;
+
+                        }
+
+                        // push head and hand position
+
+                        task.setVector3Value("head", viewerObject.transform.parent.transform.position);
+                        task.setVector3Value("lefthand", handl.transform.position);
+                        task.setVector3Value("righthand", handr.transform.position);
+
                     }
-                    else
+
+                    if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT)
                     {
-                        Debug.Log("kinect not live");
+
+                        // put head rotation
+
+                        task.setQuaternionValue("headrotation", headSet.transform.rotation);
+
+                        // retrieve head and hand position
+
+                        Vector3 head, lefthand, righthand;
+
+                        if (task.getVector3Value("head", out head))
+                            viewerObject.transform.parent.transform.position = head;
+
+
+                        if (task.getVector3Value("lefthand", out lefthand))
+                            handl.transform.localPosition = lefthand;
+
+                        if (task.getVector3Value("righthand", out righthand))
+                            handr.transform.localPosition = righthand;
 
                     }
 
-                    // retrieve head orientation
+                    break;
 
-                    Quaternion q;
 
-                    if (task.getQuaternionValue("headrotation", out q))
+
+
+                case "makeservercontrols":
+
+
+
+                    serverInterface = new UxInterface();
+
+                    UxMapping serverMapping = new UxMapping();
+
+                    serverMapping.ux_none += UxMethods.none;
+
+                    serverMapping.ux_tap_2d += UxMethods.highlightButton2d;
+                    serverMapping.ux_tap_3d += UxMethods.none;
+                    serverMapping.ux_tap_none += UxMethods.tapNone;
+
+                    serverMapping.ux_single_2d += UxMethods.drag2d;
+                    serverMapping.ux_single_3d += UxMethods.rotateCamera;
+                    serverMapping.ux_single_none += UxMethods.rotateCamera;
+
+                    serverMapping.ux_double_2d += UxMethods.drag2d;
+                    serverMapping.ux_double_3d += UxMethods.panCamera;
+
+                    serverMapping.ux_double_3d += UxMethods.zoomCamera;
+
+                    serverMapping.ux_double_none += UxMethods.panCamera;
+                    serverMapping.ux_double_none += UxMethods.zoomCamera;
+
+                    serverInterface.defaultUxMap = serverMapping;
+
+                    serverInterface.camera = new UxCamera(overviewObject);
+                    serverInterface.camera.control = CAMERACONTROL.ORBIT;
+
+                    serverInterface.camera.constraint = new UiConstraint();
+                    serverInterface.camera.constraint.pitchClamp = true;
+                    serverInterface.camera.constraint.pitchClampMin = 10f;
+                    serverInterface.camera.constraint.pitchClampMax = 80f;
+
+                    serverInterface.canvasObject = uxCanvas;
+                    serverInterface.tapNoneCallback = "screentap";
+
+                    UiConstraint constraint = new UiConstraint();
+
+                    constraint.hardClamp = true;
+                    constraint.hardClampMin = new Vector3(0, -250);
+                    constraint.hardClampMax = new Vector3(0, -250);
+
+                    GameObject menu = GameObject.Find("servermenu");
+
+                    UiButton control = new UiButton("live", menu, constraint);
+                    control.callback = "startlive";
+                    serverInterface.addButton(control);
+
+                    control = new UiButton("mirror", menu, constraint);
+                    control.callback = "startmirror";
+                    serverInterface.addButton(control);
+
+                    control = new UiButton("echo", menu, constraint);
+                    control.callback = "startecho";
+                    serverInterface.addButton(control);
+
+                    control = new UiButton("stop", menu, constraint);
+                    control.callback = "stopsession";
+                    serverInterface.addButton(control);
+
+
+                    done = true;
+
+                    break;
+
+                case "servercontrol":
+
+
+                    UserCallBack serverCallback = uxController.updateUx(serverInterface);
+
+                    if (serverCallback.trigger)
                     {
-
-                        headSet.transform.rotation = q;
-
+                        task.setCallBack(serverCallback.label);
                     }
 
-                    // push head and hand position
 
-                    task.setVector3Value("head", viewerObject.transform.parent.transform.position);
-                    task.setVector3Value("lefthand", handl.transform.position);
-                    task.setVector3Value("righthand", handr.transform.position);
 
-                }
 
-                if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT)
-                {
+                    break;
 
-                    // put head rotation
 
-                    task.setQuaternionValue("headrotation", headSet.transform.rotation);
 
-                    // retrieve head and hand position
+                case "createviewvr":
 
-                    Vector3 head, lefthand, righthand;
+                    //			PRESENCE.isOverview = false;
 
-                    if (task.getVector3Value("head", out head))
-                        viewerObject.transform.parent.transform.position = head;
+                    viewInterface = new UxInterface();
 
+                    UxMapping uxMap = new UxMapping();
 
-                    if (task.getVector3Value("lefthand", out lefthand))
-                        handl.transform.localPosition = lefthand;
 
-                    if (task.getVector3Value("righthand", out righthand))
-                        handr.transform.localPosition = righthand;
+                    uxMap.ux_none += UxMethods.none;
 
-                }
 
-                break;
+                    uxMap.ux_tap_2d += UxMethods.none;
+                    uxMap.ux_tap_3d += UxMethods.none;
+                    //			uxMap.ux_tap_none += UxMethods.clearSelectedObjects;
+                    uxMap.ux_tap_none += UxMethods.tapNone;
 
+                    uxMap.ux_single_2d += UxMethods.none;
+                    uxMap.ux_single_3d += UxMethods.none;
+                    uxMap.ux_single_none += UxMethods.none;
 
+                    uxMap.ux_double_2d += UxMethods.none;
+                    uxMap.ux_double_3d += UxMethods.none;
+                    uxMap.ux_double_none += UxMethods.none;
 
+                    viewInterface.defaultUxMap = uxMap;
 
-            case "makeservercontrols":
+                    viewInterface.camera = new UxCamera(viewerObject);
 
+                    viewInterface.camera.control = CAMERACONTROL.VOID;
 
+                    viewInterface.camera.constraint = new UiConstraint();
 
-                serverInterface = new UxInterface();
+                    viewInterface.canvasObject = uxCanvas;
 
-                UxMapping serverMapping = new UxMapping();
+                    viewInterface.tapNoneCallback = "calibrate";
 
-                serverMapping.ux_none += UxMethods.none;
+                    done = true;
+                    break;
 
-                serverMapping.ux_tap_2d += UxMethods.highlightButton2d;
-                serverMapping.ux_tap_3d += UxMethods.none;
-                serverMapping.ux_tap_none += UxMethods.tapNone;
 
-                serverMapping.ux_single_2d += UxMethods.drag2d;
-                serverMapping.ux_single_3d += UxMethods.rotateCamera;
-                serverMapping.ux_single_none += UxMethods.rotateCamera;
+                case "createview":
 
-                serverMapping.ux_double_2d += UxMethods.drag2d;
-                serverMapping.ux_double_3d += UxMethods.panCamera;
+                    PRESENCE.isOverview = false;
 
-                serverMapping.ux_double_3d += UxMethods.zoomCamera;
 
-                serverMapping.ux_double_none += UxMethods.panCamera;
-                serverMapping.ux_double_none += UxMethods.zoomCamera;
+                    viewInterface = new UxInterface();
 
-                serverInterface.defaultUxMap = serverMapping;
-
-                serverInterface.camera = new UxCamera(overviewObject);
-                serverInterface.camera.control = CAMERACONTROL.ORBIT;
-
-                serverInterface.camera.constraint = new UiConstraint();
-                serverInterface.camera.constraint.pitchClamp = true;
-                serverInterface.camera.constraint.pitchClampMin = 10f;
-                serverInterface.camera.constraint.pitchClampMax = 80f;
-
-                serverInterface.canvasObject = uxCanvas;
-                serverInterface.tapNoneCallback = "screentap";
-
-                UiConstraint constraint = new UiConstraint();
-
-                constraint.hardClamp = true;
-                constraint.hardClampMin = new Vector3(0, -250);
-                constraint.hardClampMax = new Vector3(0, -250);
-
-                GameObject menu = GameObject.Find("servermenu");
-
-                UiButton control = new UiButton("live", menu, constraint);
-                control.callback = "startlive";
-                serverInterface.addButton(control);
-
-                control = new UiButton("mirror", menu, constraint);
-                control.callback = "startmirror";
-                serverInterface.addButton(control);
-
-                control = new UiButton("echo", menu, constraint);
-                control.callback = "startecho";
-                serverInterface.addButton(control);
-
-                control = new UiButton("stop", menu, constraint);
-                control.callback = "stopsession";
-                serverInterface.addButton(control);
-
-
-                done = true;
-
-                break;
-
-            case "servercontrol":
-
-
-                UserCallBack serverCallback = uxController.updateUx(serverInterface);
-
-                if (serverCallback.trigger)
-                {
-                    task.setCallBack(serverCallback.label);
-                }
-
-
-
-
-                break;
-
-
-
-            case "createviewvr":
-
-                //			PRESENCE.isOverview = false;
-
-                viewInterface = new UxInterface();
-
-                UxMapping uxMap = new UxMapping();
-
-
-                uxMap.ux_none += UxMethods.none;
-
-
-                uxMap.ux_tap_2d += UxMethods.none;
-                uxMap.ux_tap_3d += UxMethods.none;
-                //			uxMap.ux_tap_none += UxMethods.clearSelectedObjects;
-                uxMap.ux_tap_none += UxMethods.tapNone;
-
-                uxMap.ux_single_2d += UxMethods.none;
-                uxMap.ux_single_3d += UxMethods.none;
-                uxMap.ux_single_none += UxMethods.none;
-
-                uxMap.ux_double_2d += UxMethods.none;
-                uxMap.ux_double_3d += UxMethods.none;
-                uxMap.ux_double_none += UxMethods.none;
-
-                viewInterface.defaultUxMap = uxMap;
-
-                viewInterface.camera = new UxCamera(viewerObject);
-
-                viewInterface.camera.control = CAMERACONTROL.VOID;
-
-                viewInterface.camera.constraint = new UiConstraint();
-
-                viewInterface.canvasObject = uxCanvas;
-
-                viewInterface.tapNoneCallback = "calibrate";
-
-                done = true;
-                break;
-
-
-            case "createview":
-
-                PRESENCE.isOverview = false;
-
-
-                viewInterface = new UxInterface();
-
-                uxMap = new UxMapping();
+                    uxMap = new UxMapping();
 
 
 
@@ -431,42 +436,40 @@ public class UserHandler : MonoBehaviour
 
 #else
 
-                uxMap.ux_none += UxMethods.none;
+                    uxMap.ux_none += UxMethods.none;
 
 
-                uxMap.ux_tap_2d += UxMethods.highlightButton2d;
-                uxMap.ux_tap_3d += UxMethods.select3dObject;
-                uxMap.ux_tap_none += UxMethods.clearSelectedObjects;
-                uxMap.ux_tap_none += UxMethods.stopControls;
+                    uxMap.ux_tap_2d += UxMethods.highlightButton2d;
+                    uxMap.ux_tap_3d += UxMethods.select3dObject;
+                    uxMap.ux_tap_none += UxMethods.clearSelectedObjects;
+                    uxMap.ux_tap_none += UxMethods.stopControls;
 
-                uxMap.ux_single_2d += UxMethods.drag2d;
-                uxMap.ux_single_3d += UxMethods.rotateCamera;
-                uxMap.ux_single_none += UxMethods.rotateCamera;
+                    uxMap.ux_single_2d += UxMethods.drag2d;
+                    uxMap.ux_single_3d += UxMethods.rotateCamera;
+                    uxMap.ux_single_none += UxMethods.rotateCamera;
 
-                uxMap.ux_double_2d += UxMethods.drag2d;
-                uxMap.ux_double_3d += UxMethods.panCamera;
-                uxMap.ux_double_3d += UxMethods.zoomCamera;
-                uxMap.ux_double_none += UxMethods.panCamera;
-                uxMap.ux_double_none += UxMethods.zoomCamera;
+                    uxMap.ux_double_2d += UxMethods.drag2d;
+                    uxMap.ux_double_3d += UxMethods.panCamera;
+                    uxMap.ux_double_3d += UxMethods.zoomCamera;
+                    uxMap.ux_double_none += UxMethods.panCamera;
+                    uxMap.ux_double_none += UxMethods.zoomCamera;
 
-                viewInterface.defaultUxMap = uxMap;
+                    viewInterface.defaultUxMap = uxMap;
 
-                viewInterface.camera = new UxCamera(viewerObject);
-                viewInterface.camera.control = CAMERACONTROL.TURN;
-                viewInterface.camera.constraint = new UiConstraint();
+                    viewInterface.camera = new UxCamera(viewerObject);
+                    viewInterface.camera.control = CAMERACONTROL.TURN;
+                    viewInterface.camera.constraint = new UiConstraint();
 
 #endif
 
-                viewInterface.canvasObject = uxCanvas;
+                    viewInterface.canvasObject = uxCanvas;
 
 
 
 
-                done = true;
+                    done = true;
 
-                break;
-
-
+                    break;
 
 
 
@@ -474,192 +477,194 @@ public class UserHandler : MonoBehaviour
 
 
 
-            case "createoverview":
 
 
-                PRESENCE.isOverview = true;
+                case "createoverview":
 
 
-                overviewInterface = new UxInterface();
+                    PRESENCE.isOverview = true;
 
 
-
-                UxMapping overviewMap = new UxMapping();
-
-                overviewMap.ux_none += UxMethods.none;
-
-                overviewMap.ux_tap_2d += UxMethods.highlightButton2d;
-                overviewMap.ux_tap_3d += UxMethods.none;
-                overviewMap.ux_tap_none += UxMethods.tapNone;
-
-                overviewMap.ux_single_2d += UxMethods.drag2d;
-                overviewMap.ux_single_3d += UxMethods.rotateCamera;
-                overviewMap.ux_single_none += UxMethods.rotateCamera;
-
-                overviewMap.ux_double_2d += UxMethods.drag2d;
-                overviewMap.ux_double_3d += UxMethods.panCamera;
-
-                overviewMap.ux_double_3d += UxMethods.zoomCamera;
-
-                overviewMap.ux_double_none += UxMethods.panCamera;
-                overviewMap.ux_double_none += UxMethods.zoomCamera;
-
-                overviewInterface.defaultUxMap = overviewMap;
-
-                overviewInterface.camera = new UxCamera(overviewObject);
-                overviewInterface.camera.control = CAMERACONTROL.ORBIT;
-                overviewInterface.camera.constraint = new UiConstraint();
-                overviewInterface.camera.constraint.pitchClamp = true;
-                overviewInterface.camera.constraint.pitchClampMin = 10f;
-                overviewInterface.camera.constraint.pitchClampMax = 80f;
-
-                overviewInterface.canvasObject = uxCanvas;
-                overviewInterface.tapNoneCallback = "screentap";
-
-                /*
-                UiConstraint asc = new UiConstraint ();
-
-                asc.hardClamp = true;
-                asc.hardClampMin = new Vector3 (0, 0);
-                asc.hardClampMax = new Vector3 (0, 0);
+                    overviewInterface = new UxInterface();
 
 
 
-                GameObject g = GameObject.Find ("AllScreen");
+                    UxMapping overviewMap = new UxMapping();
 
-                UiButton AllScreen = new UiButton ("AllScreen", g, asc);
-                AllScreen.callback = "screentap";
-                overviewInterface.uiButtons.Add ("AllScreen", AllScreen);
-    */
-                done = true;
+                    overviewMap.ux_none += UxMethods.none;
 
-                break;
+                    overviewMap.ux_tap_2d += UxMethods.highlightButton2d;
+                    overviewMap.ux_tap_3d += UxMethods.none;
+                    overviewMap.ux_tap_none += UxMethods.tapNone;
 
-            case "toggleview":
+                    overviewMap.ux_single_2d += UxMethods.drag2d;
+                    overviewMap.ux_single_3d += UxMethods.rotateCamera;
+                    overviewMap.ux_single_none += UxMethods.rotateCamera;
 
-                if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL)
-                {
+                    overviewMap.ux_double_2d += UxMethods.drag2d;
+                    overviewMap.ux_double_3d += UxMethods.panCamera;
 
-                    // only execute on server
+                    overviewMap.ux_double_3d += UxMethods.zoomCamera;
 
-                    Camera viewCam = overviewObject.GetComponentInChildren<Camera>();
-                    Camera userCam = viewerObject.GetComponentInChildren<Camera>();
-                    Camera projectionCam = projectionObject.GetComponentInChildren<Camera>();
+                    overviewMap.ux_double_none += UxMethods.panCamera;
+                    overviewMap.ux_double_none += UxMethods.zoomCamera;
+
+                    overviewInterface.defaultUxMap = overviewMap;
+
+                    overviewInterface.camera = new UxCamera(overviewObject);
+                    overviewInterface.camera.control = CAMERACONTROL.ORBIT;
+                    overviewInterface.camera.constraint = new UiConstraint();
+                    overviewInterface.camera.constraint.pitchClamp = true;
+                    overviewInterface.camera.constraint.pitchClampMin = 10f;
+                    overviewInterface.camera.constraint.pitchClampMax = 80f;
+
+                    overviewInterface.canvasObject = uxCanvas;
+                    overviewInterface.tapNoneCallback = "screentap";
+
+                    /*
+                    UiConstraint asc = new UiConstraint ();
+
+                    asc.hardClamp = true;
+                    asc.hardClampMin = new Vector3 (0, 0);
+                    asc.hardClampMax = new Vector3 (0, 0);
 
 
 
-                    if (projectionCam.targetDisplay == 1)
+                    GameObject g = GameObject.Find ("AllScreen");
+
+                    UiButton AllScreen = new UiButton ("AllScreen", g, asc);
+                    AllScreen.callback = "screentap";
+                    overviewInterface.uiButtons.Add ("AllScreen", AllScreen);
+        */
+                    done = true;
+
+                    break;
+
+                case "toggleview":
+
+                    if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL)
                     {
-                        //	cam.enabled = !cam.enabled;
 
-                        // were in overview mode, so switch to pov mode. 
+                        // only execute on server
 
-                        userCam.targetDisplay = 1;
-                        //	userCam.enabled = true;
-
-                        projectionCam.targetDisplay = 2;
+                        Camera viewCam = overviewObject.GetComponentInChildren<Camera>();
+                        Camera userCam = viewerObject.GetComponentInChildren<Camera>();
+                        Camera projectionCam = projectionObject.GetComponentInChildren<Camera>();
 
 
-                        //		viewCam.enabled = true;
-                        //	viewCam.targetDisplay = 0;
+
+                        if (projectionCam.targetDisplay == 1)
+                        {
+                            //	cam.enabled = !cam.enabled;
+
+                            // were in overview mode, so switch to pov mode. 
+
+                            userCam.targetDisplay = 1;
+                            //	userCam.enabled = true;
+
+                            projectionCam.targetDisplay = 2;
+
+
+                            //		viewCam.enabled = true;
+                            //	viewCam.targetDisplay = 0;
+
+
+                        }
+                        else
+                        {
+
+                            userCam.targetDisplay = 2;
+
+                            projectionCam.targetDisplay = 1;
+
+
+
+                        }
+
+
+
+
+
 
 
                     }
-                    else
-                    {
 
-                        userCam.targetDisplay = 2;
+                    done = true;
 
-                        projectionCam.targetDisplay = 1;
+                    break;
 
+                case "createoverviewdebug":
 
+                    GameObject newNullObject = DebugObject.getNullObject(0.1f, 0.1f, 0.2f);
+                    newNullObject.transform.parent = GameObject.Find("overviewObject").transform;
+                    newNullObject.transform.localPosition = Vector3.zero;
+                    newNullObject.transform.localRotation = Quaternion.identity;
 
-                    }
-
-
-
-
-
-
-
-                }
-
-                done = true;
-
-                break;
-
-            case "createoverviewdebug":
-
-                GameObject newNullObject = DebugObject.getNullObject(0.1f, 0.1f, 0.2f);
-                newNullObject.transform.parent = GameObject.Find("overviewObject").transform;
-                newNullObject.transform.localPosition = Vector3.zero;
-                newNullObject.transform.localRotation = Quaternion.identity;
-
-                newNullObject = DebugObject.getNullObject(0.05f, 0.05f, 0.1f);
-                newNullObject.transform.parent = GameObject.Find("overviewInterest").transform;
-                newNullObject.transform.localPosition = Vector3.zero;
-                newNullObject.transform.localRotation = Quaternion.identity;
+                    newNullObject = DebugObject.getNullObject(0.05f, 0.05f, 0.1f);
+                    newNullObject.transform.parent = GameObject.Find("overviewInterest").transform;
+                    newNullObject.transform.localPosition = Vector3.zero;
+                    newNullObject.transform.localRotation = Quaternion.identity;
 
 
 
-                done = true;
+                    done = true;
 
-                break;
-
-
-            case "createcallibrationdebug":
-
-                newNullObject = DebugObject.getNullObject(1f, 1f, 1f);
-                newNullObject.name = "northnull";
-                newNullObject.transform.parent = GameObject.Find("SetHandler").transform;
-                newNullObject.transform.localPosition = Vector3.zero;
-                newNullObject.transform.localRotation = Quaternion.identity;
+                    break;
 
 
-                newNullObject = DebugObject.getNullObject(1f, 1f, 1f);
-                newNullObject.name = "kinectnull";
-                newNullObject.transform.parent = GameObject.Find("Kinect").transform;
-                newNullObject.transform.localPosition = Vector3.zero;
-                newNullObject.transform.localRotation = Quaternion.identity;
+                case "createcallibrationdebug":
 
-                newNullObject = DebugObject.getNullObject(1f, 1f, 1f);
-                newNullObject.name = "compassoffsetnull";
-                newNullObject.transform.parent = GameObject.Find("SetHandler").transform;
-                newNullObject.transform.localPosition = Vector3.zero;
-                newNullObject.transform.localRotation = Quaternion.identity;
-
-                newNullObject = DebugObject.getNullObject(1f, 1f, 1f);
-                newNullObject.name = "viewernull";
-                newNullObject.transform.parent = viewerObject.transform;
-                newNullObject.transform.localPosition = Vector3.zero;
-                newNullObject.transform.localRotation = Quaternion.identity;
+                    newNullObject = DebugObject.getNullObject(1f, 1f, 1f);
+                    newNullObject.name = "northnull";
+                    newNullObject.transform.parent = GameObject.Find("SetHandler").transform;
+                    newNullObject.transform.localPosition = Vector3.zero;
+                    newNullObject.transform.localRotation = Quaternion.identity;
 
 
-                done = true;
+                    newNullObject = DebugObject.getNullObject(1f, 1f, 1f);
+                    newNullObject.name = "kinectnull";
+                    newNullObject.transform.parent = GameObject.Find("Kinect").transform;
+                    newNullObject.transform.localPosition = Vector3.zero;
+                    newNullObject.transform.localRotation = Quaternion.identity;
 
-                break;
+                    newNullObject = DebugObject.getNullObject(1f, 1f, 1f);
+                    newNullObject.name = "compassoffsetnull";
+                    newNullObject.transform.parent = GameObject.Find("SetHandler").transform;
+                    newNullObject.transform.localPosition = Vector3.zero;
+                    newNullObject.transform.localRotation = Quaternion.identity;
+
+                    newNullObject = DebugObject.getNullObject(1f, 1f, 1f);
+                    newNullObject.name = "viewernull";
+                    newNullObject.transform.parent = viewerObject.transform;
+                    newNullObject.transform.localPosition = Vector3.zero;
+                    newNullObject.transform.localRotation = Quaternion.identity;
+
+
+                    done = true;
+
+                    break;
 
 
 
 
-            //		case "overview":
-            //
-            //			uxController.update (overviewInterface);
-            //
-            //
-            //
-            //			break;
+                //		case "overview":
+                //
+                //			uxController.update (overviewInterface);
+                //
+                //
+                //
+                //			break;
 
 
 
-            case "view":
+                case "view":
 
-                uxController.update(viewInterface);
+                    uxController.update(viewInterface);
 
 
-                break;
+                    break;
 
-            case "syncviewer":
+                case "syncviewer":
 
 #if SERVER
 
@@ -685,25 +690,25 @@ public class UserHandler : MonoBehaviour
 #endif
 
 
-                Quaternion headRotation;
+                    Quaternion headRotation;
 
 
 
-                //			#if IOS && !UNITY_EDITOR
-                //
-                //			headRotation = UnityEngine.XR.InputTracking.GetLocalRotation(UnityEngine.XR.XRNode.CenterEye);
-                //
-                //			#endif
-                //
-                //
-                //			#if IOS && UNITY_EDITOR
-                //
-                ////			headRotation = UnityEngine.XR.InputTracking.GetLocalRotation(UnityEngine.XR.XRNode.CenterEye);
-                //
-                //			headRotation = headSet.transform.rotation;
-                //
-                //
-                //			#endif
+                    //			#if IOS && !UNITY_EDITOR
+                    //
+                    //			headRotation = UnityEngine.XR.InputTracking.GetLocalRotation(UnityEngine.XR.XRNode.CenterEye);
+                    //
+                    //			#endif
+                    //
+                    //
+                    //			#if IOS && UNITY_EDITOR
+                    //
+                    ////			headRotation = UnityEngine.XR.InputTracking.GetLocalRotation(UnityEngine.XR.XRNode.CenterEye);
+                    //
+                    //			headRotation = headSet.transform.rotation;
+                    //
+                    //
+                    //			#endif
 
 #if CLIENT
 
@@ -729,52 +734,52 @@ public class UserHandler : MonoBehaviour
 
 
 
-                break;
+                    break;
 
-            case "gyro":
+                case "gyro":
 
-                Input.gyro.enabled = true;
-
-
-
-                Quaternion attitude = baseIdentity * GyroToUnity(Input.gyro.attitude);
-
-                Vector3 z = attitude * Vector3.forward;
+                    Input.gyro.enabled = true;
 
 
 
-                float angle = Mathf.Atan2(z.x, z.z);
+                    Quaternion attitude = baseIdentity * GyroToUnity(Input.gyro.attitude);
 
-
-                //			float gyroYaw = gyroAttitude.eulerAngles.y;
-
-
-                string gyroOn = Input.gyro.enabled ? "on " : "off ";
+                    Vector3 z = attitude * Vector3.forward;
 
 
 
-                task.setStringValue("debug", gyroOn + " a: " + angle + "z: " + z.ToString());
+                    float angle = Mathf.Atan2(z.x, z.z);
+
+
+                    //			float gyroYaw = gyroAttitude.eulerAngles.y;
+
+
+                    string gyroOn = Input.gyro.enabled ? "on " : "off ";
+
+
+
+                    task.setStringValue("debug", gyroOn + " a: " + angle + "z: " + z.ToString());
 
 
 
 
 
-                break;
+                    break;
 
 
-            case "callibrateheadset":
+                case "callibrateheadset":
 
-                //			Input.compass.enabled = true;
-                //
-                //			float compassYaw = Input.compass.magneticHeading;
-                //			string compassOn = Input.compass.enabled ? "on " : "off ";
-                //
-                //			viewerObject.transform.localRotation = Quaternion.Euler (0, Mathf.Rad2Deg * compassYaw);
-                //			task.setFloatValue("initialHeading"
+                    //			Input.compass.enabled = true;
+                    //
+                    //			float compassYaw = Input.compass.magneticHeading;
+                    //			string compassOn = Input.compass.enabled ? "on " : "off ";
+                    //
+                    //			viewerObject.transform.localRotation = Quaternion.Euler (0, Mathf.Rad2Deg * compassYaw);
+                    //			task.setFloatValue("initialHeading"
 
-                done = true;
+                    done = true;
 
-                break;
+                    break;
 
 #if UNITY_IOS
 
@@ -808,93 +813,93 @@ public class UserHandler : MonoBehaviour
 #endif
 
 
-            case "calibrate":
+                case "calibrate":
 
-                // rotate the headset towards the kinect.
-
-
-
-                // kinect as at an angle of
-
-                Vector3 kinectPosition = Kinect.transform.position - headSet.transform.position;
-
-                float kinectAtAngle = Mathf.Atan2(kinectPosition.x, kinectPosition.z) * Mathf.Rad2Deg;
-
-                Debug.Log("kinect: " + kinectAtAngle);
-
-                // headset is (locally) rotated at an angle of
-
-                Vector3 euler = headSet.transform.localRotation.eulerAngles;
-
-                float headYaw = euler.y;
-
-                Debug.Log("headYaw: " + headYaw);
-
-                // which leaves a delta of
-
-                viewerObject.transform.parent.transform.rotation = Quaternion.Euler(0, kinectAtAngle - headYaw, 0);
+                    // rotate the headset towards the kinect.
 
 
 
+                    // kinect as at an angle of
 
+                    Vector3 kinectPosition = Kinect.transform.position - headSet.transform.position;
 
-                done = true;
+                    float kinectAtAngle = Mathf.Atan2(kinectPosition.x, kinectPosition.z) * Mathf.Rad2Deg;
 
-                break;
+                    Debug.Log("kinect: " + kinectAtAngle);
 
-            case "checkforcalibration":
+                    // headset is (locally) rotated at an angle of
 
-                string callBackName = uxController.update(viewInterface);
+                    Vector3 euler = headSet.transform.localRotation.eulerAngles;
 
-                if (!callBackName.Equals(""))
-                {
+                    float headYaw = euler.y;
 
-                    task.setCallBack(callBackName);
+                    Debug.Log("headYaw: " + headYaw);
 
-                }
+                    // which leaves a delta of
 
-
-
-                break;
+                    viewerObject.transform.parent.transform.rotation = Quaternion.Euler(0, kinectAtAngle - headYaw, 0);
 
 
 
 
 
+                    done = true;
 
-            case "overviewinterface":
+                    break;
 
-                if (PRESENCE.isOverview)
-                {
+                case "checkforcalibration":
 
-                    UserCallBack callBack = uxController.updateUx(overviewInterface);
+                    string callBackName = uxController.update(viewInterface);
 
-                    if (callBack.trigger)
+                    if (!callBackName.Equals(""))
                     {
-                        task.setCallBack(callBack.label);
+
+                        task.setCallBack(callBackName);
+
                     }
 
-                    //				callBackName = uxController.update (overviewInterface);
 
-                    //				if (!callBackName.Equals ("")) {
-                    //
-                    //					task.setCallBack (callBackName);
-                    //
-                    //				}
 
-                }
-
-                break;
+                    break;
 
 
 
-            case "interfaceactive":
 
-                if (PRESENCE.isOverview)
-                {
 
-                    if (DepthTransport.Mode == DEPTHMODE.LIVE)
+
+                case "overviewinterface":
+
+                    if (PRESENCE.isOverview)
                     {
+
+                        UserCallBack callBack = uxController.updateUx(overviewInterface);
+
+                        if (callBack.trigger)
+                        {
+                            task.setCallBack(callBack.label);
+                        }
+
+                        //				callBackName = uxController.update (overviewInterface);
+
+                        //				if (!callBackName.Equals ("")) {
+                        //
+                        //					task.setCallBack (callBackName);
+                        //
+                        //				}
+
+                    }
+
+                    break;
+
+
+
+                case "interfaceactive":
+
+                    if (PRESENCE.isOverview)
+                    {
+
+                        if (DepthTransport.Mode == DEPTHMODE.LIVE)
+                        {
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
@@ -914,374 +919,375 @@ public class UserHandler : MonoBehaviour
 
 #endif
 
-                    }
+                        }
 
-                    // get
+                        // get
 
-                    float comp;
-                    float head;
+                        float comp;
+                        float head;
 
-                    if (task.getFloatValue("compass", out comp) && task.getFloatValue("headyaw", out head))
-                    {
+                        if (task.getFloatValue("compass", out comp) && task.getFloatValue("headyaw", out head))
+                        {
 
-                        // values from mobile
+                            // values from mobile
 
-                        float vel = 0;
+                            float vel = 0;
 
-                        float newOffset = comp - head + PRESENCE.north;
+                            float newOffset = comp - head + PRESENCE.north;
 
-                        if (newOffset < 0)
-                            newOffset += 360f;
+                            if (newOffset < 0)
+                                newOffset += 360f;
 
-                        PRESENCE.vrHeadOffset = Mathf.SmoothDamp(PRESENCE.vrHeadOffset, newOffset, ref vel, 0.1f);
+                            PRESENCE.vrHeadOffset = Mathf.SmoothDamp(PRESENCE.vrHeadOffset, newOffset, ref vel, 0.1f);
 
-                        viewerObject.transform.parent.transform.localRotation = Quaternion.Euler(0, PRESENCE.vrHeadOffset, 0);
+                            viewerObject.transform.parent.transform.localRotation = Quaternion.Euler(0, PRESENCE.vrHeadOffset, 0);
 
-                        task.setFloatValue("viewerYawOffset", PRESENCE.vrHeadOffset);
+                            task.setFloatValue("viewerYawOffset", PRESENCE.vrHeadOffset);
 
-                        //	task.setStringValue ("debug", "c: " + comp);
-
-                    }
-
-                    Quaternion q;
-
-                    if (task.getQuaternionValue("headrotation", out q))
-                    {
-
-                        headSet.transform.rotation = q;
-
-                    }
-
-                    // put
-
-
-                    task.setVector3Value("viewerPosition", viewerObject.transform.parent.transform.position);
-                    task.setVector3Value("hlPosition", handl.transform.position);
-                    task.setVector3Value("hrPosition", handr.transform.position);
-
-                    // send once
-
-                    task.setVector3Value("compassPosition", compass.transform.position);
-                    task.setQuaternionValue("compassRotation", compass.transform.rotation);
-
-                    task.setVector3Value("kinectPosition", Kinect.transform.position);
-                    task.setQuaternionValue("kinectRotation", Kinect.transform.rotation);
-
-                    task.setVector3Value("setPosition", SetHandler.transform.position);
-                    task.setQuaternionValue("setRotation", SetHandler.transform.rotation);
-
-
-                    //	}
-
-                    callBackName = uxController.update(overviewInterface);
-
-                    if (!callBackName.Equals(""))
-                    {
-
-                        task.setCallBack(callBackName);
-
-                    }
-
-
-                }
-
-                if (!PRESENCE.isOverview)
-                {
-
-                    // skipping the compass because of inaccuracy...
-                    // perhaps use markers.
-
-                    /*
-
-                    Vector3 euler = headSet.transform.localRotation.eulerAngles;
-
-                    float yaw = euler.y;
-
-                    float pitch = euler.x <= 180 ? euler.x : euler.x - 360f;
-                    float roll = euler.z <= 180 ? euler.z : euler.z - 360f;
-
-                    heading = Input.compass.magneticHeading;
-
-                    #if UNITY_EDITOR
-
-                    heading =yaw; // in de editor we start with point of device north, so heading and yaw are always the same. in effect this is facing east.
-
-                    #endif
-
-                    float relativeNorth = 270f - heading;
-
-                    lastHeading = heading;
-
-                    if (pitch < 40 && pitch > -40 && roll < 40 && roll > -40) {
-
-
-                         northOffset = relativeNorth + yaw;
-                        compass.transform.localRotation = Quaternion.Euler (0, northOffset, 0);
-
-
-
-                    }
-
-
-                    float vel=0;
-
-                    smoothOffset = Mathf.SmoothDampAngle (smoothOffset, northOffset, ref vel, 0.5f);
-
-    //				viewerObject.transform.parent.transform.rotation= Quaternion.Euler (0, -northOffset, 0);
-
-
-
-                    task.setStringValue ("debug", "N: " + Mathf.Round(relativeNorth)+ " D: "
-                        + Mathf.Round(heading-lastHeading) 
-                        +" P "+Mathf.Round(pitch)
-                        +" R "+Mathf.Round(roll)
-                        +" Y "+Mathf.Round(yaw)
-
-                    ) ;
-
-    */
-
-
-                    /*
-
-
-
-
-
-                    float pitch = euler.x >= 0 ? euler.x : euler.x + 360f;
-
-                    if (pitch > -15 && pitch < 15) {
-
-                        task.setFloatValue ("headyaw", euler.y);
-
-                        float compassHeading = euler.y;
-
-
-                        #if UNITY_IOS
-
-                        if (Input.compass.enabled) {
-
-                        compassHeading = Input.compass.magneticHeading;
+                            //	task.setStringValue ("debug", "c: " + comp);
 
                         }
 
+                        Quaternion q;
+
+                        if (task.getQuaternionValue("headrotation", out q))
+                        {
+
+                            headSet.transform.rotation = q;
+
+                        }
+
+                        // put
+
+
+                        task.setVector3Value("viewerPosition", viewerObject.transform.parent.transform.position);
+                        task.setVector3Value("hlPosition", handl.transform.position);
+                        task.setVector3Value("hrPosition", handr.transform.position);
+
+                        // send once
+
+                        task.setVector3Value("compassPosition", compass.transform.position);
+                        task.setQuaternionValue("compassRotation", compass.transform.rotation);
+
+                        task.setVector3Value("kinectPosition", Kinect.transform.position);
+                        task.setQuaternionValue("kinectRotation", Kinect.transform.rotation);
+
+                        task.setVector3Value("setPosition", SetHandler.transform.position);
+                        task.setQuaternionValue("setRotation", SetHandler.transform.rotation);
+
+
+                        //	}
+
+                        callBackName = uxController.update(overviewInterface);
+
+                        if (!callBackName.Equals(""))
+                        {
+
+                            task.setCallBack(callBackName);
+
+                        }
+
+
+                    }
+
+                    if (!PRESENCE.isOverview)
+                    {
+
+                        // skipping the compass because of inaccuracy...
+                        // perhaps use markers.
+
+                        /*
+
+                        Vector3 euler = headSet.transform.localRotation.eulerAngles;
+
+                        float yaw = euler.y;
+
+                        float pitch = euler.x <= 180 ? euler.x : euler.x - 360f;
+                        float roll = euler.z <= 180 ? euler.z : euler.z - 360f;
+
+                        heading = Input.compass.magneticHeading;
+
+                        #if UNITY_EDITOR
+
+                        heading =yaw; // in de editor we start with point of device north, so heading and yaw are always the same. in effect this is facing east.
+
                         #endif
 
-                        task.setFloatValue ("compass", compassHeading);
+                        float relativeNorth = 270f - heading;
 
-                        task.setStringValue ("debug", "c: " + compassHeading + " h: " + euler.y + " d: " + (euler.y - compassHeading));
+                        lastHeading = heading;
 
+                        if (pitch < 40 && pitch > -40 && roll < 40 && roll > -40) {
+
+
+                             northOffset = relativeNorth + yaw;
+                            compass.transform.localRotation = Quaternion.Euler (0, northOffset, 0);
+
+
+
+                        }
+
+
+                        float vel=0;
+
+                        smoothOffset = Mathf.SmoothDampAngle (smoothOffset, northOffset, ref vel, 0.5f);
+
+        //				viewerObject.transform.parent.transform.rotation= Quaternion.Euler (0, -northOffset, 0);
+
+
+
+                        task.setStringValue ("debug", "N: " + Mathf.Round(relativeNorth)+ " D: "
+                            + Mathf.Round(heading-lastHeading) 
+                            +" P "+Mathf.Round(pitch)
+                            +" R "+Mathf.Round(roll)
+                            +" Y "+Mathf.Round(yaw)
+
+                        ) ;
+
+        */
+
+
+                        /*
+
+
+
+
+
+                        float pitch = euler.x >= 0 ? euler.x : euler.x + 360f;
+
+                        if (pitch > -15 && pitch < 15) {
+
+                            task.setFloatValue ("headyaw", euler.y);
+
+                            float compassHeading = euler.y;
+
+
+                            #if UNITY_IOS
+
+                            if (Input.compass.enabled) {
+
+                            compassHeading = Input.compass.magneticHeading;
+
+                            }
+
+                            #endif
+
+                            task.setFloatValue ("compass", compassHeading);
+
+                            task.setStringValue ("debug", "c: " + compassHeading + " h: " + euler.y + " d: " + (euler.y - compassHeading));
+
+
+                        }
+
+        */
+
+                        task.setQuaternionValue("headrotation", headSet.transform.rotation);
+
+
+                        // get
+
+                        Vector3 kp, sp, cp;
+                        Quaternion kq, sq, cq;
+
+                        if (task.getVector3Value("kinectPosition", out kp) && task.getVector3Value("setPosition", out sp)
+                            && task.getQuaternionValue("kinectRotation", out kq) && task.getQuaternionValue("setRotation", out sq)
+                            && task.getVector3Value("compassPosition", out cp) && task.getQuaternionValue("compassRotation", out cq))
+                        {
+
+                            // set all the time
+
+                            Kinect.transform.position = kp;
+                            Kinect.transform.rotation = kq;
+
+                            SetHandler.transform.position = sp;
+                            SetHandler.transform.rotation = sq;
+
+                            compass.transform.position = sp;
+                            compass.transform.rotation = sq;
+
+                        }
+
+
+                        float viewerYawOffset;
+
+                        //				if (task.getFloatValue ("viewerYawOffset", out viewerYawOffset)) {
+                        //
+                        //					// we're letting server tell us the offset all the time. could localise.
+                        //
+                        //					viewerObject.transform.parent.transform.localRotation = Quaternion.Euler (0, viewerYawOffset, 0);
+                        //
+                        //				}
+                        //
+                        Vector3 viewerPositionV;
+
+                        if (task.getVector3Value("viewerPosition", out viewerPositionV))
+                        {
+
+                            viewerObject.transform.parent.transform.position = viewerPositionV;
+
+                        }
+
+                        Vector3 hl;
+
+                        if (task.getVector3Value("hlPosition", out hl))
+                        {
+
+                            handl.transform.localPosition = hl;
+
+                        }
+
+                        Vector3 hr;
+
+                        if (task.getVector3Value("hrPosition", out hr))
+                        {
+
+                            handr.transform.localPosition = hr;
+
+                        }
+
+                        //				string callBackName = uxController.update (viewInterface);
+                        //
+                        //				if (!callBackName.Equals ("")) {
+                        //
+                        //					task.setCallBack (callBackName);
+                        //
+                        //				}
 
                     }
 
-    */
 
-                    task.setQuaternionValue("headrotation", headSet.transform.rotation);
+                    break;
+
+                case "interfaceactive2":
 
 
-                    // get
 
-                    Vector3 kp, sp, cp;
-                    Quaternion kq, sq, cq;
 
-                    if (task.getVector3Value("kinectPosition", out kp) && task.getVector3Value("setPosition", out sp)
-                        && task.getQuaternionValue("kinectRotation", out kq) && task.getQuaternionValue("setRotation", out sq)
-                        && task.getVector3Value("compassPosition", out cp) && task.getQuaternionValue("compassRotation", out cq))
+
+
+                    if (!PRESENCE.isOverview)
                     {
 
-                        // set all the time
+                        // get testrotation
 
-                        Kinect.transform.position = kp;
-                        Kinect.transform.rotation = kq;
 
-                        SetHandler.transform.position = sp;
-                        SetHandler.transform.rotation = sq;
 
-                        compass.transform.position = sp;
-                        compass.transform.rotation = sq;
+                        // get overviewer
+
+                        /*
+
+                        Quaternion viewrotation;
+                        Vector3 viewinterest;
+                        float viewzoom;
+
+                        if (task.getQuaternionValue ("viewrotation", out viewrotation) && task.getVector3Value ("viewinterest", out viewinterest) && task.getFloatValue ("viewzoom", out viewzoom)) {
+
+                            overviewInterface.camera.cameraInterest.transform.localRotation = viewrotation;
+                            overviewInterface.camera.cameraInterest.transform.position = viewinterest;
+                            Vector3 temp = overviewInterface.camera.cameraObject.transform.localPosition;
+                            temp.z = viewzoom;
+                            overviewInterface.camera.cameraObject.transform.localPosition = temp;
+
+                        }
+
+
+                        // send viewer
+
+                        Quaternion userrotation = viewInterface.camera.cameraInterest.transform.localRotation;
+                        Vector3 userinterest = viewInterface.camera.cameraInterest.transform.position;
+                        float userzoom = viewInterface.camera.cameraObject.transform.localPosition.z;
+
+                        task.setQuaternionValue ("userrotation", userrotation);
+                        task.setVector3Value ("userinterest", userinterest);
+                        task.setFloatValue ("userzoom", userzoom);
+
+
+        */
+
+                        callBackName = uxController.update(viewInterface);
+
+                        if (!callBackName.Equals(""))
+                        {
+
+                            task.setCallBack(callBackName);
+
+                            //				Debug.Log("calling callback " +callBack);
+
+                        }
+
 
                     }
 
 
-                    float viewerYawOffset;
-
-                    //				if (task.getFloatValue ("viewerYawOffset", out viewerYawOffset)) {
-                    //
-                    //					// we're letting server tell us the offset all the time. could localise.
-                    //
-                    //					viewerObject.transform.parent.transform.localRotation = Quaternion.Euler (0, viewerYawOffset, 0);
-                    //
-                    //				}
-                    //
-                    Vector3 viewerPositionV;
-
-                    if (task.getVector3Value("viewerPosition", out viewerPositionV))
+                    if (PRESENCE.isOverview)
                     {
 
-                        viewerObject.transform.parent.transform.position = viewerPositionV;
 
+                        // send testrotation
+
+
+                        // get viewer
+
+                        /*
+
+                        Quaternion userrotation;
+                        Vector3 userinterest;
+                        float userzoom;
+
+                        if (task.getQuaternionValue ("userrotation", out userrotation) && task.getVector3Value ("userinterest", out userinterest) && task.getFloatValue ("userzoom", out userzoom)) {
+
+                            viewInterface.camera.cameraInterest.transform.localRotation = userrotation;
+                            viewInterface.camera.cameraInterest.transform.position = userinterest;
+                            Vector3 temp = viewInterface.camera.cameraObject.transform.localPosition;
+                            temp.z = userzoom;
+                            viewInterface.camera.cameraObject.transform.localPosition = temp;
+
+                        }
+
+                        // send overviewer
+
+                        Quaternion viewrotation = overviewInterface.camera.cameraInterest.transform.localRotation;
+                        Vector3 viewinterest = overviewInterface.camera.cameraInterest.transform.position;
+                        float viewzoom = overviewInterface.camera.cameraObject.transform.localPosition.z;
+
+                        task.setQuaternionValue ("viewrotation", viewrotation);
+                        task.setVector3Value ("viewinterest", viewinterest);
+                        task.setFloatValue ("viewzoom", viewzoom);
+
+                        //
+        */
+                        callBackName = uxController.update(overviewInterface);
+
+                        if (!callBackName.Equals(""))
+                        {
+
+                            task.setCallBack(callBackName);
+
+                            //				Debug.Log("calling callback " +callBack);
+
+                        }
                     }
 
-                    Vector3 hl;
+                    break;
 
-                    if (task.getVector3Value("hlPosition", out hl))
-                    {
 
-                        handl.transform.localPosition = hl;
+                default:
 
-                    }
+                    done = true;
 
-                    Vector3 hr;
+                    break;
 
-                    if (task.getVector3Value("hrPosition", out hr))
-                    {
+            }
 
-                        handr.transform.localPosition = hr;
-
-                    }
-
-                    //				string callBackName = uxController.update (viewInterface);
-                    //
-                    //				if (!callBackName.Equals ("")) {
-                    //
-                    //					task.setCallBack (callBackName);
-                    //
-                    //				}
-
-                }
-
-
-                break;
-
-            case "interfaceactive2":
-
-
-
-
-
-
-                if (!PRESENCE.isOverview)
-                {
-
-                    // get testrotation
-
-
-
-                    // get overviewer
-
-                    /*
-
-                    Quaternion viewrotation;
-                    Vector3 viewinterest;
-                    float viewzoom;
-
-                    if (task.getQuaternionValue ("viewrotation", out viewrotation) && task.getVector3Value ("viewinterest", out viewinterest) && task.getFloatValue ("viewzoom", out viewzoom)) {
-
-                        overviewInterface.camera.cameraInterest.transform.localRotation = viewrotation;
-                        overviewInterface.camera.cameraInterest.transform.position = viewinterest;
-                        Vector3 temp = overviewInterface.camera.cameraObject.transform.localPosition;
-                        temp.z = viewzoom;
-                        overviewInterface.camera.cameraObject.transform.localPosition = temp;
-
-                    }
-
-
-                    // send viewer
-
-                    Quaternion userrotation = viewInterface.camera.cameraInterest.transform.localRotation;
-                    Vector3 userinterest = viewInterface.camera.cameraInterest.transform.position;
-                    float userzoom = viewInterface.camera.cameraObject.transform.localPosition.z;
-
-                    task.setQuaternionValue ("userrotation", userrotation);
-                    task.setVector3Value ("userinterest", userinterest);
-                    task.setFloatValue ("userzoom", userzoom);
-
-
-    */
-
-                    callBackName = uxController.update(viewInterface);
-
-                    if (!callBackName.Equals(""))
-                    {
-
-                        task.setCallBack(callBackName);
-
-                        //				Debug.Log("calling callback " +callBack);
-
-                    }
-
-
-                }
-
-
-                if (PRESENCE.isOverview)
-                {
-
-
-                    // send testrotation
-
-
-                    // get viewer
-
-                    /*
-
-                    Quaternion userrotation;
-                    Vector3 userinterest;
-                    float userzoom;
-
-                    if (task.getQuaternionValue ("userrotation", out userrotation) && task.getVector3Value ("userinterest", out userinterest) && task.getFloatValue ("userzoom", out userzoom)) {
-
-                        viewInterface.camera.cameraInterest.transform.localRotation = userrotation;
-                        viewInterface.camera.cameraInterest.transform.position = userinterest;
-                        Vector3 temp = viewInterface.camera.cameraObject.transform.localPosition;
-                        temp.z = userzoom;
-                        viewInterface.camera.cameraObject.transform.localPosition = temp;
-
-                    }
-
-                    // send overviewer
-
-                    Quaternion viewrotation = overviewInterface.camera.cameraInterest.transform.localRotation;
-                    Vector3 viewinterest = overviewInterface.camera.cameraInterest.transform.position;
-                    float viewzoom = overviewInterface.camera.cameraObject.transform.localPosition.z;
-
-                    task.setQuaternionValue ("viewrotation", viewrotation);
-                    task.setVector3Value ("viewinterest", viewinterest);
-                    task.setFloatValue ("viewzoom", viewzoom);
-
-                    //
-    */
-                    callBackName = uxController.update(overviewInterface);
-
-                    if (!callBackName.Equals(""))
-                    {
-
-                        task.setCallBack(callBackName);
-
-                        //				Debug.Log("calling callback " +callBack);
-
-                    }
-                }
-
-                break;
-
-
-            default:
-
-                done = true;
-
-                break;
+            return done;
 
         }
 
-        return done;
+
+        void Update()
+        {
+
+        }
 
     }
-
-
-    void Update()
-    {
-
-    }
-
 }

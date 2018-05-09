@@ -5,421 +5,448 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 
 
-
-
-
-[System.Serializable]
-public class CloudSequence
-{
-	public static CloudSequence current;
-
-	public CloudFrame[] Frames;
-
-	public CloudSequence (int size){
-		Frames = new CloudFrame[size];
-	}
-
-	public void Wrap () {
-
-		for (int f = 0; f < Frames.Length; f++) {
-			Frames [f].Wrap ();
-		}
-
-	}
-
-	public void UnWrap () {
-
-		for (int f = 0; f < Frames.Length; f++) {
-			Frames [f].UnWrap ();
-		}
-
-	}
-
-
-
-}
-
-
-
-
-[System.Serializable]
-public class CloudFrame
+namespace Presence
 {
 
 
- [System.NonSerialized] public Vector3 [] Points;
+    [System.Serializable]
+    public class CloudSequence
+    {
+        public static CloudSequence current;
 
-	public float[] pointsX;
-	public float[] pointsY;
-	public float[] pointsZ;
+        public CloudFrame[] Frames;
 
+        public CloudSequence(int size)
+        {
+            Frames = new CloudFrame[size];
+        }
 
-	public CloudFrame (int size){
+        public void Wrap()
+        {
 
-		Points = new Vector3[size];
-	}
+            for (int f = 0; f < Frames.Length; f++)
+            {
+                Frames[f].Wrap();
+            }
 
-	public void Wrap(){
+        }
 
-		pointsX = new float[Points.Length];
-		pointsY = new float[Points.Length];
-		pointsZ = new float[Points.Length];
+        public void UnWrap()
+        {
 
-		for (int p = 0; p < Points.Length; p++) {
-		
-			pointsX[p] = Points [p].x;
-			pointsY[p] = Points [p].y;
-			pointsZ[p] = Points [p].z;
-					
-		}
+            for (int f = 0; f < Frames.Length; f++)
+            {
+                Frames[f].UnWrap();
+            }
 
-	}
+        }
 
-	public void UnWrap(){
 
-		Points = new Vector3[pointsX.Length];
-	
-		for (int p = 0; p < Points.Length; p++) {
 
-			Points [p] = new Vector3 (pointsX [p], pointsY [p], pointsZ [p]);
+    }
 
-		}
 
-	}
 
 
-}
+    [System.Serializable]
+    public class CloudFrame
+    {
 
 
+        [System.NonSerialized] public Vector3[] Points;
 
+        public float[] pointsX;
+        public float[] pointsY;
+        public float[] pointsZ;
 
 
+        public CloudFrame(int size)
+        {
 
-[System.Serializable]
-public class DepthCapture
-{
-	public static DepthCapture current;
+            Points = new Vector3[size];
+        }
 
-	ushort[] data;
-	int userDepthWidth, userDepthHeight;
+        public void Wrap()
+        {
 
-	public DepthCapture (int width, int height)
-	{
-		userDepthWidth = width;
-		userDepthHeight = height;
+            pointsX = new float[Points.Length];
+            pointsY = new float[Points.Length];
+            pointsZ = new float[Points.Length];
 
-	}
+            for (int p = 0; p < Points.Length; p++)
+            {
 
-	public void put (ushort[] frame)
-	{
+                pointsX[p] = Points[p].x;
+                pointsY[p] = Points[p].y;
+                pointsZ[p] = Points[p].z;
 
-		data = frame;
-	}
+            }
 
-	public  ushort[] GetRawDepthMap ()
-	{
-		return data;
-	}
+        }
 
-	public  int getUserDepthWidth ()
-	{
-		return userDepthWidth;
-	}
+        public void UnWrap()
+        {
 
-	public int getUserDepthHeight ()
-	{
-		return userDepthHeight;
-	}
+            Points = new Vector3[pointsX.Length];
 
+            for (int p = 0; p < Points.Length; p++)
+            {
 
+                Points[p] = new Vector3(pointsX[p], pointsY[p], pointsZ[p]);
 
-}
+            }
 
+        }
 
 
+    }
 
 
-[System.Serializable]
 
-public class Capture
-{
 
-	public static Capture current;
-	public static bool capturing = false;
-	public static bool playing = false;
 
-	//	public Character knight;
-	//	public Character rogue;
-	//	public Character wizard;
 
-	//	public Vector3[] position;
-	//	public Quaternion[] orientation;
-	public Frame[] frames;
-	int size = 250;
+    [System.Serializable]
+    public class DepthCapture
+    {
+        public static DepthCapture current;
 
-	int i;
+        ushort[] data;
+        int userDepthWidth, userDepthHeight;
 
-	public Capture ()
-	{
-//		i = 0;
+        public DepthCapture(int width, int height)
+        {
+            userDepthWidth = width;
+            userDepthHeight = height;
 
-		frames = new Frame[size];
+        }
 
-//		orientation = new Quaternion [1000];
+        public void put(ushort[] frame)
+        {
 
-//		knight = new Character ();
-//		rogue = new Character ();
-//		wizard = new Character ();
-	}
+            data = frame;
+        }
 
-	public void capture ()
-	{
-		Capture.capturing = true;
-		i = 0;
+        public ushort[] GetRawDepthMap()
+        {
+            return data;
+        }
 
-	}
+        public int getUserDepthWidth()
+        {
+            return userDepthWidth;
+        }
 
-	public void play ()
-	{
-		Capture.playing = true;
-		i = 0;
+        public int getUserDepthHeight()
+        {
+            return userDepthHeight;
+        }
 
-	}
 
-	public bool read (out Frame f)
-	{
 
-		if (i == size) {
-			f = new Frame ();
-			return false;
+    }
 
-		} else {
 
-			f = frames [i];
-			i++;
-			return true;
-		}
 
 
-	}
 
-	public bool log (Vector3 pos, Quaternion orient)
-	{
+    [System.Serializable]
 
-		if (i == size) {
-			return false;
-		} else {
-			Frame f = new Frame (pos, orient);
-//			f.position = pos;
-//			f.orientation = orient;
+    public class Capture
+    {
 
-			frames [i] = f;
-			i++;
-			return true;
-		}
+        public static Capture current;
+        public static bool capturing = false;
+        public static bool playing = false;
 
-	}
+        //	public Character knight;
+        //	public Character rogue;
+        //	public Character wizard;
 
-}
+        //	public Vector3[] position;
+        //	public Quaternion[] orientation;
+        public Frame[] frames;
+        int size = 250;
 
+        int i;
 
-[System.Serializable] 
-public class Frame
-{
-	public float[] position;
-	public float[] orientation;
+        public Capture()
+        {
+            //		i = 0;
 
-	//	public string name;
+            frames = new Frame[size];
 
-	public Frame (Vector3 pos, Quaternion orient)
-	{
-		position = new float[3];
+            //		orientation = new Quaternion [1000];
 
-		position [0] = pos.x;
-		position [1] = pos.y;
-		position [2] = pos.z;
+            //		knight = new Character ();
+            //		rogue = new Character ();
+            //		wizard = new Character ();
+        }
 
-		orientation = new float[4];
+        public void capture()
+        {
+            Capture.capturing = true;
+            i = 0;
 
-		orientation [0] = orient [0];
-		orientation [1] = orient [1];
-		orientation [2] = orient [2];
-		orientation [3] = orient [3];
+        }
 
+        public void play()
+        {
+            Capture.playing = true;
+            i = 0;
 
-	}
+        }
 
-	public Vector3 getPosition ()
-	{
-		return new Vector3 (position [0], position [1], position [2]);
+        public bool read(out Frame f)
+        {
 
-	}
+            if (i == size)
+            {
+                f = new Frame();
+                return false;
 
-	public Quaternion getRotation ()
-	{
-		return new Quaternion (orientation [0], orientation [1], orientation [2], orientation [3]);
+            }
+            else
+            {
 
-	}
+                f = frames[i];
+                i++;
+                return true;
+            }
 
-	public Frame ()
-	{
-				
-	}
-}
 
+        }
 
-public static class IO
-{
-	static string me = "IO: ";
+        public bool log(Vector3 pos, Quaternion orient)
+        {
 
-	public static List<Capture> savedCaptures = new List<Capture> ();
-	public static List<DepthCapture> savedDepthCaptures = new List<DepthCapture> ();
+            if (i == size)
+            {
+                return false;
+            }
+            else
+            {
+                Frame f = new Frame(pos, orient);
+                //			f.position = pos;
+                //			f.orientation = orient;
 
-	static string depthCaptureFile = "/savedDepthCaptures.pdc";
-	public static int depthIndex = -1;
+                frames[i] = f;
+                i++;
+                return true;
+            }
 
+        }
 
-	public static void LoadDepthCapturesResource ()
-	{
+    }
 
-		// Load data from resources. The textasset route is a bit of a trick but allows us to get a raw stream.
-		
-		TextAsset asset = Resources.Load ("savedDepthCaptures") as TextAsset;
 
-		if (asset != null) {
+    [System.Serializable]
+    public class Frame
+    {
+        public float[] position;
+        public float[] orientation;
 
-			Stream stream = new MemoryStream (asset.bytes);
-			BinaryFormatter bf = new BinaryFormatter ();
-			List<DepthCapture> loaded = (List<DepthCapture>)bf.Deserialize (stream);
-			IO.savedDepthCaptures.AddRange (loaded);
+        //	public string name;
 
-			Debug.Log (me + "Local depth captures loaded."); 
+        public Frame(Vector3 pos, Quaternion orient)
+        {
+            position = new float[3];
 
-		} else {
+            position[0] = pos.x;
+            position[1] = pos.y;
+            position[2] = pos.z;
 
-			Debug.Log (me + "No local depth captures found."); 
-		}
+            orientation = new float[4];
 
-	}
+            orientation[0] = orient[0];
+            orientation[1] = orient[1];
+            orientation[2] = orient[2];
+            orientation[3] = orient[3];
 
-	public static void LoadDepthCaptures ()
-	{
-		if (File.Exists (Application.persistentDataPath + "/savedDepthCaptures.pdc")) {
 
-			BinaryFormatter bf = new BinaryFormatter ();
-			FileStream stream = File.Open (Application.persistentDataPath + "/savedDepthCaptures.pdc", FileMode.Open);
-			List<DepthCapture> loaded = (List<DepthCapture>)bf.Deserialize (stream);
-			IO.savedDepthCaptures.AddRange (loaded);
+        }
 
-			stream.Close ();
-		}
-	}
+        public Vector3 getPosition()
+        {
+            return new Vector3(position[0], position[1], position[2]);
 
-	public static void SaveCloudSequence (CloudSequence sequence)
-	{
+        }
 
-		sequence.Wrap ();
+        public Quaternion getRotation()
+        {
+            return new Quaternion(orientation[0], orientation[1], orientation[2], orientation[3]);
 
+        }
 
-		BinaryFormatter bf = new BinaryFormatter ();
+        public Frame()
+        {
 
-		FileStream file = File.Create (Application.persistentDataPath + "/savedSequence.csq");
+        }
+    }
 
-		bf.Serialize (file, sequence);
 
-		file.Close ();
+    public static class IO
+    {
+        static string me = "IO: ";
 
-	}
+        public static List<Capture> savedCaptures = new List<Capture>();
+        public static List<DepthCapture> savedDepthCaptures = new List<DepthCapture>();
 
-	public static CloudSequence LoadCloudSequence ()
-	{
-		CloudSequence sequence=null;
+        static string depthCaptureFile = "/savedDepthCaptures.pdc";
+        public static int depthIndex = -1;
 
-		if (File.Exists (Application.persistentDataPath + "/savedSequence.csq")) {
 
-			BinaryFormatter bf = new BinaryFormatter ();
-			FileStream stream = File.Open (Application.persistentDataPath + "/savedSequence.csq", FileMode.Open);
+        public static void LoadDepthCapturesResource()
+        {
 
-				 sequence = (CloudSequence)bf.Deserialize (stream);
+            // Load data from resources. The textasset route is a bit of a trick but allows us to get a raw stream.
 
-			stream.Close ();
+            TextAsset asset = Resources.Load("savedDepthCaptures") as TextAsset;
 
-			sequence.UnWrap ();
-		}
+            if (asset != null)
+            {
 
-		return sequence;
+                Stream stream = new MemoryStream(asset.bytes);
+                BinaryFormatter bf = new BinaryFormatter();
+                List<DepthCapture> loaded = (List<DepthCapture>)bf.Deserialize(stream);
+                IO.savedDepthCaptures.AddRange(loaded);
 
-	}
+                Debug.Log(me + "Local depth captures loaded.");
 
-	public static CloudSequence LoadCloudSequenceFromResources ()
-	{
+            }
+            else
+            {
 
-		// Load data from resources. The textasset route is a bit of a trick but allows us to get a raw stream.
+                Debug.Log(me + "No local depth captures found.");
+            }
 
-		TextAsset asset = Resources.Load ("savedSequence") as TextAsset;
-		CloudSequence sequence=null;
+        }
 
-		if (asset != null) {
+        public static void LoadDepthCaptures()
+        {
+            if (File.Exists(Application.persistentDataPath + "/savedDepthCaptures.pdc"))
+            {
 
-			Stream stream = new MemoryStream (asset.bytes);
-			BinaryFormatter bf = new BinaryFormatter ();
-			sequence = (CloudSequence)bf.Deserialize (stream);
+                BinaryFormatter bf = new BinaryFormatter();
+                FileStream stream = File.Open(Application.persistentDataPath + "/savedDepthCaptures.pdc", FileMode.Open);
+                List<DepthCapture> loaded = (List<DepthCapture>)bf.Deserialize(stream);
+                IO.savedDepthCaptures.AddRange(loaded);
 
-			sequence.UnWrap ();
-			Debug.Log (me + "Local seq loaded."); 
+                stream.Close();
+            }
+        }
 
-		} else {
+        public static void SaveCloudSequence(CloudSequence sequence)
+        {
 
-			Debug.Log (me + "No local seq  found."); 
-		}
+            sequence.Wrap();
 
-		return sequence;
-	}
 
+            BinaryFormatter bf = new BinaryFormatter();
 
+            FileStream file = File.Create(Application.persistentDataPath + "/savedSequence.csq");
 
+            bf.Serialize(file, sequence);
 
-	public static void SaveDepthCaptures ()
-	{
+            file.Close();
 
-		savedDepthCaptures.Add (DepthCapture.current);
+        }
 
-		BinaryFormatter bf = new BinaryFormatter ();
+        public static CloudSequence LoadCloudSequence()
+        {
+            CloudSequence sequence = null;
 
-		FileStream file = File.Create (Application.persistentDataPath + "/savedDepthCaptures.pdc");
+            if (File.Exists(Application.persistentDataPath + "/savedSequence.csq"))
+            {
 
-		bf.Serialize (file, IO.savedDepthCaptures);
+                BinaryFormatter bf = new BinaryFormatter();
+                FileStream stream = File.Open(Application.persistentDataPath + "/savedSequence.csq", FileMode.Open);
 
-		file.Close ();
+                sequence = (CloudSequence)bf.Deserialize(stream);
 
-	}
+                stream.Close();
 
+                sequence.UnWrap();
+            }
 
-	public static void SaveUserCaptures ()
-	{
+            return sequence;
 
-		savedCaptures.Add (Capture.current);
+        }
 
-		BinaryFormatter bf = new BinaryFormatter ();
+        public static CloudSequence LoadCloudSequenceFromResources()
+        {
 
-		FileStream file = File.Create (Application.persistentDataPath + "/savedGames.gd");
+            // Load data from resources. The textasset route is a bit of a trick but allows us to get a raw stream.
 
-		bf.Serialize (file, IO.savedCaptures);
+            TextAsset asset = Resources.Load("savedSequence") as TextAsset;
+            CloudSequence sequence = null;
 
-		file.Close ();
+            if (asset != null)
+            {
 
-	}
+                Stream stream = new MemoryStream(asset.bytes);
+                BinaryFormatter bf = new BinaryFormatter();
+                sequence = (CloudSequence)bf.Deserialize(stream);
 
+                sequence.UnWrap();
+                Debug.Log(me + "Local seq loaded.");
 
-	public static void LoadUserCaptures ()
-	{
-		if (File.Exists (Application.persistentDataPath + "/savedGames.gd")) {
-			BinaryFormatter bf = new BinaryFormatter ();
-			FileStream file = File.Open (Application.persistentDataPath + "/savedGames.gd", FileMode.Open);
-			IO.savedCaptures = (List<Capture>)bf.Deserialize (file);
-			file.Close ();
-		}
-	}
+            }
+            else
+            {
 
+                Debug.Log(me + "No local seq  found.");
+            }
 
+            return sequence;
+        }
+
+
+
+
+        public static void SaveDepthCaptures()
+        {
+
+            savedDepthCaptures.Add(DepthCapture.current);
+
+            BinaryFormatter bf = new BinaryFormatter();
+
+            FileStream file = File.Create(Application.persistentDataPath + "/savedDepthCaptures.pdc");
+
+            bf.Serialize(file, IO.savedDepthCaptures);
+
+            file.Close();
+
+        }
+
+
+        public static void SaveUserCaptures()
+        {
+
+            savedCaptures.Add(Capture.current);
+
+            BinaryFormatter bf = new BinaryFormatter();
+
+            FileStream file = File.Create(Application.persistentDataPath + "/savedGames.gd");
+
+            bf.Serialize(file, IO.savedCaptures);
+
+            file.Close();
+
+        }
+
+
+        public static void LoadUserCaptures()
+        {
+            if (File.Exists(Application.persistentDataPath + "/savedGames.gd"))
+            {
+                BinaryFormatter bf = new BinaryFormatter();
+                FileStream file = File.Open(Application.persistentDataPath + "/savedGames.gd", FileMode.Open);
+                IO.savedCaptures = (List<Capture>)bf.Deserialize(file);
+                file.Close();
+            }
+        }
+
+
+    }
 }
