@@ -1,3 +1,14 @@
+#calibrateclient
+debugon
+amvrclient
+alignset
+addkinectnull
+autocalibrate
+playsignal
+end
+
+
+
 #play
 debugon
 amserver

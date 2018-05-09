@@ -23,6 +23,8 @@ namespace Presence
 
         public AudioSource signalSound;
 
+        public GameObject AutoCallibrateObject;
+
         //	public 
 
         string me = "Task handler: ";
@@ -813,12 +815,58 @@ namespace Presence
 #endif
 
 
+
+                case "autocalibrate":
+
+                    if (!AutoCallibrateObject.activeSelf)
+                        AutoCallibrateObject.SetActive(true);
+
+
+                    if (AutoCallibrateObject.GetComponent<RawImageWebCamTexture>().callibrated){
+
+                        // rotate the headset towards the kinect.
+
+                        // kinect as at an angle of
+
+                        Vector3 kinectPosition = Kinect.transform.position - headSet.transform.position;
+
+                        float kinectAtAngle = Mathf.Atan2(kinectPosition.x, kinectPosition.z) * Mathf.Rad2Deg;
+
+                        Debug.Log("kinect: " + kinectAtAngle);
+
+                        // headset is (locally) rotated at an angle of
+
+                        Vector3 euler = headSet.transform.localRotation.eulerAngles;
+
+                        float headYaw = euler.y;
+
+                        Debug.Log("headYaw: " + headYaw);
+
+                        // which leaves a delta of
+
+                        viewerObject.transform.parent.transform.rotation = Quaternion.Euler(0, kinectAtAngle - headYaw, 0);
+
+                        //AutoCallibrateObject.SetActive(true);
+                        signalSound.Play();
+                        //done=true;
+                        AutoCallibrateObject.GetComponent<RawImageWebCamTexture>().callibrated=false;//repeat
+
+                    }
+
+
+
+
+
+
+                    break;
+
+
                 case "calibrate":
 
                     // rotate the headset towards the kinect.
 
 
-
+                    /*
                     // kinect as at an angle of
 
                     Vector3 kinectPosition = Kinect.transform.position - headSet.transform.position;
@@ -839,7 +887,7 @@ namespace Presence
 
                     viewerObject.transform.parent.transform.rotation = Quaternion.Euler(0, kinectAtAngle - headYaw, 0);
 
-
+                    */
 
 
 
