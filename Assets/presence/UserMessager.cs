@@ -9,19 +9,20 @@ public class UserMessager : MonoBehaviour {
    
    
 
-    Text MessageText;
+  public  Text MessageText;
     float alpha=0;
     float deltaAlpha=0;
     Color TextColor;
     UnityEvent OnFadeOut,OnFadeIn,OnTimeOut;
     string nextMessage;
     float timeOut,messageDuration;
+   // public Text UserMessageText;
 
 
 	// Use this for initialization
 	void Start () {
         
-        MessageText=GetComponentInChildren<Text>();
+      //  MessageText=GetComponentInChildren<Text>();
 
         TextColor=MessageText.color; // Get from the editor.
 

@@ -11,6 +11,16 @@ using System.IO;
 namespace Presence
 {
 
+
+
+
+
+
+
+
+
+
+
     public enum DEPTHMODE
     {
         OFF,
@@ -35,11 +45,11 @@ namespace Presence
 
         static public int Min, Max;
 
-        static public bool centered = true;
+      //  static public bool centered = true;
 
         static public GameObject kinectObject;
-        static public Vector3 kinectPosition;
-        static public Quaternion kinectRotation;
+   //     static public Vector3 kinectPosition;
+    //    static public Quaternion kinectRotation;
 
         static public bool live = false;
 
@@ -94,12 +104,16 @@ namespace Presence
 
                     {
                         Debug.Log(me + "Waking up Kinectmanager.");
+
                         KinectManager.Instance.WakeUp();
+
                         if (KinectManager.Instance.IsInitialized())
                         {
                             Debug.Log(me + "Kinectmanager initialised.");
                             Height = KinectManager.Instance.getUserDepthHeight();
                             Width = KinectManager.Instance.getUserDepthWidth();
+
+                               
 
 
                         }
@@ -107,6 +121,7 @@ namespace Presence
                         {
 
                             Debug.LogWarning(me + "Kinectmanager not initialised.");
+
                         __mode = DEPTHMODE.OFF;
 
                         }
@@ -156,6 +171,105 @@ namespace Presence
 
         }
 
+        // Get joint positions
+
+
+
+
+        public static Vector3 getPosition()
+
+        {
+
+            Vector3 position = Vector3.zero;
+
+            if (__mode == DEPTHMODE.LIVE || __mode == DEPTHMODE.RECORD)
+
+            {
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+
+                uint playerID = KinectManager.Instance != null ? KinectManager.Instance.GetPlayer1ID() : 0;
+
+              
+
+                if (playerID >= 0)
+                {
+
+                    bool MirroredMovement = true;
+
+                    position = KinectManager.Instance.GetUserPosition(playerID);
+
+                    position.z = !MirroredMovement ? -position.z : position.z;
+                    position.x = MirroredMovement ? -position.x : position.x;
+                    position.y += PRESENCE.kinectHeight;
+
+                //    if (MirroredMovement)
+                 //   {
+                 //       position.x = -position.x;
+                 //   }
+
+
+
+                }
+
+
+#endif
+            }
+
+            return position;
+
+        }
+
+        public static Vector3 getJoint(int joint)
+        {
+
+            Vector3 posJoint = Vector3.zero;
+            
+            if (__mode == DEPTHMODE.LIVE || __mode==DEPTHMODE.RECORD)
+
+            {
+                
+
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+                
+                uint playerID = KinectManager.Instance != null ? KinectManager.Instance.GetPlayer1ID() : 0;
+
+                if (playerID >= 0)
+                {
+
+                    bool MirroredMovement = true;
+
+                    posJoint = KinectManager.Instance.GetJointPosition(playerID, joint);
+
+                    posJoint.z = !MirroredMovement ? -posJoint.z : posJoint.z;
+                    posJoint.x = MirroredMovement ? -posJoint.x : posJoint.x;
+                    posJoint.y += PRESENCE.kinectHeight;
+
+               ///     if (MirroredMovement)
+                //    {
+                  //      posJoint.x = -posJoint.x;
+                    //}
+                    
+                   
+                    
+                }
+                else
+                {
+
+                  // playerid is 0 : no player.
+
+                  //  Debug.Log("playerid is 0");
+                }
+
+#endif
+
+
+            }
+            
+
+
+            return posJoint;
+
+        }
 
 
 
@@ -1021,57 +1135,7 @@ namespace Presence
 
         }
     */
-        public static Vector3 getJoint(uint playerID, int joint)
-        {
-
-            Vector3 posJoint = Vector3.zero;
-
-
-            if (live)
-            {
-
-#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-
-
-            bool MirroredMovement = true;
-
-            posJoint = KinectManager.Instance.GetJointPosition(playerID, joint);
-
-            posJoint.z = !MirroredMovement ? -posJoint.z : posJoint.z;
-
-
-            posJoint.y += PRESENCE.kinectHeight;
-
-            if (MirroredMovement)
-            {
-                posJoint.x = -posJoint.x;
-            }
-
-#endif
-
-                if (!centered)
-                {
-
-                    posJoint = kinectRotation * posJoint;
-                    posJoint += new Vector3(kinectPosition.x, 0, kinectPosition.z);
-
-                    //		posJoint.y -= PRESENCE.kinectHeight; // correct for sensorheigh because kinect takes it into account
-                }
-
-
-
-                return posJoint;
-
-            }
-
-
-            return posJoint;
-
-
-
-
-
-        }
+      
 
 
 

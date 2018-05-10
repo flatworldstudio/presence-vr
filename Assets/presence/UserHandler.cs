@@ -18,7 +18,7 @@ namespace Presence
 
         public GameObject uxCanvas;
 
-        public GameObject overviewObject, viewerObject, projectionObject, headSet, setObject, handl, handr, Kinect, SetHandler, compass, startPosition;
+        public GameObject overviewObject, viewerObject, projectionObject, headSet, setObject, handl, handr,body, Kinect, SetHandler,  startPosition;
         //	UxMapping overviewMap;
         float timer = 0;
 
@@ -29,6 +29,8 @@ namespace Presence
         public GameObject AutoCallibrateObject;
 
         public CalibrateOnMarker CalibrationScript;
+
+        public Gestures Davinci;
 
 
         //public DemoInputManager GoogleVRInputManager;
@@ -153,6 +155,15 @@ namespace Presence
                     done = true;
                     break;
 
+
+                case "depthlive":
+
+                    userMessager.ShowTextMessage("Live depth", 3);
+
+                    done = true;
+
+                    break;
+
                 case "waitforuser":
 
                     // Detect user start position
@@ -216,7 +227,39 @@ namespace Presence
 
                     break;
 
+                case "detectgesture":
 
+                    Davinci.BeginDetect(task);
+
+                    //  Davinci.SetActive(true);
+
+                    string detected;
+
+                    task.getStringValue("davinci", out detected);
+
+                    if (detected == "detected")
+                    {
+
+                        task.setStringValue("davince", "");
+                        task.setStringValue("debug", "detected!");
+
+
+                    }
+
+
+
+                //    uint playerID2 = KinectManager.Instance != null ? KinectManager.Instance.GetPlayer1ID() : 0;
+
+              //     if (playerID2 > 0)
+              //      {
+              //          KinectManager.Instance.DetectGesture(playerID2, KinectGestures.Gestures.RaiseLeftHand);
+
+                    //    done = true;
+              //      }
+
+                  
+
+                    break;
 
                 case "userstream":
 
@@ -228,32 +271,19 @@ namespace Presence
                         if (DepthTransport.Mode == DEPTHMODE.LIVE)
                         {
 
-#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
+                            viewerObject.transform.parent.transform.position = DepthTransport.getJoint(3); // head
 
-                        // THis should all move into depthtransport.
+                            handl.transform.position = DepthTransport.getJoint( 7);
+                            handr.transform.position = DepthTransport.getJoint( 11);
 
-                        //KinectManager manager = DepthTransport.kinectManager;
+                            body.transform.position = DepthTransport.getPosition();
 
-                        uint playerID = KinectManager.Instance != null ? KinectManager.Instance.GetPlayer1ID() : 0;
+                            // hacking
 
-                        if (playerID >= 0)
-                        {
+                    ///    KinectManager.Instance.DetectGesture()
 
-                            viewerObject.transform.parent.transform.position = DepthTransport.getJoint(playerID, 3); // head
-
-                            handl.transform.position = DepthTransport.getJoint(playerID, 7);
-                            handr.transform.position = DepthTransport.getJoint(playerID, 11);
-
-                        }
-                        else
-                        {
-
-                            Debug.Log("playerid is 0");
-                        }
-
-#endif
-
+                            
 
 
 
@@ -270,6 +300,7 @@ namespace Presence
 
                             handl.transform.position = new Vector3(hx - 0.5f, PRESENCE.kinectHeight / 2, hz);
                             handr.transform.position = new Vector3(hx + 0.5f, PRESENCE.kinectHeight / 2, hz);
+                            body.transform.position = new Vector3(hx , PRESENCE.kinectHeight / 2, hz);
 
 
                             //Debug.Log("kinect not live");
@@ -292,6 +323,7 @@ namespace Presence
                         task.setVector3Value("head", viewerObject.transform.parent.transform.position);
                         task.setVector3Value("lefthand", handl.transform.position);
                         task.setVector3Value("righthand", handr.transform.position);
+                        task.setVector3Value("body", body.transform.position);
 
                     }
 
@@ -304,7 +336,7 @@ namespace Presence
 
                         // retrieve head and hand position
 
-                        Vector3 head, lefthand, righthand;
+                        Vector3 head, lefthand, righthand,bodypos;
 
                         if (task.getVector3Value("head", out head))
                             viewerObject.transform.parent.transform.position = head;
@@ -315,6 +347,9 @@ namespace Presence
 
                         if (task.getVector3Value("righthand", out righthand))
                             handr.transform.localPosition = righthand;
+
+                        if (task.getVector3Value("body", out bodypos))
+                            body.transform.localPosition = bodypos;
 
                     }
 
@@ -936,7 +971,8 @@ namespace Presence
                     else
                     {
 
-                       // on the server we hold to keep the task alive. 
+                        userMessager.ShowTextMessage("Waiting for calibration", 3);
+                        // on the server we hold to keep the task alive. 
 
                     }
 
@@ -1043,10 +1079,10 @@ namespace Presence
                         if (playerID >= 0)
                         {
 
-                            viewerObject.transform.parent.transform.position = DepthTransport.getJoint(playerID, 3); // head
+                        //    viewerObject.transform.parent.transform.position = DepthTransport.getJoint(playerID, 3); // head
 
-                            handl.transform.position = DepthTransport.getJoint(playerID, 7);
-                            handr.transform.position = DepthTransport.getJoint(playerID, 11);
+                        //    handl.transform.position = DepthTransport.getJoint(playerID, 7);
+                        //    handr.transform.position = DepthTransport.getJoint(playerID, 11);
 
                         }
 
@@ -1099,8 +1135,8 @@ namespace Presence
 
                         // send once
 
-                        task.setVector3Value("compassPosition", compass.transform.position);
-                        task.setQuaternionValue("compassRotation", compass.transform.rotation);
+                  //      task.setVector3Value("compassPosition", compass.transform.position);
+               //         task.setQuaternionValue("compassRotation", compass.transform.rotation);
 
                         task.setVector3Value("kinectPosition", Kinect.transform.position);
                         task.setQuaternionValue("kinectRotation", Kinect.transform.rotation);
@@ -1235,8 +1271,8 @@ namespace Presence
                             SetHandler.transform.position = sp;
                             SetHandler.transform.rotation = sq;
 
-                            compass.transform.position = sp;
-                            compass.transform.rotation = sq;
+                     //       compass.transform.position = sp;
+                  //          compass.transform.rotation = sq;
 
                         }
 

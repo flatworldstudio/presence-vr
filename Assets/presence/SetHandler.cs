@@ -956,6 +956,11 @@ namespace Presence
                     g = DebugObject.getNullObject(0.25f);
                     g.transform.SetParent(c.transform, false);
 
+                    c = GameObject.Find("Body");
+                    g = DebugObject.getNullObject(0.5f);
+                    g.transform.SetParent(c.transform, false);
+
+
                     done = true;
 
                     break;
@@ -1024,7 +1029,7 @@ namespace Presence
                     break;
 
 
-
+                    /*
                 case "placekinect":
 
 
@@ -1053,7 +1058,7 @@ namespace Presence
                     done = true;
 
                     break;
-
+                    */
 
                 case "nextdepth":
 

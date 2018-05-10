@@ -1,5 +1,5 @@
 using UnityEngine;
-//using UnityEngine.UI;
+using UnityEngine.UI;
 
 using System;
 using System.Collections;
@@ -103,6 +103,7 @@ public class KinectManager : MonoBehaviour
 
     // GUI Text to show gesture debug message.
     public GUIText GesturesDebugText;
+    public Text GesturesDebugTest;
 
     public Camera CameraDebug;
 
@@ -2335,6 +2336,7 @@ public class KinectManager : MonoBehaviour
                                                             player1JointsPos[(int)KinectWrapper.NuiSkeletonPositionIndex.HipRight].ToString() : "");
 
                             GesturesDebugText.GetComponent<GUIText>().text = sDebugGestures;
+                            GesturesDebugTest.text = sDebugGestures;
                         }
                     }
                 }

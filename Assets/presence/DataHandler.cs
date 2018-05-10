@@ -186,11 +186,21 @@ namespace Presence
 
                     break;
 
+                case "detectgesture":
+
+                    
+
+
+
+
+                  
+                    break;
+
                 case "depthlive":
 
 
                     DepthTransport.Mode = DEPTHMODE.LIVE;
-
+                  
                     done = true;
 
                     break;
