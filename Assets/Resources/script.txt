@@ -1,12 +1,127 @@
-#calibrateclient
+// CLIENT STORIES.
+
+#presenceclient
 debugon
 amvrclient
+start moodlight
+start serversearch
 alignset
 addkinectnull
-autocalibrate
-playsignal
+//autocalibrate
+//moodon
 end
 
+// Serversearch waits for server and launches #foundserver.
+
+#serversearch
+startdiscover
+listenforserver
+end
+
+// Foundserver starts a client and monitors the connection. If connection is lost it launches #serverlost.
+
+#foundserver
+startclient
+monitorconnection
+end
+
+// Serverlost responds to losing connection and then launches (back into) #serversearch.
+
+#serverlost
+moodoff
+stop userstreaming
+stop clientcalibration
+lostconnection
+start serversearch
+end
+
+// SERVER STORIES.
+
+#presenceserver
+debugon
+amserver
+start server
+displaycheck
+//initstream
+alignset
+addkinectnull
+addviewernulls
+makeservercontrols
+//createclouds
+start servercontrols
+start moodlight
+//setsession
+end
+
+// Server starts server and waits and calls #newclient when a client connects.
+
+#server
+startserver
+listenforclients
+end
+
+// Newclient. Passglobal reviews all storypointers and marks the global ones as modified so they get pushed to clients.
+
+#newclient
+passglobal
+end
+
+// Servercontrols handles server UI.
+
+#servercontrols
+servercontrol
+end
+
+// Startpresence starts the kinect (if possible) and begins streaming user info (not points). Then it triggers the client to calibrate. 
+// When calibrated the client triggers #clientcalibrated.
+
+#startpresence
+depthlive
+start userstreaming
+pause3
+start clientcalibration
+end
+
+#clientcalibration
+isglobal
+autocalibrate
+end
+
+// Clientcalibrated is called when the client is calibrated
+
+#clientcalibrated
+stop clientcalibration
+isglobal
+moodon
+end
+
+// Stoppresence stops the kinect if needed and stops userstreaming.
+
+#stoppresence
+depthoff
+moodoff
+stop userstreaming
+stop clientcalibration
+end
+
+// GENERAL STORIES
+
+// Moodlight controls ambient lighting. It runs either locally or globally with the server controlling the lights.
+
+#moodlight
+isglobal
+moodlight
+end
+
+// Userstreaming streams users head and hands to client and streams back head rotation.
+
+#userstreaming
+isglobal
+userstream
+end
+
+
+// LEGACY STORIES.
 
 
 #play
@@ -48,7 +163,7 @@ end
 
 
 
-#presenceserver
+#presenceserverold
 debugon
 amserver
 displaycheck
@@ -63,14 +178,7 @@ start server
 setsession
 end
 
-#server
-startserver
-listenforclients
-end
 
-#servercontrols
-servercontrol
-end
 
 #startlive
 startspatialdata
@@ -96,10 +204,7 @@ isglobal
 cloudstream2
 end
 
-#userstreaming
-isglobal
-userstream
-end
+
 
 #resetclouds
 isglobal
@@ -151,7 +256,7 @@ end
 
 
 
-#presenceclient
+#presenceclientold
 debugon
 amvrclient
 initstream
@@ -165,14 +270,9 @@ start vrcalibration
 end
 
 
-#serversearch
-startdiscover
-listenforserver
-end
 
-#newclient
-passglobal
-end
+
+
 
 #vrcalibration
 checkforcalibration
@@ -236,10 +336,7 @@ start serversearch
 end
 
 
-#foundserver
-startclient
-monitorconnection
-end
+
 
 
 

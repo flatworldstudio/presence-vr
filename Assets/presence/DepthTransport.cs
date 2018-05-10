@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
-using NUnit.Framework.Constraints;
+//using NUnit.Framework.Constraints;
 
 
 namespace Presence
@@ -88,6 +88,7 @@ namespace Presence
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
+                        // Making a coroutine would prevent blocking...
 
                     if (!KinectManager.Instance.IsInitialized())
 
@@ -106,11 +107,18 @@ namespace Presence
                         {
 
                             Debug.LogWarning(me + "Kinectmanager not initialised.");
+                        __mode = DEPTHMODE.OFF;
+
                         }
 
                     }
 
-#endif
+#else
+                        // On os x we keep it off.
+
+                        __mode = DEPTHMODE.OFF;
+
+                        #endif
 
                         break;
 

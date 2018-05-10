@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.XR.WSA.Input;
+//using UnityEngine.XR.WSA.Input;
 
 using StoryEngine;
 
@@ -77,6 +77,25 @@ namespace Presence
 
             switch (task.description)
             {
+
+
+                case "pause3":
+
+                    float TimeOut;
+
+                    if (!task.getFloatValue("timeout",out TimeOut)){
+                        TimeOut=Time.time+3;
+                        task.setFloatValue("timeout",TimeOut);
+
+                    }
+
+                    if (Time.time>TimeOut)
+                        done=true;
+
+
+
+                    break;
+
 
                 case "depthcompress":
                     Application.targetFrameRate = 30;
@@ -175,6 +194,16 @@ namespace Presence
                     done = true;
 
                     break;
+
+                case "depthoff":
+
+
+                    DepthTransport.Mode = DEPTHMODE.OFF;
+
+                    done = true;
+
+                    break;
+
                 case "depthrecord":
 
 
@@ -835,7 +864,7 @@ namespace Presence
                             GENERAL.wasConnected = false;
                             task.setStringValue("debug", "lost connection");
 
-                            task.setCallBack("serversearch");
+                            task.setCallBack("serverlost");
 
 
                             done = true; // we'll fall throught to the next line in the script, since there is no longer a connection to monitor.

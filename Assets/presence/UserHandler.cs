@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using StoryEngine;
+//using GoogleVR.Demos;
+//using NUnit.Framework.Constraints;
+//using Microsoft.Win32.SafeHandles;
 
 namespace Presence
 {
@@ -24,6 +27,12 @@ namespace Presence
         public AudioSource signalSound;
 
         public GameObject AutoCallibrateObject;
+
+        public CalibrateOnMarker CalibrationScript;
+
+
+        //public DemoInputManager GoogleVRInputManager;
+        public UserMessager userMessager;
 
         //	public 
 
@@ -119,6 +128,30 @@ namespace Presence
 
             switch (task.description)
             {
+
+                case "listenforserver":
+
+                    userMessager.ShowTextMessage("Waiting for server", 3);
+
+                    done = true;
+                    break;
+
+
+                case "lostconnection":
+
+                    userMessager.ShowTextMessage("Lost server connection", 3);
+                    signalSound.Play();
+
+                    done = true;
+                    break;
+
+                case "startclient":
+
+                    userMessager.ShowTextMessage("Connected to server", 3);
+                    signalSound.Play();
+
+                    done = true;
+                    break;
 
                 case "waitforuser":
 
@@ -221,10 +254,25 @@ namespace Presence
 
 #endif
 
+
+
+
+
                         }
                         else
                         {
-                            Debug.Log("kinect not live");
+                            // Get some random values for debugging.
+
+                            float hx = 6f * Mathf.PerlinNoise(0.1f * Time.time, 0);
+                            float hz = 6f * Mathf.PerlinNoise(0, 0.1f * Time.time);
+
+                            viewerObject.transform.parent.transform.position = new Vector3(hx, PRESENCE.kinectHeight, hz);
+
+                            handl.transform.position = new Vector3(hx - 0.5f, PRESENCE.kinectHeight / 2, hz);
+                            handr.transform.position = new Vector3(hx + 0.5f, PRESENCE.kinectHeight / 2, hz);
+
+
+                            //Debug.Log("kinect not live");
 
                         }
 
@@ -322,7 +370,15 @@ namespace Presence
 
                     GameObject menu = GameObject.Find("servermenu");
 
-                    UiButton control = new UiButton("live", menu, constraint);
+                    UiButton control = new UiButton("presence", menu, constraint);
+                    control.callback = "startpresence";
+                    serverInterface.addButton(control);
+
+                    control = new UiButton("stop", menu, constraint);
+                    control.callback = "stoppresence";
+                    serverInterface.addButton(control);
+
+                    control = new UiButton("live", menu, constraint);
                     control.callback = "startlive";
                     serverInterface.addButton(control);
 
@@ -334,9 +390,7 @@ namespace Presence
                     control.callback = "startecho";
                     serverInterface.addButton(control);
 
-                    control = new UiButton("stop", menu, constraint);
-                    control.callback = "stopsession";
-                    serverInterface.addButton(control);
+
 
 
                     done = true;
@@ -818,42 +872,73 @@ namespace Presence
 
                 case "autocalibrate":
 
-                    if (!AutoCallibrateObject.activeSelf)
-                        AutoCallibrateObject.SetActive(true);
+                    if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT)
+                    {
+
+                        if (!AutoCallibrateObject.activeSelf)
+                        {
+                            GENERAL.UserCalibrated = false;
+
+                            //AutoCallibrateObject.SetActive(true);
+
+                            CalibrationScript.StartCalibration(task);
 
 
-                    if (AutoCallibrateObject.GetComponent<RawImageWebCamTexture>().callibrated){
+                            userMessager.ShowTextMessage("Calibrating", 3);
+                        }
 
-                        // rotate the headset towards the kinect.
 
-                        // kinect as at an angle of
+                        if (AutoCallibrateObject.GetComponent<CalibrateOnMarker>().callibrated)
+                        {
 
-                        Vector3 kinectPosition = Kinect.transform.position - headSet.transform.position;
+                            // rotate the headset towards the kinect.
 
-                        float kinectAtAngle = Mathf.Atan2(kinectPosition.x, kinectPosition.z) * Mathf.Rad2Deg;
+                            // kinect as at an angle of
 
-                        Debug.Log("kinect: " + kinectAtAngle);
+                            Vector3 kinectPosition = Kinect.transform.position - headSet.transform.position;
 
-                        // headset is (locally) rotated at an angle of
+                            float kinectAtAngle = Mathf.Atan2(kinectPosition.x, kinectPosition.z) * Mathf.Rad2Deg;
 
-                        Vector3 euler = headSet.transform.localRotation.eulerAngles;
+                            Debug.Log("kinect: " + kinectAtAngle);
 
-                        float headYaw = euler.y;
+                            // headset is (locally) rotated at an angle of
 
-                        Debug.Log("headYaw: " + headYaw);
+                            Vector3 euler = headSet.transform.localRotation.eulerAngles;
 
-                        // which leaves a delta of
+                            float headYaw = euler.y;
 
-                        viewerObject.transform.parent.transform.rotation = Quaternion.Euler(0, kinectAtAngle - headYaw, 0);
+                            Debug.Log("headYaw: " + headYaw);
 
-                        //AutoCallibrateObject.SetActive(true);
-                        signalSound.Play();
-                        //done=true;
-                        AutoCallibrateObject.GetComponent<RawImageWebCamTexture>().callibrated=false;//repeat
+                            // which leaves a delta of
+
+                            viewerObject.transform.parent.transform.rotation = Quaternion.Euler(0, kinectAtAngle - headYaw, 0);
+
+                            //AutoCallibrateObject.SetActive(true);
+                            signalSound.Play();
+                            done = true;
+
+                            //AutoCallibrateObject.SetActive(false);
+
+                            CalibrationScript.EndCalibration();
+
+                            //userMessager.TextMessageOff();
+                            userMessager.ShowTextMessage("Calibrated", 3);
+                            GENERAL.UserCalibrated = true;
+
+                            task.setCallBack("clientcalibrated");
+
+                            //AutoCallibrateObject.GetComponent<RawImageWebCamTexture>().callibrated=false;//repeat
+
+
+                        }
 
                     }
+                    else
+                    {
 
+                       // on the server we hold to keep the task alive. 
 
+                    }
 
 
 

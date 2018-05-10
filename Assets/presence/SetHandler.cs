@@ -4,7 +4,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 
+using Random = UnityEngine.Random;
 using StoryEngine;
+
 
 namespace Presence
 {
@@ -25,6 +27,8 @@ namespace Presence
 
         //	#endif
 
+        public GameObject MoodParticles;
+        public LightControl MainStageLight, MoodLight01, MoodLight02;
 
         ushort[] depthMap;
         int width, height;
@@ -79,6 +83,8 @@ namespace Presence
         ParticleCloud cloud, mirror;
         int frame = -1;
 
+        //float MainStageLightPerlin;
+
         public bool TaskHandler(StoryTask task)
         {
 
@@ -86,6 +92,118 @@ namespace Presence
 
             switch (task.description)
             {
+
+                case "moodlight":
+
+                    float MainPerlinStart, MainPerlin, MoodLight01PerlinStart, MoodLight02PerlinStart, MoodLight01Perlin, MoodLight02Perlin;
+
+                    if (PRESENCE.deviceMode == DEVICEMODE.SERVER || (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT && !GENERAL.wasConnected))
+                    {
+
+                        // We are either the server or an unconnected vrclient so we take the lead.
+
+                        if (!task.getFloatValue("mainperlinstart", out MainPerlinStart))
+                            task.setFloatValue("mainperlinstart", Random.Range(-100f, 100f));
+
+                        task.getFloatValue("mainperlin", out MainPerlin);
+                        task.setFloatValue("mainperlin", MainPerlin += 0.05f);
+
+                        if (!task.getFloatValue("moodlight01perlinstart", out MoodLight01PerlinStart))
+                            task.setFloatValue("moodlight01perlinstart", Random.Range(-100f, 100f));
+
+                        task.getFloatValue("moodlight01perlin", out MoodLight01Perlin);
+                        task.setFloatValue("moodlight01perlin", MoodLight01Perlin += 0.05f);
+
+                        if (!task.getFloatValue("moodlight02perlinstart", out MoodLight02PerlinStart))
+                            task.setFloatValue("moodlight02perlinstart", Random.Range(-100f, 100f));
+
+                        task.getFloatValue("moodlight02perlin", out MoodLight02Perlin);
+                        task.setFloatValue("moodlight02perlin", MoodLight02Perlin += 0.05f);
+
+
+                    }
+                    else
+                    {
+
+                        // We are a connected vr client so we'll take the lead from the server.
+
+                        task.getFloatValue("mainperlinstart", out MainPerlinStart);
+                        task.getFloatValue("mainperlin", out MainPerlin);
+                        task.getFloatValue("moodlight01perlinstart", out MoodLight01PerlinStart);
+                        task.getFloatValue("moodlight01perlin", out MoodLight01Perlin);
+                        task.getFloatValue("moodlight02perlinstart", out MoodLight02PerlinStart);
+                        task.getFloatValue("moodlight02perlin", out MoodLight02Perlin);
+
+
+                    }
+
+                    // And now we apply those values.
+
+                    MainStageLight.Variation = 2f * Mathf.PerlinNoise(MainPerlinStart + MainPerlin, 0);
+                    MoodLight01.Variation = 2f * Mathf.PerlinNoise(MoodLight01PerlinStart + MoodLight01Perlin, 0);
+                    MoodLight02.Variation = 2f * Mathf.PerlinNoise(MoodLight02PerlinStart + MoodLight02Perlin, 0);
+
+                    // We include confinement here
+
+
+                    if (GENERAL.UserInConfinedArea){
+
+
+                        MainStageLight.Master = GENERAL.UserCalibrated ? 4f : 2f;
+
+
+                    }else{
+
+                        MainStageLight.Master = 0.25f;
+
+                    }
+
+
+                    break;
+
+                case "lostconnection":
+
+                    GENERAL.UserCalibrated=false;
+
+                    done=true;
+                    break;
+
+                case "moodon":
+
+                    MoodParticles.SetActive(true);
+                    //MainStageLight.Master = 3;
+
+                    // blocking
+
+                    //Debug.Log("moodon executed at "+Time.frameCount);
+
+                    //string test;
+                    //if (!task.getStringValue("test",out test))
+                        //task.setStringValue("test","test");
+
+
+
+                    done = true;
+                    break;
+
+                case "moodoff":
+
+                    MoodParticles.SetActive(false);
+
+                    //MainStageLight.Master = 3;
+
+                    // blocking
+
+                    //Debug.Log("moodon executed at "+Time.frameCount);
+
+                    //string test;
+                    //if (!task.getStringValue("test",out test))
+                    //task.setStringValue("test","test");
+
+
+
+                    done = true;
+                    break;
 
                 case "recorddepth":
                 case "playdepth":

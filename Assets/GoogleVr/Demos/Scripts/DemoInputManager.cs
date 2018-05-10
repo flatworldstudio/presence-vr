@@ -17,6 +17,10 @@
 #endif  // UNITY_ANDROID && !UNITY_EDITOR
 
 namespace GoogleVR.Demos {
+
+
+
+
   using UnityEngine;
   using UnityEngine.UI;
   using System;
@@ -28,6 +32,7 @@ namespace GoogleVR.Demos {
 #endif  // UNITY_2017_2_OR_NEWER
 
   public class DemoInputManager : MonoBehaviour {
+
     private const string MESSAGE_CANVAS_NAME = "MessageCanvas";
     private const string MESSAGE_TEXT_NAME = "MessageText";
     private const string LASER_GAMEOBJECT_NAME = "Laser";
@@ -280,7 +285,10 @@ namespace GoogleVR.Demos {
       if (reticlePointer == null) {
         return;
       }
-      reticlePointer.SetActive(active);
+
+            reticlePointer.SetActive(active);//
+
+      reticlePointer.SetActive(false);// OVERRIDE
 
       // Update the pointer type only if this is currently activated.
       if (!active) {
