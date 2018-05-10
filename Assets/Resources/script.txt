@@ -78,6 +78,7 @@ end
 #startpresence
 depthlive
 start userstreaming
+waitforuser
 pause3
 start clientcalibration
 end
@@ -93,6 +94,7 @@ end
 stop clientcalibration
 isglobal
 moodon
+detectgesture
 end
 
 // Stoppresence stops the kinect if needed and stops userstreaming.

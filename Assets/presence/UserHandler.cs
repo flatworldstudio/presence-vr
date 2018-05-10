@@ -158,12 +158,13 @@ namespace Presence
 
                 case "depthlive":
 
-                    userMessager.ShowTextMessage("Live depth", 3);
+                    userMessager.ShowTextMessage("Streaming live depth", 3);
 
                     done = true;
 
                     break;
 
+                    /*
                 case "waitforuser":
 
                     // Detect user start position
@@ -205,7 +206,7 @@ namespace Presence
                     task.setStringValue("debug", "" + timer);
 
                     break;
-
+                    */
                 case "sessiontimer":
 
 
@@ -227,22 +228,64 @@ namespace Presence
 
                     break;
 
-                case "detectgesture":
+                case "waitforuser":
 
-                    Davinci.BeginDetect(task);
 
-                    //  Davinci.SetActive(true);
-
-                    string detected;
-
-                    task.getStringValue("davinci", out detected);
-
-                    if (detected == "detected")
+                    if (DepthTransport.Mode == DEPTHMODE.LIVE)
                     {
 
-                        task.setStringValue("davince", "");
-                        task.setStringValue("debug", "detected!");
+                        if (DepthTransport.IsUserDetected())
+                        {
+                            userMessager.ShowTextMessage("User detected", 3);
+                            done = true;
 
+                        }
+
+
+                    }
+                    else
+                    {
+
+                        // we're probably simulating so just fall through
+                        done = true;
+
+                    }
+
+
+
+                        break;
+                case "detectgesture":
+
+
+
+                    if (PRESENCE.deviceMode == DEVICEMODE.SERVER)
+                    {
+                        string status;
+
+                        if (!task.getStringValue("status", out status))
+                        {
+
+                            Davinci.BeginDetect(task);
+                            task.setStringValue("status", "detecting");
+
+                        }
+
+                        
+
+                    }
+                    
+                    if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT){
+
+
+                        string status;
+
+                        task.getStringValue("status", out status);
+
+if (status == "detected")
+                        {
+                            task.setStringValue("status", "detecting");
+                            signalSound.Play();
+                        }
 
                     }
 
@@ -971,7 +1014,7 @@ namespace Presence
                     else
                     {
 
-                        userMessager.ShowTextMessage("Waiting for calibration", 3);
+                     //   userMessager.ShowTextMessage("Waiting for calibration", 3);
                         // on the server we hold to keep the task alive. 
 
                     }

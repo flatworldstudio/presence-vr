@@ -895,7 +895,7 @@ MonoBehaviour:
   Player2CalibrationPose: 0
   Player1Gestures: 
   Player2Gestures: 
-  MinTimeBetweenGestures: 0.5
+  MinTimeBetweenGestures: 0.75
   GestureListeners:
   - {fileID: 1834452759}
   CalibrationText: {fileID: 2055519345}
@@ -10826,12 +10826,12 @@ GameObject:
   - component: {fileID: 1834452760}
   - component: {fileID: 1834452759}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: GestureObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1834452759
 MonoBehaviour:
   m_ObjectHideFlags: 0

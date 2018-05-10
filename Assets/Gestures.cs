@@ -7,12 +7,22 @@ public class Gestures : MonoBehaviour, KinectGestures.GestureListenerInterface
 {
 
     StoryTask TaskRef;
+    bool active = false;
+    bool userPresent = false;
+    uint User;
 
     public void BeginDetect(StoryTask task)
     {
         TaskRef = task;
-        this.gameObject.SetActive(true);
-
+        // this.gameObject.SetActive(true);
+        if (userPresent)
+        {
+           
+            KinectManager.Instance.DetectGesture(User, KinectGestures.Gestures.Tpose);
+            active = true;
+            
+        }
+       
     }
    
 
@@ -23,6 +33,8 @@ public class Gestures : MonoBehaviour, KinectGestures.GestureListenerInterface
 	
 	// Update is called once per frame
 	void Update () {
+
+        
 		
 	}
 
@@ -30,32 +42,51 @@ public class Gestures : MonoBehaviour, KinectGestures.GestureListenerInterface
     {
         //     throw new System.NotImplementedException();
         Debug.Log("user is detected");
-        KinectManager.Instance.DetectGesture(userId, KinectGestures.Gestures.Tpose);
+
+        User = userId;
+        userPresent = true;
+
+        if (!active && TaskRef != null){
+            KinectManager.Instance.DetectGesture(User, KinectGestures.Gestures.Tpose);
+            active = true;
+
+       }
+
+     
+      //  KinectManager.Instance.DetectGesture(userId, KinectGestures.Gestures.Tpose);
     }
 
     void KinectGestures.GestureListenerInterface.UserLost(uint userId, int userIndex)
     {
-      //  throw new System.NotImplementedException();
+      //  Debug.LogError("Lost user");
+
+       
+        userPresent = false;
+
+        //  throw new System.NotImplementedException();
     }
 
     void KinectGestures.GestureListenerInterface.GestureInProgress(uint userId, int userIndex, KinectGestures.Gestures gesture, float progress, KinectWrapper.NuiSkeletonPositionIndex joint, Vector3 screenPos)
     {
         // throw new System.NotImplementedException();
-      //  Debug.Log("RAISED");
-        TaskRef.setStringValue("davinci","detected");
+     //   Debug.Log("RAISED");
+
+       
 
     }
 
     bool KinectGestures.GestureListenerInterface.GestureCompleted(uint userId, int userIndex, KinectGestures.Gestures gesture, KinectWrapper.NuiSkeletonPositionIndex joint, Vector3 screenPos)
     {
         //  throw new System.NotImplementedException();
-        Debug.LogError("RAISED");
+        Debug.LogError("DETECT");
+        if (TaskRef != null)
+            TaskRef.setStringValue("status", "detected");
         return true;
     }
 
     bool KinectGestures.GestureListenerInterface.GestureCancelled(uint userId, int userIndex, KinectGestures.Gestures gesture, KinectWrapper.NuiSkeletonPositionIndex joint)
     {
-   //     Debug.Log("......");
+      // Debug.Log("......");
         //    throw new System.NotImplementedException();
         return true;
     }

@@ -176,6 +176,13 @@ namespace Presence
 
 
 
+
+        public static bool IsUserDetected()
+        {
+            return (__mode == DEPTHMODE.LIVE || __mode == DEPTHMODE.RECORD) ? KinectManager.Instance.IsUserDetected() : false;
+        }
+
+             
         public static Vector3 getPosition()
 
         {
@@ -189,7 +196,8 @@ namespace Presence
 
                 uint playerID = KinectManager.Instance != null ? KinectManager.Instance.GetPlayer1ID() : 0;
 
-              
+             //   Debug.Log(playerID);
+
 
                 if (playerID >= 0)
                 {
