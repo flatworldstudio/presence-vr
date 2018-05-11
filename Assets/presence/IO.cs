@@ -355,7 +355,7 @@ namespace Presence
         public static PFile[] GetLocalFiles(string LocalFolder)
         {
 
-            if (!Directory.Exists(localStorageFolder))
+            if (!Directory.Exists(localStorageFolder) || LocalFolder=="")
                 return new PFile[0];
 
 

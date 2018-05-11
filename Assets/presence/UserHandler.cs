@@ -32,6 +32,7 @@ namespace Presence
 
         public Gestures Davinci;
 
+       // public GameObject FolderMenu;
 
         //public DemoInputManager GoogleVRInputManager;
         public UserMessager userMessager;
@@ -39,6 +40,8 @@ namespace Presence
         //	public 
 
         string me = "Task handler: ";
+
+        UiConstraint fileBrowserConstraint;
 
         UxController uxController;
 
@@ -48,6 +51,21 @@ namespace Presence
             userController.addTaskHandler(TaskHandler);
 
             uxController = new UxController();
+
+             fileBrowserConstraint = new UiConstraint();
+
+            float width = Screen.width;
+
+            fileBrowserConstraint.hardClamp = true;
+            fileBrowserConstraint.hardClampMin = new Vector3(-width-100, 0);
+            fileBrowserConstraint.hardClampMax = new Vector3(100, 0);
+
+            fileBrowserConstraint.springs = true;
+            fileBrowserConstraint.springPositions = new Vector2[2];
+            fileBrowserConstraint.springPositions[0] = new Vector2(-width, 0);
+            fileBrowserConstraint.springPositions[1] = new Vector2(0, 0);
+
+
 
 
 
@@ -399,7 +417,7 @@ if (status == "detected")
                     break;
 
 
-                case "makeio":
+                case "makefoldermenu":
 
                     if (serverInterface == null)
                     {
@@ -407,26 +425,83 @@ if (status == "detected")
                         break;
                     }
 
-                    GameObject folderMenu = GameObject.Find("Folders");
+                    GameObject browser = GameObject.Find("FileBrowser");
+                    GameObject FolderMenu = GameObject.Find("Folders");
 
-                    UiConstraint fileBrowserConstraint = new UiConstraint();
 
-                    fileBrowserConstraint.hardClamp = true;
-                    fileBrowserConstraint.hardClampMin = new Vector3(-100, 0);
-                    fileBrowserConstraint.hardClampMax = new Vector3(100, 0);
+                    PFolder[] folders = IO.GetLocalFolders();
 
+                    if (folders.Length > 0)
+                        IO.checkedOutFolder = folders[0].LocalPath;
 
                     for (int i = 0; i < 4; i++)
                     {
 
-                        UiButton folderButton = new UiButton("f"+i, folderMenu, fileBrowserConstraint);
-                        folderButton.callback = "";
+                        GameObject icon = FolderMenu.transform.Find("folder" + i).gameObject;
+
+
+                        UiButton folderButton = new UiButton("folder"+i, browser, fileBrowserConstraint);
+                        folderButton.callback = "getfolder_"+i;
                         serverInterface.addButton(folderButton);
                         
+                        if (i < folders.Length)
+                        {
+
+                            icon.GetComponentInChildren<UnityEngine.UI.Text>().text = folders[i].Name;
+                            icon.transform.localScale = Vector3.one;
+
+                        }
+                        else
+                        {
+                            icon.transform.localScale = Vector3.zero;
+                        }
+
+                    }
+                    
+
+                    done = true;
+                    break;
+
+                case "makefilemenu":
+
+                    if (serverInterface == null)
+                    {
+                        done = true;
+                        break;
                     }
 
+                     browser = GameObject.Find("FileBrowser");
+                    GameObject FileMenu = GameObject.Find("Files");
+
+                    Vector3 position = FileMenu.transform.localPosition;
+                    position.x = Screen.width;
+                    FileMenu.transform.localPosition = position;
+
+                    PFile[] files = IO.GetLocalFiles(IO.checkedOutFolder);
+                    
+                    for (int i = 0; i < 4; i++)
+                    {
+
+                        GameObject icon = FileMenu.transform.Find("file" + i).gameObject;
 
 
+                        UiButton folderButton = new UiButton("file" + i, browser, fileBrowserConstraint);
+                        folderButton.callback = "getfolder_" + i;
+                        serverInterface.addButton(folderButton);
+
+                        if (i < files.Length)
+                        {
+
+                            icon.GetComponentInChildren<UnityEngine.UI.Text>().text = files[i].Name;
+                            icon.transform.localScale = Vector3.one;
+
+                        }
+                        else
+                        {
+                            icon.transform.localScale = Vector3.zero;
+                        }
+
+                    }
 
 
                     done = true;
