@@ -314,9 +314,44 @@ namespace Presence
         public static int depthIndex = -1;
 
         public static string localStorageFolder;
-        public static string checkedOutFolder;
+        static string _checkedOutFolder;
+
+           public static string checkedOutFile;
+
+        public static string CheckedOutFolder
+        {
+            get 
+            {
+                // If nothing select we select the first folder. If that doesn't exist we create a default one.
+
+                if (_checkedOutFolder == "")
+                {
+                    PFolder[] pFolders = GetLocalFolders();
+                    if (pFolders.Length > 0){
+                        _checkedOutFolder = pFolders[0].LocalPath;
+                    }
+                    else
+                    {
+                        _checkedOutFolder = localStorageFolder + "/_default";
+
+                        if (!Directory.Exists(_checkedOutFolder))
+                            Directory.CreateDirectory(_checkedOutFolder);
+
+                    }
+
+                }
+                return _checkedOutFolder;
+            }
+
+            set 
+            {
+                _checkedOutFolder = value;
+            }
+
+        }
 
 
+        
         public static PFolder[] GetLocalFolders()
         {
 

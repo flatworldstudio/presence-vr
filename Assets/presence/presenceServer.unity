@@ -588,7 +588,7 @@ GameObject:
   - component: {fileID: 194852011}
   - component: {fileID: 194852010}
   m_Layer: 5
-  m_Name: file1
+  m_Name: file#1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1392,7 +1392,7 @@ GameObject:
   - component: {fileID: 397158819}
   - component: {fileID: 397158818}
   m_Layer: 5
-  m_Name: live
+  m_Name: newfile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1435,7 +1435,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: 3d976e1e1bc98e24ca73d451d0eea131, type: 3}
+  m_Sprite: {fileID: 21300000, guid: d3a341a9994e0a44783538c1d1167b46, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2580,7 +2580,7 @@ GameObject:
   - component: {fileID: 862462059}
   - component: {fileID: 862462058}
   m_Layer: 5
-  m_Name: Confirm
+  m_Name: confirm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2623,7 +2623,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: ab17b547a37b26b4ca5b86d7d692ef6c, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 77ff6a0ab861c544aa051e8784a01612, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2648,7 +2648,7 @@ GameObject:
   - component: {fileID: 864855919}
   - component: {fileID: 864855918}
   m_Layer: 5
-  m_Name: folder0
+  m_Name: folder#0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3127,6 +3127,8 @@ MonoBehaviour:
   AutoCallibrateObject: {fileID: 0}
   CalibrationScript: {fileID: 0}
   Davinci: {fileID: 1834452759}
+  NewFile: {fileID: 103104981}
+  fileNameInput: {fileID: 1907021508}
   userMessager: {fileID: 1059995041}
 --- !u!4 &1012313925
 Transform:
@@ -3383,7 +3385,7 @@ GameObject:
   - component: {fileID: 1057163201}
   - component: {fileID: 1057163200}
   m_Layer: 5
-  m_Name: file2
+  m_Name: file#2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7519,7 +7521,7 @@ GameObject:
   - component: {fileID: 1257632903}
   - component: {fileID: 1257632902}
   m_Layer: 5
-  m_Name: mirror
+  m_Name: browser
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7562,7 +7564,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: 4a6f5990bdce42b45990748cbfe020a5, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 4cc0d549d30601d43b05051b08feadb0, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -8020,7 +8022,7 @@ GameObject:
   - component: {fileID: 1454633048}
   - component: {fileID: 1454633047}
   m_Layer: 5
-  m_Name: folder2
+  m_Name: folder#2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8278,7 +8280,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.5019608}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.753}
   m_RaycastTarget: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -8548,7 +8550,7 @@ GameObject:
   - component: {fileID: 1631502254}
   - component: {fileID: 1631502253}
   m_Layer: 5
-  m_Name: folder3
+  m_Name: folder#3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12395,7 +12397,7 @@ GameObject:
   - component: {fileID: 1918647121}
   - component: {fileID: 1918647120}
   m_Layer: 5
-  m_Name: file0
+  m_Name: file#0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16330,7 +16332,7 @@ GameObject:
   - component: {fileID: 2104208536}
   - component: {fileID: 2104208535}
   m_Layer: 5
-  m_Name: file3
+  m_Name: file#3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16399,7 +16401,7 @@ GameObject:
   - component: {fileID: 2127872008}
   - component: {fileID: 2127872007}
   m_Layer: 5
-  m_Name: folder1
+  m_Name: folder#1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

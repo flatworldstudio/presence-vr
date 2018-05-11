@@ -11,9 +11,55 @@ using System.IO;
 namespace Presence
 {
 
+    /*
+     * 
+     *       private Vector3[] player1JointsPos, player2JointsPos;
+     *       
+     *         public Vector3 GetJointPosition(uint UserId, int joint) -> retrieves.
+     *             public bool IsJointTracked(uint UserId, int joint)
+
+     *         
+     *  HipCenter = 0,
+        Spine = 1,
+        ShoulderCenter = 2,
+        Head = 3,
+        ShoulderLeft = 4,
+        ElbowLeft = 5,
+        WristLeft = 6,
+        HandLeft = 7,
+        ShoulderRight = 8,
+        ElbowRight = 9,
+        WristRight = 10,
+        HandRight = 11,
+        HipLeft = 12,
+        KneeLeft = 13,
+        AnkleLeft = 14,
+        FootLeft = 15,
+        HipRight = 16,
+        KneeRight = 17,
+        AnkleRight = 18,
+        FootRight = 19,
+        Count = 20
+        */
 
 
+    [System.Serializable]
+    public struct PRESENCEFRAME
+    {
 
+        public POINT[] SKELETON;
+        public bool[] Tracked;
+
+
+    }
+
+
+    public struct POINT
+    {
+
+        public float x, y, z;
+
+    }
 
 
 

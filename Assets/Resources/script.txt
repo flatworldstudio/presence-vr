@@ -50,6 +50,28 @@ start servercontrols
 start moodlight
 end
 
+#togglebrowser
+togglebrowser
+end
+
+#folder
+setfolder
+makefilemenu
+end
+
+#file
+setfile
+end
+
+#newfile
+newfile
+end
+
+#newfileconfirm
+newfileconfirm
+end
+
+// Main story
 
 #presenceserver
 debugon

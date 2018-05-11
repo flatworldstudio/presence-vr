@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
 using StoryEngine;
 //using GoogleVR.Demos;
 //using NUnit.Framework.Constraints;
@@ -18,7 +18,7 @@ namespace Presence
 
         public GameObject uxCanvas;
 
-        public GameObject overviewObject, viewerObject, projectionObject, headSet, setObject, handl, handr,body, Kinect, SetHandler,  startPosition;
+        public GameObject overviewObject, viewerObject, projectionObject, headSet, setObject, handl, handr, body, Kinect, SetHandler, startPosition;
         //	UxMapping overviewMap;
         float timer = 0;
 
@@ -32,7 +32,8 @@ namespace Presence
 
         public Gestures Davinci;
 
-       // public GameObject FolderMenu;
+        public GameObject NewFile;
+        public UnityEngine.UI.InputField fileNameInput;
 
         //public DemoInputManager GoogleVRInputManager;
         public UserMessager userMessager;
@@ -52,21 +53,22 @@ namespace Presence
 
             uxController = new UxController();
 
-             fileBrowserConstraint = new UiConstraint();
+            fileBrowserConstraint = new UiConstraint();
 
             float width = Screen.width;
 
             fileBrowserConstraint.hardClamp = true;
-            fileBrowserConstraint.hardClampMin = new Vector3(-width-100, 0);
-            fileBrowserConstraint.hardClampMax = new Vector3(100, 0);
+            fileBrowserConstraint.hardClampMin = new Vector3(-width - 100, 0);
+            fileBrowserConstraint.hardClampMax = new Vector3(width + 100, 0);
 
             fileBrowserConstraint.springs = true;
-            fileBrowserConstraint.springPositions = new Vector2[2];
+            fileBrowserConstraint.springPositions = new Vector2[3];
             fileBrowserConstraint.springPositions[0] = new Vector2(-width, 0);
             fileBrowserConstraint.springPositions[1] = new Vector2(0, 0);
+            fileBrowserConstraint.springPositions[2] = new Vector2(width, 0);
 
 
-
+            NewFile.transform.localScale = Vector3.zero;
 
 
 #if UNITY_IOS
@@ -182,49 +184,49 @@ namespace Presence
 
                     break;
 
-                    /*
-                case "waitforuser":
+                /*
+            case "waitforuser":
 
-                    // Detect user start position
-                    ///	GameObject.Find("startposition");
+                // Detect user start position
+                ///	GameObject.Find("startposition");
 
 
-                    //	Vector3 startPos3d = startPos.transform.position;
-                    Vector2 startPos = new Vector2(startPosition.transform.position.x, startPosition.transform.position.z);
-                    Vector2 userPos = new Vector2(viewerObject.transform.parent.transform.position.x, viewerObject.transform.parent.transform.position.z);
+                //	Vector3 startPos3d = startPos.transform.position;
+                Vector2 startPos = new Vector2(startPosition.transform.position.x, startPosition.transform.position.z);
+                Vector2 userPos = new Vector2(viewerObject.transform.parent.transform.position.x, viewerObject.transform.parent.transform.position.z);
 
-                    float delta = Vector2.Distance(startPos, userPos);
+                float delta = Vector2.Distance(startPos, userPos);
 
-                    if (delta < 1f)
+                if (delta < 1f)
+                {
+
+                    timer += Time.deltaTime;
+
+                    if (timer > 2f)
                     {
 
-                        timer += Time.deltaTime;
+                        //	PRESENCE.capture = new CloudSequence (PRESENCE.captureLength);
+                        //	PRESENCE.CaptureFrame = 0;
+                        //	GENERAL.GLOBALS.setIntValue ("setcaptureframe", 0);
 
-                        if (timer > 2f)
-                        {
+                        //		PRESENCE.TimeStamp = Time.time;
 
-                            //	PRESENCE.capture = new CloudSequence (PRESENCE.captureLength);
-                            //	PRESENCE.CaptureFrame = 0;
-                            //	GENERAL.GLOBALS.setIntValue ("setcaptureframe", 0);
-
-                            //		PRESENCE.TimeStamp = Time.time;
-
-                            done = true;
-
-                        }
-
-                    }
-                    else
-                    {
-
-                        timer = 0f;
+                        done = true;
 
                     }
 
-                    task.setStringValue("debug", "" + timer);
+                }
+                else
+                {
 
-                    break;
-                    */
+                    timer = 0f;
+
+                }
+
+                task.setStringValue("debug", "" + timer);
+
+                break;
+                */
                 case "sessiontimer":
 
 
@@ -271,7 +273,7 @@ namespace Presence
 
 
 
-                        break;
+                    break;
                 case "detectgesture":
 
 
@@ -288,18 +290,19 @@ namespace Presence
 
                         }
 
-                        
+
 
                     }
-                    
-                    if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT){
+
+                    if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT)
+                    {
 
 
                         string status;
 
                         task.getStringValue("status", out status);
 
-if (status == "detected")
+                        if (status == "detected")
                         {
                             task.setStringValue("status", "detecting");
                             signalSound.Play();
@@ -309,16 +312,16 @@ if (status == "detected")
 
 
 
-                //    uint playerID2 = KinectManager.Instance != null ? KinectManager.Instance.GetPlayer1ID() : 0;
+                    //    uint playerID2 = KinectManager.Instance != null ? KinectManager.Instance.GetPlayer1ID() : 0;
 
-              //     if (playerID2 > 0)
-              //      {
-              //          KinectManager.Instance.DetectGesture(playerID2, KinectGestures.Gestures.RaiseLeftHand);
+                    //     if (playerID2 > 0)
+                    //      {
+                    //          KinectManager.Instance.DetectGesture(playerID2, KinectGestures.Gestures.RaiseLeftHand);
 
                     //    done = true;
-              //      }
+                    //      }
 
-                  
+
 
                     break;
 
@@ -335,16 +338,16 @@ if (status == "detected")
 
                             viewerObject.transform.parent.transform.position = DepthTransport.getJoint(3); // head
 
-                            handl.transform.position = DepthTransport.getJoint( 7);
-                            handr.transform.position = DepthTransport.getJoint( 11);
+                            handl.transform.position = DepthTransport.getJoint(7);
+                            handr.transform.position = DepthTransport.getJoint(11);
 
                             body.transform.position = DepthTransport.getPosition();
 
                             // hacking
 
-                    ///    KinectManager.Instance.DetectGesture()
+                            ///    KinectManager.Instance.DetectGesture()
 
-                            
+
 
 
 
@@ -361,7 +364,7 @@ if (status == "detected")
 
                             handl.transform.position = new Vector3(hx - 0.5f, PRESENCE.kinectHeight / 2, hz);
                             handr.transform.position = new Vector3(hx + 0.5f, PRESENCE.kinectHeight / 2, hz);
-                            body.transform.position = new Vector3(hx , PRESENCE.kinectHeight / 2, hz);
+                            body.transform.position = new Vector3(hx, PRESENCE.kinectHeight / 2, hz);
 
 
                             //Debug.Log("kinect not live");
@@ -397,7 +400,7 @@ if (status == "detected")
 
                         // retrieve head and hand position
 
-                        Vector3 head, lefthand, righthand,bodypos;
+                        Vector3 head, lefthand, righthand, bodypos;
 
                         if (task.getVector3Value("head", out head))
                             viewerObject.transform.parent.transform.position = head;
@@ -432,18 +435,18 @@ if (status == "detected")
                     PFolder[] folders = IO.GetLocalFolders();
 
                     if (folders.Length > 0)
-                        IO.checkedOutFolder = folders[0].LocalPath;
+                        IO.CheckedOutFolder = folders[0].LocalPath;
 
                     for (int i = 0; i < 4; i++)
                     {
 
-                        GameObject icon = FolderMenu.transform.Find("folder" + i).gameObject;
+                        GameObject icon = FolderMenu.transform.Find("folder#" + i).gameObject;
 
 
-                        UiButton folderButton = new UiButton("folder"+i, browser, fileBrowserConstraint);
-                        folderButton.callback = "getfolder_"+i;
+                        UiButton folderButton = new UiButton("folder#" + i, browser, fileBrowserConstraint);
+                        folderButton.callback = "folder";
                         serverInterface.addButton(folderButton);
-                        
+
                         if (i < folders.Length)
                         {
 
@@ -457,7 +460,7 @@ if (status == "detected")
                         }
 
                     }
-                    
+
 
                     done = true;
                     break;
@@ -470,23 +473,23 @@ if (status == "detected")
                         break;
                     }
 
-                     browser = GameObject.Find("FileBrowser");
+                    browser = GameObject.Find("FileBrowser");
                     GameObject FileMenu = GameObject.Find("Files");
 
                     Vector3 position = FileMenu.transform.localPosition;
                     position.x = Screen.width;
                     FileMenu.transform.localPosition = position;
 
-                    PFile[] files = IO.GetLocalFiles(IO.checkedOutFolder);
-                    
+                    PFile[] files = IO.GetLocalFiles(IO.CheckedOutFolder);
+
                     for (int i = 0; i < 4; i++)
                     {
 
-                        GameObject icon = FileMenu.transform.Find("file" + i).gameObject;
+                        GameObject icon = FileMenu.transform.Find("file#" + i).gameObject;
 
 
-                        UiButton folderButton = new UiButton("file" + i, browser, fileBrowserConstraint);
-                        folderButton.callback = "getfolder_" + i;
+                        UiButton folderButton = new UiButton("file#" + i, browser, fileBrowserConstraint);
+                        folderButton.callback = "file";
                         serverInterface.addButton(folderButton);
 
                         if (i < files.Length)
@@ -562,19 +565,21 @@ if (status == "detected")
                     control.callback = "stoppresence";
                     serverInterface.addButton(control);
 
-                    control = new UiButton("live", menu, constraint);
-                    control.callback = "startlive";
+                    control = new UiButton("newfile", menu, constraint);
+                    control.callback = "newfile";
                     serverInterface.addButton(control);
 
-                    control = new UiButton("mirror", menu, constraint);
-                    control.callback = "startmirror";
+                    control = new UiButton("browser", menu, constraint);
+                    control.callback = "togglebrowser";
                     serverInterface.addButton(control);
 
                     control = new UiButton("echo", menu, constraint);
                     control.callback = "startecho";
                     serverInterface.addButton(control);
 
-
+                    control = new UiButton("confirm", menu, constraint);
+                    control.callback = "newfileconfirm";
+                    serverInterface.addButton(control);
 
 
                     done = true;
@@ -588,7 +593,28 @@ if (status == "detected")
 
                     if (serverCallback.trigger)
                     {
+
+                        if (serverCallback.sender != null)
+                        {
+                            char delimiter = '#';
+                            string[] labelSplit = serverCallback.sender.name.Split(delimiter);
+
+
+                            if (labelSplit.Length == 2)
+                            {
+
+                                int Index = int.Parse(labelSplit[1]);
+                                // PFolder[] allFolders = IO.GetLocalFolders();
+
+                                task.setStringValue("persistantData", "" + Index);
+
+
+                            }
+                        }
                         task.setCallBack(serverCallback.label);
+
+
+
                     }
 
 
@@ -596,7 +622,79 @@ if (status == "detected")
 
                     break;
 
+                case "togglebrowser":
 
+                    UiButton target;
+                    if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
+                    {
+
+                        if (target.gameObject.GetComponent<RectTransform>().position.x > Screen.width-250-10)
+                        {
+
+                            uxController.setSpringTarget(target, 1);
+
+                        }
+                        else
+                        {
+                            uxController.setSpringTarget(target, 2);
+                        }
+
+                    }
+
+
+                    done = true;
+                    break;
+
+
+                case "setfolder":
+
+                    // UiButton target;
+                    if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
+                        uxController.setSpringTarget(target, 0);
+
+
+
+                    string data;
+                    task.getStringValue("persistantData", out data);
+
+                    Debug.Log("pers " + data);
+
+                    IO.CheckedOutFolder = IO.GetLocalFolders()[int.Parse(data)].LocalPath;
+
+                    done = true;
+                    break;
+
+                case "setfile":
+
+                    task.getStringValue("persistantData", out data);
+
+                    IO.checkedOutFile = IO.GetLocalFiles(IO.CheckedOutFolder)[int.Parse(data)].LocalPath;
+                    done = true;
+
+                    break;
+
+
+                case "newfile":
+
+                    NewFile.transform.localScale = Vector3.one;
+
+                    done = true;
+
+                    break;
+
+                case "newfileconfirm":
+
+                    NewFile.transform.localScale = Vector3.zero;
+
+                    //string name = fileNameInput.text != "" ? fileNameInput.text : "_default";
+
+                    IO.checkedOutFile = IO.CheckedOutFolder + "/" + (fileNameInput.text != "" ? fileNameInput.text : "_default");
+
+                    Debug.Log("new file " + IO.checkedOutFile);
+
+                    done = true;
+
+                    break;
 
                 case "createviewvr":
 
@@ -1120,7 +1218,7 @@ if (status == "detected")
                     else
                     {
 
-                     //   userMessager.ShowTextMessage("Waiting for calibration", 3);
+                        //   userMessager.ShowTextMessage("Waiting for calibration", 3);
                         // on the server we hold to keep the task alive. 
 
                     }
@@ -1221,19 +1319,19 @@ if (status == "detected")
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
-                        //	KinectManager manager = DepthTransport.kinectManager;
+                            //	KinectManager manager = DepthTransport.kinectManager;
 
-                        uint playerID = KinectManager.Instance != null ? KinectManager.Instance.GetPlayer1ID() : 0;
+                            uint playerID = KinectManager.Instance != null ? KinectManager.Instance.GetPlayer1ID() : 0;
 
-                        if (playerID >= 0)
-                        {
+                            if (playerID >= 0)
+                            {
 
-                        //    viewerObject.transform.parent.transform.position = DepthTransport.getJoint(playerID, 3); // head
+                                //    viewerObject.transform.parent.transform.position = DepthTransport.getJoint(playerID, 3); // head
 
-                        //    handl.transform.position = DepthTransport.getJoint(playerID, 7);
-                        //    handr.transform.position = DepthTransport.getJoint(playerID, 11);
+                                //    handl.transform.position = DepthTransport.getJoint(playerID, 7);
+                                //    handr.transform.position = DepthTransport.getJoint(playerID, 11);
 
-                        }
+                            }
 
 #endif
 
@@ -1284,8 +1382,8 @@ if (status == "detected")
 
                         // send once
 
-                  //      task.setVector3Value("compassPosition", compass.transform.position);
-               //         task.setQuaternionValue("compassRotation", compass.transform.rotation);
+                        //      task.setVector3Value("compassPosition", compass.transform.position);
+                        //         task.setQuaternionValue("compassRotation", compass.transform.rotation);
 
                         task.setVector3Value("kinectPosition", Kinect.transform.position);
                         task.setQuaternionValue("kinectRotation", Kinect.transform.rotation);
@@ -1420,8 +1518,8 @@ if (status == "detected")
                             SetHandler.transform.position = sp;
                             SetHandler.transform.rotation = sq;
 
-                     //       compass.transform.position = sp;
-                  //          compass.transform.rotation = sq;
+                            //       compass.transform.position = sp;
+                            //          compass.transform.rotation = sq;
 
                         }
 
