@@ -59,7 +59,7 @@ namespace Presence
 
             dataController.addTaskHandler(TaskHandler);
 
-
+            IO.localStorageFolder = Application.persistentDataPath+"/data";
 
 
 
@@ -78,6 +78,19 @@ namespace Presence
             switch (task.description)
             {
 
+                case "makeio":
+
+PFolder[] folders =                 IO.GetLocalFolders();
+
+                    if (folders.Length > 0)
+                    {
+
+                        PFile[] files = IO.GetLocalFiles(folders[0].LocalPath);
+
+                    }
+
+                    done = true;
+                    break;
 
                 case "pause3":
 

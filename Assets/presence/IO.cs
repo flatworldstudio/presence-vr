@@ -284,6 +284,24 @@ namespace Presence
         }
     }
 
+    public struct PFile
+    {
+
+        public string Name;
+        public string LocalPath;
+
+
+    }
+
+
+    public struct PFolder
+    {
+
+        public string Name;
+        public string LocalPath;
+        
+
+    }
 
     public static class IO
     {
@@ -294,6 +312,82 @@ namespace Presence
 
         static string depthCaptureFile = "/savedDepthCaptures.pdc";
         public static int depthIndex = -1;
+
+        public static string localStorageFolder;
+        public static string checkedOutFolder;
+
+
+        public static PFolder[] GetLocalFolders()
+        {
+
+            if (!Directory.Exists(localStorageFolder))
+                Directory.CreateDirectory(localStorageFolder);
+
+            string[] FolderPaths =  Directory.GetDirectories(localStorageFolder);
+
+            PFolder[] FolderList = new PFolder[FolderPaths.Length];
+
+            for (int i=0;i<FolderPaths.Length;i++)
+            {
+                string subFolder = FolderPaths[i];
+
+                char[] delimiter = new char[] { '/', '\\' };
+                string[] name = subFolder.Split(delimiter);
+
+                PFolder f = new PFolder
+                {
+                    LocalPath = subFolder,
+
+                    Name = name[name.Length - 1]
+                };
+
+                FolderList[i] = f;
+
+                Debug.Log(f.Name);
+
+            }
+
+            return FolderList;
+
+
+        }
+
+        public static PFile[] GetLocalFiles(string LocalFolder)
+        {
+
+            if (!Directory.Exists(localStorageFolder))
+                return new PFile[0];
+
+
+            string[] FilePaths = Directory.GetFiles(LocalFolder);
+                        
+            PFile[] FileList = new PFile[FilePaths.Length];
+
+            for (int i = 0; i < FilePaths.Length; i++)
+            {
+                string file = FilePaths[i];
+
+                char[] delimiter = new char[] { '/', '\\' };
+                string[] name = file.Split(delimiter);
+
+                PFile f = new PFile
+                {
+                    LocalPath = file,
+
+                    Name = name[name.Length - 1]
+                };
+
+                FileList[i] = f;
+
+                Debug.Log(f.Name);
+
+            }
+
+            return FileList;
+
+
+        }
+
 
 
         public static void LoadDepthCapturesResource()

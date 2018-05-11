@@ -38,6 +38,18 @@ end
 
 // SERVER STORIES.
 
+// io dev
+
+#serverio
+debugon
+makeservercontrols
+makeio
+amserver
+start servercontrols
+start moodlight
+end
+
+
 #presenceserver
 debugon
 amserver

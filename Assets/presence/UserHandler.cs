@@ -399,7 +399,38 @@ if (status == "detected")
                     break;
 
 
+                case "makeio":
 
+                    if (serverInterface == null)
+                    {
+                        done = true;
+                        break;
+                    }
+
+                    GameObject folderMenu = GameObject.Find("Folders");
+
+                    UiConstraint fileBrowserConstraint = new UiConstraint();
+
+                    fileBrowserConstraint.hardClamp = true;
+                    fileBrowserConstraint.hardClampMin = new Vector3(-100, 0);
+                    fileBrowserConstraint.hardClampMax = new Vector3(100, 0);
+
+
+                    for (int i = 0; i < 4; i++)
+                    {
+
+                        UiButton folderButton = new UiButton("f"+i, folderMenu, fileBrowserConstraint);
+                        folderButton.callback = "";
+                        serverInterface.addButton(folderButton);
+                        
+                    }
+
+
+
+
+
+                    done = true;
+                    break;
 
                 case "makeservercontrols":
 
