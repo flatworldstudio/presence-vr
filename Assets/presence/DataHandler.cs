@@ -99,7 +99,7 @@ namespace Presence
 
                     break;
 
-                case "record":
+                case "recordstart":
 
 
                     if (PRESENCE.MainDepthTransport != null)
@@ -112,7 +112,7 @@ namespace Presence
                         {
                             TimeOut = Time.time + 3;
                             task.setFloatValue("timeout", TimeOut);
-                            PRESENCE.MainDepthTransport.IsRecording = true;
+                            PRESENCE.MainDepthTransport.Mode = DEPTHMODE.RECORD;
                             PRESENCE.MainDepthTransport.TransCoder.CreateFile();
                        //     task.setStringValue("recording", "true");
                         }
@@ -120,14 +120,7 @@ namespace Presence
                         if (Time.time > TimeOut)
                         {
 
-                            PRESENCE.MainDepthTransport.IsRecording = false;
-                            Debug.Log("Stopped recording. Logged frames " + PRESENCE.MainDepthTransport.TransCoder.GetTargetFile().Frames.Count);
-
-                          
-                            if (IO.checkedOutFile =="")
-                               IO.MakeDefaultFile();
-
-                            IO.SaveToCheckedOutFile(PRESENCE.MainDepthTransport.TransCoder.GetTargetFile());
+                           
 
 
                             done = true;
@@ -141,6 +134,27 @@ namespace Presence
                     }
 
 
+                    break;
+
+                case "recordstop":
+
+                    if (PRESENCE.MainDepthTransport.Mode== DEPTHMODE.RECORD)
+                    {
+                        PRESENCE.MainDepthTransport.Mode = DEPTHMODE.LIVE;
+                        
+                        Debug.Log("Stopped recording. Logged frames " + PRESENCE.MainDepthTransport.TransCoder.GetTargetFile().Frames.Count);
+
+
+                        if (IO.checkedOutFile == "")
+                            IO.MakeDefaultFile();
+
+                        IO.SaveToCheckedOutFile(PRESENCE.MainDepthTransport.TransCoder.GetTargetFile());
+
+                        
+                    }
+
+
+                    done = true;
                     break;
 
                 case "userstream":
@@ -357,6 +371,26 @@ namespace Presence
 
                     break;
 
+                case "togglepresence":
+
+if (                   PRESENCE.MainDepthTransport == null || PRESENCE.MainDepthTransport.Mode == DEPTHMODE.OFF)
+                    {
+
+                        // switch on
+                     
+                        task.setCallBack("startpresence");
+
+                    }
+                    else
+                    {
+                        // switch off
+
+                        task.setCallBack("stoppresence");
+                    }
+
+
+
+                    break;
 
                     /*
                 case "recorddepth":

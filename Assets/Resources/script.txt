@@ -114,6 +114,8 @@ end
 servercontrol
 end
 
+
+
 // Startpresence starts the kinect (if possible) and begins streaming user info (not points). Then it triggers the client to calibrate. 
 // When calibrated the client triggers #clientcalibrated.
 
@@ -151,9 +153,15 @@ end
 
 // 
 
-#beginrecording
-record
+#recordstart
+recordstart
+@stoprecord
+recordstop
 makefilemenu
+end
+
+#recordstop
+tell recordstart stoprecord
 end
 
 // GENERAL STORIES

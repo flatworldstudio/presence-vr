@@ -331,10 +331,10 @@ namespace Presence
         public static string MakeDefaultFile()
         {
 
-            CheckedOutFolder = localStorageFolder + "/_default"; 
+            CheckedOutFolder =  "/_default"; 
 
-            if (!Directory.Exists(CheckedOutFolder))
-                Directory.CreateDirectory(CheckedOutFolder);
+            if (!Directory.Exists(localStorageFolder+ CheckedOutFolder))
+                Directory.CreateDirectory(localStorageFolder + CheckedOutFolder);
 
                   
           
@@ -355,16 +355,25 @@ namespace Presence
         public static void MakeNewFolder(string folder)
         {
 
-            folder = localStorageFolder + "/" + folder;
+            folder =  "/" + folder;
 
-                Directory.CreateDirectory(folder);
+                Directory.CreateDirectory(localStorageFolder + folder);
 
             CheckedOutFolder = folder;
 
         }
 
 
+        static string Strippath (string path)
+        {
 
+            int storagePathLength = localStorageFolder.Length;
+
+            return path.Substring(storagePathLength, path.Length - storagePathLength);
+
+
+
+        }
         public static string CheckedOutFolder
         {
             get 
@@ -379,10 +388,10 @@ namespace Presence
                     }
                     else
                     {
-                        _checkedOutFolder = localStorageFolder + "/_default";
+                        _checkedOutFolder =  "/_default";
 
-                        if (!Directory.Exists(_checkedOutFolder))
-                            Directory.CreateDirectory(_checkedOutFolder);
+                        if (!Directory.Exists(localStorageFolder + _checkedOutFolder))
+                            Directory.CreateDirectory(localStorageFolder + _checkedOutFolder);
 
                     }
 
@@ -418,7 +427,7 @@ namespace Presence
 
                 PFolder f = new PFolder
                 {
-                    LocalPath = subFolder,
+                    LocalPath = Strippath (subFolder),
 
                     Name = name[name.Length - 1]
                 };
@@ -441,7 +450,7 @@ namespace Presence
                 return new PFile[0];
 
 
-            string[] FilePaths = Directory.GetFiles(LocalFolder);
+            string[] FilePaths = Directory.GetFiles(localStorageFolder+LocalFolder);
                         
             PFile[] FileList = new PFile[FilePaths.Length];
 
@@ -454,7 +463,7 @@ namespace Presence
 
                 PFile f = new PFile
                 {
-                    LocalPath = file,
+                    LocalPath = Strippath(file),
 
                     Name = name[name.Length - 1]
                 };
@@ -583,7 +592,7 @@ namespace Presence
 
             BinaryFormatter bf = new BinaryFormatter();
 
-            FileStream file = File.Create(checkedOutFile);
+            FileStream file = File.Create(localStorageFolder+ checkedOutFile);
 
             bf.Serialize(file,"Presence placeholder file.");
 
@@ -596,7 +605,7 @@ namespace Presence
 
             BinaryFormatter bf = new BinaryFormatter();
 
-            FileStream file = File.Create(checkedOutFile);
+            FileStream file = File.Create(localStorageFolder + checkedOutFile);
 
             bf.Serialize(file, presenceFile);
 

@@ -46,6 +46,8 @@ namespace Presence
 
         UxController uxController;
 
+        public Text filePath;
+
         void Start()
         {
 
@@ -160,7 +162,7 @@ namespace Presence
 
                 case "lostconnection":
 
-                    userMessager.ShowTextMessage("Lost server connection", 3);
+                    userMessager.ShowTextMessage("Lost server connection", 1);
                     signalSound.Play();
 
                     done = true;
@@ -168,20 +170,54 @@ namespace Presence
 
                 case "startclient":
 
-                    userMessager.ShowTextMessage("Connected to server", 3);
+                    userMessager.ShowTextMessage("Connected to server", 1);
                     signalSound.Play();
 
                     done = true;
                     break;
 
 
+
+
                 case "depthlive":
 
-                    userMessager.ShowTextMessage("Streaming live depth", 3);
+                    userMessager.ShowTextMessage("Streaming live depth", 1);
+                    serverInterface.HideButton("startpresence");
+                    serverInterface.ShowButton("stoppresence");
 
                     done = true;
-
                     break;
+
+                case "depthoff":
+
+                    userMessager.ShowTextMessage("Streaming depth off", 1);
+                    serverInterface.HideButton("stoppresence");
+                    serverInterface.ShowButton("startpresence");
+
+                    done = true;
+                    break;
+
+
+
+                case "recordstart":
+
+                    userMessager.ShowTextMessage("Begin recording", 0.5f);
+                    serverInterface.HideButton("recordstart");
+                    serverInterface.ShowButton("recordstop");
+
+                    done = true;
+                    break;
+
+                case "recordstop":
+
+                    userMessager.ShowTextMessage("Stop recording", 0.5f);
+                    serverInterface.HideButton("recordstop");
+                    serverInterface.ShowButton("recordstart");
+
+                    done = true;
+                    break;
+
+
 
                 /*
             case "waitforuser":
@@ -248,11 +284,11 @@ namespace Presence
                     break;
 
 
-                    #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
                 case "waitforuser":
 
 
-                    if (DepthTransport.OwnsKinect!=null && DepthTransport.OwnsKinect.Mode == DEPTHMODE.LIVE)
+                    if (DepthTransport.OwnsKinect != null && DepthTransport.OwnsKinect.Mode == DEPTHMODE.LIVE)
                     {
 
                         if (DepthTransport.OwnsKinect.IsUserDetected())
@@ -272,11 +308,11 @@ namespace Presence
 
                     }
 
-                                     
+
 
 
                     break;
-                    #endif
+#endif
                 case "detectgesture":
 
 
@@ -350,101 +386,101 @@ namespace Presence
 
                     break;
 
-                    /*
-                case "userstream":
+                /*
+            case "userstream":
 
-                    if (PRESENCE.deviceMode == DEVICEMODE.SERVER)
+                if (PRESENCE.deviceMode == DEVICEMODE.SERVER)
+                {
+
+                    // get head and hands position.
+
+                    if (DepthTransport.OwnsKinect != null && DepthTransport.OwnsKinect.Mode == DEPTHMODE.LIVE)
                     {
 
-                        // get head and hands position.
 
-                        if (DepthTransport.OwnsKinect != null && DepthTransport.OwnsKinect.Mode == DEPTHMODE.LIVE)
-                        {
+                        viewerObject.transform.parent.transform.position = DepthTransport.OwnsKinect.getJoint(3); // head
 
+                        handl.transform.position = DepthTransport.OwnsKinect.getJoint(7);
+                        handr.transform.position = DepthTransport.OwnsKinect.getJoint(11);
 
-                            viewerObject.transform.parent.transform.position = DepthTransport.OwnsKinect.getJoint(3); // head
+                        body.transform.position = DepthTransport.OwnsKinect.getPosition();
 
-                            handl.transform.position = DepthTransport.OwnsKinect.getJoint(7);
-                            handr.transform.position = DepthTransport.OwnsKinect.getJoint(11);
+                        // hacking
 
-                            body.transform.position = DepthTransport.OwnsKinect.getPosition();
-
-                            // hacking
-
-                            ///    KinectManager.Instance.DetectGesture()
+                        ///    KinectManager.Instance.DetectGesture()
 
 
 
 
 
 
-                        }
-                        else
-                        {
-                            // Get some random values for debugging.
+                    }
+                    else
+                    {
+                        // Get some random values for debugging.
 
-                            float hx = 6f * Mathf.PerlinNoise(0.1f * Time.time, 0);
-                            float hz = 6f * Mathf.PerlinNoise(0, 0.1f * Time.time);
+                        float hx = 6f * Mathf.PerlinNoise(0.1f * Time.time, 0);
+                        float hz = 6f * Mathf.PerlinNoise(0, 0.1f * Time.time);
 
-                            viewerObject.transform.parent.transform.position = new Vector3(hx, PRESENCE.kinectHeight, hz);
+                        viewerObject.transform.parent.transform.position = new Vector3(hx, PRESENCE.kinectHeight, hz);
 
-                            handl.transform.position = new Vector3(hx - 0.5f, PRESENCE.kinectHeight / 2, hz);
-                            handr.transform.position = new Vector3(hx + 0.5f, PRESENCE.kinectHeight / 2, hz);
-                            body.transform.position = new Vector3(hx, PRESENCE.kinectHeight / 2, hz);
+                        handl.transform.position = new Vector3(hx - 0.5f, PRESENCE.kinectHeight / 2, hz);
+                        handr.transform.position = new Vector3(hx + 0.5f, PRESENCE.kinectHeight / 2, hz);
+                        body.transform.position = new Vector3(hx, PRESENCE.kinectHeight / 2, hz);
 
 
-                            //Debug.Log("kinect not live");
-
-                        }
-
-                        // retrieve head orientation
-
-                        Quaternion q;
-
-                        if (task.getQuaternionValue("headrotation", out q))
-                        {
-
-                            headSet.transform.rotation = q;
-
-                        }
-
-                        // push head and hand position
-
-                        task.setVector3Value("head", viewerObject.transform.parent.transform.position);
-                        task.setVector3Value("lefthand", handl.transform.position);
-                        task.setVector3Value("righthand", handr.transform.position);
-                        task.setVector3Value("body", body.transform.position);
+                        //Debug.Log("kinect not live");
 
                     }
 
-                    if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT)
+                    // retrieve head orientation
+
+                    Quaternion q;
+
+                    if (task.getQuaternionValue("headrotation", out q))
                     {
 
-                        // put head rotation
-
-                        task.setQuaternionValue("headrotation", headSet.transform.rotation);
-
-                        // retrieve head and hand position
-
-                        Vector3 head, lefthand, righthand, bodypos;
-
-                        if (task.getVector3Value("head", out head))
-                            viewerObject.transform.parent.transform.position = head;
-
-
-                        if (task.getVector3Value("lefthand", out lefthand))
-                            handl.transform.localPosition = lefthand;
-
-                        if (task.getVector3Value("righthand", out righthand))
-                            handr.transform.localPosition = righthand;
-
-                        if (task.getVector3Value("body", out bodypos))
-                            body.transform.localPosition = bodypos;
+                        headSet.transform.rotation = q;
 
                     }
 
-                    break;
-                    */
+                    // push head and hand position
+
+                    task.setVector3Value("head", viewerObject.transform.parent.transform.position);
+                    task.setVector3Value("lefthand", handl.transform.position);
+                    task.setVector3Value("righthand", handr.transform.position);
+                    task.setVector3Value("body", body.transform.position);
+
+                }
+
+                if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT)
+                {
+
+                    // put head rotation
+
+                    task.setQuaternionValue("headrotation", headSet.transform.rotation);
+
+                    // retrieve head and hand position
+
+                    Vector3 head, lefthand, righthand, bodypos;
+
+                    if (task.getVector3Value("head", out head))
+                        viewerObject.transform.parent.transform.position = head;
+
+
+                    if (task.getVector3Value("lefthand", out lefthand))
+                        handl.transform.localPosition = lefthand;
+
+                    if (task.getVector3Value("righthand", out righthand))
+                        handr.transform.localPosition = righthand;
+
+                    if (task.getVector3Value("body", out bodypos))
+                        body.transform.localPosition = bodypos;
+
+                }
+
+                break;
+                */
 
                 case "makefoldermenu":
 
@@ -460,8 +496,8 @@ namespace Presence
 
                     PFolder[] folders = IO.GetLocalFolders();
 
-                //    if (folders.Length > 0)
-                  //      IO.CheckedOutFolder = folders[0].LocalPath;
+                    //    if (folders.Length > 0)
+                    //      IO.CheckedOutFolder = folders[0].LocalPath;
 
                     for (int i = 0; i < 4; i++)
                     {
@@ -495,7 +531,7 @@ namespace Presence
                         uxController.setSpringTarget(target, 2);
                     }
 
-                        done = true;
+                    done = true;
                     break;
 
                 case "makefilemenu":
@@ -590,11 +626,11 @@ namespace Presence
 
                     GameObject menu = GameObject.Find("servermenu");
 
-                    UiButton control = new UiButton("presence", menu, constraint);
+                    UiButton control = new UiButton("startpresence", menu, constraint);
                     control.callback = "startpresence";
                     serverInterface.addButton(control);
 
-                    control = new UiButton("stop", menu, constraint);
+                    control = new UiButton("stoppresence", menu, constraint);
                     control.callback = "stoppresence";
                     serverInterface.addButton(control);
 
@@ -610,10 +646,27 @@ namespace Presence
                     control.callback = "newfolder";
                     serverInterface.addButton(control);
 
-                    control = new UiButton("record", menu, constraint);
-                    control.callback = "beginrecording";
+                    control = new UiButton("recordstart", menu, constraint);
+                    control.callback = "recordstart";
                     serverInterface.addButton(control);
 
+                    control = new UiButton("recordstop", menu, constraint);
+                    control.callback = "recordstop";
+                    serverInterface.addButton(control);
+
+                    control = new UiButton("playbackstart", menu, constraint);
+                    control.callback = "playbackstart";
+                    serverInterface.addButton(control);
+
+                    control = new UiButton("playbackstop", menu, constraint);
+                    control.callback = "playbackstop";
+                    serverInterface.addButton(control);
+
+                    //  serverInterface.HideButton("newfile");
+                    serverInterface.HideButton("playbackstop");
+
+                    serverInterface.HideButton("recordstop");
+                    serverInterface.HideButton("stoppresence");
                     NewFile.transform.localScale = Vector3.zero;
 
 
@@ -653,13 +706,13 @@ namespace Presence
                     }
 
 
-
+                    filePath.text = IO.checkedOutFile;
 
                     break;
 
                 case "togglebrowser":
 
-                //    UiButton target;
+                    //    UiButton target;
                     if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
                     {
                         uxController.setSpringTarget(target, 1);
@@ -705,6 +758,8 @@ namespace Presence
                     task.getStringValue("persistantData", out data);
 
                     IO.checkedOutFile = IO.GetLocalFiles(IO.CheckedOutFolder)[int.Parse(data)].LocalPath;
+                 
+
                     done = true;
 
                     break;
@@ -712,7 +767,7 @@ namespace Presence
 
                 case "makenewfile":
 
-                                        string firstrun;
+                    string firstrun;
 
                     if (!task.getStringValue("firstrun", out firstrun))
                     {
@@ -721,24 +776,26 @@ namespace Presence
 
                         NewFile.transform.localScale = Vector3.one;
                         fileNameInput.onEndEdit.RemoveAllListeners();
-                        fileNameInput.onEndEdit.AddListener((name) => {
+                        fileNameInput.onEndEdit.AddListener((name) =>
+                        {
                             IO.MakeNewFile(name);
                             NewFile.transform.localScale = Vector3.zero;
                             if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
                                 uxController.setSpringTarget(target, 0);
-                            task.ForceComplete(); });
+                            task.ForceComplete();
+                        });
 
                         // We pass a callback function that will complete the task when called. So we keep the task open here.
 
                     }
-                    
-                 
+
+
                     break;
 
                 case "makenewfolder":
 
                     //  NewFile.transform.localScale = Vector3.one;
-                           
+
 
                     if (!task.getStringValue("firstrun", out firstrun))
                     {
@@ -746,16 +803,18 @@ namespace Presence
 
                         NewFile.transform.localScale = Vector3.one;
                         fileNameInput.onEndEdit.RemoveAllListeners();
-                        fileNameInput.onEndEdit.AddListener((name) => {
+                        fileNameInput.onEndEdit.AddListener((name) =>
+                        {
                             IO.MakeNewFolder(name);
                             NewFile.transform.localScale = Vector3.zero;
                             if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
                                 uxController.setSpringTarget(target, 0);
-                            task.ForceComplete(); });
+                            task.ForceComplete();
+                        });
                     }
 
 
-                  //  done = true;
+                    //  done = true;
 
                     break;
 
@@ -1394,9 +1453,9 @@ namespace Presence
                     if (PRESENCE.isOverview)
                     {
 
-                        #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
-                        if (DepthTransport.OwnsKinect!=null  && DepthTransport.OwnsKinect.Mode == DEPTHMODE.LIVE)
+                        if (DepthTransport.OwnsKinect != null && DepthTransport.OwnsKinect.Mode == DEPTHMODE.LIVE)
                         {
 
 
@@ -1418,7 +1477,7 @@ namespace Presence
 
 
                         }
-                        #endif
+#endif
 
                         // get
 

@@ -74,7 +74,7 @@ namespace Presence
         int CurrentFrame = 0;
 
       public  iTransCoder TransCoder;
-        public bool IsRecording = false;
+    //    public bool IsRecording = false;
 
         public UncompressedFrame ActiveUncompressedFrame;
 
@@ -302,7 +302,7 @@ namespace Presence
         {
 
 
-            return TransCoder.PutFrame(NewFrameNumber, NewFrame, task, IsRecording);
+            return TransCoder.PutFrame(NewFrameNumber, NewFrame, task, __mode==DEPTHMODE.RECORD);
         }
 
         public bool Decode (int NewFrameNumber, out UncompressedFrame NewFrame, StoryEngine.StoryTask task)
