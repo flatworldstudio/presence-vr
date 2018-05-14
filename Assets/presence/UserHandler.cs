@@ -248,6 +248,8 @@ namespace Presence
 
                     break;
 
+
+                    #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
                 case "waitforuser":
 
 
@@ -271,9 +273,11 @@ namespace Presence
 
                     }
 
+                                     
 
 
                     break;
+                    #endif
                 case "detectgesture":
 
 

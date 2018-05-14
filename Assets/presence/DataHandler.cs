@@ -740,7 +740,7 @@ namespace Presence
                     //DepthTransport.SetActive(false);
                     //DepthTransport.SetMode(DEPTHMODE.OFF);
 
-                    DepthTransport.OwnsKinect.Mode = DEPTHMODE.OFF;
+           //         DepthTransport.OwnsKinect.Mode = DEPTHMODE.OFF;
 
 
                     done = true;
@@ -793,37 +793,37 @@ namespace Presence
                             break;
 
 
-                        case "initialising":
+                        //case "initialising":
 
-                            //Debug.Log( me+ "kinect awake? "+ DepthTransport.KinectManager.am
+                            ////Debug.Log( me+ "kinect awake? "+ DepthTransport.KinectManager.am
 
-                            if (DepthTransport.OwnsKinect.Mode == DEPTHMODE.LIVE)
-                            {
+                            //if (DepthTransport.OwnsKinect.Mode == DEPTHMODE.LIVE)
+                            //{
 
-                                kinectstatus = "live";
+                            //    kinectstatus = "live";
 
-                                Debug.Log(me + "Kinect live in : " + (Time.time - timeStamp));
+                            //    Debug.Log(me + "Kinect live in : " + (Time.time - timeStamp));
 
-                                kinectstatus = "live";
+                            //    kinectstatus = "live";
 
-                            }
-                            else
-                            {
+                            //}
+                            //else
+                            //{
 
-                                // Time out
+                            //    // Time out
 
-                                if ((Time.time - timeStamp) > 1f)
-                                {
+                            //    if ((Time.time - timeStamp) > 1f)
+                            //    {
 
-                                    Debug.LogWarning(me + "Kinect timed out.");
+                            //        Debug.LogWarning(me + "Kinect timed out.");
 
-                                    kinectstatus = "dummy";
+                            //        kinectstatus = "dummy";
 
-                                }
+                            //    }
 
 
-                            }
-                            break;
+                            //}
+                            //break;
 
                         case "live":
 
