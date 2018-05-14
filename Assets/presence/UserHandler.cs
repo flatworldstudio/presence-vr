@@ -68,7 +68,6 @@ namespace Presence
             fileBrowserConstraint.springPositions[2] = new Vector2(width, 0);
 
 
-            NewFile.transform.localScale = Vector3.zero;
 
 
 #if UNITY_IOS
@@ -614,6 +613,9 @@ namespace Presence
                     control = new UiButton("record", menu, constraint);
                     control.callback = "beginrecording";
                     serverInterface.addButton(control);
+
+                    NewFile.transform.localScale = Vector3.zero;
+
 
                     done = true;
 
@@ -1392,10 +1394,12 @@ namespace Presence
                     if (PRESENCE.isOverview)
                     {
 
+                        #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+
                         if (DepthTransport.OwnsKinect!=null  && DepthTransport.OwnsKinect.Mode == DEPTHMODE.LIVE)
                         {
 
-#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+
 
                             //	KinectManager manager = DepthTransport.kinectManager;
 
@@ -1411,9 +1415,10 @@ namespace Presence
 
                             }
 
-#endif
+
 
                         }
+                        #endif
 
                         // get
 

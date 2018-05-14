@@ -111,6 +111,7 @@ namespace Presence
                         TransCoder = new SkeletonOnly();
                     break;
                     default:
+                    Debug.LogError("Trying to set unkown transcoder." );
                       break;
                 }
 

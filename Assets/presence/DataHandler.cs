@@ -153,6 +153,16 @@ namespace Presence
 
                     if (PRESENCE.deviceMode == DEVICEMODE.SERVER)
                     {
+
+                        // Write the transcoder to the task.
+
+                        string TransCoder;
+
+                        if (!task.getStringValue("transcoder",out TransCoder))
+                            task.setStringValue("transcoder", PRESENCE.MainDepthTransport.TransCoder.Name());
+
+                        // Retrieve depth info.
+
                         UncompressedFrame NewFrame;
 
                         int NewFrameNumber = PRESENCE.MainDepthTransport.GetNewFrame(out NewFrame); // Retrieve uncompressed frame data.
@@ -170,13 +180,28 @@ namespace Presence
                     if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT)
                     {
 
-                        // put head rotation
+                        // We don't have a setup task, so we'll just respond to what's going on.
+
+                        if (PRESENCE.MainDepthTransport==null)
+                            PRESENCE.MainDepthTransport = new DepthTransport();
+                        
+                        string TransCoder;
+
+                        if (task.getStringValue("transcoder",out TransCoder)) {
+                            PRESENCE.MainDepthTransport.SetTranscoder(TransCoder);
+                            Debug.LogWarning( TransCoder);
+                        }
+                        
+                        // Recreate depth info
+
                         UncompressedFrame NewFrame;
 
                         int NewFrameNumber;
                         task.getIntValue("framenumber", out NewFrameNumber);
 
                         PRESENCE.MainDepthTransport.Decode(NewFrameNumber, out NewFrame, task);
+
+                        // put head orientation 
 
                         NewFrame.HeadOrientation = headSet.transform.rotation;
                         task.setQuaternionValue("headrotation", NewFrame.HeadOrientation);
