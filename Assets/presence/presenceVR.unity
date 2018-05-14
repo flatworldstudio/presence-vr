@@ -8190,6 +8190,7 @@ MonoBehaviour:
   previewImage: {fileID: 0}
   FPS: {fileID: 618082429}
   dataController: {fileID: 861919368}
+  headSet: {fileID: 103973864}
 --- !u!4 &849450656
 Transform:
   m_ObjectHideFlags: 0
@@ -8481,6 +8482,9 @@ MonoBehaviour:
   signalSound: {fileID: 1124376226}
   AutoCallibrateObject: {fileID: 1046810591}
   CalibrationScript: {fileID: 1046810593}
+  Davinci: {fileID: 0}
+  NewFile: {fileID: 0}
+  fileNameInput: {fileID: 0}
   userMessager: {fileID: 1634575136}
 --- !u!4 &1012313925
 Transform:

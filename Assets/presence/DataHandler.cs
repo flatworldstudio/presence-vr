@@ -182,15 +182,17 @@ namespace Presence
 
                         // We don't have a setup task, so we'll just respond to what's going on.
 
-                        if (PRESENCE.MainDepthTransport==null)
+                        if (PRESENCE.MainDepthTransport==null){
                             PRESENCE.MainDepthTransport = new DepthTransport();
-                        
-                        string TransCoder;
 
-                        if (task.getStringValue("transcoder",out TransCoder)) {
-                            PRESENCE.MainDepthTransport.SetTranscoder(TransCoder);
-                            Debug.LogWarning( TransCoder);
+                            string TransCoder;
+
+                            if (task.getStringValue("transcoder",out TransCoder)) {
+                                PRESENCE.MainDepthTransport.SetTranscoder(TransCoder);
+                            }
                         }
+                        
+                       
                         
                         // Recreate depth info
 

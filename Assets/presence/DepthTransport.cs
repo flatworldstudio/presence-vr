@@ -286,6 +286,7 @@ namespace Presence
 
             }
 
+            NewFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] = new Vector3(hx , PRESENCE.kinectHeight*1.25f, hz);
 
             NewFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] = new Vector3(hx - 0.5f, PRESENCE.kinectHeight / 2, hz);
             NewFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] = new Vector3(hx + 0.5f, PRESENCE.kinectHeight / 2, hz);
