@@ -107,6 +107,16 @@ namespace Presence
         public ushort[] RawDepth;
         public Quaternion HeadOrientation;
 
+
+        public UncompressedFrame(){
+
+            Joints= new Vector3[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
+
+            Tracked= new bool[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
+
+
+        }
+
         public int Width
         {
             get
