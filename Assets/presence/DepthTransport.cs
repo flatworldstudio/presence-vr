@@ -43,24 +43,6 @@ namespace Presence
         */
 
 
-    [System.Serializable]
-    public struct PRESENCEFRAME
-    {
-
-        public POINT[] SKELETON;
-        public bool[] Tracked;
-
-
-    }
-
-
-    public struct POINT
-    {
-
-        public float x, y, z;
-
-    }
-
 
 
 
@@ -78,62 +60,83 @@ namespace Presence
     }
 
 
-    public static class DepthTransport
+
+
+    public class DepthTransport
     {
 
-        // transport raw depth from kinect or file
-        // encode/decode raw depth for streaming
+        // transports depth data from kinect or file
 
+        string me = "Depthtransport: ";
 
-        static string me = "Depthtransport: ";
+        int[] DEPTHMAPSIZE = { 0, 640 * 480, 320 * 240, 0, 160, 120 };
 
-        // KINECT INFO
+        int CurrentFrame = 0;
 
-        static public int Min, Max;
+      public  iTransCoder TransCoder;
+        public bool IsRecording = false;
 
-      //  static public bool centered = true;
+        public UncompressedFrame ActiveUncompressedFrame;
 
-        static public GameObject kinectObject;
-   //     static public Vector3 kinectPosition;
-    //    static public Quaternion kinectRotation;
+        //  public int Min, Max;
 
-        static public bool live = false;
+        //  public GameObject kinectObject;
 
-        static public int Width, Height; // W & H for raw depth.
+        //  public bool live = false;
 
-        static public RawDepthSequence depthSequence;
+        //    public int DepthWidth, DepthHeight; // W & H for raw depth.
+
+        //    public RawDepthSequence depthSequence;
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
-    static public GameObject km;
+        //   public GameObject km;
 
-
+        static public DepthTransport OwnsKinect;
 
 #endif
 
         //   static public KinectManager kinectManager;
 
 
+        //   public static iTransCoder[] TransCoders;
+
+        public void SetTranscoder (string name)
+        {
+           
+               
+                switch (name)
+                {
+                    case "SkeletonOnly":
+                        TransCoder = new SkeletonOnly();
+                    break;
+                    default:
+                      break;
+                }
+
+            }
+
+           
+
+
+
+        
+
+
 
         // static public int DepthMin, DepthMax;
-        static private DEPTHMODE __mode = DEPTHMODE.OFF;
+        private DEPTHMODE __mode = DEPTHMODE.OFF;
 
-        static public DEPTHMODE Mode
+        public DEPTHMODE Mode
         {
-
             get
             {
-
                 return __mode;
-
             }
             set
             {
 
                 __mode = value;
-
-
-                //depthMode = mode;
 
                 switch (__mode)
                 {
@@ -141,66 +144,66 @@ namespace Presence
                     case DEPTHMODE.LIVE:
                     case DEPTHMODE.RECORD:
 
+                        // Any instance can be 'live', which means it'll be working with live buffer data.
+                        // On windows, the first instance to go live will assume control over the kinect.
+
+                        __mode = DEPTHMODE.LIVE;
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
-                        // Making a coroutine would prevent blocking...
+                        // On server / windows we try to fire up the kinect.
+                        // Making a coroutine would prevent blocking...?
 
-                    if (!KinectManager.Instance.IsInitialized())
-
-                    {
-                        Debug.Log(me + "Waking up Kinectmanager.");
-
-                        KinectManager.Instance.WakeUp();
-
-                        if (KinectManager.Instance.IsInitialized())
-                        {
-                            Debug.Log(me + "Kinectmanager initialised.");
-                            Height = KinectManager.Instance.getUserDepthHeight();
-                            Width = KinectManager.Instance.getUserDepthWidth();
-
-                               
-
-
-                        }
-                        else
+                        if (DepthTransport.OwnsKinect == null)
                         {
 
-                            Debug.LogWarning(me + "Kinectmanager not initialised.");
+                            if (!KinectManager.Instance.IsInitialized())
 
-                        __mode = DEPTHMODE.OFF;
+                            {
+                                Debug.Log(me + "Waking up Kinectmanager.");
+
+                                KinectManager.Instance.WakeUp();
+
+                                if (KinectManager.Instance.IsInitialized() && KinectManager.Instance.getUserDepthWidth() == 640 && KinectManager.Instance.getUserDepthHeight() == 480)
+                                {
+                                    Debug.Log(me + "Kinectmanager initialised and at 640 x 480.");
+
+                                    DepthTransport.OwnsKinect = this;
+
+                                }
+                                else
+                                {
+
+                                    Debug.LogError(me + "Kinectmanager not initialised or not at 640 480.");
+
+                                }
+
+                            }
 
                         }
 
-                    }
-
-#else
-                        // On os x we keep it off.
-
-                        __mode = DEPTHMODE.OFF;
-
-                        #endif
-
+#endif
                         break;
-
 
                     case DEPTHMODE.PLAYBACK:
                     case DEPTHMODE.OFF:
 
-                        Height = 480;
-                        Width = 640;
+                        __mode = DEPTHMODE.OFF;
+
+                        //      DepthHeight = 480;
+                        //    DepthWidth = 640;
 
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
-                    if (KinectManager.Instance.IsInitialized())
-                    {
+                        if (KinectManager.Instance.IsInitialized())
+                        {
 
-                        KinectManager.Instance.shutDown();
+                            KinectManager.Instance.shutDown();
 
-                        Debug.Log(me + "Shutting down Kinectmanager.");
+                            Debug.Log(me + "Shutting down Kinectmanager.");
 
-                    }
+                        }
 
 #endif
 
@@ -221,15 +224,93 @@ namespace Presence
 
 
 
+        // Check if a user has been detected.
 
-
-        public static bool IsUserDetected()
+        public bool IsUserDetected()
         {
-            return (__mode == DEPTHMODE.LIVE || __mode == DEPTHMODE.RECORD) ? KinectManager.Instance.IsUserDetected() : false;
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+
+            return (KinectManager.Instance.IsInitialized() ? KinectManager.Instance.IsUserDetected() : false);
+
+#else
+            return false;
+#endif
+            //      return (__mode == DEPTHMODE.LIVE || __mode == DEPTHMODE.RECORD) ? KinectManager.Instance.IsUserDetected() : false;
         }
 
-             
-        public static Vector3 getPosition()
+        // Retrieve the latest uncompressed frame.
+
+        public int GetNewFrame(out UncompressedFrame Frame)
+        {
+
+            // Get new frame can only be called on the instance that owns the kinect. 
+
+            UncompressedFrame NewFrame = new UncompressedFrame();
+
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+
+            if (OwnsKinect == this && KinectManager.Instance.IsInitialized())
+            {
+                CurrentFrame++;
+
+                NewFrame.RawDepth = GetRawDepthMap();
+                getSkeleton(ref NewFrame);
+
+                Frame = NewFrame;
+
+                return CurrentFrame;
+            }
+
+
+
+#endif
+            // For debugging we generate skeletondata.
+
+
+            CurrentFrame++;
+            
+            float hx = 6f * Mathf.PerlinNoise(0.1f * Time.time, 0);
+            float hz = 6f * Mathf.PerlinNoise(0, 0.1f * Time.time);
+
+            NewFrame.Body = new Vector3(hx, PRESENCE.kinectHeight, hz);
+
+            NewFrame.Joints = new Vector3[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
+            NewFrame.Tracked = new bool[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
+
+
+          for (int j=0;j< NewFrame.Joints.Length; j++)
+            {
+                NewFrame.Joints[j] = Vector3.zero;
+                NewFrame.Tracked[j] = false;
+
+            }
+
+
+            NewFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] = new Vector3(hx - 0.5f, PRESENCE.kinectHeight / 2, hz);
+            NewFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] = new Vector3(hx + 0.5f, PRESENCE.kinectHeight / 2, hz);
+
+            Frame = NewFrame;
+            return CurrentFrame;
+
+
+
+        }
+
+        public bool Encode (int NewFrameNumber,UncompressedFrame NewFrame, StoryEngine.StoryTask task)
+        {
+
+
+            return TransCoder.PutFrame(NewFrameNumber, NewFrame, task, IsRecording);
+        }
+
+        public bool Decode (int NewFrameNumber, out UncompressedFrame NewFrame, StoryEngine.StoryTask task)
+        {
+            
+            return TransCoder.GetFrame(NewFrameNumber, out NewFrame, task);
+        }
+
+
+        public Vector3 getPosition()
 
         {
 
@@ -242,7 +323,7 @@ namespace Presence
 
                 uint playerID = KinectManager.Instance != null ? KinectManager.Instance.GetPlayer1ID() : 0;
 
-             //   Debug.Log(playerID);
+                //   Debug.Log(playerID);
 
 
                 if (playerID >= 0)
@@ -256,10 +337,10 @@ namespace Presence
                     position.x = MirroredMovement ? -position.x : position.x;
                     position.y += PRESENCE.kinectHeight;
 
-                //    if (MirroredMovement)
-                 //   {
-                 //       position.x = -position.x;
-                 //   }
+                    //    if (MirroredMovement)
+                    //   {
+                    //       position.x = -position.x;
+                    //   }
 
 
 
@@ -273,18 +354,69 @@ namespace Presence
 
         }
 
-        public static Vector3 getJoint(int joint)
+        //        public Vector3 getJoint(int joint)
+        //        {
+
+        //            Vector3 posJoint = Vector3.zero;
+
+        //            if (__mode == DEPTHMODE.LIVE || __mode == DEPTHMODE.RECORD)
+
+        //            {
+
+
+        //#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+
+        //                uint playerID = KinectManager.Instance != null ? KinectManager.Instance.GetPlayer1ID() : 0;
+
+        //                if (playerID >= 0)
+        //                {
+
+        //                    bool MirroredMovement = true;
+
+        //                    posJoint = KinectManager.Instance.GetJointPosition(playerID, joint);
+
+        //                    posJoint.z = !MirroredMovement ? -posJoint.z : posJoint.z;
+        //                    posJoint.x = MirroredMovement ? -posJoint.x : posJoint.x;
+        //                    posJoint.y += PRESENCE.kinectHeight;
+
+        //                    ///     if (MirroredMovement)
+        //                    //    {
+        //                    //      posJoint.x = -posJoint.x;
+        //                    //}
+
+
+
+        //                }
+        //                else
+        //                {
+
+        //                    // playerid is 0 : no player.
+
+        //                    //  Debug.Log("playerid is 0");
+        //                }
+
+        //#endif
+
+
+        //            }
+
+
+
+        //            return posJoint;
+
+        //        }
+
+        Vector3 getJoint(int joint)
         {
 
             Vector3 posJoint = Vector3.zero;
-            
-            if (__mode == DEPTHMODE.LIVE || __mode==DEPTHMODE.RECORD)
 
-            {
-                
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-                
+
+            if (OwnsKinect == this && KinectManager.Instance.IsInitialized())
+            {
+
                 uint playerID = KinectManager.Instance != null ? KinectManager.Instance.GetPlayer1ID() : 0;
 
                 if (playerID >= 0)
@@ -298,40 +430,80 @@ namespace Presence
                     posJoint.x = MirroredMovement ? -posJoint.x : posJoint.x;
                     posJoint.y += PRESENCE.kinectHeight;
 
-               ///     if (MirroredMovement)
-                //    {
-                  //      posJoint.x = -posJoint.x;
-                    //}
-                    
-                   
-                    
                 }
                 else
                 {
 
-                  // playerid is 0 : no player.
+                    // playerid is 0 : no player.
 
-                  //  Debug.Log("playerid is 0");
+                    //  Debug.Log("playerid is 0");
                 }
-
+            }
 #endif
 
-
-            }
             
-
-
             return posJoint;
 
         }
 
+        void getSkeleton(ref UncompressedFrame Frame)
+        {
+            
+            // Retrieves skeleton data from kinect if possible. Works by reference, so data will only be changed if possible.
+
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+            
+
+            if (OwnsKinect == this && KinectManager.Instance.IsInitialized())
+            {
+
+            
+
+                uint playerID = KinectManager.Instance != null ? KinectManager.Instance.GetPlayer1ID() : 0;
+
+                if (playerID >= 0)
+                {
+                    Frame.Joints = new Vector3[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
+                    Frame.Tracked = new bool[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
+
+                    bool MirroredMovement = true;
+
+                    for (int joint = 0; joint < Frame.Joints.Length; joint++)
+                    {
+
+                        if ( KinectManager.Instance.IsJointTracked(playerID, joint))
+                        {
+
+                            Frame.Tracked[joint] = true;
+                            Frame.Joints[joint] = KinectManager.Instance.GetJointPosition(playerID, joint);
+
+                            Frame.Joints[joint].z = !MirroredMovement ? -Frame.Joints[joint].z : Frame.Joints[joint].z;
+                            Frame.Joints[joint].x = MirroredMovement ? -Frame.Joints[joint].x : Frame.Joints[joint].x;
+                            Frame.Joints[joint].y += PRESENCE.kinectHeight;
+
+                        }
+                        else
+                        {
+                            Frame.Tracked[joint] = false;
+                                                   }
 
 
-        static public RovingValue DepthMin, DepthMax;
+                    }
+
+                }
+               
+            }
+#endif
+
+           
+        }
+
+
+        public RovingValue DepthMin, DepthMax;
 
         //public void 
 
-        public static void ApplyEdge(ushort[] depthMap, Texture2D texture, int min, int max)
+        public void ApplyEdge(ushort[] depthMap, Texture2D texture, int min, int max)
         {
 
             // should be same size.
@@ -394,97 +566,110 @@ namespace Presence
         }
 
 
-        public static ushort[] GetRawDepthMap()
+        ushort[] GetRawDepthMap()
         {
 
             // Get raw depth map, so depth plus user map in a ushort[]
 
-            switch (Mode)
-            {
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
-                case DEPTHMODE.LIVE:
-
-                    if (KinectManager.Instance.IsInitialized())
-                    {
-
-                        return KinectManager.Instance.GetRawDepthMap();
-
-                    }
-                    else
-                    {
-
-                        return new ushort[Width * Height];
-
-                    }
-
-                case DEPTHMODE.RECORD:
-
-                    if (depthSequence == null)
-                    {
-                        depthSequence = new RawDepthSequence();
-                    }
-
-                    ushort[] data;
-
-                    if (KinectManager.Instance.IsInitialized())
-                    {
-
-                        data = KinectManager.Instance.GetRawDepthMap();
-
-                    }
-                    else
-                    {
-
-                        data = new ushort[Width * Height];
-
-                    }
-
-                    depthSequence.Put(data);
-
-                    return data;
+            if (KinectManager.Instance.IsInitialized())
+                return KinectManager.Instance.GetRawDepthMap();
 
 
-                case DEPTHMODE.PLAYBACK:
-
-                    if (depthSequence == null)
-                    {
-                        depthSequence = new RawDepthSequence();
-                        depthSequence.LoadFrom("depthCapture");
-                    }
-
-                    return depthSequence.GetNext();
+#endif
 
 
-                case DEPTHMODE.OFF:
-                default:
-
-                    return new ushort[Width * Height];
-
-            }
-
-
-
-
-            //if (IsLive())
-            //{
-
-            //    return KinectManager.Instance.GetRawDepthMap();
-
-            //}
-
-
-
-
-
-
+            return new ushort[DEPTHMAPSIZE[0]];
         }
+
+
+        //switch (Mode)
+        //{
+
+        //    case DEPTHMODE.LIVE:
+
+        //        if (KinectManager.Instance.IsInitialized())
+        //        {
+
+        //            return KinectManager.Instance.GetRawDepthMap();
+
+        //        }
+        //        else
+        //        {
+
+        //            return new ushort[DEPTHMAPSIZE[0]);
+
+        //        }
+
+        //    case DEPTHMODE.RECORD:
+
+        //        if (depthSequence == null)
+        //        {
+        //            depthSequence = new RawDepthSequence();
+        //        }
+
+        //        ushort[] data;
+
+        //        if (KinectManager.Instance.IsInitialized())
+        //        {
+
+        //            data = KinectManager.Instance.GetRawDepthMap();
+
+        //        }
+        //        else
+        //        {
+
+        //            data = new ushort[DepthWidth * DepthHeight];
+
+        //        }
+
+        //        depthSequence.Put(data);
+
+        //        return data;
+
+
+        //    case DEPTHMODE.PLAYBACK:
+
+        //        if (depthSequence == null)
+        //        {
+        //            depthSequence = new RawDepthSequence();
+        //            depthSequence.LoadFrom("depthCapture");
+        //        }
+
+        //        return depthSequence.GetNext();
+
+
+        //    case DEPTHMODE.OFF:
+        //    default:
+
+        //        return new ushort[DepthWidth * DepthHeight];
+
+        //}
+
+
+
+
+        //if (IsLive())
+        //{
+
+        //    return KinectManager.Instance.GetRawDepthMap();
+
+        //}
+
+
+
+
+
+
+
 
 
 
         //static Texture2D DepthTexture;
 
-
-        public static ushort[] TextureToRawDepth(Texture2D Texture, int min, int max)
+            /*
+        public ushort[] TextureToRawDepth(Texture2D Texture, int min, int max)
         {
 
 
@@ -544,7 +729,7 @@ namespace Presence
         }
 
 
-        public static ushort[] TextureToRawDepthV3(Texture2D Texture)
+        public ushort[] TextureToRawDepthV3(Texture2D Texture)
         {
 
 
@@ -614,7 +799,7 @@ namespace Presence
         }
 
 
-        public static ushort[] TextureToRawDepthV2(Texture2D Texture)
+        public ushort[] TextureToRawDepthV2(Texture2D Texture)
         {
 
 
@@ -667,7 +852,7 @@ namespace Presence
 
 
         }
-        public static ushort[] TextureToRawDepthV1(Texture2D Texture)
+        public ushort[] TextureToRawDepthV1(Texture2D Texture)
         {
 
 
@@ -726,7 +911,7 @@ namespace Presence
 
 
 
-        public static Texture2D RawDepthToTexture(ushort[] RawDepth, Texture2D Texture)
+        public Texture2D RawDepthToTexture(ushort[] RawDepth, Texture2D Texture)
         {
 
 
@@ -735,7 +920,7 @@ namespace Presence
 
             if (Texture == null)
             {
-                Texture = new Texture2D(Width, Height);
+                Texture = new Texture2D(DepthWidth, DepthHeight);
             }
 
 
@@ -806,55 +991,55 @@ namespace Presence
                 }
                 else
                 {
-                    /*
-                    int x = i & Width;
-                    int y = i / Width;
+                    
+                    //int x = i & Width;
+                    //int y = i / Width;
 
-                    int t = 0;
-                    int w = 0;
+                    //int t = 0;
+                    //int w = 0;
 
-                    if (x > 0 && UserChannel[i - 1] != 0)
-                    {
-                        t += DepthChannel[i - 1];
-                        w++;
-                    }
-                    if (y > 0 && UserChannel[i - Width] != 0)
-                    {
-                        t += DepthChannel[i - Width];
-                        w++;
-                    }
-                    if (x < Width - 1 && UserChannel[i + 1] != 0)
-                    {
-                        t += DepthChannel[i + 1];
-                        w++;
-                    }
-                    if (y < Height - 1 && UserChannel[i + Width] != 0)
-                    {
-                        t += DepthChannel[i + Width];
-                        w++;
-                    }
+                    //if (x > 0 && UserChannel[i - 1] != 0)
+                    //{
+                    //    t += DepthChannel[i - 1];
+                    //    w++;
+                    //}
+                    //if (y > 0 && UserChannel[i - Width] != 0)
+                    //{
+                    //    t += DepthChannel[i - Width];
+                    //    w++;
+                    //}
+                    //if (x < Width - 1 && UserChannel[i + 1] != 0)
+                    //{
+                    //    t += DepthChannel[i + 1];
+                    //    w++;
+                    //}
+                    //if (y < Height - 1 && UserChannel[i + Width] != 0)
+                    //{
+                    //    t += DepthChannel[i + Width];
+                    //    w++;
+                    //}
 
-                    if (w > 0)
-                    {
+                    //if (w > 0)
+                    //{
 
-                        float cud = t / w;
-                        float value = (float)(cud - min) / (float)(max - min);
+                    //    float cud = t / w;
+                    //    float value = (float)(cud - min) / (float)(max - min);
 
-                        Color col = new Color(0, value, 0);
+                    //    Color col = new Color(0, value, 0);
 
-                        ImageMap[i] = col;
-
-
-
-                    }
-                    else
-                    {
-
-                        ImageMap[i] = Color.black;
+                    //    ImageMap[i] = col;
 
 
-                    }
-                    */
+
+                    //}
+                    //else
+                    //{
+
+                    //    ImageMap[i] = Color.black;
+
+
+                    //}
+                    
 
 
                     ImageMap[i] = Color.black;
@@ -1107,7 +1292,7 @@ namespace Presence
             if (state)
             {
 
-    #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
                 // km = GameObject.Find("KinectManager");
                 // kinectManager = km.GetComponent<KinectManager>();
@@ -1133,13 +1318,13 @@ namespace Presence
                     Debug.LogWarning(me + "Kinectmanager not initialised.");
                 }
 
-    #endif
+#endif
 
             }
             else
             {
 
-    #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
                 //       km = GameObject.Find("KinectManager");
                 //     kinectManager = km.GetComponent<KinectManager>();
@@ -1150,7 +1335,7 @@ namespace Presence
 
                 Debug.Log(me + "Shutting down Kinectmanager.");
 
-    #endif
+#endif
 
             }
 
@@ -1165,17 +1350,17 @@ namespace Presence
 
             live = false;
 
-    #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
             live = KinectManager.Instance != null ? KinectManager.Instance.IsInitialized() : false;
 
-    #else
+#else
 
 
             Debug.LogError(me + "Unable to run live kinect on non windows platform.");
 
 
-    #endif
+#endif
 
             return live;
 
@@ -1189,7 +1374,7 @@ namespace Presence
 
         }
     */
-      
+
 
 
 

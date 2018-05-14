@@ -208,7 +208,7 @@ namespace Presence
                 case "recorddepth":
                 case "playdepth":
 
-                    ComputeParticles(DepthTransport.GetRawDepthMap(), DepthTransport.Width, DepthTransport.Height, 2, new Vector3(0, PRESENCE.kinectHeight, 0), clouds[0]);
+                //    ComputeParticles(PRESENCE.MainDepthTransport.GetRawDepthMap(), PRESENCE.MainDepthTransport.DepthWidth, PRESENCE.MainDepthTransport.DepthHeight, 2, new Vector3(0, PRESENCE.kinectHeight, 0), clouds[0]);
 
                     break;
 
@@ -217,7 +217,7 @@ namespace Presence
                     ushort[] depth;
                     if (task.getUshortValue("depth", out depth))
                     {
-                        ComputeParticles(depth, DepthTransport.Width, DepthTransport.Height, 2, new Vector3(0, PRESENCE.kinectHeight, 0), clouds[0]);
+           //             ComputeParticles(depth, PRESENCE.MainDepthTransport.DepthWidth, PRESENCE.MainDepthTransport.DepthHeight, 2, new Vector3(0, PRESENCE.kinectHeight, 0), clouds[0]);
                     }
                     break;
 
@@ -365,7 +365,7 @@ namespace Presence
                     //if (DepthTransport.IsLive())
                     //{
 
-                    ComputeParticles(DepthTransport.GetRawDepthMap(), DepthTransport.Width, DepthTransport.Height, 2, new Vector3(0, PRESENCE.kinectHeight, 0), clouds[0]);
+           //         ComputeParticles(PRESENCE.MainDepthTransport.GetRawDepthMap(), PRESENCE.MainDepthTransport.DepthWidth, PRESENCE.MainDepthTransport.DepthHeight, 2, new Vector3(0, PRESENCE.kinectHeight, 0), clouds[0]);
 
                     //     Debug.Log("type " + PreviewImage.texture.GetType().ToString());
 
@@ -421,7 +421,7 @@ namespace Presence
                             int DepthHeight = StreamSDK.instance.height;
 
 
-                            ComputeParticles(DepthTransport.TextureToRawDepth((Texture2D)PreviewImage.texture, min, max), DepthWidth, DepthHeight, 1, new Vector3(0, PRESENCE.kinectHeight, 0), clouds[1]);
+            //                ComputeParticles(PRESENCE.MainDepthTransport.TextureToRawDepth((Texture2D)PreviewImage.texture, min, max), DepthWidth, DepthHeight, 1, new Vector3(0, PRESENCE.kinectHeight, 0), clouds[1]);
 
 
                         }
@@ -435,7 +435,7 @@ namespace Presence
 
                     break;
 
-
+                    /*
                 case "cloudstream":
 
 
@@ -467,8 +467,8 @@ namespace Presence
 
 					sample = 8;
 
-					width = DepthTransport.Width;
-					height = DepthTransport.Height;
+					width = DepthTransport.OwnsKinect.DepthWidth;
+					height = DepthTransport.OwnsKinect.DepthHeight;
 					dataSize = (height / sample) * (width / sample);
 
 
@@ -482,7 +482,7 @@ namespace Presence
 
 				serverFrameStamp = Time.time;
 
-				depthMap = DepthTransport.GetRawDepthMap ();
+				depthMap = DepthTransport.OwnsKinect.GetRawDepthMap ();
 
 				particleIndex = 0;
 
@@ -926,7 +926,7 @@ namespace Presence
 
                     break;
 
-
+                */
 
                 case "addkinectnull":
 

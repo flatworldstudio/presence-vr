@@ -23,6 +23,9 @@ namespace Presence
         //	public static GameObject kinectObject;
         public static DEVICEMODE deviceMode;
 
+        public static DepthTransport MainDepthTransport;
+
+
 
         public static float north = 0;
 

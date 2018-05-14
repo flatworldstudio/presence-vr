@@ -251,10 +251,10 @@ namespace Presence
                 case "waitforuser":
 
 
-                    if (DepthTransport.Mode == DEPTHMODE.LIVE)
+                    if (DepthTransport.OwnsKinect!=null && DepthTransport.OwnsKinect.Mode == DEPTHMODE.LIVE)
                     {
 
-                        if (DepthTransport.IsUserDetected())
+                        if (DepthTransport.OwnsKinect.IsUserDetected())
                         {
                             userMessager.ShowTextMessage("User detected", 3);
                             done = true;
@@ -327,21 +327,44 @@ namespace Presence
 
                 case "userstream":
 
+                    UncompressedFrame ShowFrame = PRESENCE.MainDepthTransport.ActiveUncompressedFrame;
+
+                    if (ShowFrame != null && ShowFrame.Joints != null)
+                    {
+                        viewerObject.transform.parent.transform.position = ShowFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head];
+
+                        handl.transform.position = ShowFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft];
+                        handr.transform.position = ShowFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight];
+
+                        body.transform.position = ShowFrame.Body;
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Trying to display an empty frame.");
+                    }
+
+
+
+                    break;
+
+                    /*
+                case "userstream":
+
                     if (PRESENCE.deviceMode == DEVICEMODE.SERVER)
                     {
 
                         // get head and hands position.
 
-                        if (DepthTransport.Mode == DEPTHMODE.LIVE)
+                        if (DepthTransport.OwnsKinect != null && DepthTransport.OwnsKinect.Mode == DEPTHMODE.LIVE)
                         {
 
 
-                            viewerObject.transform.parent.transform.position = DepthTransport.getJoint(3); // head
+                            viewerObject.transform.parent.transform.position = DepthTransport.OwnsKinect.getJoint(3); // head
 
-                            handl.transform.position = DepthTransport.getJoint(7);
-                            handr.transform.position = DepthTransport.getJoint(11);
+                            handl.transform.position = DepthTransport.OwnsKinect.getJoint(7);
+                            handr.transform.position = DepthTransport.OwnsKinect.getJoint(11);
 
-                            body.transform.position = DepthTransport.getPosition();
+                            body.transform.position = DepthTransport.OwnsKinect.getPosition();
 
                             // hacking
 
@@ -418,7 +441,7 @@ namespace Presence
                     }
 
                     break;
-
+                    */
 
                 case "makefoldermenu":
 
@@ -434,8 +457,8 @@ namespace Presence
 
                     PFolder[] folders = IO.GetLocalFolders();
 
-                    if (folders.Length > 0)
-                        IO.CheckedOutFolder = folders[0].LocalPath;
+                //    if (folders.Length > 0)
+                  //      IO.CheckedOutFolder = folders[0].LocalPath;
 
                     for (int i = 0; i < 4; i++)
                     {
@@ -461,8 +484,15 @@ namespace Presence
 
                     }
 
+                    // Now hide it
 
-                    done = true;
+                    UiButton target;
+                    if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
+                    {
+                        uxController.setSpringTarget(target, 2);
+                    }
+
+                        done = true;
                     break;
 
                 case "makefilemenu":
@@ -573,14 +603,13 @@ namespace Presence
                     control.callback = "togglebrowser";
                     serverInterface.addButton(control);
 
-                    control = new UiButton("echo", menu, constraint);
-                    control.callback = "startecho";
+                    control = new UiButton("newfolder", menu, constraint);
+                    control.callback = "newfolder";
                     serverInterface.addButton(control);
 
-                    control = new UiButton("confirm", menu, constraint);
-                    control.callback = "newfileconfirm";
+                    control = new UiButton("record", menu, constraint);
+                    control.callback = "beginrecording";
                     serverInterface.addButton(control);
-
 
                     done = true;
 
@@ -624,20 +653,21 @@ namespace Presence
 
                 case "togglebrowser":
 
-                    UiButton target;
+                //    UiButton target;
                     if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
                     {
+                        uxController.setSpringTarget(target, 1);
 
-                        if (target.gameObject.GetComponent<RectTransform>().position.x > Screen.width-250-10)
-                        {
+                        //if (target.gameObject.GetComponent<RectTransform>().position.x > Screen.width-250-10)
+                        //{
 
-                            uxController.setSpringTarget(target, 1);
+                        //    uxController.setSpringTarget(target, 1);
 
-                        }
-                        else
-                        {
-                            uxController.setSpringTarget(target, 2);
-                        }
+                        //}
+                        //else
+                        //{
+                        //    uxController.setSpringTarget(target, 2);
+                        //}
 
                     }
 
@@ -674,27 +704,71 @@ namespace Presence
                     break;
 
 
-                case "newfile":
+                case "makenewfile":
 
-                    NewFile.transform.localScale = Vector3.one;
+                                        string firstrun;
 
-                    done = true;
+                    if (!task.getStringValue("firstrun", out firstrun))
+                    {
+
+                        task.setStringValue("firstrun", "done");
+
+                        NewFile.transform.localScale = Vector3.one;
+                        fileNameInput.onEndEdit.RemoveAllListeners();
+                        fileNameInput.onEndEdit.AddListener((name) => {
+                            IO.MakeNewFile(name);
+                            NewFile.transform.localScale = Vector3.zero;
+                            if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
+                                uxController.setSpringTarget(target, 0);
+                            task.ForceComplete(); });
+
+                        // We pass a callback function that will complete the task when called. So we keep the task open here.
+
+                    }
+                    
+                 
+                    break;
+
+                case "makenewfolder":
+
+                    //  NewFile.transform.localScale = Vector3.one;
+                           
+
+                    if (!task.getStringValue("firstrun", out firstrun))
+                    {
+                        task.setStringValue("firstrun", "done");
+
+                        NewFile.transform.localScale = Vector3.one;
+                        fileNameInput.onEndEdit.RemoveAllListeners();
+                        fileNameInput.onEndEdit.AddListener((name) => {
+                            IO.MakeNewFolder(name);
+                            NewFile.transform.localScale = Vector3.zero;
+                            if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
+                                uxController.setSpringTarget(target, 0);
+                            task.ForceComplete(); });
+                    }
+
+
+                  //  done = true;
 
                     break;
 
-                case "newfileconfirm":
+                //case "newfileconfirm":
 
-                    NewFile.transform.localScale = Vector3.zero;
+                //    NewFile.transform.localScale = Vector3.zero;
+                //    fileNameInput.onEndEdit.RemoveAllListeners();
+                ////    fileNameInput.onEndEdit.AddListener(SetNewFile);
 
-                    //string name = fileNameInput.text != "" ? fileNameInput.text : "_default";
 
-                    IO.checkedOutFile = IO.CheckedOutFolder + "/" + (fileNameInput.text != "" ? fileNameInput.text : "_default");
+                //    //string name = fileNameInput.text != "" ? fileNameInput.text : "_default";
 
-                    Debug.Log("new file " + IO.checkedOutFile);
+                //    IO.checkedOutFile = IO.CheckedOutFolder + "/" + (fileNameInput.text != "" ? fileNameInput.text : "_default");
 
-                    done = true;
+                //    Debug.Log("new file " + IO.checkedOutFile);
 
-                    break;
+                //    done = true;
+
+                //    break;
 
                 case "createviewvr":
 
@@ -1314,7 +1388,7 @@ namespace Presence
                     if (PRESENCE.isOverview)
                     {
 
-                        if (DepthTransport.Mode == DEPTHMODE.LIVE)
+                        if (DepthTransport.OwnsKinect!=null  && DepthTransport.OwnsKinect.Mode == DEPTHMODE.LIVE)
                         {
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN

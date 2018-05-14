@@ -64,12 +64,16 @@ setfile
 end
 
 #newfile
-newfile
+makenewfile
+makefilemenu
 end
 
-#newfileconfirm
-newfileconfirm
+#newfolder
+makenewfolder
+makefoldermenu
+makefilemenu
 end
+
 
 // Main story
 
@@ -83,6 +87,8 @@ alignset
 addkinectnull
 addviewernulls
 makeservercontrols
+makefoldermenu
+makefilemenu
 //createclouds
 start servercontrols
 start moodlight
@@ -138,8 +144,16 @@ end
 #stoppresence
 depthoff
 moodoff
+stop startpresence
 stop userstreaming
 stop clientcalibration
+end
+
+// 
+
+#beginrecording
+record
+makefilemenu
 end
 
 // GENERAL STORIES
@@ -171,7 +185,7 @@ depthplayback
 depthcompress
 end
 
-#record
+//#record
 debugon
 amserver
 createsinglecloud

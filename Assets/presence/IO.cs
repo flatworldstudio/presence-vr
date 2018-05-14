@@ -313,10 +313,57 @@ namespace Presence
         static string depthCaptureFile = "/savedDepthCaptures.pdc";
         public static int depthIndex = -1;
 
-        public static string localStorageFolder;
-        static string _checkedOutFolder;
+        public static string localStorageFolder="";
+        static string _checkedOutFolder="";
 
-           public static string checkedOutFile;
+           public static string checkedOutFile="";
+
+
+
+
+        public static void SetCheckedOutFile (string name)
+        {
+            
+            checkedOutFile =CheckedOutFolder + "/" + (name != "" ? name : "_default");
+          
+
+        }
+        public static string MakeDefaultFile()
+        {
+
+            CheckedOutFolder = localStorageFolder + "/_default"; 
+
+            if (!Directory.Exists(CheckedOutFolder))
+                Directory.CreateDirectory(CheckedOutFolder);
+
+                  
+          
+          
+            SetCheckedOutFile("_default");
+
+            return checkedOutFile;
+
+        }
+        public static void MakeNewFile(string name)
+        {
+
+            SetCheckedOutFile(name);
+            SaveCheckedOutFileAsPlaceholder();
+
+        }
+
+        public static void MakeNewFolder(string folder)
+        {
+
+            folder = localStorageFolder + "/" + folder;
+
+                Directory.CreateDirectory(folder);
+
+            CheckedOutFolder = folder;
+
+        }
+
+
 
         public static string CheckedOutFolder
         {
@@ -531,7 +578,31 @@ namespace Presence
         }
 
 
+        public static void SaveCheckedOutFileAsPlaceholder()
+        {
 
+            BinaryFormatter bf = new BinaryFormatter();
+
+            FileStream file = File.Create(checkedOutFile);
+
+            bf.Serialize(file,"Presence placeholder file.");
+
+            file.Close();
+
+        }
+
+        public static void SaveToCheckedOutFile(FileformatBase presenceFile)
+        {
+
+            BinaryFormatter bf = new BinaryFormatter();
+
+            FileStream file = File.Create(checkedOutFile);
+
+            bf.Serialize(file, presenceFile);
+
+            file.Close();
+
+        }
 
         public static void SaveDepthCaptures()
         {
