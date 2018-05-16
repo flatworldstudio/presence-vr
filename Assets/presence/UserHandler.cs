@@ -282,7 +282,7 @@ namespace PresenceEngine
                 case "sessiontimer":
 
 
-                    if (SETTINGS.CaptureFrame == SETTINGS.sessionLength)
+                    if (SETTINGS.CaptureFrame == SETTINGS.SessionDuration)
                     {
 
                         done = true;
@@ -385,7 +385,7 @@ namespace PresenceEngine
 
                     // Here we only apply user position from task.
 
-                    UncompressedFrame ShowFrame = SETTINGS.MainPresence.DepthTransport.ActiveFrame;
+                    UncompressedFrame ShowFrame = SETTINGS.Presences[0].DepthTransport.ActiveFrame;
 
                     if (ShowFrame != null && ShowFrame.Joints != null)
                     {

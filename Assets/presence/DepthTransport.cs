@@ -262,12 +262,16 @@ namespace PresenceEngine
 
 
                     FrameNumber++;
-                 //   System.DateTime.Now.;
+
+                    //    float time = System.DateTime.Now.ToBinary();
+
+                    float time = Time.time;
+
+                    float hx = 6f * Mathf.PerlinNoise(0.1f * time, 0);
+                    float hz = 6f * Mathf.PerlinNoise(0, 0.1f * time);
+                    float r = Mathf.PerlinNoise(0.1f * time + 20f, 0.1f * time+10f);
 
 
-                    float hx = 6f * Mathf.PerlinNoise(0.1f * Time.time, 0);
-                    float hz = 6f * Mathf.PerlinNoise(0, 0.1f * Time.time);
-                    float r = Mathf.PerlinNoise(0.1f * Time.time + 20f, 0.1f * Time.time+10f);
                     //ActiveFrame.Joints = new Vector3[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
                     //ActiveFrame.Tracked = new bool[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
 

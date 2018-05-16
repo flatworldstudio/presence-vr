@@ -18,8 +18,9 @@ namespace PresenceEngine
 
     public static class SETTINGS
     {
+        public static int SessionDuration = 3;
         public static Presence[] Presences;
-        public static Presence MainPresence;
+   //     public static Presence MainPresence;
         // KINECT INFO
         //	public static GameObject kinectObject;
         public static DEVICEMODE deviceMode;
@@ -54,7 +55,7 @@ namespace PresenceEngine
 
         public static CloudSequence capture;
         public static int CaptureFrame;
-        public static int sessionLength = 2500;
+   
         public static int captureLength = 2500;
         public static int echoOffset = 25;
 

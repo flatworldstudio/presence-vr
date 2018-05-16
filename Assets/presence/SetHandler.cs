@@ -55,14 +55,14 @@ namespace PresenceEngine
 
         //        Dictionary<string, GameObject> PresenceInstances;
 
-        //    Presence MainPresence;
+        //    Presence Presences[0];
 
         void Start()
         {
 
             setController.addTaskHandler(TaskHandler);
 
-            SETTINGS.Presences = new Presence[1];
+            SETTINGS.Presences = new Presence[2];
 
 
             //	ParticleCloud.init (GameObject.Find ("Cloud"));
@@ -103,17 +103,17 @@ namespace PresenceEngine
                 case "createinstance":
 
 
-                    if (SETTINGS.MainPresence == null)
-                        SETTINGS.MainPresence = Presence.Create(PresenceObjectPrefab, this.gameObject);
+                    if (SETTINGS.Presences[0] == null)
+                        SETTINGS.Presences[0] = Presence.Create(PresenceObjectPrefab, this.gameObject);
 
-                    SETTINGS.MainPresence.SetVisualiser("ShowSkeleton");
-                    SETTINGS.MainPresence.SetTranscoder("SkeletonOnly");
-                    SETTINGS.MainPresence.Initialise();
+                    SETTINGS.Presences[0].SetVisualiser("ShowSkeleton");
+                    SETTINGS.Presences[0].SetTranscoder("SkeletonOnly");
+                    SETTINGS.Presences[0].Initialise();
 
-                    //if (SETTINGS.MainPresence.DepthTransport == null)
+                    //if (SETTINGS.Precenses[0].DepthTransport == null)
                     //{
-                    //    SETTINGS.MainPresence.DepthTransport = new DepthTransport();
-                    //    SETTINGS.MainPresence.DepthTransport.SetTranscoder("SkeletonOnly");
+                    //    SETTINGS.Presences[0].DepthTransport = new DepthTransport();
+                    //    SETTINGS.Presences[0].DepthTransport.SetTranscoder("SkeletonOnly");
 
 
                     //}
@@ -123,12 +123,14 @@ namespace PresenceEngine
 
                 case "createclone":
 
-                    if (SETTINGS.Presences[0] == null)
-                        SETTINGS.Presences[0] = Presence.Create(PresenceObjectPrefab, this.gameObject);
+                    int pi = 1;
 
-                    SETTINGS.Presences[0].SetVisualiser("ShowSkeleton");
-                    SETTINGS.Presences[0].SetTranscoder("SkeletonOnly");
-                    SETTINGS.Presences[0].Initialise();
+                    if (SETTINGS.Presences[pi] == null)
+                        SETTINGS.Presences[pi] = Presence.Create(PresenceObjectPrefab, this.gameObject);
+
+                    SETTINGS.Presences[pi].SetVisualiser("ShowSkeleton");
+                    SETTINGS.Presences[pi].SetTranscoder("SkeletonOnly");
+                    SETTINGS.Presences[pi].Initialise();
 
                     done = true;
                     break;
@@ -482,7 +484,7 @@ namespace PresenceEngine
 
                 //case "userstream":
 
-                //    UncompressedFrame ShowFrame = SETTINGS.MainPresence.DepthTransport.ActiveUncompressedFrame;
+                //    UncompressedFrame ShowFrame = SETTINGS.Presences[0].DepthTransport.ActiveUncompressedFrame;
 
                 //    if (ShowFrame != null && ShowFrame.Joints != null)
                 //    {

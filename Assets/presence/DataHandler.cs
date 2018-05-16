@@ -40,6 +40,25 @@ namespace PresenceEngine
 
         FileformatBase FindBufferFileInScene(string fileName)
         {
+
+            Debug.Log("Trying to find buffer " + fileName);
+
+
+            foreach (Presence p in SETTINGS.Presences){
+                if (p.DepthTransport!=null && p.DepthTransport.TransCoder!=null)
+                {
+                    FileformatBase bufferFile = p.DepthTransport.TransCoder.GetBufferFile();
+                    if (bufferFile!=null && bufferFile.Name == fileName)
+                    {
+                        Debug.Log("found buffer file");
+                        return bufferFile;
+                    }
+                       
+                    
+                }
+                
+            }
+            Debug.Log("Didn't find buffer file");
             return null;
         }
 
@@ -123,10 +142,14 @@ namespace PresenceEngine
                             if (Buffered == null)
                             {
                                 // try loading it from disk
+                                Debug.Log("loading from disk");
 
-                                if (true)
+                                Buffered = IO.LoadFromCheckedOutFileAsync();
+
+                                if (Buffered==null)
                                 {
-                                    // File not found.
+                                    Log.Error("loading file failed");
+                                    // File failed
                                     done = true;
                                     break;
                                 }
@@ -134,10 +157,10 @@ namespace PresenceEngine
                             }
 
 
-                            SETTINGS.Presences[0].DepthTransport.Mode = DEPTHMODE.PLAYBACK;
-                            SETTINGS.Presences[0].DepthTransport.TransCoder.SetBufferFile(Buffered);
-                            SETTINGS.Presences[0].DepthTransport.FrameNumber = SETTINGS.MainPresence.DepthTransport.TransCoder.GetBufferFile().FirstFrame;
-                            task.setIntValue("frame", SETTINGS.Presences[0].DepthTransport.FrameNumber);
+                            SETTINGS.Presences[1].DepthTransport.Mode = DEPTHMODE.PLAYBACK;
+                            SETTINGS.Presences[1].DepthTransport.TransCoder.SetBufferFile(Buffered);
+                            SETTINGS.Presences[1].DepthTransport.FrameNumber = SETTINGS.Presences[1].DepthTransport.TransCoder.GetBufferFile().FirstFrame;
+                            task.setIntValue("frame", SETTINGS.Presences[1].DepthTransport.FrameNumber);
 
 
                         }
@@ -149,7 +172,7 @@ namespace PresenceEngine
 
 
 
-                        //if (SETTINGS.MainPresence.DepthTransport.TransCoder.GetBufferFile() != null)
+                        //if (SETTINGS.Presences[0].DepthTransport.TransCoder.GetBufferFile() != null)
                         //{
 
                         //    // Check if the file is in buffer
@@ -161,8 +184,8 @@ namespace PresenceEngine
 
                         //    // set to playback, assign bufferfile and set framenumber
                         //    SETTINGS.Presences[0].DepthTransport.Mode = DEPTHMODE.PLAYBACK;
-                        //    SETTINGS.Presences[0].DepthTransport.TransCoder.SetBufferFile(SETTINGS.MainPresence.DepthTransport.TransCoder.GetBufferFile());
-                        //    SETTINGS.Presences[0].DepthTransport.FrameNumber = SETTINGS.MainPresence.DepthTransport.TransCoder.GetBufferFile().FirstFrame;
+                        //    SETTINGS.Presences[0].DepthTransport.TransCoder.SetBufferFile(SETTINGS.Presences[0].DepthTransport.TransCoder.GetBufferFile());
+                        //    SETTINGS.Presences[0].DepthTransport.FrameNumber = SETTINGS.Presences[0].DepthTransport.TransCoder.GetBufferFile().FirstFrame;
                         //    task.setIntValue("frame", SETTINGS.Presences[0].DepthTransport.FrameNumber);
                         //}
                         //else
@@ -173,13 +196,13 @@ namespace PresenceEngine
 
                     }
 
-                    if (SETTINGS.Presences[0].DepthTransport.Mode == DEPTHMODE.PLAYBACK && SETTINGS.Presences[0].DepthTransport.LoadFrameFromBuffer())
+                    if (SETTINGS.Presences[1].DepthTransport.Mode == DEPTHMODE.PLAYBACK && SETTINGS.Presences[1].DepthTransport.LoadFrameFromBuffer())
                     {
                         // Play back while in playback mode and playback successful else fall through.
 
-                        SETTINGS.Presences[0].DepthTransport.FrameNumber++;
-                        task.setIntValue("frame", SETTINGS.Presences[0].DepthTransport.FrameNumber);
-                        task.setStringValue("debug", "" + SETTINGS.Presences[0].DepthTransport.FrameNumber);
+                        SETTINGS.Presences[1].DepthTransport.FrameNumber++;
+                        task.setIntValue("frame", SETTINGS.Presences[1].DepthTransport.FrameNumber);
+                        task.setStringValue("debug", "" + SETTINGS.Presences[1].DepthTransport.FrameNumber);
                     }
                     else
                     {
@@ -191,7 +214,7 @@ namespace PresenceEngine
                 case "stopplaybackbuffer":
 
 
-                    SETTINGS.Presences[0].DepthTransport.Mode = DEPTHMODE.OFF;
+                    SETTINGS.Presences[1].DepthTransport.Mode = DEPTHMODE.OFF;
 
                     done = true;
                     break;
@@ -201,18 +224,18 @@ namespace PresenceEngine
 
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
-                        if (SETTINGS.MainPresence.DepthTransport != null)
+                        if (SETTINGS.Presences[0].DepthTransport != null)
                         {
                             if (!task.getFloatValue("timeout", out TimeOut))
                             {
-                                TimeOut = Time.time + 10;
+                                TimeOut = Time.time + SETTINGS.SessionDuration;
                                 task.setFloatValue("timeout", TimeOut);
-                                SETTINGS.MainPresence.DepthTransport.Mode = DEPTHMODE.RECORD;
+                                SETTINGS.Presences[0].DepthTransport.Mode = DEPTHMODE.RECORD;
 
                                 if (IO.checkedOutFile == "")
                                     IO.MakeDefaultFile();
 
-                                SETTINGS.MainPresence.DepthTransport.TransCoder.CreateBufferFile(IO.checkedOutFile);
+                                SETTINGS.Presences[0].DepthTransport.TransCoder.CreateBufferFile(IO.checkedOutFile);
                                 task.setStringValue("file", IO.checkedOutFile);
 
                             }
@@ -232,13 +255,13 @@ namespace PresenceEngine
 
                     if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
                     {
-                        if (SETTINGS.MainPresence.DepthTransport != null)
+                        if (SETTINGS.Presences[0].DepthTransport != null)
                         {
                             // Wait for filename then fall through
                             if (task.getStringValue("file", out IO.checkedOutFile))
                             {
-                                SETTINGS.MainPresence.DepthTransport.Mode = DEPTHMODE.RECORD;
-                                SETTINGS.MainPresence.DepthTransport.TransCoder.CreateBufferFile(IO.checkedOutFile);
+                                SETTINGS.Presences[0].DepthTransport.Mode = DEPTHMODE.RECORD;
+                                SETTINGS.Presences[0].DepthTransport.TransCoder.CreateBufferFile(IO.checkedOutFile);
 
                                 done = true;
                             }
@@ -251,17 +274,17 @@ namespace PresenceEngine
 
                 case "recordstop":
 
-                    if (SETTINGS.MainPresence.DepthTransport.Mode == DEPTHMODE.RECORD)
+                    if (SETTINGS.Presences[0].DepthTransport.Mode == DEPTHMODE.RECORD)
                     {
-                        SETTINGS.MainPresence.DepthTransport.Mode = DEPTHMODE.LIVE;
+                        SETTINGS.Presences[0].DepthTransport.Mode = DEPTHMODE.LIVE;
 
-                        Debug.Log("Stopped recording. Logged frames " + SETTINGS.MainPresence.DepthTransport.TransCoder.GetBufferFile().Frames.Count);
-
-
+                        Debug.Log("Stopped recording. Logged frames " + SETTINGS.Presences[0].DepthTransport.TransCoder.GetBufferFile().Frames.Count);
 
 
 
-                        FileformatBase BufferFile = SETTINGS.MainPresence.DepthTransport.TransCoder.GetBufferFile();
+
+
+                        FileformatBase BufferFile = SETTINGS.Presences[0].DepthTransport.TransCoder.GetBufferFile();
                         //   BufferFile.SetFrameRange();
 
                         IO.SaveToCheckedOutFile(BufferFile);
@@ -293,9 +316,9 @@ namespace PresenceEngine
 
                         //string TransCoder;
                         //if (!task.getStringValue("transcoder", out TransCoder))
-                        //    task.setStringValue("transcoder", SETTINGS.MainPresence.DepthTransport.TransCoder.Name());
+                        //    task.setStringValue("transcoder", SETTINGS.Presences[0].DepthTransport.TransCoder.Name());
 
-                        DepthTransport MainDT = SETTINGS.MainPresence.DepthTransport;
+                        DepthTransport MainDT = SETTINGS.Presences[0].DepthTransport;
 
                         // Retrieve depth info.
                         MainDT.GetNewFrame();
@@ -313,16 +336,16 @@ namespace PresenceEngine
                         Application.targetFrameRate = 30;
                         QualitySettings.vSyncCount = 0;
                         // Check if we need to set transcoder
-                        DepthTransport MainDT = SETTINGS.MainPresence.DepthTransport;
+                        DepthTransport MainDT = SETTINGS.Presences[0].DepthTransport;
 
-                        //DepthTransport MainDT = SETTINGS.MainPresence.DepthTransport;
+                        //DepthTransport MainDT = SETTINGS.Presences[0].DepthTransport;
 
                         //if (MainDT != null && MainDT.TransCoder == null)
                         //{
                         //    // No transcoder set, try to get it from task.
                         //    string TransCoder;
                         //    if (task.getStringValue("transcoder", out TransCoder))
-                        //        SETTINGS.MainPresence.DepthTransport.SetTranscoder(TransCoder);
+                        //        SETTINGS.Presences[0].DepthTransport.SetTranscoder(TransCoder);
                         //}
                         int test;
                         if (task.getIntValue("frame", out test))
@@ -452,7 +475,7 @@ namespace PresenceEngine
 
                 case "receivelivedepth":
                     // For client.
-                    SETTINGS.MainPresence.DepthTransport.Mode = DEPTHMODE.LIVE;
+                    SETTINGS.Presences[0].DepthTransport.Mode = DEPTHMODE.LIVE;
                     done = true;
 
                     break;
@@ -460,7 +483,7 @@ namespace PresenceEngine
                 case "depthlive":
 
                     // For server.
-                    SETTINGS.MainPresence.DepthTransport.Mode = DEPTHMODE.LIVE;
+                    SETTINGS.Presences[0].DepthTransport.Mode = DEPTHMODE.LIVE;
                     done = true;
 
                     break;
@@ -468,7 +491,7 @@ namespace PresenceEngine
                 case "depthoff":
 
 
-                    SETTINGS.MainPresence.DepthTransport.Mode = DEPTHMODE.OFF;
+                    SETTINGS.Presences[0].DepthTransport.Mode = DEPTHMODE.OFF;
 
                     done = true;
 
@@ -477,7 +500,7 @@ namespace PresenceEngine
                 case "depthrecord":
 
 
-                    SETTINGS.MainPresence.DepthTransport.Mode = DEPTHMODE.RECORD;
+                    SETTINGS.Presences[0].DepthTransport.Mode = DEPTHMODE.RECORD;
                     recordStart = Time.time;
                     done = true;
 
@@ -485,14 +508,14 @@ namespace PresenceEngine
 
                 case "depthplayback":
 
-                    SETTINGS.MainPresence.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
+                    SETTINGS.Presences[0].DepthTransport.Mode = DEPTHMODE.PLAYBACK;
                     done = true;
 
                     break;
 
                 case "togglepresence":
 
-                    if (SETTINGS.MainPresence.DepthTransport == null || SETTINGS.MainPresence.DepthTransport.Mode == DEPTHMODE.OFF)
+                    if (SETTINGS.Presences[0].DepthTransport == null || SETTINGS.Presences[0].DepthTransport.Mode == DEPTHMODE.OFF)
                     {
 
                         // switch on
