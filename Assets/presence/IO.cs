@@ -288,7 +288,7 @@ namespace PresenceEngine
     {
 
         public string Name;
-        public string LocalPath;
+        public string Path;
 
 
     }
@@ -298,7 +298,7 @@ namespace PresenceEngine
     {
 
         public string Name;
-        public string LocalPath;
+        public string Path;
         
 
     }
@@ -314,20 +314,145 @@ namespace PresenceEngine
         public static int depthIndex = -1;
 
         public static string localStorageFolder="";
-        static string _checkedOutFolder="";
-
-           public static string checkedOutFile="";
 
 
 
+        // Reference to currently visible folder
+        static string _browseFolder="";
+        static string _checkedOutFile=""; // Path including folder!
 
-        public static void SetCheckedOutFile (string name)
-        {
-            
-            checkedOutFile =CheckedOutFolder + "/" + (name != "" ? name : "_default");
-          
+        public static string BrowseFolder {
+
+            get{
+                return _browseFolder;
+            }
+            set{
+                Debug.LogWarning("Can't set BrowseFolder directly, use SetBrowseFolder methods.");
+            }
+
 
         }
+
+        public static string CheckedOutFile {
+
+            get{
+                return _checkedOutFile;
+            }
+            set{
+                Debug.LogWarning("Can't set CheckedOutFile directly, use SetCheckedoutFile methods.");
+            }
+
+
+        }
+
+
+
+    //    static string _checkedOutFolder="";
+        public static void SetBrowseFolder (string folder){
+
+            folder = (folder != "" ? "/"+folder : "/noname");
+
+            if  (!Directory.Exists(localStorageFolder+ folder))
+                Directory.CreateDirectory(localStorageFolder + folder);
+            
+
+        }
+           
+     //   sta//tic string GetFolder (string filePath){
+            
+
+        public static void SetCheckedOutFile (string folderName,string fileName){
+
+            string folder = (folderName != "" ? "/"+folderName : "/noname");
+
+            if  (!Directory.Exists(localStorageFolder+ folder))
+                Directory.CreateDirectory(localStorageFolder + folder);
+
+            _checkedOutFile=folder  + "/" + (fileName != "" ? fileName : "noname");
+
+
+        }
+
+
+        public static void SetCheckedOutFile (string path){
+
+            // Set via /folder/name
+
+            char[] delimiter = {'\\','/'};
+
+            string[] parts = path.Split(delimiter);
+
+            if (parts.Length==2){
+
+                SetCheckedOutFile(parts[0],parts[1]);
+             
+
+            }else{
+                
+                Debug.LogWarning("Path incorrect "+path);
+            }
+
+
+        }
+            
+
+        /*
+        public static void SetCheckOutFilePath (string path){
+
+
+            char[] delimiter = {'\\','/'};
+
+            string[] parts = path.Split(delimiter);
+
+            if (parts.Length==2){
+                
+                CheckedOutFolder=parts[0];
+                _checkedOutFile=parts[1];
+
+
+
+            }else{
+                Debug.LogWarning("path too deep");
+            }
+                //Char delimiter = 's';
+
+            Debug.Log("set path to "+CheckedOutFile);
+
+          //  checkedOutFile=path;
+
+
+           
+
+        }
+*/
+        //public static string CheckedOutFile
+        //{
+        //    get{
+
+        //        return _checkedOutFile;
+
+        //    }
+
+        //    set{
+        //        _checkedOutFile=
+        //        _checkedOutFile =CheckedOutFolder + "/" + (value != "" ? value : "_default");
+        //    }
+
+
+        //}
+        /*
+        public static void SetCheckOutFileName (string value){
+            _checkedOutFile =CheckedOutFolder + "/" + (value != "" ? value : "_default");
+
+        }
+        //public static void SetCheckedOutFile (string name)
+        //{
+            
+        //    checkedOutFile =CheckedOutFolder + "/" + (name != "" ? name : "_default");
+          
+
+        //}
+
         public static string MakeDefaultFile()
         {
 
@@ -336,44 +461,21 @@ namespace PresenceEngine
             if (!Directory.Exists(localStorageFolder+ CheckedOutFolder))
                 Directory.CreateDirectory(localStorageFolder + CheckedOutFolder);
 
-                  
+                           
           
-          
-            SetCheckedOutFile("_default");
+            CheckedOutFile="_default";
 
-            return checkedOutFile;
-
-        }
-        public static void MakeNewFile(string name)
-        {
-
-            SetCheckedOutFile(name);
-            SaveCheckedOutFileAsPlaceholder();
+            return CheckedOutFile;
 
         }
+     
 
-        public static void MakeNewFolder(string folder)
-        {
-
-            folder =  "/" + folder;
-
-                Directory.CreateDirectory(localStorageFolder + folder);
-
-            CheckedOutFolder = folder;
-
-        }
+       
 
 
-        static string Strippath (string path)
-        {
-
-            int storagePathLength = localStorageFolder.Length;
-
-            return path.Substring(storagePathLength, path.Length - storagePathLength);
-
-
-
-        }
+    
+*/
+        /*
         public static string CheckedOutFolder
         {
             get 
@@ -401,12 +503,33 @@ namespace PresenceEngine
 
             set 
             {
+               
+                
                 _checkedOutFolder = value;
+
+                if (!Directory.Exists(localStorageFolder + _checkedOutFolder))
+                    Directory.CreateDirectory(localStorageFolder + _checkedOutFolder);
             }
 
         }
+*/
+        public static void MakeNewFile(string path)
+        {
 
+            SetCheckedOutFile(path);
+            SaveCheckedOutFileAsPlaceholder();
 
+        }
+
+        public static void MakeNewFolder(string path)
+        {
+                      
+
+            Directory.CreateDirectory(localStorageFolder + path);
+
+            SetBrowseFolder(path);
+
+        }
         
         public static PFolder[] GetLocalFolders()
         {
@@ -427,7 +550,7 @@ namespace PresenceEngine
 
                 PFolder f = new PFolder
                 {
-                    LocalPath = Strippath (subFolder),
+                    Path = Strippath (subFolder),
 
                     Name = name[name.Length - 1]
                 };
@@ -443,10 +566,24 @@ namespace PresenceEngine
 
         }
 
+        static string Strippath (string path)
+        {
+
+            int storagePathLength = localStorageFolder.Length;
+
+            return path.Substring(storagePathLength, path.Length - storagePathLength);
+
+
+
+        }
+
         public static PFile[] GetLocalFiles(string LocalFolder)
         {
 
-            if (!Directory.Exists(localStorageFolder) || LocalFolder=="")
+            if (!Directory.Exists(localStorageFolder))
+                Directory.CreateDirectory(localStorageFolder);
+            
+            if (!Directory.Exists(localStorageFolder+LocalFolder))
                 return new PFile[0];
 
 
@@ -463,7 +600,7 @@ namespace PresenceEngine
 
                 PFile f = new PFile
                 {
-                    LocalPath = Strippath(file),
+                    Path = Strippath(file),
 
                     Name = name[name.Length - 1]
                 };
@@ -480,7 +617,7 @@ namespace PresenceEngine
         }
 
 
-
+        /*
         public static void LoadDepthCapturesResource()
         {
 
@@ -585,14 +722,14 @@ namespace PresenceEngine
 
             return sequence;
         }
-
+*/
 
         public static void SaveCheckedOutFileAsPlaceholder()
         {
 
             BinaryFormatter bf = new BinaryFormatter();
 
-            FileStream file = File.Create(localStorageFolder+ checkedOutFile);
+            FileStream file = File.Create(localStorageFolder+ CheckedOutFile);
 
             bf.Serialize(file,"Presence placeholder file.");
 
@@ -605,7 +742,7 @@ namespace PresenceEngine
 
             BinaryFormatter bf = new BinaryFormatter();
 
-            FileStream file = File.Create(localStorageFolder + checkedOutFile);
+            FileStream file = File.Create(localStorageFolder + CheckedOutFile);
 
             bf.Serialize(file, presenceFile);
 
@@ -620,7 +757,7 @@ namespace PresenceEngine
             FileformatBase loaded = null;
 
             // Open the stream and read it back.
-            using (FileStream fs = File.Open(localStorageFolder + checkedOutFile, FileMode.Open))
+            using (FileStream fs = File.Open(localStorageFolder + CheckedOutFile, FileMode.Open))
             {
                 /*
                 byte[] b = new byte[1024];
@@ -652,7 +789,7 @@ namespace PresenceEngine
 
 
 
-      
+      /*
 
         public static void SaveDepthCaptures()
         {
@@ -696,7 +833,7 @@ namespace PresenceEngine
                 file.Close();
             }
         }
-
+*/
 
     }
 }

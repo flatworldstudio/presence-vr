@@ -51,6 +51,7 @@ addkinectnull
 //addviewernulls
 createinstance
 makeservercontrols
+setfiledefaults
 makefoldermenu
 makefilemenu
 //createclouds

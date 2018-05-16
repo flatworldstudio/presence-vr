@@ -202,17 +202,21 @@ namespace PresenceEngine
                 case "recordstart":
 
                     userMessager.ShowTextMessage("Begin recording", 0.5f);
+
+                    if (SETTINGS.deviceMode==DEVICEMODE.SERVER){
                     serverInterface.HideButton("recordstart");
                     serverInterface.ShowButton("recordstop");
-
+                    }
                     done = true;
                     break;
 
                 case "recordstop":
 
                     userMessager.ShowTextMessage("Stop recording", 0.5f);
+                    if (SETTINGS.deviceMode==DEVICEMODE.SERVER){
                     serverInterface.HideButton("recordstop");
                     serverInterface.ShowButton("recordstart");
+                    }
 
                     done = true;
                     break;
@@ -220,8 +224,10 @@ namespace PresenceEngine
                 case "playbackbuffer":
 
                     userMessager.ShowTextMessage("Begin playback", 0.5f);
+                    if (SETTINGS.deviceMode==DEVICEMODE.SERVER){
                     serverInterface.HideButton("playbackstart");
                     serverInterface.ShowButton("playbackstop");
+                    }
 
                     done = true;
                     break;
@@ -229,8 +235,10 @@ namespace PresenceEngine
                 case "stopplaybackbuffer":
 
                     userMessager.ShowTextMessage("Stop playback", 0.5f);
+                    if (SETTINGS.deviceMode==DEVICEMODE.SERVER){
                     serverInterface.HideButton("playbackstop");
                     serverInterface.ShowButton("playbackstart");
+                    }
 
                     done = true;
                     break;
@@ -549,6 +557,15 @@ namespace PresenceEngine
                     done = true;
                     break;
 
+                case "setfiledefaults":
+
+
+                    IO.SetCheckedOutFile(SETTINGS.DEFAULTFILE);
+                    IO.SetBrowseFolder(SETTINGS.DEFAULTFOLDER);
+
+                    done=true;
+                    break;
+
                 case "makefilemenu":
 
                     if (serverInterface == null)
@@ -564,7 +581,7 @@ namespace PresenceEngine
                     position.x = Screen.width;
                     FileMenu.transform.localPosition = position;
 
-                    PFile[] files = IO.GetLocalFiles(IO.CheckedOutFolder);
+                    PFile[] files = IO.GetLocalFiles(IO.BrowseFolder);
 
                     for (int i = 0; i < 4; i++)
                     {
@@ -721,7 +738,7 @@ namespace PresenceEngine
                     }
 
 
-                    filePath.text = IO.checkedOutFile;
+                    filePath.text = IO.CheckedOutFile;
 
                     break;
 
@@ -763,7 +780,7 @@ namespace PresenceEngine
 
                     Debug.Log("pers " + data);
 
-                    IO.CheckedOutFolder = IO.GetLocalFolders()[int.Parse(data)].LocalPath;
+                    IO.SetBrowseFolder ( IO.GetLocalFolders()[int.Parse(data)].Path);
 
                     done = true;
                     break;
@@ -772,7 +789,7 @@ namespace PresenceEngine
 
                     task.getStringValue("persistantData", out data);
 
-                    IO.checkedOutFile = IO.GetLocalFiles(IO.CheckedOutFolder)[int.Parse(data)].LocalPath;
+                    IO.SetCheckedOutFile (IO.GetLocalFiles(IO.BrowseFolder)[int.Parse(data)].Path);
                  
 
                     done = true;
@@ -793,7 +810,8 @@ namespace PresenceEngine
                         fileNameInput.onEndEdit.RemoveAllListeners();
                         fileNameInput.onEndEdit.AddListener((name) =>
                         {
-                            IO.MakeNewFile(name);
+                            IO.MakeNewFile(IO.BrowseFolder+"/"+name);
+
                             NewFile.transform.localScale = Vector3.zero;
                             if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
                                 uxController.setSpringTarget(target, 0);
@@ -820,7 +838,7 @@ namespace PresenceEngine
                         fileNameInput.onEndEdit.RemoveAllListeners();
                         fileNameInput.onEndEdit.AddListener((name) =>
                         {
-                            IO.MakeNewFolder(name);
+                            IO.MakeNewFolder("/"+name);
                             NewFile.transform.localScale = Vector3.zero;
                             if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
                                 uxController.setSpringTarget(target, 0);
@@ -1285,9 +1303,9 @@ namespace PresenceEngine
 
 				// wait for a reading.
 
-				PRESENCE.mobileInitialHeading = Input.compass.magneticHeading;
+                        SETTINGS.mobileInitialHeading = Input.compass.magneticHeading;
 
-				viewerObject.transform.parent.transform.localRotation = Quaternion.Euler (0,  PRESENCE.mobileInitialHeading, 0);
+                        viewerObject.transform.parent.transform.localRotation = Quaternion.Euler (0,  SETTINGS.mobileInitialHeading, 0);
 
 				done = true;
 

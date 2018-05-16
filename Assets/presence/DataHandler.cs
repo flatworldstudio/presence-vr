@@ -134,10 +134,10 @@ namespace PresenceEngine
                     {
 
 
-                        if (IO.checkedOutFile != "")
+                        if (IO.CheckedOutFile != "")
                         {
 
-                            FileformatBase Buffered = FindBufferFileInScene(IO.checkedOutFile);
+                            FileformatBase Buffered = FindBufferFileInScene(IO.CheckedOutFile);
 
                             if (Buffered == null)
                             {
@@ -224,7 +224,7 @@ namespace PresenceEngine
 
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
-                        if (SETTINGS.Presences[0].DepthTransport != null)
+                        if (SETTINGS.Presences[0].DepthTransport != null && IO.CheckedOutFile!="")
                         {
                             if (!task.getFloatValue("timeout", out TimeOut))
                             {
@@ -232,11 +232,8 @@ namespace PresenceEngine
                                 task.setFloatValue("timeout", TimeOut);
                                 SETTINGS.Presences[0].DepthTransport.Mode = DEPTHMODE.RECORD;
 
-                                if (IO.checkedOutFile == "")
-                                    IO.MakeDefaultFile();
-
-                                SETTINGS.Presences[0].DepthTransport.TransCoder.CreateBufferFile(IO.checkedOutFile);
-                                task.setStringValue("file", IO.checkedOutFile);
+                                SETTINGS.Presences[0].DepthTransport.TransCoder.CreateBufferFile(IO.CheckedOutFile);
+                                task.setStringValue("file", IO.CheckedOutFile);
 
                             }
 
@@ -258,10 +255,13 @@ namespace PresenceEngine
                         if (SETTINGS.Presences[0].DepthTransport != null)
                         {
                             // Wait for filename then fall through
-                            if (task.getStringValue("file", out IO.checkedOutFile))
+                            string file;
+                            if (task.getStringValue("file", out file))
                             {
+                                IO.CheckedOutFile=file;
                                 SETTINGS.Presences[0].DepthTransport.Mode = DEPTHMODE.RECORD;
-                                SETTINGS.Presences[0].DepthTransport.TransCoder.CreateBufferFile(IO.checkedOutFile);
+                                SETTINGS.Presences[0].DepthTransport.TransCoder.CreateBufferFile(IO.CheckedOutFile);
+
 
                                 done = true;
                             }
@@ -279,9 +279,6 @@ namespace PresenceEngine
                         SETTINGS.Presences[0].DepthTransport.Mode = DEPTHMODE.LIVE;
 
                         Debug.Log("Stopped recording. Logged frames " + SETTINGS.Presences[0].DepthTransport.TransCoder.GetBufferFile().Frames.Count);
-
-
-
 
 
                         FileformatBase BufferFile = SETTINGS.Presences[0].DepthTransport.TransCoder.GetBufferFile();
@@ -1236,7 +1233,7 @@ namespace PresenceEngine
 
                 // IO
 
-
+                    /*
                 case "loaddepthdata":
 
                     // load depth data from resources
@@ -1411,10 +1408,11 @@ namespace PresenceEngine
                     done = true;
 
                     break;
-
+*/
 
                 // MISC / WIP
 
+                    /*
                 case "goglobal":
 
                     task.pointer.scope = SCOPE.GLOBAL;
@@ -1424,7 +1422,7 @@ namespace PresenceEngine
 
                     break;
 
-
+*/
                 case "isglobal":
 
                     if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL)
