@@ -522,7 +522,7 @@ namespace PresenceEngine
                     //    if (folders.Length > 0)
                     //      IO.CheckedOutFolder = folders[0].LocalPath;
 
-                    for (int i = 0; i < 4; i++)
+                    for (int i = 0; i < 18; i++)
                     {
 
                         GameObject icon = FolderMenu.transform.Find("folder#" + i).gameObject;
@@ -562,8 +562,10 @@ namespace PresenceEngine
 
                     IO.SetCheckedOutFile(SETTINGS.DEFAULTFILE);
                     IO.SetBrowseFolder(SETTINGS.DEFAULTFOLDER);
+                    Debug.Log(IO.CheckedOutFile);
+                    Debug.Log(IO.BrowseFolder);
 
-                    done=true;
+                    done = true;
                     break;
 
                 case "makefilemenu":
@@ -583,7 +585,7 @@ namespace PresenceEngine
 
                     PFile[] files = IO.GetLocalFiles(IO.BrowseFolder);
 
-                    for (int i = 0; i < 4; i++)
+                    for (int i = 0; i < 18; i++)
                     {
 
                         GameObject icon = FileMenu.transform.Find("file#" + i).gameObject;

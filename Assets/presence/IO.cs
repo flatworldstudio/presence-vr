@@ -350,12 +350,12 @@ namespace PresenceEngine
     //    static string _checkedOutFolder="";
         public static void SetBrowseFolder (string folder){
 
-            folder = (folder != "" ? "/"+folder : "/noname");
+            folder = (folder != "" ? folder : "/noname");
 
             if  (!Directory.Exists(localStorageFolder+ folder))
                 Directory.CreateDirectory(localStorageFolder + folder);
-            
 
+            _browseFolder = folder;
         }
            
      //   sta//tic string GetFolder (string filePath){
@@ -382,14 +382,14 @@ namespace PresenceEngine
 
             string[] parts = path.Split(delimiter);
 
-            if (parts.Length==2){
+            if (parts.Length==3){
 
-                SetCheckedOutFile(parts[0],parts[1]);
-             
+                SetCheckedOutFile(parts[1],parts[2]);
 
-            }else{
+            }
+            else{
                 
-                Debug.LogWarning("Path incorrect "+path);
+                Debug.LogWarning("Path "+ path+ " incorrect "); 
             }
 
 
@@ -557,7 +557,7 @@ namespace PresenceEngine
 
                 FolderList[i] = f;
 
-                Debug.Log(f.Name);
+                Debug.Log("folder "+f.Name);
 
             }
 
@@ -579,6 +579,7 @@ namespace PresenceEngine
 
         public static PFile[] GetLocalFiles(string LocalFolder)
         {
+            Debug.Log("listing files for " + LocalFolder);
 
             if (!Directory.Exists(localStorageFolder))
                 Directory.CreateDirectory(localStorageFolder);
@@ -607,7 +608,7 @@ namespace PresenceEngine
 
                 FileList[i] = f;
 
-                Debug.Log(f.Name);
+                Debug.Log("file "+f.Name);
 
             }
 
