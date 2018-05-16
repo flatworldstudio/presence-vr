@@ -44,19 +44,20 @@ namespace PresenceEngine
             Debug.Log("Trying to find buffer " + fileName);
 
 
-            foreach (Presence p in SETTINGS.Presences){
-                if (p.DepthTransport!=null && p.DepthTransport.TransCoder!=null)
+            foreach (Presence p in SETTINGS.Presences)
+            {
+                if (p.DepthTransport != null && p.DepthTransport.TransCoder != null)
                 {
                     FileformatBase bufferFile = p.DepthTransport.TransCoder.GetBufferFile();
-                    if (bufferFile!=null && bufferFile.Name == fileName)
+                    if (bufferFile != null && bufferFile.Name == fileName)
                     {
                         Debug.Log("found buffer file");
                         return bufferFile;
                     }
-                       
-                    
+
+
                 }
-                
+
             }
             Debug.Log("Didn't find buffer file");
             return null;
@@ -129,48 +130,118 @@ namespace PresenceEngine
 
                 case "playbackbuffer":
 
-                    int frame;
-                    if (!task.getIntValue("frame", out frame))
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
-
-
-                        if (IO.CheckedOutFile != "")
+                        int frame;
+                        if (!task.getIntValue("frame", out frame))
                         {
-
-                            FileformatBase Buffered = FindBufferFileInScene(IO.CheckedOutFile);
-
-                            if (Buffered == null)
+                           if (IO.CheckedOutFile != "")
                             {
-                                // try loading it from disk
-                                Debug.Log("loading from disk");
+                                task.setStringValue("file", IO.CheckedOutFile);
+                                FileformatBase Buffered = FindBufferFileInScene(IO.CheckedOutFile);
 
-                                Buffered = IO.LoadFromCheckedOutFileAsync();
-
-                                if (Buffered==null)
+                                if (Buffered == null)
                                 {
-                                    Log.Error("loading file failed");
-                                    // File failed
-                                    done = true;
-                                    break;
-                                }
+                                    // try loading it from disk
+                                    Debug.Log("loading from disk");
+
+                                    Buffered = IO.LoadFromCheckedOutFileAsync();
+
+                                    if (Buffered == null)
+                                    {
+                                        Log.Error("loading file failed");
+                                        done = true;
+                                        break;
+                                    }
+                                    }
+
+                                SETTINGS.Presences[1].DepthTransport.Mode = DEPTHMODE.PLAYBACK;
+                                SETTINGS.Presences[1].DepthTransport.TransCoder.SetBufferFile(Buffered);
+                                SETTINGS.Presences[1].DepthTransport.FrameNumber = SETTINGS.Presences[1].DepthTransport.TransCoder.GetBufferFile().FirstFrame;
+                                task.setIntValue("frame", SETTINGS.Presences[1].DepthTransport.FrameNumber);
 
                             }
+                            else
+                            {
+                                done = true;
+                                }
+                           }
 
+                        if (SETTINGS.Presences[1].DepthTransport.Mode == DEPTHMODE.PLAYBACK && SETTINGS.Presences[1].DepthTransport.LoadFrameFromBuffer())
+                        {
+                            // Play back while in playback mode and playback successful else fall through.
 
-                            SETTINGS.Presences[1].DepthTransport.Mode = DEPTHMODE.PLAYBACK;
-                            SETTINGS.Presences[1].DepthTransport.TransCoder.SetBufferFile(Buffered);
-                            SETTINGS.Presences[1].DepthTransport.FrameNumber = SETTINGS.Presences[1].DepthTransport.TransCoder.GetBufferFile().FirstFrame;
+                            SETTINGS.Presences[1].DepthTransport.FrameNumber++;
+
                             task.setIntValue("frame", SETTINGS.Presences[1].DepthTransport.FrameNumber);
-
-
+                            task.setStringValue("debug", "" + SETTINGS.Presences[1].DepthTransport.FrameNumber);
                         }
                         else
                         {
+
                             done = true;
+                        }
+
+                    }
+
+                    if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
+                    {
+
+                        int frame;
+                        if (task.getIntValue("frame",out frame)){
+
+                            string file;
+
+                            if (task.getStringValue("file",out file) && file!=""){
+                                
+                                IO.SetCheckedOutFile(file);
+                                task.setStringValue("file", "");
+
+                                FileformatBase Buffered = FindBufferFileInScene(IO.CheckedOutFile);
+
+                                if (Buffered == null)
+                                {
+                                    // try loading it from disk
+                                    Debug.Log("loading from disk");
+
+                                    Buffered = IO.LoadFromCheckedOutFileAsync();
+
+                                    if (Buffered == null)
+                                    {
+                                        Log.Error("loading file failed");
+                                        // File failed
+                                        done = true;
+                                        break;
+                                    }
+
+                                }
+
+                                SETTINGS.Presences[1].DepthTransport.Mode = DEPTHMODE.PLAYBACK;
+                                SETTINGS.Presences[1].DepthTransport.TransCoder.SetBufferFile(Buffered);
+
+                            }
+
+                            SETTINGS.Presences[1].DepthTransport.FrameNumber=frame;
 
                         }
 
 
+
+                        if (SETTINGS.Presences[1].DepthTransport.Mode == DEPTHMODE.PLAYBACK )
+                        {
+                            if (!SETTINGS.Presences[1].DepthTransport.LoadFrameFromBuffer())
+                                Debug.Log("Skipping playback frame?");
+                        }
+                        else
+                        {
+
+                            done = true;
+                        }
+
+
+
+
+                    }
 
                         //if (SETTINGS.Presences[0].DepthTransport.TransCoder.GetBufferFile() != null)
                         //{
@@ -194,21 +265,24 @@ namespace PresenceEngine
                         //    done = true;
                         //}
 
-                    }
+                   
 
-                    if (SETTINGS.Presences[1].DepthTransport.Mode == DEPTHMODE.PLAYBACK && SETTINGS.Presences[1].DepthTransport.LoadFrameFromBuffer())
-                    {
-                        // Play back while in playback mode and playback successful else fall through.
+                    //if (SETTINGS.Presences[1].DepthTransport.Mode == DEPTHMODE.PLAYBACK && SETTINGS.Presences[1].DepthTransport.LoadFrameFromBuffer())
+                    //{
+                    //    // Play back while in playback mode and playback successful else fall through.
 
-                        SETTINGS.Presences[1].DepthTransport.FrameNumber++;
-                        task.setIntValue("frame", SETTINGS.Presences[1].DepthTransport.FrameNumber);
-                        task.setStringValue("debug", "" + SETTINGS.Presences[1].DepthTransport.FrameNumber);
-                    }
-                    else
-                    {
+                    //    SETTINGS.Presences[1].DepthTransport.FrameNumber++;
 
-                        done = true;
-                    }
+
+                    //    task.setIntValue("frame", SETTINGS.Presences[1].DepthTransport.FrameNumber);
+
+                    //    task.setStringValue("debug", "" + SETTINGS.Presences[1].DepthTransport.FrameNumber);
+                    //}
+                    //else
+                    //{
+
+                    //    done = true;
+                    //}
                     break;
 
                 case "stopplaybackbuffer":
@@ -224,7 +298,7 @@ namespace PresenceEngine
 
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
-                        if (SETTINGS.Presences[0].DepthTransport != null && IO.CheckedOutFile!="")
+                        if (SETTINGS.Presences[0].DepthTransport != null && IO.CheckedOutFile != "")
                         {
                             if (!task.getFloatValue("timeout", out TimeOut))
                             {
@@ -258,10 +332,9 @@ namespace PresenceEngine
                             string file;
                             if (task.getStringValue("file", out file))
                             {
-                                IO.CheckedOutFile=file;
+                                IO.SetCheckedOutFile(file);
                                 SETTINGS.Presences[0].DepthTransport.Mode = DEPTHMODE.RECORD;
                                 SETTINGS.Presences[0].DepthTransport.TransCoder.CreateBufferFile(IO.CheckedOutFile);
-
 
                                 done = true;
                             }
@@ -282,11 +355,7 @@ namespace PresenceEngine
 
 
                         FileformatBase BufferFile = SETTINGS.Presences[0].DepthTransport.TransCoder.GetBufferFile();
-                        //   BufferFile.SetFrameRange();
-
                         IO.SaveToCheckedOutFile(BufferFile);
-
-
 
                     }
 
@@ -1233,194 +1302,194 @@ namespace PresenceEngine
 
                 // IO
 
-                    /*
-                case "loaddepthdata":
+                /*
+            case "loaddepthdata":
 
-                    // load depth data from resources
+                // load depth data from resources
 
-                    IO.LoadDepthCapturesResource();
+                IO.LoadDepthCapturesResource();
 
-                    if (IO.savedDepthCaptures.Count > 0)
+                if (IO.savedDepthCaptures.Count > 0)
+                {
+                    IO.depthIndex = 0;
+                }
+
+                done = true;
+
+                break;
+
+            case "playback":
+
+                if (Capture.playing)
+                {
+
+                    Frame f;
+
+                    if (!capture.read(out f))
                     {
-                        IO.depthIndex = 0;
-                    }
-
-                    done = true;
-
-                    break;
-
-                case "playback":
-
-                    if (Capture.playing)
-                    {
-
-                        Frame f;
-
-                        if (!capture.read(out f))
-                        {
 
 
-                            done = true;
-
-
-                        }
-                        else
-                        {
-                            captureTarget.transform.position = f.getPosition();
-                            captureTarget.transform.rotation = f.getRotation();
-
-                        }
+                        done = true;
 
 
                     }
                     else
                     {
-
-                        capture = Capture.current;
-
-                        capture.play();
-
-                        captureTarget = GameObject.Find("camB_object");
-
+                        captureTarget.transform.position = f.getPosition();
+                        captureTarget.transform.rotation = f.getRotation();
 
                     }
 
 
+                }
+                else
+                {
+
+                    capture = Capture.current;
+
+                    capture.play();
+
+                    captureTarget = GameObject.Find("camB_object");
 
 
-                    break;
+                }
 
-                case "captureLEGACY":
 
-                    if (Capture.capturing)
+
+
+                break;
+
+            case "captureLEGACY":
+
+                if (Capture.capturing)
+                {
+
+                    Vector3 pos = captureTarget.transform.position;
+                    Quaternion orient = captureTarget.transform.rotation;
+
+                    if (!capture.log(pos, orient))
                     {
 
-                        Vector3 pos = captureTarget.transform.position;
-                        Quaternion orient = captureTarget.transform.rotation;
+                        // if log filled, end task
 
-                        if (!capture.log(pos, orient))
-                        {
-
-                            // if log filled, end task
-
-                            done = true;
-
-                        }
-
-
-                    }
-                    else
-                    {
-
-                        capture = new Capture();
-                        Capture.current = capture;
-                        capture.capture();
-
-                        captureTarget = GameObject.Find("camB_object");
-
-
-                        Debug.Log(me + "Starting new capture.");
-
-
-
-                    }
-
-
-                    break;
-
-
-                case "load":
-
-                    IO.LoadUserCaptures();
-
-
-                    Capture.current = IO.savedCaptures[0];
-
-
-                    //			Debug.Log (me + "loaded with name " + Capture.current.knight.name);
-
-                    //					Game.current = testgame;
-
-                    //					SaveLoad.Save ();
-
-                    done = true;
-
-                    break;
-
-                case "savecapture":
-
-
-
-
-                    IO.SaveCloudSequence(SETTINGS.capture);
-
-                    done = true;
-
-                    break;
-
-                case "loadsequence":
-
-                    SETTINGS.CaptureFrame = 0;
-                    SETTINGS.TimeStamp = Time.time;
-
-                    SETTINGS.capture = IO.LoadCloudSequence();
-
-                    if (SETTINGS.capture != null)
-                    {
                         done = true;
+
                     }
 
 
+                }
+                else
+                {
 
-                    break;
+                    capture = new Capture();
+                    Capture.current = capture;
+                    capture.capture();
 
-                case "loadsequenceresource":
+                    captureTarget = GameObject.Find("camB_object");
 
-                    SETTINGS.CaptureFrame = 0;
-                    SETTINGS.TimeStamp = Time.time;
 
-                    SETTINGS.capture = IO.LoadCloudSequenceFromResources();
-
-                    if (SETTINGS.capture != null)
-                    {
-                        done = true;
-                    }
+                    Debug.Log(me + "Starting new capture.");
 
 
 
-                    break;
-
-                case "save":
+                }
 
 
-                    //			Capture testgame = new Capture ();
+                break;
 
-                    //			testgame.knight.name = "My uuid: " + UUID.getID ();
 
-                    //			Debug.Log (me + "saving with name " + testgame.knight.name);
+            case "load":
 
-                    //			Capture.current = testgame;
+                IO.LoadUserCaptures();
 
-                    Debug.Log(me + "Saving capture.");
 
-                    IO.SaveUserCaptures();
+                Capture.current = IO.savedCaptures[0];
 
+
+                //			Debug.Log (me + "loaded with name " + Capture.current.knight.name);
+
+                //					Game.current = testgame;
+
+                //					SaveLoad.Save ();
+
+                done = true;
+
+                break;
+
+            case "savecapture":
+
+
+
+
+                IO.SaveCloudSequence(SETTINGS.capture);
+
+                done = true;
+
+                break;
+
+            case "loadsequence":
+
+                SETTINGS.CaptureFrame = 0;
+                SETTINGS.TimeStamp = Time.time;
+
+                SETTINGS.capture = IO.LoadCloudSequence();
+
+                if (SETTINGS.capture != null)
+                {
                     done = true;
+                }
 
-                    break;
+
+
+                break;
+
+            case "loadsequenceresource":
+
+                SETTINGS.CaptureFrame = 0;
+                SETTINGS.TimeStamp = Time.time;
+
+                SETTINGS.capture = IO.LoadCloudSequenceFromResources();
+
+                if (SETTINGS.capture != null)
+                {
+                    done = true;
+                }
+
+
+
+                break;
+
+            case "save":
+
+
+                //			Capture testgame = new Capture ();
+
+                //			testgame.knight.name = "My uuid: " + UUID.getID ();
+
+                //			Debug.Log (me + "saving with name " + testgame.knight.name);
+
+                //			Capture.current = testgame;
+
+                Debug.Log(me + "Saving capture.");
+
+                IO.SaveUserCaptures();
+
+                done = true;
+
+                break;
 */
 
                 // MISC / WIP
 
-                    /*
-                case "goglobal":
+                /*
+            case "goglobal":
 
-                    task.pointer.scope = SCOPE.GLOBAL;
-                    task.pointer.modified = true;
+                task.pointer.scope = SCOPE.GLOBAL;
+                task.pointer.modified = true;
 
-                    done = true;
+                done = true;
 
-                    break;
+                break;
 
 */
                 case "isglobal":
