@@ -157,6 +157,7 @@ tell recordstart stoprecord
 end
 
 #playbackstart
+isglobal
 createclone
 playbackbuffer
 @stopplayback
