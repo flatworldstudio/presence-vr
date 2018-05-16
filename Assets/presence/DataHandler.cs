@@ -46,7 +46,7 @@ namespace PresenceEngine
 
             foreach (Presence p in SETTINGS.Presences)
             {
-                if (p.DepthTransport != null && p.DepthTransport.TransCoder != null)
+                if (p!=null && p.DepthTransport != null && p.DepthTransport.TransCoder != null)
                 {
                     FileformatBase bufferFile = p.DepthTransport.TransCoder.GetBufferFile();
                     if (bufferFile != null && bufferFile.Name == fileName)

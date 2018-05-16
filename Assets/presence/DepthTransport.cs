@@ -343,7 +343,7 @@ namespace PresenceEngine
         public bool Decode(StoryEngine.StoryTask task)
         {
             if (__mode == DEPTHMODE.LIVE || __mode == DEPTHMODE.RECORD)
-                return TransCoder.Decode(ref ActiveFrame, task);
+                return TransCoder.Decode(ref ActiveFrame, task, __mode == DEPTHMODE.RECORD);
 
             return false;
         }

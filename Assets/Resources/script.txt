@@ -158,7 +158,6 @@ end
 
 #playbackstart
 isglobal
-createclone
 playbackbuffer
 @stopplayback
 stopplaybackbuffer

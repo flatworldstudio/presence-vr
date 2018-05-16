@@ -110,6 +110,15 @@ namespace PresenceEngine
                     SETTINGS.Presences[0].SetTranscoder("SkeletonOnly");
                     SETTINGS.Presences[0].Initialise();
 
+                    int pi = 1;
+
+                    if (SETTINGS.Presences[pi] == null)
+                        SETTINGS.Presences[pi] = Presence.Create(PresenceObjectPrefab, this.gameObject);
+
+                    SETTINGS.Presences[pi].SetVisualiser("ShowSkeleton");
+                    SETTINGS.Presences[pi].SetTranscoder("SkeletonOnly");
+                    SETTINGS.Presences[pi].Initialise();
+
                     //if (SETTINGS.Precenses[0].DepthTransport == null)
                     //{
                     //    SETTINGS.Presences[0].DepthTransport = new DepthTransport();
@@ -121,19 +130,19 @@ namespace PresenceEngine
                     done = true;
                     break;
 
-                case "createclone":
+                //case "createclone":
 
-                    int pi = 1;
+                    //int pi = 1;
 
-                    if (SETTINGS.Presences[pi] == null)
-                        SETTINGS.Presences[pi] = Presence.Create(PresenceObjectPrefab, this.gameObject);
+                    //if (SETTINGS.Presences[pi] == null)
+                    //    SETTINGS.Presences[pi] = Presence.Create(PresenceObjectPrefab, this.gameObject);
 
-                    SETTINGS.Presences[pi].SetVisualiser("ShowSkeleton");
-                    SETTINGS.Presences[pi].SetTranscoder("SkeletonOnly");
-                    SETTINGS.Presences[pi].Initialise();
+                    //SETTINGS.Presences[pi].SetVisualiser("ShowSkeleton");
+                    //SETTINGS.Presences[pi].SetTranscoder("SkeletonOnly");
+                    //SETTINGS.Presences[pi].Initialise();
 
-                    done = true;
-                    break;
+                    //done = true;
+                    //break;
 
 
                 case "moodlight":

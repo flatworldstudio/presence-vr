@@ -301,10 +301,12 @@ namespace PresenceEngine
 
             if (_bufferFile != null)
             {
+
+                int index = frameNumber- _bufferFile.FirstFrame;
              //   Debug.Log("Getting frame "+frameNumber + " of "+ _bufferFile.Frames.Count)
-                if (frameNumber < _bufferFile.LastFrame)
+                if (index < _bufferFile.Frames.Count && index >=0)
                 {
-                    SkeletonOnlyFrame storeFrame = (SkeletonOnlyFrame)_bufferFile.Frames[frameNumber- _bufferFile.FirstFrame];
+                    SkeletonOnlyFrame storeFrame = (SkeletonOnlyFrame)_bufferFile.Frames[index];
 
                     Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] = storeFrame.Points[0].ToVector3();
                     Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] = storeFrame.Points[1].ToVector3();
