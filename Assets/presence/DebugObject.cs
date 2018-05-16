@@ -2,7 +2,7 @@
 using System.Collections;
 
 
-namespace Presence
+namespace PresenceEngine
 {
 
     static public class DebugObject

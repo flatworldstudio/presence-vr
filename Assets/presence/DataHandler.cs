@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 using StoryEngine;
 
-namespace Presence
+namespace PresenceEngine
 {
 
     public class DataHandler : MonoBehaviour
@@ -27,7 +27,7 @@ namespace Presence
 
 
         Texture2D DepthTexture, PreviewTexture;
-     //   iTransCoder MainTranscoder;
+        //   iTransCoder MainTranscoder;
         int frame = 0;
 
         GameObject go;
@@ -36,6 +36,13 @@ namespace Presence
         public GameObject headSet;
 
         string me = "Data handler: ";
+
+
+        FileformatBase FindBufferFileInScene(string fileName)
+        {
+            return null;
+        }
+
 
         void Awake()
         {
@@ -60,9 +67,9 @@ namespace Presence
 
             dataController.addTaskHandler(TaskHandler);
 
-            IO.localStorageFolder = Application.persistentDataPath+"/data";
+            IO.localStorageFolder = Application.persistentDataPath + "/data";
 
-        //    PRESENCE.MainDepthTransport = new DepthTransport();
+            //    PRESENCE.MainDepthTransport = new DepthTransport();
 
 
         }
@@ -81,267 +88,379 @@ namespace Presence
             {
 
 
-               
+
                 case "pause3":
 
                     float TimeOut;
 
-                    if (!task.getFloatValue("timeout",out TimeOut)){
-                        TimeOut=Time.time+3;
-                        task.setFloatValue("timeout",TimeOut);
+                    if (!task.getFloatValue("timeout", out TimeOut))
+                    {
+                        TimeOut = Time.time + 3;
+                        task.setFloatValue("timeout", TimeOut);
 
                     }
 
-                    if (Time.time>TimeOut)
-                        done=true;
+                    if (Time.time > TimeOut)
+                        done = true;
 
 
 
+                    break;
+
+
+                case "playbackbuffer":
+
+                    int frame;
+                    if (!task.getIntValue("frame", out frame))
+                    {
+
+
+                        if (IO.checkedOutFile != "")
+                        {
+
+                            FileformatBase Buffered = FindBufferFileInScene(IO.checkedOutFile);
+
+                            if (Buffered == null)
+                            {
+                                // try loading it from disk
+
+                                if (true)
+                                {
+                                    // File not found.
+                                    done = true;
+                                    break;
+                                }
+
+                            }
+
+
+                            SETTINGS.Presences[0].DepthTransport.Mode = DEPTHMODE.PLAYBACK;
+                            SETTINGS.Presences[0].DepthTransport.TransCoder.SetBufferFile(Buffered);
+                            SETTINGS.Presences[0].DepthTransport.FrameNumber = SETTINGS.MainPresence.DepthTransport.TransCoder.GetBufferFile().FirstFrame;
+                            task.setIntValue("frame", SETTINGS.Presences[0].DepthTransport.FrameNumber);
+
+
+                        }
+                        else
+                        {
+                            done = true;
+
+                        }
+
+
+
+                        //if (SETTINGS.MainPresence.DepthTransport.TransCoder.GetBufferFile() != null)
+                        //{
+
+                        //    // Check if the file is in buffer
+
+
+
+
+
+
+                        //    // set to playback, assign bufferfile and set framenumber
+                        //    SETTINGS.Presences[0].DepthTransport.Mode = DEPTHMODE.PLAYBACK;
+                        //    SETTINGS.Presences[0].DepthTransport.TransCoder.SetBufferFile(SETTINGS.MainPresence.DepthTransport.TransCoder.GetBufferFile());
+                        //    SETTINGS.Presences[0].DepthTransport.FrameNumber = SETTINGS.MainPresence.DepthTransport.TransCoder.GetBufferFile().FirstFrame;
+                        //    task.setIntValue("frame", SETTINGS.Presences[0].DepthTransport.FrameNumber);
+                        //}
+                        //else
+                        //{
+
+                        //    done = true;
+                        //}
+
+                    }
+
+                    if (SETTINGS.Presences[0].DepthTransport.Mode == DEPTHMODE.PLAYBACK && SETTINGS.Presences[0].DepthTransport.LoadFrameFromBuffer())
+                    {
+                        // Play back while in playback mode and playback successful else fall through.
+
+                        SETTINGS.Presences[0].DepthTransport.FrameNumber++;
+                        task.setIntValue("frame", SETTINGS.Presences[0].DepthTransport.FrameNumber);
+                        task.setStringValue("debug", "" + SETTINGS.Presences[0].DepthTransport.FrameNumber);
+                    }
+                    else
+                    {
+
+                        done = true;
+                    }
+                    break;
+
+                case "stopplaybackbuffer":
+
+
+                    SETTINGS.Presences[0].DepthTransport.Mode = DEPTHMODE.OFF;
+
+                    done = true;
                     break;
 
                 case "recordstart":
 
 
-                    if (PRESENCE.MainDepthTransport != null)
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
-
-
-
-
-                        if (!task.getFloatValue("timeout", out TimeOut))
+                        if (SETTINGS.MainPresence.DepthTransport != null)
                         {
-                            TimeOut = Time.time + 3;
-                            task.setFloatValue("timeout", TimeOut);
-                            PRESENCE.MainDepthTransport.Mode = DEPTHMODE.RECORD;
-                            PRESENCE.MainDepthTransport.TransCoder.CreateFile();
-                       //     task.setStringValue("recording", "true");
+                            if (!task.getFloatValue("timeout", out TimeOut))
+                            {
+                                TimeOut = Time.time + 10;
+                                task.setFloatValue("timeout", TimeOut);
+                                SETTINGS.MainPresence.DepthTransport.Mode = DEPTHMODE.RECORD;
+
+                                if (IO.checkedOutFile == "")
+                                    IO.MakeDefaultFile();
+
+                                SETTINGS.MainPresence.DepthTransport.TransCoder.CreateBufferFile(IO.checkedOutFile);
+                                task.setStringValue("file", IO.checkedOutFile);
+
+                            }
+
+                            if (Time.time > TimeOut)
+                            {
+                                done = true;
+                            }
+
                         }
-
-                        if (Time.time > TimeOut)
+                        else
                         {
-
-                           
-
-
                             done = true;
                         }
 
                     }
-                    else
-                    {
-                       
-                        done = true;
-                    }
 
+                    if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
+                    {
+                        if (SETTINGS.MainPresence.DepthTransport != null)
+                        {
+                            // Wait for filename then fall through
+                            if (task.getStringValue("file", out IO.checkedOutFile))
+                            {
+                                SETTINGS.MainPresence.DepthTransport.Mode = DEPTHMODE.RECORD;
+                                SETTINGS.MainPresence.DepthTransport.TransCoder.CreateBufferFile(IO.checkedOutFile);
+
+                                done = true;
+                            }
+
+
+                        }
+                    }
 
                     break;
 
                 case "recordstop":
 
-                    if (PRESENCE.MainDepthTransport.Mode== DEPTHMODE.RECORD)
+                    if (SETTINGS.MainPresence.DepthTransport.Mode == DEPTHMODE.RECORD)
                     {
-                        PRESENCE.MainDepthTransport.Mode = DEPTHMODE.LIVE;
-                        
-                        Debug.Log("Stopped recording. Logged frames " + PRESENCE.MainDepthTransport.TransCoder.GetTargetFile().Frames.Count);
+                        SETTINGS.MainPresence.DepthTransport.Mode = DEPTHMODE.LIVE;
+
+                        Debug.Log("Stopped recording. Logged frames " + SETTINGS.MainPresence.DepthTransport.TransCoder.GetBufferFile().Frames.Count);
 
 
-                        if (IO.checkedOutFile == "")
-                            IO.MakeDefaultFile();
 
-                        IO.SaveToCheckedOutFile(PRESENCE.MainDepthTransport.TransCoder.GetTargetFile());
 
-                        
+
+                        FileformatBase BufferFile = SETTINGS.MainPresence.DepthTransport.TransCoder.GetBufferFile();
+                        //   BufferFile.SetFrameRange();
+
+                        IO.SaveToCheckedOutFile(BufferFile);
+
+
+
                     }
 
 
                     done = true;
                     break;
 
+
+
+
                 case "userstream":
 
-                    // 
-              //      Application.targetFrameRate = 30;
-                    Application.targetFrameRate = 30;
-                    QualitySettings.vSyncCount = 0;
+
+
                     FPS.text = ("FPS: " + 1f / Time.smoothDeltaTime);
 
-                    if (PRESENCE.deviceMode == DEVICEMODE.SERVER)
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
+
+                        Application.targetFrameRate = 30;
+                        QualitySettings.vSyncCount = 0;
 
                         // Write the transcoder to the task.
 
-                        string TransCoder;
+                        //string TransCoder;
+                        //if (!task.getStringValue("transcoder", out TransCoder))
+                        //    task.setStringValue("transcoder", SETTINGS.MainPresence.DepthTransport.TransCoder.Name());
 
-                        if (!task.getStringValue("transcoder",out TransCoder))
-                            task.setStringValue("transcoder", PRESENCE.MainDepthTransport.TransCoder.Name());
+                        DepthTransport MainDT = SETTINGS.MainPresence.DepthTransport;
 
                         // Retrieve depth info.
+                        MainDT.GetNewFrame();
 
-                        UncompressedFrame NewFrame;
+                        // Get latest value for headrotation (from client, via task) and add it to the frame (for recording).
+                        task.getQuaternionValue("headrotation", out MainDT.ActiveFrame.HeadOrientation);
 
-                        int NewFrameNumber = PRESENCE.MainDepthTransport.GetNewFrame(out NewFrame); // Retrieve uncompressed frame data.
-
-                        task.setIntValue("framenumber", NewFrameNumber);
-                        
-                        task.getQuaternionValue("headrotation", out NewFrame.HeadOrientation); // Get latest value for headrotation from task.
-                      
-                        PRESENCE.MainDepthTransport.Encode(NewFrameNumber, NewFrame, task); // Encode frame into task.
-
-                        PRESENCE.MainDepthTransport.ActiveUncompressedFrame = NewFrame; // Keep a reference for other handlers.
+                        if (!MainDT.Encode(task))
+                            Log.Warning("Encode failed");
 
                     }
 
-                    if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT)
+                    if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
                     {
+                        Application.targetFrameRate = 30;
+                        QualitySettings.vSyncCount = 0;
+                        // Check if we need to set transcoder
+                        DepthTransport MainDT = SETTINGS.MainPresence.DepthTransport;
 
-                        // We don't have a setup task, so we'll just respond to what's going on.
+                        //DepthTransport MainDT = SETTINGS.MainPresence.DepthTransport;
 
-                        if (PRESENCE.MainDepthTransport==null){
-                            PRESENCE.MainDepthTransport = new DepthTransport();
+                        //if (MainDT != null && MainDT.TransCoder == null)
+                        //{
+                        //    // No transcoder set, try to get it from task.
+                        //    string TransCoder;
+                        //    if (task.getStringValue("transcoder", out TransCoder))
+                        //        SETTINGS.MainPresence.DepthTransport.SetTranscoder(TransCoder);
+                        //}
+                        int test;
+                        if (task.getIntValue("frame", out test))
+                        {
 
-                            string TransCoder;
+                            //      Debug.Log(test);
 
-                            if (task.getStringValue("transcoder",out TransCoder)) {
-                                PRESENCE.MainDepthTransport.SetTranscoder(TransCoder);
-                            }
                         }
-                        
-                       
-                        
-                        // Recreate depth info
+                        else
+                        {
+                            Debug.Log("no frame value");
+                        }
 
-                        UncompressedFrame NewFrame;
 
-                        int NewFrameNumber;
-                        task.getIntValue("framenumber", out NewFrameNumber);
-
-                        PRESENCE.MainDepthTransport.Decode(NewFrameNumber, out NewFrame, task);
+                        if (!MainDT.Decode(task))
+                            Log.Warning("Decode failed");
 
                         // put head orientation 
 
-                        NewFrame.HeadOrientation = headSet.transform.rotation;
-                        task.setQuaternionValue("headrotation", NewFrame.HeadOrientation);
-
-                        PRESENCE.MainDepthTransport.ActiveUncompressedFrame = NewFrame; 
+                        task.setQuaternionValue("headrotation", headSet.transform.rotation);
+                        MainDT.ActiveFrame.HeadOrientation = headSet.transform.rotation;
 
                     }
 
+                    break;
 
 
+                /*
+            case "depthcompress":
+                Application.targetFrameRate = 30;
+                QualitySettings.vSyncCount = 0;
+                FPS.text = ("FPS: " + 1f / Time.smoothDeltaTime);
 
-                        break;
-
-
-                    /*
-                case "depthcompress":
-                    Application.targetFrameRate = 30;
-                    QualitySettings.vSyncCount = 0;
-                    FPS.text = ("FPS: " + 1f / Time.smoothDeltaTime);
-
-                    ushort[] getRawDepth = DepthTransport.OwnsKinect.GetRawDepthMap();
-                    rawDepthPrev = rawDepthCur;
-                    rawDepthCur = getRawDepth;
+                ushort[] getRawDepth = DepthTransport.OwnsKinect.GetRawDepthMap();
+                rawDepthPrev = rawDepthCur;
+                rawDepthCur = getRawDepth;
 
 
 
 
-                    if (rawDepthPrev == null)
-                        rawDepthPrev = new ushort[640 * 480];
+                if (rawDepthPrev == null)
+                    rawDepthPrev = new ushort[640 * 480];
 
-                    ushort[] rawDepth = rawDepthCur;
+                ushort[] rawDepth = rawDepthCur;
 
-                    if (kinectImage.texture == null)
-                    {
+                if (kinectImage.texture == null)
+                {
 
-                        DepthTexture = new Texture2D(DepthTransport.OwnsKinect.DepthWidth, DepthTransport.OwnsKinect.DepthHeight);
-                        kinectImage.texture = DepthTexture;
+                    DepthTexture = new Texture2D(DepthTransport.OwnsKinect.DepthWidth, DepthTransport.OwnsKinect.DepthHeight);
+                    kinectImage.texture = DepthTexture;
 
-                    }
+                }
 
-                    //if (previewImage.texture == null)
-                    //{
+                //if (previewImage.texture == null)
+                //{
 
-                    //    PreviewTexture = new Texture2D(DepthTransport.Width, DepthTransport.Height);
-                    //    previewImage.texture = PreviewTexture;
+                //    PreviewTexture = new Texture2D(DepthTransport.Width, DepthTransport.Height);
+                //    previewImage.texture = PreviewTexture;
 
-                    //}
+                //}
 
-                    DepthTransport.OwnsKinect.RawDepthToTexture(rawDepth, DepthTexture);
+                DepthTransport.OwnsKinect.RawDepthToTexture(rawDepth, DepthTexture);
 
-                    minPrev = minCur;
-                    maxPrev = maxCur;
-
-
-                    minCur = DepthTransport.OwnsKinect.Min;
-                    maxCur = DepthTransport.OwnsKinect.Max;
+                minPrev = minCur;
+                maxPrev = maxCur;
 
 
-
-                    byte[] data = StreamSDK.GetVideo();
+                minCur = DepthTransport.OwnsKinect.Min;
+                maxCur = DepthTransport.OwnsKinect.Max;
 
 
 
-                    if (data != null)
-                    {
-
-                        //task.setByteValue("data", data);
-                        //task.setStringValue("debug", "datasize: " + data.Length);
-
-                        //FPS.text = ("FPS: " + 1f / Time.smoothDeltaTime);
-
-                        StreamSDK.UpdateStreamRemote(data);
-
-                        DepthTransport.OwnsKinect.ApplyEdge(rawDepthPrev, (Texture2D)previewImage.texture, minPrev, maxPrev);
-
-
-                    }
-
-                    //previewImage.texture = PreviewTexture;
-
-
-                    //Texture2D testTexture = new Texture2D(DepthTransport.Width, DepthTransport.Height);
-
-
-                    //DepthTransport.RawDepthToTexture(rawDepth, DepthTexture);
-                    //previewImage.texture = DepthPreviewTextureTexture;
-
-                    //ushort[] decodeDepth = DepthTransport.TextureToRawDepth(DepthTexture, min, max);
-
-
-                    ushort[] decodeDepth = DepthTransport.OwnsKinect.TextureToRawDepth((Texture2D)previewImage.texture, minPrev, maxPrev);
-
-                    task.setUshortValue("depth", decodeDepth);
+                byte[] data = StreamSDK.GetVideo();
 
 
 
-                    //ComputeParticles(DepthTransport.GetRawDepthMap(), DepthTransport.Width, DepthTransport.Height, 2, new Vector3(0, PRESENCE.kinectHeight, 0), clouds[0]);
+                if (data != null)
+                {
+
+                    //task.setByteValue("data", data);
+                    //task.setStringValue("debug", "datasize: " + data.Length);
+
+                    //FPS.text = ("FPS: " + 1f / Time.smoothDeltaTime);
+
+                    StreamSDK.UpdateStreamRemote(data);
+
+                    DepthTransport.OwnsKinect.ApplyEdge(rawDepthPrev, (Texture2D)previewImage.texture, minPrev, maxPrev);
+
+
+                }
+
+                //previewImage.texture = PreviewTexture;
+
+
+                //Texture2D testTexture = new Texture2D(DepthTransport.Width, DepthTransport.Height);
+
+
+                //DepthTransport.RawDepthToTexture(rawDepth, DepthTexture);
+                //previewImage.texture = DepthPreviewTextureTexture;
+
+                //ushort[] decodeDepth = DepthTransport.TextureToRawDepth(DepthTexture, min, max);
+
+
+                ushort[] decodeDepth = DepthTransport.OwnsKinect.TextureToRawDepth((Texture2D)previewImage.texture, minPrev, maxPrev);
+
+                task.setUshortValue("depth", decodeDepth);
+
+
+
+                //ComputeParticles(DepthTransport.GetRawDepthMap(), DepthTransport.Width, DepthTransport.Height, 2, new Vector3(0, PRESENCE.kinectHeight, 0), clouds[0]);
+
+
+
+
+
+                break;
+*/
+                case "detectgesture":
+
+
 
 
 
 
 
                     break;
-*/
-                case "detectgesture":
 
-                    
+                case "receivelivedepth":
+                    // For client.
+                    SETTINGS.MainPresence.DepthTransport.Mode = DEPTHMODE.LIVE;
+                    done = true;
 
-
-
-
-                  
                     break;
 
                 case "depthlive":
 
-                    if (PRESENCE.MainDepthTransport == null)
-                    {
-                        PRESENCE.MainDepthTransport = new DepthTransport();
-                        PRESENCE.MainDepthTransport.SetTranscoder("SkeletonOnly");
-
-                       
-                    }
-                    PRESENCE.MainDepthTransport.Mode = DEPTHMODE.LIVE;
+                    // For server.
+                    SETTINGS.MainPresence.DepthTransport.Mode = DEPTHMODE.LIVE;
                     done = true;
 
                     break;
@@ -349,7 +468,7 @@ namespace Presence
                 case "depthoff":
 
 
-                    PRESENCE.MainDepthTransport.Mode = DEPTHMODE.OFF;
+                    SETTINGS.MainPresence.DepthTransport.Mode = DEPTHMODE.OFF;
 
                     done = true;
 
@@ -358,7 +477,7 @@ namespace Presence
                 case "depthrecord":
 
 
-                    PRESENCE.MainDepthTransport.Mode = DEPTHMODE.RECORD;
+                    SETTINGS.MainPresence.DepthTransport.Mode = DEPTHMODE.RECORD;
                     recordStart = Time.time;
                     done = true;
 
@@ -366,18 +485,18 @@ namespace Presence
 
                 case "depthplayback":
 
-                    PRESENCE.MainDepthTransport.Mode = DEPTHMODE.PLAYBACK;
+                    SETTINGS.MainPresence.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
                     done = true;
 
                     break;
 
                 case "togglepresence":
 
-if (                   PRESENCE.MainDepthTransport == null || PRESENCE.MainDepthTransport.Mode == DEPTHMODE.OFF)
+                    if (SETTINGS.MainPresence.DepthTransport == null || SETTINGS.MainPresence.DepthTransport.Mode == DEPTHMODE.OFF)
                     {
 
                         // switch on
-                     
+
                         task.setCallBack("startpresence");
 
                     }
@@ -392,25 +511,25 @@ if (                   PRESENCE.MainDepthTransport == null || PRESENCE.MainDepth
 
                     break;
 
-                    /*
-                case "recorddepth":
-                    Application.targetFrameRate = 30;
-                    QualitySettings.vSyncCount = 0;
-                    FPS.text = ("FPS: " + 1f / Time.smoothDeltaTime);
+                /*
+            case "recorddepth":
+                Application.targetFrameRate = 30;
+                QualitySettings.vSyncCount = 0;
+                FPS.text = ("FPS: " + 1f / Time.smoothDeltaTime);
 
-                    if (Time.time - recordStart > 5)
-                    {
+                if (Time.time - recordStart > 5)
+                {
 
-                        DepthTransport.OwnsKinect.Mode = DEPTHMODE.OFF;
-                        DepthTransport.OwnsKinect.depthSequence.SaveAs("depthCapture");
-                        done = true;
-                    }
-
-
+                    DepthTransport.OwnsKinect.Mode = DEPTHMODE.OFF;
+                    DepthTransport.OwnsKinect.depthSequence.SaveAs("depthCapture");
+                    done = true;
+                }
 
 
-                    break;
-                    */
+
+
+                break;
+                */
                 case "playdepth":
                     Application.targetFrameRate = 30;
                     QualitySettings.vSyncCount = 0;
@@ -452,102 +571,102 @@ if (                   PRESENCE.MainDepthTransport == null || PRESENCE.MainDepth
 
 
                     break;
-                    /*
-                case "transfertest":
+                /*
+            case "transfertest":
 
-                    if (PRESENCE.deviceMode == DEVICEMODE.SERVER)
+                if (PRESENCE.deviceMode == DEVICEMODE.SERVER)
 
+                {
+
+                    if (previewImage.texture == null)
                     {
 
-                        if (previewImage.texture == null)
+                        PreviewTexture = new Texture2D(DepthTransport.OwnsKinect.DepthWidth, DepthTransport.OwnsKinect.DepthHeight);
+                        previewImage.texture = PreviewTexture;
+
+                    }
+
+
+
+                    if (Input.GetKeyUp("="))
+                    {
+
+                        //   testSize += 250;
+                        StreamSDK.instance.quality += 5;
+                        if (StreamSDK.instance.quality < 0)
                         {
-
-                            PreviewTexture = new Texture2D(DepthTransport.OwnsKinect.DepthWidth, DepthTransport.OwnsKinect.DepthHeight);
-                            previewImage.texture = PreviewTexture;
-
+                            StreamSDK.instance.quality = 0;
                         }
+                    }
 
 
-
-                        if (Input.GetKeyUp("="))
+                    if (Input.GetKeyUp("-"))
+                    {
+                        StreamSDK.instance.quality -= 5;
+                        if (StreamSDK.instance.quality > 100)
                         {
-
-                            //   testSize += 250;
-                            StreamSDK.instance.quality += 5;
-                            if (StreamSDK.instance.quality < 0)
-                            {
-                                StreamSDK.instance.quality = 0;
-                            }
+                            StreamSDK.instance.quality = 100;
                         }
+                        // testSize += 250;
+
+                    }
+
+                    Application.targetFrameRate = 35;
+                    QualitySettings.vSyncCount = 0;
 
 
-                        if (Input.GetKeyUp("-"))
-                        {
-                            StreamSDK.instance.quality -= 5;
-                            if (StreamSDK.instance.quality > 100)
-                            {
-                                StreamSDK.instance.quality = 100;
-                            }
-                            // testSize += 250;
+                    //byte[] data = new byte[testSize];
 
-                        }
 
-                        Application.targetFrameRate = 35;
+                    byte[] vidData = StreamSDK.GetVideo();
+
+                    if (vidData != null)
+                    {
+
+                        task.setByteValue("data", vidData);
+                        task.setStringValue("debug", "datasize: " + vidData.Length);
+
+                        FPS.text = ("FPS: " + 1f / Time.smoothDeltaTime);
+
+                        StreamSDK.UpdateStreamRemote(vidData);
+
+
+                        //  outline detection.
+                        // re-apply outline to streamed img.
+
+                        //DepthTransport.Edge(ushort[] depthMap, Texture2D texture);
+
+
+                    }
+
+                }
+
+                if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT)
+                {
+
+                    byte[] data2;
+
+                    if (task.getByteValue("data", out data2))
+                    {
+
+                        //  previ
+                        Application.targetFrameRate = 30;
                         QualitySettings.vSyncCount = 0;
-
-
-                        //byte[] data = new byte[testSize];
-
-
-                        byte[] vidData = StreamSDK.GetVideo();
-
-                        if (vidData != null)
-                        {
-
-                            task.setByteValue("data", vidData);
-                            task.setStringValue("debug", "datasize: " + vidData.Length);
-
-                            FPS.text = ("FPS: " + 1f / Time.smoothDeltaTime);
-
-                            StreamSDK.UpdateStreamRemote(vidData);
-
-
-                            //  outline detection.
-                            // re-apply outline to streamed img.
-
-                            //DepthTransport.Edge(ushort[] depthMap, Texture2D texture);
-
-
-                        }
-
-                    }
-
-                    if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT)
-                    {
-
-                        byte[] data2;
-
-                        if (task.getByteValue("data", out data2))
-                        {
-
-                            //  previ
-                            Application.targetFrameRate = 30;
-                            QualitySettings.vSyncCount = 0;
-                            //task.setStringValue("debug", "datasize: " + data.Length);
-                            FPS.text = ("FPS: " + 1 / Time.smoothDeltaTime + "UPD " + task.LastUpdatesPerFrame);
-                            StreamSDK.UpdateStreamRemote(data2);
-
-                        }
-
-
+                        //task.setStringValue("debug", "datasize: " + data.Length);
+                        FPS.text = ("FPS: " + 1 / Time.smoothDeltaTime + "UPD " + task.LastUpdatesPerFrame);
+                        StreamSDK.UpdateStreamRemote(data2);
 
                     }
 
 
 
-                    break;
+                }
 
-                */
+
+
+                break;
+
+            */
 
 
                 case "initstream":
@@ -572,113 +691,113 @@ if (                   PRESENCE.MainDepthTransport == null || PRESENCE.MainDepth
                         break;
                     }
 
-                    /*
-                case "cloudstream2":
+                /*
+            case "cloudstream2":
 
+                {
+
+                    if (PRESENCE.deviceMode == DEVICEMODE.SERVER)
                     {
 
-                        if (PRESENCE.deviceMode == DEVICEMODE.SERVER)
+                        if (StreamSDK.instance == null)
                         {
-
-                            if (StreamSDK.instance == null)
-                            {
-                                Debug.LogError("Streamsdk null.");
-
-                            }
-
-                            if (DepthTexture == null)
-                            {
-                                DepthTexture = new Texture2D(DepthTransport.OwnsKinect.DepthWidth, DepthTransport.OwnsKinect.DepthHeight);
-
-                            }
-
-                            ushort[] DepthMap = DepthTransport.OwnsKinect.GetRawDepthMap();
-                            kinectImage.texture = DepthTransport.OwnsKinect.RawDepthToTexture(DepthMap, DepthTexture);
-
-                            byte[] video = StreamSDK.GetVideo();
-
-                            if (video != null)
-
-                            {
-                                frame++;
-
-                                task.setIntValue("frame", frame);
-
-                                task.setByteValue("video", video);
-
-                                task.setIntValue("min", DepthTransport.OwnsKinect.DepthMin.Int);
-                                task.setIntValue("max", DepthTransport.OwnsKinect.DepthMax.Int);
-
-                                task.setStringValue("debug", "frame: " + frame + "data: " + video.Length);
-
-                                StreamSDK.UpdateStreamRemote(video);
-
-
-                                //DepthTransport.ApplyEdge(DepthMap, PreviewTexture);
-
-
-
-                            }
+                            Debug.LogError("Streamsdk null.");
 
                         }
 
-
-
-                        if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT)
+                        if (DepthTexture == null)
                         {
-                            if (StreamSDK.instance != null)
-                            {
-                                int getFrame;
-                                byte[] getVideo;
+                            DepthTexture = new Texture2D(DepthTransport.OwnsKinect.DepthWidth, DepthTransport.OwnsKinect.DepthHeight);
+
+                        }
+
+                        ushort[] DepthMap = DepthTransport.OwnsKinect.GetRawDepthMap();
+                        kinectImage.texture = DepthTransport.OwnsKinect.RawDepthToTexture(DepthMap, DepthTexture);
+
+                        byte[] video = StreamSDK.GetVideo();
+
+                        if (video != null)
+
+                        {
+                            frame++;
+
+                            task.setIntValue("frame", frame);
+
+                            task.setByteValue("video", video);
+
+                            task.setIntValue("min", DepthTransport.OwnsKinect.DepthMin.Int);
+                            task.setIntValue("max", DepthTransport.OwnsKinect.DepthMax.Int);
+
+                            task.setStringValue("debug", "frame: " + frame + "data: " + video.Length);
+
+                            StreamSDK.UpdateStreamRemote(video);
 
 
-
-
-                                if (task.getIntValue("frame", out getFrame) && frame != getFrame && task.getByteValue("video", out getVideo))
-                                {
-
-                                    frame = getFrame;
-                                    //    Debug.Log("data " + getVideo.Length);
-
-                                    //   Debug.Log("frame " + frame);
-
-                                    StreamSDK.UpdateStreamRemote(getVideo);
-
-                                    //    StreamSDK.UpdateStreamRemote(getVideo);
-
-
-
-
-
-                                }
-
-
-
-
-                            }
+                            //DepthTransport.ApplyEdge(DepthMap, PreviewTexture);
 
 
 
                         }
 
+                    }
 
 
 
-                        break;
+                    if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT)
+                    {
+                        if (StreamSDK.instance != null)
+                        {
+                            int getFrame;
+                            byte[] getVideo;
+
+
+
+
+                            if (task.getIntValue("frame", out getFrame) && frame != getFrame && task.getByteValue("video", out getVideo))
+                            {
+
+                                frame = getFrame;
+                                //    Debug.Log("data " + getVideo.Length);
+
+                                //   Debug.Log("frame " + frame);
+
+                                StreamSDK.UpdateStreamRemote(getVideo);
+
+                                //    StreamSDK.UpdateStreamRemote(getVideo);
+
+
+
+
+
+                            }
+
+
+
+
+                        }
+
 
 
                     }
-                    */
+
+
+
+
+                    break;
+
+
+                }
+                */
                 case "amserver":
 
-                    PRESENCE.deviceMode = DEVICEMODE.SERVER;
+                    SETTINGS.deviceMode = DEVICEMODE.SERVER;
                     done = true;
 
                     break;
 
                 case "amvrclient":
 
-                    PRESENCE.deviceMode = DEVICEMODE.VRCLIENT;
+                    SETTINGS.deviceMode = DEVICEMODE.VRCLIENT;
                     done = true;
 
                     break;
@@ -725,28 +844,28 @@ if (                   PRESENCE.MainDepthTransport == null || PRESENCE.MainDepth
 
                 case "captureframezero":
 
-                    PRESENCE.CaptureFrame = 0;
+                    SETTINGS.CaptureFrame = 0;
 
                     done = true;
                     break;
 
                 case "setsession":
 
-                    if (PRESENCE.deviceMode == DEVICEMODE.SERVER)
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
 
-                        PRESENCE.capture = new CloudSequence(PRESENCE.captureLength);
+                        SETTINGS.capture = new CloudSequence(SETTINGS.captureLength);
 
                         // pass values to client
 
-                        GENERAL.GLOBALS.setIntValue("echooffset", PRESENCE.echoOffset);
-                        GENERAL.GLOBALS.setIntValue("capturelength", PRESENCE.captureLength);
+                        GENERAL.GLOBALS.setIntValue("echooffset", SETTINGS.echoOffset);
+                        GENERAL.GLOBALS.setIntValue("capturelength", SETTINGS.captureLength);
 
 
                         done = true;
                     }
 
-                    if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT)
+                    if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
                     {
 
                         int captureLength, echooffset;
@@ -757,13 +876,13 @@ if (                   PRESENCE.MainDepthTransport == null || PRESENCE.MainDepth
                         if (GENERAL.GLOBALS.getIntValue("capturelength", out captureLength))
                         {
 
-                            PRESENCE.captureLength = captureLength;
-                            PRESENCE.capture = new CloudSequence(PRESENCE.captureLength);
+                            SETTINGS.captureLength = captureLength;
+                            SETTINGS.capture = new CloudSequence(SETTINGS.captureLength);
 
                             if (GENERAL.GLOBALS.getIntValue("echooffset", out echooffset))
                             {
 
-                                PRESENCE.echoOffset = echooffset;
+                                SETTINGS.echoOffset = echooffset;
 
                                 done = true;
 
@@ -801,7 +920,7 @@ if (                   PRESENCE.MainDepthTransport == null || PRESENCE.MainDepth
                     //DepthTransport.SetActive(false);
                     //DepthTransport.SetMode(DEPTHMODE.OFF);
 
-           //         DepthTransport.OwnsKinect.Mode = DEPTHMODE.OFF;
+                    //         DepthTransport.OwnsKinect.Mode = DEPTHMODE.OFF;
 
 
                     done = true;
@@ -832,13 +951,13 @@ if (                   PRESENCE.MainDepthTransport == null || PRESENCE.MainDepth
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
-                        //GameObject kinectObject = GameObject.Find ("Kinect");
-                        //	DepthTransport = new DepthTransport ();
-                    //    DepthTransport.SetActive(true);
-                        DepthTransport.OwnsKinect.Mode = DEPTHMODE.LIVE;
+                            //GameObject kinectObject = GameObject.Find ("Kinect");
+                            //	DepthTransport = new DepthTransport ();
+                            //    DepthTransport.SetActive(true);
+                            DepthTransport.OwnsKinect.Mode = DEPTHMODE.LIVE;
 
 
-                        kinectstatus = "initialising";
+                            kinectstatus = "initialising";
 
 #else
 
@@ -856,35 +975,35 @@ if (                   PRESENCE.MainDepthTransport == null || PRESENCE.MainDepth
 
                         //case "initialising":
 
-                            ////Debug.Log( me+ "kinect awake? "+ DepthTransport.KinectManager.am
+                        ////Debug.Log( me+ "kinect awake? "+ DepthTransport.KinectManager.am
 
-                            //if (DepthTransport.OwnsKinect.Mode == DEPTHMODE.LIVE)
-                            //{
+                        //if (DepthTransport.OwnsKinect.Mode == DEPTHMODE.LIVE)
+                        //{
 
-                            //    kinectstatus = "live";
+                        //    kinectstatus = "live";
 
-                            //    Debug.Log(me + "Kinect live in : " + (Time.time - timeStamp));
+                        //    Debug.Log(me + "Kinect live in : " + (Time.time - timeStamp));
 
-                            //    kinectstatus = "live";
+                        //    kinectstatus = "live";
 
-                            //}
-                            //else
-                            //{
+                        //}
+                        //else
+                        //{
 
-                            //    // Time out
+                        //    // Time out
 
-                            //    if ((Time.time - timeStamp) > 1f)
-                            //    {
+                        //    if ((Time.time - timeStamp) > 1f)
+                        //    {
 
-                            //        Debug.LogWarning(me + "Kinect timed out.");
+                        //        Debug.LogWarning(me + "Kinect timed out.");
 
-                            //        kinectstatus = "dummy";
+                        //        kinectstatus = "dummy";
 
-                            //    }
+                        //    }
 
 
-                            //}
-                            //break;
+                        //}
+                        //break;
 
                         case "live":
 
@@ -916,34 +1035,34 @@ if (                   PRESENCE.MainDepthTransport == null || PRESENCE.MainDepth
                     break;
 
 
-                    /*
+                /*
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-                  
-            case "recordkinect":
 
-                // we grab a frame and write it to disk...
+        case "recordkinect":
 
-                Debug.LogWarning(me + "writing depth to disk at " + Application.persistentDataPath);
+            // we grab a frame and write it to disk...
 
-                int width = DepthTransport.OwnsKinect.DepthWidth;
-                int height = DepthTransport.OwnsKinect.DepthHeight;
+            Debug.LogWarning(me + "writing depth to disk at " + Application.persistentDataPath);
 
-                depthMap = DepthTransport.OwnsKinect.GetRawDepthMap();
+            int width = DepthTransport.OwnsKinect.DepthWidth;
+            int height = DepthTransport.OwnsKinect.DepthHeight;
 
-                DepthCapture dc = new DepthCapture(width, height);
-                DepthCapture.current = dc;
+            depthMap = DepthTransport.OwnsKinect.GetRawDepthMap();
 
-                dc.put(depthMap);
+            DepthCapture dc = new DepthCapture(width, height);
+            DepthCapture.current = dc;
 
-                IO.SaveDepthCaptures();
+            dc.put(depthMap);
 
-
+            IO.SaveDepthCaptures();
 
 
 
-                done = true;
 
-                break;
+
+            done = true;
+
+            break;
 
 #endif
 */
@@ -1213,7 +1332,7 @@ if (                   PRESENCE.MainDepthTransport == null || PRESENCE.MainDepth
 
 
 
-                    IO.SaveCloudSequence(PRESENCE.capture);
+                    IO.SaveCloudSequence(SETTINGS.capture);
 
                     done = true;
 
@@ -1221,12 +1340,12 @@ if (                   PRESENCE.MainDepthTransport == null || PRESENCE.MainDepth
 
                 case "loadsequence":
 
-                    PRESENCE.CaptureFrame = 0;
-                    PRESENCE.TimeStamp = Time.time;
+                    SETTINGS.CaptureFrame = 0;
+                    SETTINGS.TimeStamp = Time.time;
 
-                    PRESENCE.capture = IO.LoadCloudSequence();
+                    SETTINGS.capture = IO.LoadCloudSequence();
 
-                    if (PRESENCE.capture != null)
+                    if (SETTINGS.capture != null)
                     {
                         done = true;
                     }
@@ -1237,12 +1356,12 @@ if (                   PRESENCE.MainDepthTransport == null || PRESENCE.MainDepth
 
                 case "loadsequenceresource":
 
-                    PRESENCE.CaptureFrame = 0;
-                    PRESENCE.TimeStamp = Time.time;
+                    SETTINGS.CaptureFrame = 0;
+                    SETTINGS.TimeStamp = Time.time;
 
-                    PRESENCE.capture = IO.LoadCloudSequenceFromResources();
+                    SETTINGS.capture = IO.LoadCloudSequenceFromResources();
 
-                    if (PRESENCE.capture != null)
+                    if (SETTINGS.capture != null)
                     {
                         done = true;
                     }

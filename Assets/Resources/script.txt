@@ -7,7 +7,9 @@ start moodlight
 start serversearch
 alignset
 addkinectnull
-addhandnulls
+//addhandnulls
+createinstance
+receivelivedepth
 //autocalibrate
 //moodon
 end
@@ -38,45 +40,6 @@ end
 
 // SERVER STORIES.
 
-// io dev
-
-#serverio
-debugon
-makeservercontrols
-makefoldermenu
-makefilemenu
-amserver
-start servercontrols
-start moodlight
-end
-
-#togglebrowser
-togglebrowser
-end
-
-#folder
-setfolder
-makefilemenu
-end
-
-#file
-setfile
-end
-
-#newfile
-makenewfile
-makefilemenu
-end
-
-#newfolder
-makenewfolder
-makefoldermenu
-makefilemenu
-end
-
-
-// Main story
-
 #presenceserver
 debugon
 amserver
@@ -85,7 +48,8 @@ displaycheck
 //initstream
 alignset
 addkinectnull
-addviewernulls
+//addviewernulls
+createinstance
 makeservercontrols
 makefoldermenu
 makefilemenu
@@ -114,6 +78,31 @@ end
 servercontrol
 end
 
+// Server io
+
+#togglebrowser
+togglebrowser
+end
+
+#folder
+setfolder
+makefilemenu
+end
+
+#file
+setfile
+end
+
+#newfile
+makenewfile
+makefilemenu
+end
+
+#newfolder
+makenewfolder
+makefoldermenu
+makefilemenu
+end
 
 
 // Startpresence starts the kinect (if possible) and begins streaming user info (not points). Then it triggers the client to calibrate. 
@@ -149,11 +138,13 @@ moodoff
 stop startpresence
 stop userstreaming
 stop clientcalibration
+stop clientcalibrated
 end
 
 // 
 
 #recordstart
+isglobal
 recordstart
 @stoprecord
 recordstop
@@ -162,6 +153,17 @@ end
 
 #recordstop
 tell recordstart stoprecord
+end
+
+#playbackstart
+createclone
+playbackbuffer
+@stopplayback
+stopplaybackbuffer
+end
+
+#playbackstop
+tell playbackstart stopplayback
 end
 
 // GENERAL STORIES

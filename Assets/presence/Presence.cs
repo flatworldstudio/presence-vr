@@ -1,71 +1,72 @@
-﻿
-using System;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using System.Collections;
 
-namespace Presence
+namespace PresenceEngine
 {
-
-    public enum DEVICEMODE
+    public class Presence : MonoBehaviour
     {
-        NONE,
-        SERVER,
-        VRCLIENT
+       public iVisualiser Visualiser;
+        public DepthTransport DepthTransport;
+    
+
+        static public Presence Create(GameObject prefab, GameObject parent)
+        {
+            GameObject PresenceObject = Instantiate(prefab);
+            PresenceObject.transform.parent = parent.transform;
+            
+            Presence p = PresenceObject.GetComponent<Presence>();
+
+
+            return p;
+
+        }
+
+        public void Initialise()
+        {
+            if (Visualiser!=null)
+            Visualiser.Initialise(this.gameObject);
+
+        }
+       
+        // Use this for initialization
+        void Start()
+        {
+         
+        }
+
+        // Update is called once per frame
+        void Update()
+        {
+            if (DepthTransport !=null && Visualiser != null && Visualiser.IsInitialised())
+                        Visualiser.Update(DepthTransport.ActiveFrame); // frame may or may not be different, it's up to the interface implementation to deal with that.
+        }
+
+        public void SetTranscoder (string name)
+        {
+
+            if (DepthTransport == null)
+                DepthTransport = new DepthTransport();
+
+            DepthTransport.SetTranscoder(name);
+        }
+      
+        public void SetVisualiser(string name)
+        {
+
+
+            switch (name)
+            {
+                case "ShowSkeleton":
+                    Visualiser = new ShowSkeleton();
+                    break;
+                default:
+                    Debug.LogError("Trying to set unkown visualiser.");
+                    break;
+            }
+
+        }
+
 
     }
-
-
-
-    public static class PRESENCE
-    {
-
-        // KINECT INFO
-        //	public static GameObject kinectObject;
-        public static DEVICEMODE deviceMode;
-
-        public static DepthTransport MainDepthTransport;
-
-
-
-        public static float north = 0;
-
-        public static float kinectHeight = 1.35f;
-
-        public static float kinectHeading = 45f;
-
-        public static float kinectCentreDistance = Mathf.Sqrt(2f) * 2f;
-        public static bool kinectIsOrigin = true;
-
-
-        //	public static DepthTransport pKinect;
-
-        public static float mobileInitialHeading = -1;
-        public static float mobileInitialHeading1 = -1;
-
-
-        public static float vrHeadOffset = 0;
-
-        public static bool isOverview = true;
-
-        public static int frame;
-
-        public static bool capturing;
-
-        public static CloudSequence capture;
-        public static int CaptureFrame;
-        public static int sessionLength = 2500;
-        public static int captureLength = 2500;
-        public static int echoOffset = 25;
-
-
-        public static int FrameSize;
-        public static Vector3[] PointCloud;
-        public static float TimeStamp;
-    }
-
-
-
-
-
-
 }

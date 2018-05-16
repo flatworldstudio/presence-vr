@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace Presence
+namespace PresenceEngine
 {
     public class RovingValue
     {

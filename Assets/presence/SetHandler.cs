@@ -8,13 +8,14 @@ using Random = UnityEngine.Random;
 using StoryEngine;
 
 
-namespace Presence
+namespace PresenceEngine
 {
 
     public class SetHandler : MonoBehaviour
     {
-
+        public GameObject PresenceObjectPrefab;
         public SetController setController;
+
 
         //public GameObject cloud;
 
@@ -52,13 +53,16 @@ namespace Presence
 
         int droppedFrames = 0;
 
+        //        Dictionary<string, GameObject> PresenceInstances;
 
-
+        //    Presence MainPresence;
 
         void Start()
         {
 
             setController.addTaskHandler(TaskHandler);
+
+            SETTINGS.Presences = new Presence[1];
 
 
             //	ParticleCloud.init (GameObject.Find ("Cloud"));
@@ -85,6 +89,9 @@ namespace Presence
 
         //float MainStageLightPerlin;
 
+
+
+
         public bool TaskHandler(StoryTask task)
         {
 
@@ -93,11 +100,45 @@ namespace Presence
             switch (task.description)
             {
 
+                case "createinstance":
+
+
+                    if (SETTINGS.MainPresence == null)
+                        SETTINGS.MainPresence = Presence.Create(PresenceObjectPrefab, this.gameObject);
+
+                    SETTINGS.MainPresence.SetVisualiser("ShowSkeleton");
+                    SETTINGS.MainPresence.SetTranscoder("SkeletonOnly");
+                    SETTINGS.MainPresence.Initialise();
+
+                    //if (SETTINGS.MainPresence.DepthTransport == null)
+                    //{
+                    //    SETTINGS.MainPresence.DepthTransport = new DepthTransport();
+                    //    SETTINGS.MainPresence.DepthTransport.SetTranscoder("SkeletonOnly");
+
+
+                    //}
+
+                    done = true;
+                    break;
+
+                case "createclone":
+
+                    if (SETTINGS.Presences[0] == null)
+                        SETTINGS.Presences[0] = Presence.Create(PresenceObjectPrefab, this.gameObject);
+
+                    SETTINGS.Presences[0].SetVisualiser("ShowSkeleton");
+                    SETTINGS.Presences[0].SetTranscoder("SkeletonOnly");
+                    SETTINGS.Presences[0].Initialise();
+
+                    done = true;
+                    break;
+
+
                 case "moodlight":
 
                     float MainPerlinStart, MainPerlin, MoodLight01PerlinStart, MoodLight02PerlinStart, MoodLight01Perlin, MoodLight02Perlin;
 
-                    if (PRESENCE.deviceMode == DEVICEMODE.SERVER || (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT && !GENERAL.wasConnected))
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER || (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT && !GENERAL.wasConnected))
                     {
 
                         // We are either the server or an unconnected vrclient so we take the lead.
@@ -146,13 +187,16 @@ namespace Presence
                     // We include confinement here
 
 
-                    if (GENERAL.UserInConfinedArea){
+                    if (GENERAL.UserInConfinedArea)
+                    {
 
 
                         MainStageLight.Master = GENERAL.UserCalibrated ? 4f : 2f;
 
 
-                    }else{
+                    }
+                    else
+                    {
 
                         MainStageLight.Master = 0.25f;
 
@@ -163,9 +207,9 @@ namespace Presence
 
                 case "lostconnection":
 
-                    GENERAL.UserCalibrated=false;
+                    GENERAL.UserCalibrated = false;
 
-                    done=true;
+                    done = true;
                     break;
 
                 case "moodon":
@@ -179,7 +223,7 @@ namespace Presence
 
                     //string test;
                     //if (!task.getStringValue("test",out test))
-                        //task.setStringValue("test","test");
+                    //task.setStringValue("test","test");
 
 
 
@@ -208,7 +252,7 @@ namespace Presence
                 case "recorddepth":
                 case "playdepth":
 
-                //    ComputeParticles(PRESENCE.MainDepthTransport.GetRawDepthMap(), PRESENCE.MainDepthTransport.DepthWidth, PRESENCE.MainDepthTransport.DepthHeight, 2, new Vector3(0, PRESENCE.kinectHeight, 0), clouds[0]);
+                    //    ComputeParticles(PRESENCE.MainDepthTransport.GetRawDepthMap(), PRESENCE.MainDepthTransport.DepthWidth, PRESENCE.MainDepthTransport.DepthHeight, 2, new Vector3(0, PRESENCE.kinectHeight, 0), clouds[0]);
 
                     break;
 
@@ -217,7 +261,7 @@ namespace Presence
                     ushort[] depth;
                     if (task.getUshortValue("depth", out depth))
                     {
-           //             ComputeParticles(depth, PRESENCE.MainDepthTransport.DepthWidth, PRESENCE.MainDepthTransport.DepthHeight, 2, new Vector3(0, PRESENCE.kinectHeight, 0), clouds[0]);
+                        //             ComputeParticles(depth, PRESENCE.MainDepthTransport.DepthWidth, PRESENCE.MainDepthTransport.DepthHeight, 2, new Vector3(0, PRESENCE.kinectHeight, 0), clouds[0]);
                     }
                     break;
 
@@ -246,6 +290,7 @@ namespace Presence
                     break;
 
 
+
                 case "createclouds":
 
                     clouds = new ParticleCloud[2];
@@ -253,7 +298,7 @@ namespace Presence
                     clouds[0] = new ParticleCloud(20000);
                     clouds[1] = new ParticleCloud(20000);
 
-                    PRESENCE.PointCloud = new Vector3[2500];
+                    SETTINGS.PointCloud = new Vector3[2500];
 
                     cloud = clouds[0];
                     mirror = clouds[1];
@@ -281,7 +326,7 @@ namespace Presence
 
                     clouds[0] = new ParticleCloud(20000);
 
-                    PRESENCE.PointCloud = new Vector3[2500];
+                    SETTINGS.PointCloud = new Vector3[2500];
 
 
                     done = true;
@@ -291,12 +336,12 @@ namespace Presence
 
                 case "playsequence":
 
-                    if (Time.time - PRESENCE.TimeStamp > 0.04f)
+                    if (Time.time - SETTINGS.TimeStamp > 0.04f)
                     {
 
-                        PRESENCE.TimeStamp = Time.time;
+                        SETTINGS.TimeStamp = Time.time;
 
-                        CloudFrame currentFrame = PRESENCE.capture.Frames[PRESENCE.CaptureFrame];
+                        CloudFrame currentFrame = SETTINGS.capture.Frames[SETTINGS.CaptureFrame];
 
                         int pointCount = currentFrame.Points.Length;
 
@@ -311,15 +356,15 @@ namespace Presence
 
                         clouds[0].ApplyParticles(pointCount);
 
-                        PRESENCE.CaptureFrame++;
+                        SETTINGS.CaptureFrame++;
 
-                        if (PRESENCE.CaptureFrame == PRESENCE.capture.Frames.Length)
+                        if (SETTINGS.CaptureFrame == SETTINGS.capture.Frames.Length)
                         {
 
-                            PRESENCE.CaptureFrame = 0;
+                            SETTINGS.CaptureFrame = 0;
                         }
 
-                        task.setStringValue("debug", "" + PRESENCE.CaptureFrame);
+                        task.setStringValue("debug", "" + SETTINGS.CaptureFrame);
 
                     }
 
@@ -327,29 +372,29 @@ namespace Presence
 
                 case "capture":
 
-                    if (Time.time - PRESENCE.TimeStamp > 0.04f)
+                    if (Time.time - SETTINGS.TimeStamp > 0.04f)
                     {
 
-                        PRESENCE.TimeStamp = Time.time;
+                        SETTINGS.TimeStamp = Time.time;
 
-                        CloudFrame newFrame = new CloudFrame(PRESENCE.FrameSize);
+                        CloudFrame newFrame = new CloudFrame(SETTINGS.FrameSize);
 
-                        Array.Copy(PRESENCE.PointCloud, newFrame.Points, PRESENCE.FrameSize);
+                        Array.Copy(SETTINGS.PointCloud, newFrame.Points, SETTINGS.FrameSize);
 
-                        PRESENCE.capture.Frames[PRESENCE.CaptureFrame] = newFrame;
+                        SETTINGS.capture.Frames[SETTINGS.CaptureFrame] = newFrame;
 
-                        PRESENCE.CaptureFrame++;
+                        SETTINGS.CaptureFrame++;
 
                         //	Debug.Log (PRESENCE.CaptureFrame + " " + PRESENCE.capture.Frames.Length);
 
-                        if (PRESENCE.CaptureFrame == PRESENCE.capture.Frames.Length)
+                        if (SETTINGS.CaptureFrame == SETTINGS.capture.Frames.Length)
                         {
 
                             done = true;
 
                         }
 
-                        task.setStringValue("debug", "" + PRESENCE.CaptureFrame);
+                        task.setStringValue("debug", "" + SETTINGS.CaptureFrame);
 
 
                     }
@@ -365,7 +410,7 @@ namespace Presence
                     //if (DepthTransport.IsLive())
                     //{
 
-           //         ComputeParticles(PRESENCE.MainDepthTransport.GetRawDepthMap(), PRESENCE.MainDepthTransport.DepthWidth, PRESENCE.MainDepthTransport.DepthHeight, 2, new Vector3(0, PRESENCE.kinectHeight, 0), clouds[0]);
+                    //         ComputeParticles(PRESENCE.MainDepthTransport.GetRawDepthMap(), PRESENCE.MainDepthTransport.DepthWidth, PRESENCE.MainDepthTransport.DepthHeight, 2, new Vector3(0, PRESENCE.kinectHeight, 0), clouds[0]);
 
                     //     Debug.Log("type " + PreviewImage.texture.GetType().ToString());
 
@@ -421,7 +466,7 @@ namespace Presence
                             int DepthHeight = StreamSDK.instance.height;
 
 
-            //                ComputeParticles(PRESENCE.MainDepthTransport.TextureToRawDepth((Texture2D)PreviewImage.texture, min, max), DepthWidth, DepthHeight, 1, new Vector3(0, PRESENCE.kinectHeight, 0), clouds[1]);
+                            //                ComputeParticles(PRESENCE.MainDepthTransport.TextureToRawDepth((Texture2D)PreviewImage.texture, min, max), DepthWidth, DepthHeight, 1, new Vector3(0, PRESENCE.kinectHeight, 0), clouds[1]);
 
 
                         }
@@ -435,235 +480,260 @@ namespace Presence
 
                     break;
 
-                    /*
-                case "cloudstream":
+                //case "userstream":
+
+                //    UncompressedFrame ShowFrame = SETTINGS.MainPresence.DepthTransport.ActiveUncompressedFrame;
+
+                //    if (ShowFrame != null && ShowFrame.Joints != null)
+                //    {
+                //        viewerObject.transform.parent.transform.position = ShowFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head];
+
+                //        //  handl.transform.position = ShowFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft];
+                //        //    handr.transform.position = ShowFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight];
+
+                //        //     body.transform.position = ShowFrame.Body;
+                //    }
+                //    else
+                //    {
+                //        Debug.LogWarning("Trying to display an empty frame.");
+                //    }
 
 
 
-                    string mode = "live";
-
-                    GENERAL.GLOBALS.getStringValue("mode", out mode);
 
 
 
+                //    break;
+
+                /*
+            case "cloudstream":
 
 
-                    // SERVER SIDE
+
+                string mode = "live";
+
+                GENERAL.GLOBALS.getStringValue("mode", out mode);
 
 
-                    if (PRESENCE.deviceMode == DEVICEMODE.SERVER)
-                    {
+
+
+
+                // SERVER SIDE
+
+
+                if (PRESENCE.deviceMode == DEVICEMODE.SERVER)
+                {
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
-				string init;
+            string init;
 
-				if (!task.getStringValue ("init", out init)) {
-					task.setStringValue ("init", "done");
+            if (!task.getStringValue ("init", out init)) {
+                task.setStringValue ("init", "done");
 
 
-					serverFrameStamp = Time.time - targetFrameRate;
-					clientFrameStamp = Time.time - targetFrameRate;
+                serverFrameStamp = Time.time - targetFrameRate;
+                clientFrameStamp = Time.time - targetFrameRate;
 
-					sample = 8;
+                sample = 8;
 
-					width = DepthTransport.OwnsKinect.DepthWidth;
-					height = DepthTransport.OwnsKinect.DepthHeight;
-					dataSize = (height / sample) * (width / sample);
+                width = DepthTransport.OwnsKinect.DepthWidth;
+                height = DepthTransport.OwnsKinect.DepthHeight;
+                dataSize = (height / sample) * (width / sample);
 
 
 
-				}
+            }
 
-				if (!task.getFloatValue ("clientFrameRate", out clientFrameRate))
-					clientFrameRate	= targetFrameRate;
+            if (!task.getFloatValue ("clientFrameRate", out clientFrameRate))
+                clientFrameRate	= targetFrameRate;
 
-				serverFrameRate = Mathf.Lerp (serverFrameRate, Time.time - serverFrameStamp, 0.1f);
+            serverFrameRate = Mathf.Lerp (serverFrameRate, Time.time - serverFrameStamp, 0.1f);
 
-				serverFrameStamp = Time.time;
+            serverFrameStamp = Time.time;
 
-				depthMap = DepthTransport.OwnsKinect.GetRawDepthMap ();
+            depthMap = DepthTransport.OwnsKinect.GetRawDepthMap ();
 
-				particleIndex = 0;
+            particleIndex = 0;
 
-				newFrame = new ushort [dataSize];
+            newFrame = new ushort [dataSize];
 
-				int dataIndex = 0;
+            int dataIndex = 0;
 
-				for (int y = 0; y < height; y += sample) {
+            for (int y = 0; y < height; y += sample) {
 
-					for (int x = 0; x < width; x += sample) {
+                for (int x = 0; x < width; x += sample) {
 
-						int i = y * width + x;
+                    int i = y * width + x;
 
-						newFrame [dataIndex] = (ushort)(depthMap [i]);
+                    newFrame [dataIndex] = (ushort)(depthMap [i]);
 
-						ushort userMap = (ushort)(depthMap [i] & 7);
-						ushort userDepth = (ushort)(depthMap [i] >> 3);
+                    ushort userMap = (ushort)(depthMap [i] & 7);
+                    ushort userDepth = (ushort)(depthMap [i] >> 3);
 
-						if (userMap != 0) {
+                    if (userMap != 0) {
 
-							point = depthToWorld (x, y, userDepth);
-							point.x = -point.x;
+                        point = depthToWorld (x, y, userDepth);
+                        point.x = -point.x;
 
-							point.y = -point.y;
-							point.z += 0.05f;
+                        point.y = -point.y;
+                        point.z += 0.05f;
 
-							point.y += PRESENCE.kinectHeight;
+                        point.y += PRESENCE.kinectHeight;
 
-							cloud.allParticles [particleIndex].position = point;
-							PRESENCE.PointCloud [particleIndex] = point;
+                        cloud.allParticles [particleIndex].position = point;
+                        PRESENCE.PointCloud [particleIndex] = point;
 
-							if (mode == "mirror") {
+                        if (mode == "mirror") {
 
-								point.z *= -1;
-								point.z += 2;
+                            point.z *= -1;
+                            point.z += 2;
 
-								mirror.allParticles [particleIndex].position = point;
-							}
+                            mirror.allParticles [particleIndex].position = point;
+                        }
 
-							particleIndex++;
+                        particleIndex++;
 
-						}
+                    }
 
-						dataIndex++;
+                    dataIndex++;
 
-					}
+                }
 
-				}
+            }
 
-				PRESENCE.FrameSize = particleIndex;
+            PRESENCE.FrameSize = particleIndex;
 
-				switch (mode) {
+            switch (mode) {
 
-			
-				case "serveronly":
-				case "preview":
-					cloud.ApplyParticles (particleIndex);
-					mirror.ApplyParticles (0);
 
-					break;
+            case "serveronly":
+            case "preview":
+                cloud.ApplyParticles (particleIndex);
+                mirror.ApplyParticles (0);
 
-				case "live":
-					cloud.ApplyParticles (particleIndex);
-					mirror.ApplyParticles (0);
-					PRESENCE.CaptureFrame++;
+                break;
 
-					break;
+            case "live":
+                cloud.ApplyParticles (particleIndex);
+                mirror.ApplyParticles (0);
+                PRESENCE.CaptureFrame++;
 
-				case "mirror":
-					cloud.ApplyParticles (particleIndex);
+                break;
 
-					mirror.ApplyParticles (particleIndex);
-					PRESENCE.CaptureFrame++;
+            case "mirror":
+                cloud.ApplyParticles (particleIndex);
 
-					break;
+                mirror.ApplyParticles (particleIndex);
+                PRESENCE.CaptureFrame++;
 
+                break;
 
-				case "echo":
-					cloud.ApplyParticles (particleIndex);
 
-					if (PRESENCE.CaptureFrame < PRESENCE.capture.Frames.Length) {
-											
-						CloudFrame newFrame = new CloudFrame (PRESENCE.FrameSize);
+            case "echo":
+                cloud.ApplyParticles (particleIndex);
 
-						Array.Copy (PRESENCE.PointCloud, newFrame.Points, PRESENCE.FrameSize);
+                if (PRESENCE.CaptureFrame < PRESENCE.capture.Frames.Length) {
 
-						PRESENCE.capture.Frames [PRESENCE.CaptureFrame] = newFrame;
+                    CloudFrame newFrame = new CloudFrame (PRESENCE.FrameSize);
 
+                    Array.Copy (PRESENCE.PointCloud, newFrame.Points, PRESENCE.FrameSize);
 
+                    PRESENCE.capture.Frames [PRESENCE.CaptureFrame] = newFrame;
 
-						//	Debug.Log (PRESENCE.CaptureFrame + " " + PRESENCE.capture.Frames.Length);
 
-				
 
-					}
-					if (PRESENCE.CaptureFrame > PRESENCE.echoOffset && PRESENCE.CaptureFrame < PRESENCE.capture.Frames.Length + PRESENCE.echoOffset) {
+                    //	Debug.Log (PRESENCE.CaptureFrame + " " + PRESENCE.capture.Frames.Length);
 
 
-						CloudFrame currentFrame = PRESENCE.capture.Frames [PRESENCE.CaptureFrame - PRESENCE.echoOffset];
 
-						if (currentFrame != null) {
+                }
+                if (PRESENCE.CaptureFrame > PRESENCE.echoOffset && PRESENCE.CaptureFrame < PRESENCE.capture.Frames.Length + PRESENCE.echoOffset) {
 
 
-							int pointCount = currentFrame.Points.Length;
+                    CloudFrame currentFrame = PRESENCE.capture.Frames [PRESENCE.CaptureFrame - PRESENCE.echoOffset];
 
+                    if (currentFrame != null) {
 
-							for (int p = 0; p < pointCount; p++) {
 
-								mirror.allParticles [p].position = currentFrame.Points [p];
+                        int pointCount = currentFrame.Points.Length;
 
-							}
 
+                        for (int p = 0; p < pointCount; p++) {
 
-							mirror.ApplyParticles (pointCount);
-						}
+                            mirror.allParticles [p].position = currentFrame.Points [p];
 
+                        }
 
-					}
 
-					PRESENCE.CaptureFrame++;
+                        mirror.ApplyParticles (pointCount);
+                    }
 
 
+                }
 
+                PRESENCE.CaptureFrame++;
 
 
-					break;
-				default:
-					break;
 
 
-				}
 
+                break;
+            default:
+                break;
 
 
+            }
 
 
-			
 
-				//task.setStringValue ("debug",""+particleIndex );
 
-				if (Time.time - clientFrameStamp >= targetFrameRate) {
 
-					clientFrameStamp = Time.time;
 
-					task.setUshortValue ("frameData", newFrame);
-					task.setIntValue ("frame", PRESENCE.frame);
 
-					task.setIntValue ("frameSampleSize", sample);
-					task.setIntValue ("frameWidth", width);
-					task.setIntValue ("frameHeight", height);
+            //task.setStringValue ("debug",""+particleIndex );
 
-					PRESENCE.frame++;
+            if (Time.time - clientFrameStamp >= targetFrameRate) {
 
-				}
+                clientFrameStamp = Time.time;
 
-				// only send at the interval the client can more or less handle
+                task.setUshortValue ("frameData", newFrame);
+                task.setIntValue ("frame", PRESENCE.frame);
 
-				//	if (clientFrameRate>targetFrameRate)
+                task.setIntValue ("frameSampleSize", sample);
+                task.setIntValue ("frameWidth", width);
+                task.setIntValue ("frameHeight", height);
 
+                PRESENCE.frame++;
 
+            }
 
+            // only send at the interval the client can more or less handle
 
+            //	if (clientFrameRate>targetFrameRate)
 
-				int droppedFrames = 0;
 
-				task.getIntValue ("dropped", out droppedFrames);
 
-				if (droppedFrames == 0) {
 
-					targetFrameRate = Mathf.Lerp (targetFrameRate, safeFrameRate, 0.01f);
 
-				} else {
+            int droppedFrames = 0;
 
-					safeFrameRate += 0.01f;
+            task.getIntValue ("dropped", out droppedFrames);
 
-					targetFrameRate += 0.01f;
+            if (droppedFrames == 0) {
 
-				}
+                targetFrameRate = Mathf.Lerp (targetFrameRate, safeFrameRate, 0.01f);
 
+            } else {
 
-				task.setStringValue ("debug", "s: " + Mathf.Round (100f * serverFrameRate) + " c: " + Mathf.Round (100f * clientFrameRate) + " t: " + Mathf.Round (100f * targetFrameRate) + " sf: " + Mathf.Round (100f *	safeFrameRate) + " d: " + droppedFrames);
+                safeFrameRate += 0.01f;
+
+                targetFrameRate += 0.01f;
+
+            }
+
+
+            task.setStringValue ("debug", "s: " + Mathf.Round (100f * serverFrameRate) + " c: " + Mathf.Round (100f * clientFrameRate) + " t: " + Mathf.Round (100f * targetFrameRate) + " sf: " + Mathf.Round (100f *	safeFrameRate) + " d: " + droppedFrames);
 
 
 
@@ -688,245 +758,245 @@ namespace Presence
 
 #endif
 
-                    }
+                }
 
 
 
 
-                    // CLIENT SIDE
+                // CLIENT SIDE
 
 
-                    if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT)
+                if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT)
+                {
+
+
+
+                    int getFrame;
+
+                    if (task.getIntValue("frame", out getFrame))
                     {
 
 
+                        task.getFloatValue("targetFrameRate", out targetFrameRate);
 
-                        int getFrame;
 
-                        if (task.getIntValue("frame", out getFrame))
+                        if (getFrame > PRESENCE.frame)
                         {
 
+                            // newer frame available
 
-                            task.getFloatValue("targetFrameRate", out targetFrameRate);
-
-
-                            if (getFrame > PRESENCE.frame)
+                            if (clientFrameStamp == 0)
                             {
 
-                                // newer frame available
+                                clientFrameStamp = Time.time - targetFrameRate; // we start perfectly on rate.
 
-                                if (clientFrameStamp == 0)
+                            }
+                            //	clientFrameRate = Time.time - clientFrameStamp;
+                            clientFrameRate = Mathf.Lerp(clientFrameRate, Time.time - clientFrameStamp, 0.1f);
+
+                            clientFrameStamp = Time.time;
+
+                            //						frameRateDeviation = Time.time - clientFrameStamp;
+
+
+                            //						if (interval==-1){
+                            //
+                            //							clientFrameStamp = Time.time;
+                            //							interval++;
+                            //						}
+
+                            //						clientFrameDuration = Time.time - clientFrameStamp;
+
+                            cloud.setLifeTime(clientFrameRate + 0.015f);
+
+
+                            task.getUshortValue("frameData", out newFrame);
+                            task.getIntValue("frameSampleSize", out sample);
+                            task.getIntValue("frameWidth", out width);
+                            task.getIntValue("frameHeight", out height);
+
+                            //						ParticleCloud.setLifeTime (0.1f);
+
+                            int mx = width / sample;
+                            int my = height / sample;
+                            int i;
+
+                            particleIndex = 0;
+
+                            for (int y = 0; y < my; y++)
+                            {
+
+                                for (int x = 0; x < mx; x++)
                                 {
 
-                                    clientFrameStamp = Time.time - targetFrameRate; // we start perfectly on rate.
+                                    i = y * mx + x;
 
-                                }
-                                //	clientFrameRate = Time.time - clientFrameStamp;
-                                clientFrameRate = Mathf.Lerp(clientFrameRate, Time.time - clientFrameStamp, 0.1f);
+                                    //	newFrame [framei] = (ushort)(depthMap [i]);
 
-                                clientFrameStamp = Time.time;
+                                    ushort userMap = (ushort)(newFrame[i] & 7);
+                                    ushort userDepth = (ushort)(newFrame[i] >> 3);
 
-                                //						frameRateDeviation = Time.time - clientFrameStamp;
-
-
-                                //						if (interval==-1){
-                                //
-                                //							clientFrameStamp = Time.time;
-                                //							interval++;
-                                //						}
-
-                                //						clientFrameDuration = Time.time - clientFrameStamp;
-
-                                cloud.setLifeTime(clientFrameRate + 0.015f);
-
-
-                                task.getUshortValue("frameData", out newFrame);
-                                task.getIntValue("frameSampleSize", out sample);
-                                task.getIntValue("frameWidth", out width);
-                                task.getIntValue("frameHeight", out height);
-
-                                //						ParticleCloud.setLifeTime (0.1f);
-
-                                int mx = width / sample;
-                                int my = height / sample;
-                                int i;
-
-                                particleIndex = 0;
-
-                                for (int y = 0; y < my; y++)
-                                {
-
-                                    for (int x = 0; x < mx; x++)
+                                    if (userMap != 0)
                                     {
 
-                                        i = y * mx + x;
+                                        point = depthToWorld(x * sample, y * sample, userDepth);
+                                        point.x = -point.x;
+                                        point.y = -point.y;
+                                        point.y += PRESENCE.kinectHeight;
+                                        point.z += 0.05f;
 
-                                        //	newFrame [framei] = (ushort)(depthMap [i]);
 
-                                        ushort userMap = (ushort)(newFrame[i] & 7);
-                                        ushort userDepth = (ushort)(newFrame[i] >> 3);
 
-                                        if (userMap != 0)
+                                        //		cloud.Emit (point);
+
+
+
+                                        cloud.allParticles[particleIndex].position = point;
+                                        PRESENCE.PointCloud[particleIndex] = point;
+
+                                        if (mode == "mirror")
                                         {
 
-                                            point = depthToWorld(x * sample, y * sample, userDepth);
-                                            point.x = -point.x;
-                                            point.y = -point.y;
-                                            point.y += PRESENCE.kinectHeight;
-                                            point.z += 0.05f;
+                                            point.z *= -1;
+                                            point.z += 2;
 
-
-
-                                            //		cloud.Emit (point);
-
-
-
-                                            cloud.allParticles[particleIndex].position = point;
-                                            PRESENCE.PointCloud[particleIndex] = point;
-
-                                            if (mode == "mirror")
-                                            {
-
-                                                point.z *= -1;
-                                                point.z += 2;
-
-                                                mirror.allParticles[particleIndex].position = point;
-                                            }
-
-
-
-
-
-                                            particleIndex++;
-
-
+                                            mirror.allParticles[particleIndex].position = point;
                                         }
+
+
+
+
+
+                                        particleIndex++;
+
 
                                     }
 
-                                } // end of plotting loop
-
-
-
-                                PRESENCE.FrameSize = particleIndex;
-
-                                switch (mode)
-                                {
-
-                                    case "serveronly":
-                                        cloud.ApplyParticles(0);
-                                        mirror.ApplyParticles(0);
-
-                                        break;
-
-                                    case "preview":
-
-                                        cloud.ApplyParticles(particleIndex);
-                                        mirror.ApplyParticles(0);
-
-                                        break;
-
-                                    case "live":
-
-                                        cloud.ApplyParticles(particleIndex);
-                                        mirror.ApplyParticles(0);
-                                        PRESENCE.CaptureFrame++;
-                                        break;
-
-                                    case "mirror":
-                                        cloud.ApplyParticles(particleIndex);
-
-                                        mirror.ApplyParticles(particleIndex);
-
-                                        PRESENCE.CaptureFrame++;
-                                        break;
-
-
-                                    case "echo":
-
-                                        cloud.ApplyParticles(particleIndex);
-
-                                        if (PRESENCE.capture != null)
-                                        {
-
-                                            if (PRESENCE.CaptureFrame < PRESENCE.capture.Frames.Length)
-                                            {
-
-                                                CloudFrame newFrame = new CloudFrame(PRESENCE.FrameSize);
-
-                                                Array.Copy(PRESENCE.PointCloud, newFrame.Points, PRESENCE.FrameSize);
-
-                                                PRESENCE.capture.Frames[PRESENCE.CaptureFrame] = newFrame;
-
-
-
-                                                //	Debug.Log (PRESENCE.CaptureFrame + " " + PRESENCE.capture.Frames.Length);
-
-
-
-                                            }
-                                            if (PRESENCE.CaptureFrame > PRESENCE.echoOffset && PRESENCE.CaptureFrame < PRESENCE.capture.Frames.Length + PRESENCE.echoOffset)
-                                            {
-
-                                                CloudFrame currentFrame = PRESENCE.capture.Frames[PRESENCE.CaptureFrame - PRESENCE.echoOffset];
-
-                                                int pointCount = currentFrame.Points.Length;
-
-
-                                                for (int p = 0; p < pointCount; p++)
-                                                {
-
-                                                    mirror.allParticles[p].position = currentFrame.Points[p];
-
-                                                }
-
-
-                                                mirror.ApplyParticles(pointCount);
-
-
-
-                                            }
-                                        }
-
-
-                                        PRESENCE.CaptureFrame++;
-
-
-                                        break;
-                                    default:
-                                        break;
-
-
                                 }
 
+                            } // end of plotting loop
 
 
 
+                            PRESENCE.FrameSize = particleIndex;
+
+                            switch (mode)
+                            {
+
+                                case "serveronly":
+                                    cloud.ApplyParticles(0);
+                                    mirror.ApplyParticles(0);
+
+                                    break;
+
+                                case "preview":
+
+                                    cloud.ApplyParticles(particleIndex);
+                                    mirror.ApplyParticles(0);
+
+                                    break;
+
+                                case "live":
+
+                                    cloud.ApplyParticles(particleIndex);
+                                    mirror.ApplyParticles(0);
+                                    PRESENCE.CaptureFrame++;
+                                    break;
+
+                                case "mirror":
+                                    cloud.ApplyParticles(particleIndex);
+
+                                    mirror.ApplyParticles(particleIndex);
+
+                                    PRESENCE.CaptureFrame++;
+                                    break;
+
+
+                                case "echo":
+
+                                    cloud.ApplyParticles(particleIndex);
+
+                                    if (PRESENCE.capture != null)
+                                    {
+
+                                        if (PRESENCE.CaptureFrame < PRESENCE.capture.Frames.Length)
+                                        {
+
+                                            CloudFrame newFrame = new CloudFrame(PRESENCE.FrameSize);
+
+                                            Array.Copy(PRESENCE.PointCloud, newFrame.Points, PRESENCE.FrameSize);
+
+                                            PRESENCE.capture.Frames[PRESENCE.CaptureFrame] = newFrame;
 
 
 
-                                droppedFrames = getFrame - PRESENCE.frame - 1;
+                                            //	Debug.Log (PRESENCE.CaptureFrame + " " + PRESENCE.capture.Frames.Length);
 
-                                PRESENCE.frame = getFrame;
 
-                                task.setIntValue("dropped", droppedFrames);
 
-                                task.setFloatValue("clientFrameRate", clientFrameRate);
+                                        }
+                                        if (PRESENCE.CaptureFrame > PRESENCE.echoOffset && PRESENCE.CaptureFrame < PRESENCE.capture.Frames.Length + PRESENCE.echoOffset)
+                                        {
 
-                                //			task.setStringValue( "debug","f: "+PRESENCE.frame+" p: "+	particleIndex);
+                                            CloudFrame currentFrame = PRESENCE.capture.Frames[PRESENCE.CaptureFrame - PRESENCE.echoOffset];
+
+                                            int pointCount = currentFrame.Points.Length;
+
+
+                                            for (int p = 0; p < pointCount; p++)
+                                            {
+
+                                                mirror.allParticles[p].position = currentFrame.Points[p];
+
+                                            }
+
+
+                                            mirror.ApplyParticles(pointCount);
+
+
+
+                                        }
+                                    }
+
+
+                                    PRESENCE.CaptureFrame++;
+
+
+                                    break;
+                                default:
+                                    break;
 
 
                             }
+
+
+
+
+
+
+
+                            droppedFrames = getFrame - PRESENCE.frame - 1;
+
+                            PRESENCE.frame = getFrame;
+
+                            task.setIntValue("dropped", droppedFrames);
+
+                            task.setFloatValue("clientFrameRate", clientFrameRate);
+
+                            //			task.setStringValue( "debug","f: "+PRESENCE.frame+" p: "+	particleIndex);
+
 
                         }
 
                     }
 
+                }
 
 
-                    break;
 
-                */
+                break;
+
+            */
 
                 case "addkinectnull":
 
@@ -942,42 +1012,42 @@ namespace Presence
 
                     break;
 
-                case "addviewernulls":
+                //case "addviewernulls":
 
-                    c = GameObject.Find("viewerCamera");
-                    g = DebugObject.getNullObject(0.25f, 0.25f, 0.5f);
-                    g.transform.SetParent(c.transform, false);
+                //    c = GameObject.Find("viewerCamera");
+                //    g = DebugObject.getNullObject(0.25f, 0.25f, 0.5f);
+                //    g.transform.SetParent(c.transform, false);
 
-                    c = GameObject.Find("HandLeft");
-                    g = DebugObject.getNullObject(0.25f);
-                    g.transform.SetParent(c.transform, false);
+                //    c = GameObject.Find("HandLeft");
+                //    g = DebugObject.getNullObject(0.25f);
+                //    g.transform.SetParent(c.transform, false);
 
-                    c = GameObject.Find("HandRight");
-                    g = DebugObject.getNullObject(0.25f);
-                    g.transform.SetParent(c.transform, false);
+                //    c = GameObject.Find("HandRight");
+                //    g = DebugObject.getNullObject(0.25f);
+                //    g.transform.SetParent(c.transform, false);
 
-                    c = GameObject.Find("Body");
-                    g = DebugObject.getNullObject(0.5f);
-                    g.transform.SetParent(c.transform, false);
+                //    c = GameObject.Find("Body");
+                //    g = DebugObject.getNullObject(0.5f);
+                //    g.transform.SetParent(c.transform, false);
 
 
-                    done = true;
+                //    done = true;
 
-                    break;
+                //    break;
 
-                case "addhandnulls":
+                //case "addhandnulls":
 
-                    c = GameObject.Find("HandLeft");
-                    g = DebugObject.getNullObject(0.1f);
-                    g.transform.SetParent(c.transform, false);
+                //    c = GameObject.Find("HandLeft");
+                //    g = DebugObject.getNullObject(0.1f);
+                //    g.transform.SetParent(c.transform, false);
 
-                    c = GameObject.Find("HandRight");
-                    g = DebugObject.getNullObject(0.1f);
-                    g.transform.SetParent(c.transform, false);
+                //    c = GameObject.Find("HandRight");
+                //    g = DebugObject.getNullObject(0.1f);
+                //    g.transform.SetParent(c.transform, false);
 
-                    done = true;
+                //    done = true;
 
-                    break;
+                //    break;
 
 
 
@@ -985,7 +1055,7 @@ namespace Presence
 
                     // Position set and user relative to kinect.
 
-                    if (PRESENCE.kinectIsOrigin)
+                    if (SETTINGS.kinectIsOrigin)
                     {
 
                         GameObject set = GameObject.Find("SetHandler");
@@ -994,13 +1064,13 @@ namespace Presence
 
                         //	c = GameObject.Find ("Compass");
 
-                        PRESENCE.north = -PRESENCE.kinectHeading;
+                        SETTINGS.north = -SETTINGS.kinectHeading;
 
                         //	c.transform.rotation = Quaternion.Euler (0, PRESENCE.north, 0);
 
-                        set.transform.rotation = Quaternion.Euler(0, PRESENCE.north, 0);
+                        set.transform.rotation = Quaternion.Euler(0, SETTINGS.north, 0);
 
-                        p = PRESENCE.kinectCentreDistance * Vector3.forward;
+                        p = SETTINGS.kinectCentreDistance * Vector3.forward;
 
                         set.transform.position = p;
                         //	c.transform.position = p;
@@ -1010,7 +1080,7 @@ namespace Presence
                         viewer.transform.position = p;
 
                         p = Vector3.zero;
-                        p.y = PRESENCE.kinectHeight;
+                        p.y = SETTINGS.kinectHeight;
 
                         kinectObject.transform.position = p;
 
@@ -1029,36 +1099,36 @@ namespace Presence
                     break;
 
 
-                    /*
-                case "placekinect":
+                /*
+            case "placekinect":
 
 
-                    GameObject kinect = GameObject.Find("Kinect");
+                GameObject kinect = GameObject.Find("Kinect");
 
-                    //	Vector3 p;
-                    //	Quaternion q;
-                    q = Quaternion.Euler(0, PRESENCE.kinectHeading, 0);
-
-
-                    kinect.transform.localRotation = q;
-
-                    p = (-1f * PRESENCE.kinectCentreDistance) * (q * Vector3.forward);
-
-                    p.y = PRESENCE.kinectHeight;
-
-                    kinect.transform.position = p;
+                //	Vector3 p;
+                //	Quaternion q;
+                q = Quaternion.Euler(0, PRESENCE.kinectHeading, 0);
 
 
-                    DepthTransport.kinectPosition = p;
+                kinect.transform.localRotation = q;
 
-                    DepthTransport.kinectRotation = q;
+                p = (-1f * PRESENCE.kinectCentreDistance) * (q * Vector3.forward);
 
-                    DepthTransport.centered = false;
+                p.y = PRESENCE.kinectHeight;
 
-                    done = true;
+                kinect.transform.position = p;
 
-                    break;
-                    */
+
+                DepthTransport.kinectPosition = p;
+
+                DepthTransport.kinectRotation = q;
+
+                DepthTransport.centered = false;
+
+                done = true;
+
+                break;
+                */
 
                 case "nextdepth":
 

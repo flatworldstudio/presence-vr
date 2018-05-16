@@ -7,7 +7,7 @@ using StoryEngine;
 //using NUnit.Framework.Constraints;
 //using Microsoft.Win32.SafeHandles;
 
-namespace Presence
+namespace PresenceEngine
 {
 
     public class UserHandler : MonoBehaviour
@@ -217,6 +217,23 @@ namespace Presence
                     done = true;
                     break;
 
+                case "playbackbuffer":
+
+                    userMessager.ShowTextMessage("Begin playback", 0.5f);
+                    serverInterface.HideButton("playbackstart");
+                    serverInterface.ShowButton("playbackstop");
+
+                    done = true;
+                    break;
+
+                case "stopplaybackbuffer":
+
+                    userMessager.ShowTextMessage("Stop playback", 0.5f);
+                    serverInterface.HideButton("playbackstop");
+                    serverInterface.ShowButton("playbackstart");
+
+                    done = true;
+                    break;
 
 
                 /*
@@ -265,7 +282,7 @@ namespace Presence
                 case "sessiontimer":
 
 
-                    if (PRESENCE.CaptureFrame == PRESENCE.sessionLength)
+                    if (SETTINGS.CaptureFrame == SETTINGS.sessionLength)
                     {
 
                         done = true;
@@ -317,7 +334,7 @@ namespace Presence
 
 
 
-                    if (PRESENCE.deviceMode == DEVICEMODE.SERVER)
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
                         string status;
 
@@ -333,7 +350,7 @@ namespace Presence
 
                     }
 
-                    if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT)
+                    if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
                     {
 
 
@@ -366,20 +383,18 @@ namespace Presence
 
                 case "userstream":
 
-                    UncompressedFrame ShowFrame = PRESENCE.MainDepthTransport.ActiveUncompressedFrame;
+                    // Here we only apply user position from task.
+
+                    UncompressedFrame ShowFrame = SETTINGS.MainPresence.DepthTransport.ActiveFrame;
 
                     if (ShowFrame != null && ShowFrame.Joints != null)
                     {
                         viewerObject.transform.parent.transform.position = ShowFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head];
 
-                        handl.transform.position = ShowFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft];
-                        handr.transform.position = ShowFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight];
-
-                        body.transform.position = ShowFrame.Body;
                     }
                     else
                     {
-                        Debug.LogWarning("Trying to display an empty frame.");
+                        Log.Error("Not a valid frame, can't set user position.");
                     }
 
 
@@ -878,7 +893,7 @@ namespace Presence
 
                 case "createview":
 
-                    PRESENCE.isOverview = false;
+                    SETTINGS.isOverview = false;
 
 
                     viewInterface = new UxInterface();
@@ -959,7 +974,7 @@ namespace Presence
                 case "createoverview":
 
 
-                    PRESENCE.isOverview = true;
+                    SETTINGS.isOverview = true;
 
 
                     overviewInterface = new UxInterface();
@@ -1293,7 +1308,7 @@ namespace Presence
 
                 case "autocalibrate":
 
-                    if (PRESENCE.deviceMode == DEVICEMODE.VRCLIENT)
+                    if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
                     {
 
                         if (!AutoCallibrateObject.activeSelf)
@@ -1424,7 +1439,7 @@ namespace Presence
 
                 case "overviewinterface":
 
-                    if (PRESENCE.isOverview)
+                    if (SETTINGS.isOverview)
                     {
 
                         UserCallBack callBack = uxController.updateUx(overviewInterface);
@@ -1450,7 +1465,7 @@ namespace Presence
 
                 case "interfaceactive":
 
-                    if (PRESENCE.isOverview)
+                    if (SETTINGS.isOverview)
                     {
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
@@ -1491,16 +1506,16 @@ namespace Presence
 
                             float vel = 0;
 
-                            float newOffset = comp - head + PRESENCE.north;
+                            float newOffset = comp - head + SETTINGS.north;
 
                             if (newOffset < 0)
                                 newOffset += 360f;
 
-                            PRESENCE.vrHeadOffset = Mathf.SmoothDamp(PRESENCE.vrHeadOffset, newOffset, ref vel, 0.1f);
+                            SETTINGS.vrHeadOffset = Mathf.SmoothDamp(SETTINGS.vrHeadOffset, newOffset, ref vel, 0.1f);
 
-                            viewerObject.transform.parent.transform.localRotation = Quaternion.Euler(0, PRESENCE.vrHeadOffset, 0);
+                            viewerObject.transform.parent.transform.localRotation = Quaternion.Euler(0, SETTINGS.vrHeadOffset, 0);
 
-                            task.setFloatValue("viewerYawOffset", PRESENCE.vrHeadOffset);
+                            task.setFloatValue("viewerYawOffset", SETTINGS.vrHeadOffset);
 
                             //	task.setStringValue ("debug", "c: " + comp);
 
@@ -1548,7 +1563,7 @@ namespace Presence
 
                     }
 
-                    if (!PRESENCE.isOverview)
+                    if (!SETTINGS.isOverview)
                     {
 
                         // skipping the compass because of inaccuracy...
@@ -1723,7 +1738,7 @@ namespace Presence
 
 
 
-                    if (!PRESENCE.isOverview)
+                    if (!SETTINGS.isOverview)
                     {
 
                         // get testrotation
@@ -1777,7 +1792,7 @@ namespace Presence
                     }
 
 
-                    if (PRESENCE.isOverview)
+                    if (SETTINGS.isOverview)
                     {
 
 
