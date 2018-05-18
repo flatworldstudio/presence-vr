@@ -1324,12 +1324,12 @@ namespace PresenceEngine
 
 #endif
 
-                case "autocalibrate":
+                case "autocalibrateNONLIVE":
 
                     done=true;
                     break;
 
-                case "autocalibrateLIVE":
+                case "autocalibrate":
 
                     if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
                     {

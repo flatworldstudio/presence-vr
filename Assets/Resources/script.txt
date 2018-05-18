@@ -1,11 +1,5 @@
 // CLIENT STORIES.
 
-#testclient
-debugon
-amvrclient
-start serversearch
-end
-
 #presenceclient
 debugon
 amvrclient
@@ -13,7 +7,6 @@ start moodlight
 start serversearch
 alignset
 addkinectnull
-//addhandnulls
 createinstance
 receivelivedepth
 //autocalibrate
@@ -65,20 +58,16 @@ debugon
 amserver
 start server
 displaycheck
-//initstream
 alignset
 addkinectnull
-//addviewernulls
 createinstance
 makeservercontrols
 setfiledefaults
 makefoldermenu
 makefilemenu
-//createclouds
 //moodon
 start servercontrols
 start moodlight
-//setsession
 end
 
 // Server starts server and waits and calls #newclient when a client connects.
