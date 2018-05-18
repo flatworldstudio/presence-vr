@@ -46,9 +46,12 @@ namespace PresenceEngine
 
             GameObject n;
 
-            n = DebugObject.getNullObject(0.25f, 0.25f, 0.5f);
-            n.transform.SetParent(PresenceObject.transform, false);
-            Head = n;
+            if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+            {
+                n = DebugObject.getNullObject(0.25f, 0.25f, 0.5f);
+                n.transform.SetParent(PresenceObject.transform, false);
+                Head = n;
+            }
 
             n = DebugObject.getNullObject(0.25f);
             n.transform.SetParent(PresenceObject.transform, false);
@@ -79,14 +82,19 @@ namespace PresenceEngine
             {
                 if (Frame != null && Frame.Joints != null)
                 {
-                    Head.transform.position = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head];
+                  
 
                     HandLeft.transform.position = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft];
                     HandRight.transform.position = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight];
 
                     Body.transform.position = Frame.Body;
 
-                    Head.transform.rotation = Frame.HeadOrientation;
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                    {
+                        Head.transform.position = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head];
+                        Head.transform.rotation = Frame.HeadOrientation;
+                    }
+
 
                     Vector3 last = HandLeftP;
                     Vector3 current = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft];
@@ -103,6 +111,7 @@ namespace PresenceEngine
 
                     last = HandRightP;
                     current = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight];
+
                     if (Frame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight])
                     {
                         for (float i = 0; i < 1; i += 0.5f)
