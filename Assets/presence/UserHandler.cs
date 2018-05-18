@@ -395,14 +395,14 @@ namespace PresenceEngine
 
                     UncompressedFrame ShowFrame = SETTINGS.Presences[0].DepthTransport.ActiveFrame;
 
-                    if (ShowFrame != null && ShowFrame.Joints != null)
+                    if (ShowFrame != null && ShowFrame.Joints != null && ShowFrame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.Head])
                     {
                         viewerObject.transform.parent.transform.position = ShowFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head];
 
                     }
                     else
                     {
-                        Log.Error("Not a valid frame, can't set user position.");
+                        //Log.Error("Not a valid frame, can't set user position.");
                     }
 
 

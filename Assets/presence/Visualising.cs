@@ -91,6 +91,7 @@ namespace PresenceEngine
 
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
+                      //  if (Frame.Tracked
                         Head.transform.position = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head];
                         Head.transform.rotation = Frame.HeadOrientation;
                     }
