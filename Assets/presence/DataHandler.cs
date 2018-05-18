@@ -39,7 +39,8 @@ namespace PresenceEngine
 
         void SetNetworkIndicators (){
             
-            FPS.text=""+1f/Time.deltaTime;
+            FPS.text=""+(Mathf.Round(1f/Time.deltaTime));
+
 
             if (AssitantDirector.BufferStatusOk){
                 led.GetComponent<Image>().color=Color.green;
@@ -117,6 +118,9 @@ namespace PresenceEngine
 
             SetNetworkIndicators ();
 
+            Application.targetFrameRate = 30;
+            QualitySettings.vSyncCount = 0;
+
             bool done = false;
 
             switch (task.description)
@@ -125,26 +129,26 @@ namespace PresenceEngine
                 case "testtask":
 
 
-                    Application.targetFrameRate = 30;
-                    QualitySettings.vSyncCount = 0;
+                    //Application.targetFrameRate = 30;
+                    //QualitySettings.vSyncCount = 0;
 
-                    FPS.text=""+1f/Time.deltaTime;
+                    //FPS.text=""+1f/Time.deltaTime;
 
                            
                     if (GENERAL.AUTHORITY==AUTHORITY.GLOBAL){
-                    task.setIntValue("frame", Time.frameCount);
+                    task.SetIntValue("frame", Time.frameCount);
 
                     }
                     if (GENERAL.AUTHORITY==AUTHORITY.LOCAL){
 
-                        task.setStringValue("debug", "load "+AssitantDirector.loadBalance);
+                        task.SetStringValue("debug", "load "+AssitantDirector.loadBalance);
                     }
-                    if (AssitantDirector.BufferStatusOk){
-                        led.GetComponent<Image>().color=Color.green;
-                    }else{
-                        led.GetComponent<Image>().color=Color.red;
+                    //if (AssitantDirector.BufferStatusOk){
+                    //    led.GetComponent<Image>().color=Color.green;
+                    //}else{
+                    //    led.GetComponent<Image>().color=Color.red;
 
-                    }
+                    //}
 
 
                     break;
@@ -153,10 +157,10 @@ namespace PresenceEngine
 
                     float TimeOut;
 
-                    if (!task.getFloatValue("timeout", out TimeOut))
+                    if (!task.GetFloatValue("timeout", out TimeOut))
                     {
                         TimeOut = Time.time + 3;
-                        task.setFloatValue("timeout", TimeOut);
+                        task.SetFloatValue("timeout", TimeOut);
 
                     }
 
@@ -173,11 +177,11 @@ namespace PresenceEngine
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
                         int frame;
-                        if (!task.getIntValue("frame", out frame))
+                        if (!task.GetIntValue("frame", out frame))
                         {
                            if (IO.CheckedOutFile != "")
                             {
-                                task.setStringValue("file", IO.CheckedOutFile);
+                                task.SetStringValue("file", IO.CheckedOutFile);
                                 FileformatBase Buffered = FindBufferFileInScene(IO.CheckedOutFile);
 
                                 if (Buffered == null)
@@ -198,7 +202,7 @@ namespace PresenceEngine
                                 SETTINGS.Presences[1].DepthTransport.Mode = DEPTHMODE.PLAYBACK;
                                 SETTINGS.Presences[1].DepthTransport.TransCoder.SetBufferFile(Buffered);
                                 SETTINGS.Presences[1].DepthTransport.FrameNumber = SETTINGS.Presences[1].DepthTransport.TransCoder.GetBufferFile().FirstFrame;
-                                task.setIntValue("frame", SETTINGS.Presences[1].DepthTransport.FrameNumber);
+                                task.SetIntValue("frame", SETTINGS.Presences[1].DepthTransport.FrameNumber);
 
                             }
                             else
@@ -207,14 +211,28 @@ namespace PresenceEngine
                                 }
                            }
 
-                        if (SETTINGS.Presences[1].DepthTransport.Mode == DEPTHMODE.PLAYBACK && SETTINGS.Presences[1].DepthTransport.LoadFrameFromBuffer())
+                        if (SETTINGS.Presences[1].DepthTransport.Mode == DEPTHMODE.PLAYBACK )
                         {
                             // Play back while in playback mode and playback successful else fall through.
 
-                            SETTINGS.Presences[1].DepthTransport.FrameNumber++;
 
-                            task.setIntValue("frame", SETTINGS.Presences[1].DepthTransport.FrameNumber);
-                            task.setStringValue("debug", "" + SETTINGS.Presences[1].DepthTransport.FrameNumber);
+                            if ( SETTINGS.Presences[1].DepthTransport.LoadFrameFromBuffer())
+                            {
+                                SETTINGS.Presences[1].DepthTransport.FrameNumber++;
+
+
+
+                            }
+                            else
+                            {
+                                SETTINGS.Presences[1].DepthTransport.FrameNumber = SETTINGS.Presences[1].DepthTransport.TransCoder.GetBufferFile().FirstFrame;
+
+
+                            }
+
+
+                            task.SetIntValue("frame", SETTINGS.Presences[1].DepthTransport.FrameNumber);
+                            task.SetStringValue("debug", "" + SETTINGS.Presences[1].DepthTransport.FrameNumber);
                         }
                         else
                         {
@@ -228,14 +246,14 @@ namespace PresenceEngine
                     {
 
                         int frame;
-                        if (task.getIntValue("frame",out frame)){
+                        if (task.GetIntValue("frame",out frame)){
 
                             string file;
 
-                            if (task.getStringValue("file",out file) && file!=""){
+                            if (task.GetStringValue("file",out file) && file!=""){
                                 
                                 IO.SetCheckedOutFile(file);
-                                task.setStringValue("file", "");
+                                task.SetStringValue("file", "");
 
                                 FileformatBase Buffered = FindBufferFileInScene(IO.CheckedOutFile);
 
@@ -340,14 +358,14 @@ namespace PresenceEngine
                     {
                         if (SETTINGS.Presences[0].DepthTransport != null && IO.CheckedOutFile != "")
                         {
-                            if (!task.getFloatValue("timeout", out TimeOut))
+                            if (!task.GetFloatValue("timeout", out TimeOut))
                             {
                                 TimeOut = Time.time + SETTINGS.SessionDuration;
-                                task.setFloatValue("timeout", TimeOut);
+                                task.SetFloatValue("timeout", TimeOut);
                                 SETTINGS.Presences[0].DepthTransport.Mode = DEPTHMODE.RECORD;
 
                                 SETTINGS.Presences[0].DepthTransport.TransCoder.CreateBufferFile(IO.CheckedOutFile);
-                                task.setStringValue("file", IO.CheckedOutFile);
+                                task.SetStringValue("file", IO.CheckedOutFile);
 
                             }
 
@@ -370,7 +388,7 @@ namespace PresenceEngine
                         {
                             // Wait for filename then fall through
                             string file;
-                            if (task.getStringValue("file", out file))
+                            if (task.GetStringValue("file", out file))
                             {
                                 IO.SetCheckedOutFile(file);
                                 SETTINGS.Presences[0].DepthTransport.Mode = DEPTHMODE.RECORD;
@@ -410,7 +428,7 @@ namespace PresenceEngine
 
 
 
-                    FPS.text = ("FPS: " + 1f / Time.smoothDeltaTime);
+                 //   FPS.text = ("FPS: " + 1f / Time.smoothDeltaTime);
 
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
@@ -430,7 +448,7 @@ namespace PresenceEngine
                         MainDT.GetNewFrame();
 
                         // Get latest value for headrotation (from client, via task) and add it to the frame (for recording).
-                        task.getQuaternionValue("headrotation", out MainDT.ActiveFrame.HeadOrientation);
+                        task.GetQuaternionValue("headrotation", out MainDT.ActiveFrame.HeadOrientation);
 
                         if (!MainDT.Encode(task))
                             Log.Warning("Encode failed");
@@ -454,7 +472,7 @@ namespace PresenceEngine
                         //        SETTINGS.Presences[0].DepthTransport.SetTranscoder(TransCoder);
                         //}
                         int test;
-                        if (task.getIntValue("frame", out test))
+                        if (task.GetIntValue("frame", out test))
                         {
 
                             //      Debug.Log(test);
@@ -471,7 +489,7 @@ namespace PresenceEngine
 
                         // put head orientation 
 
-                        task.setQuaternionValue("headrotation", headSet.transform.rotation);
+                        task.SetQuaternionValue("headrotation", headSet.transform.rotation);
                         MainDT.ActiveFrame.HeadOrientation = headSet.transform.rotation;
 
                     }
@@ -933,7 +951,7 @@ namespace PresenceEngine
 
                 case "setmodetopreview":
 
-                    GENERAL.GLOBALS.setStringValue("mode", "preview");
+                    GENERAL.GLOBALS.SetStringValue("mode", "preview");
 
                     done = true;
 
@@ -941,7 +959,7 @@ namespace PresenceEngine
 
                 case "setmodetolive":
 
-                    GENERAL.GLOBALS.setStringValue("mode", "live");
+                    GENERAL.GLOBALS.SetStringValue("mode", "live");
 
                     done = true;
 
@@ -949,7 +967,7 @@ namespace PresenceEngine
 
                 case "setmodetomirror":
 
-                    GENERAL.GLOBALS.setStringValue("mode", "mirror");
+                    GENERAL.GLOBALS.SetStringValue("mode", "mirror");
 
                     done = true;
 
@@ -957,7 +975,7 @@ namespace PresenceEngine
 
                 case "setmodetoecho":
 
-                    GENERAL.GLOBALS.setStringValue("mode", "echo");
+                    GENERAL.GLOBALS.SetStringValue("mode", "echo");
 
                     done = true;
 
@@ -965,7 +983,7 @@ namespace PresenceEngine
 
                 case "setmodetoserveronly":
 
-                    GENERAL.GLOBALS.setStringValue("mode", "serveronly");
+                    GENERAL.GLOBALS.SetStringValue("mode", "serveronly");
 
                     done = true;
 
@@ -987,8 +1005,8 @@ namespace PresenceEngine
 
                         // pass values to client
 
-                        GENERAL.GLOBALS.setIntValue("echooffset", SETTINGS.echoOffset);
-                        GENERAL.GLOBALS.setIntValue("capturelength", SETTINGS.captureLength);
+                        GENERAL.GLOBALS.SetIntValue("echooffset", SETTINGS.echoOffset);
+                        GENERAL.GLOBALS.SetIntValue("capturelength", SETTINGS.captureLength);
 
 
                         done = true;
@@ -1002,13 +1020,13 @@ namespace PresenceEngine
 
                         // get values from globals
 
-                        if (GENERAL.GLOBALS.getIntValue("capturelength", out captureLength))
+                        if (GENERAL.GLOBALS.GetIntValue("capturelength", out captureLength))
                         {
 
                             SETTINGS.captureLength = captureLength;
                             SETTINGS.capture = new CloudSequence(SETTINGS.captureLength);
 
-                            if (GENERAL.GLOBALS.getIntValue("echooffset", out echooffset))
+                            if (GENERAL.GLOBALS.GetIntValue("echooffset", out echooffset))
                             {
 
                                 SETTINGS.echoOffset = echooffset;
@@ -1063,7 +1081,7 @@ namespace PresenceEngine
 
                     string kinectstatus;
 
-                    if (!task.getStringValue("kinectstatus", out kinectstatus))
+                    if (!task.GetStringValue("kinectstatus", out kinectstatus))
                     {
                         kinectstatus = "void";
 
@@ -1158,7 +1176,7 @@ namespace PresenceEngine
                     }
 
 
-                    task.setStringValue("kinectstatus", kinectstatus);
+                    task.SetStringValue("kinectstatus", kinectstatus);
 
 
                     break;
@@ -1266,7 +1284,7 @@ namespace PresenceEngine
 
                     led.SetActive(ConnectedClients>0);
 
-                    task.setStringValue("debug", "clients: " + ConnectedClients);
+                    task.SetStringValue("debug", "clients: " + ConnectedClients);
 
                     int newClient = GENERAL.GETNEWCONNECTION();
 
@@ -1290,7 +1308,7 @@ namespace PresenceEngine
                         {
 
                             GENERAL.wasConnected = false;
-                            task.setStringValue("debug", "lost connection");
+                            task.SetStringValue("debug", "lost connection");
 
                             task.setCallBack("serverlost");
 
@@ -1301,7 +1319,7 @@ namespace PresenceEngine
                         else
                         {
 
-                            task.setStringValue("debug", "no connection yet");
+                            task.SetStringValue("debug", "no connection yet");
 
                         }
 
@@ -1311,7 +1329,7 @@ namespace PresenceEngine
 
                         GENERAL.wasConnected = true;
 
-                        task.setStringValue("debug", "connected");
+                        task.SetStringValue("debug", "connected");
 
                     }
 
@@ -1569,7 +1587,7 @@ namespace PresenceEngine
                     if (GENERAL.AUTHORITY == AUTHORITY.LOCAL)
                     {
 
-                        GENERAL.GLOBALS.setStringValue("test", "hello world");
+                        GENERAL.GLOBALS.SetStringValue("test", "hello world");
 
                         //				task.setStringValue ("debug", "" + Random.value);
 
@@ -1586,10 +1604,10 @@ namespace PresenceEngine
 
                         string test;
 
-                        if (GENERAL.GLOBALS.getStringValue("test", out test))
+                        if (GENERAL.GLOBALS.GetStringValue("test", out test))
                         {
 
-                            task.setStringValue("debug", test);
+                            task.SetStringValue("debug", test);
 
                         }
 

@@ -154,23 +154,23 @@ namespace PresenceEngine
 
                         // We are either the server or an unconnected vrclient so we take the lead.
 
-                        if (!task.getFloatValue("mainperlinstart", out MainPerlinStart))
-                            task.setFloatValue("mainperlinstart", Random.Range(-100f, 100f));
+                        if (!task.GetFloatValue("mainperlinstart", out MainPerlinStart))
+                            task.SetFloatValue("mainperlinstart", Random.Range(-100f, 100f));
 
-                        task.getFloatValue("mainperlin", out MainPerlin);
-                        task.setFloatValue("mainperlin", MainPerlin += 0.05f);
+                        task.GetFloatValue("mainperlin", out MainPerlin);
+                        task.SetFloatValue("mainperlin", MainPerlin += 0.05f);
 
-                        if (!task.getFloatValue("moodlight01perlinstart", out MoodLight01PerlinStart))
-                            task.setFloatValue("moodlight01perlinstart", Random.Range(-100f, 100f));
+                        if (!task.GetFloatValue("moodlight01perlinstart", out MoodLight01PerlinStart))
+                            task.SetFloatValue("moodlight01perlinstart", Random.Range(-100f, 100f));
 
-                        task.getFloatValue("moodlight01perlin", out MoodLight01Perlin);
-                        task.setFloatValue("moodlight01perlin", MoodLight01Perlin += 0.05f);
+                        task.GetFloatValue("moodlight01perlin", out MoodLight01Perlin);
+                        task.SetFloatValue("moodlight01perlin", MoodLight01Perlin += 0.05f);
 
-                        if (!task.getFloatValue("moodlight02perlinstart", out MoodLight02PerlinStart))
-                            task.setFloatValue("moodlight02perlinstart", Random.Range(-100f, 100f));
+                        if (!task.GetFloatValue("moodlight02perlinstart", out MoodLight02PerlinStart))
+                            task.SetFloatValue("moodlight02perlinstart", Random.Range(-100f, 100f));
 
-                        task.getFloatValue("moodlight02perlin", out MoodLight02Perlin);
-                        task.setFloatValue("moodlight02perlin", MoodLight02Perlin += 0.05f);
+                        task.GetFloatValue("moodlight02perlin", out MoodLight02Perlin);
+                        task.SetFloatValue("moodlight02perlin", MoodLight02Perlin += 0.05f);
 
 
                     }
@@ -179,12 +179,12 @@ namespace PresenceEngine
 
                         // We are a connected vr client so we'll take the lead from the server.
 
-                        task.getFloatValue("mainperlinstart", out MainPerlinStart);
-                        task.getFloatValue("mainperlin", out MainPerlin);
-                        task.getFloatValue("moodlight01perlinstart", out MoodLight01PerlinStart);
-                        task.getFloatValue("moodlight01perlin", out MoodLight01Perlin);
-                        task.getFloatValue("moodlight02perlinstart", out MoodLight02PerlinStart);
-                        task.getFloatValue("moodlight02perlin", out MoodLight02Perlin);
+                        task.GetFloatValue("mainperlinstart", out MainPerlinStart);
+                        task.GetFloatValue("mainperlin", out MainPerlin);
+                        task.GetFloatValue("moodlight01perlinstart", out MoodLight01PerlinStart);
+                        task.GetFloatValue("moodlight01perlin", out MoodLight01Perlin);
+                        task.GetFloatValue("moodlight02perlinstart", out MoodLight02PerlinStart);
+                        task.GetFloatValue("moodlight02perlin", out MoodLight02Perlin);
 
 
                     }
@@ -270,7 +270,7 @@ namespace PresenceEngine
                 case "depthcompress":
 
                     ushort[] depth;
-                    if (task.getUshortValue("depth", out depth))
+                    if (task.GetUshortValue("depth", out depth))
                     {
                         //             ComputeParticles(depth, PRESENCE.MainDepthTransport.DepthWidth, PRESENCE.MainDepthTransport.DepthHeight, 2, new Vector3(0, PRESENCE.kinectHeight, 0), clouds[0]);
                     }
@@ -375,7 +375,7 @@ namespace PresenceEngine
                             SETTINGS.CaptureFrame = 0;
                         }
 
-                        task.setStringValue("debug", "" + SETTINGS.CaptureFrame);
+                        task.SetStringValue("debug", "" + SETTINGS.CaptureFrame);
 
                     }
 
@@ -405,7 +405,7 @@ namespace PresenceEngine
 
                         }
 
-                        task.setStringValue("debug", "" + SETTINGS.CaptureFrame);
+                        task.SetStringValue("debug", "" + SETTINGS.CaptureFrame);
 
 
                     }
@@ -462,7 +462,7 @@ namespace PresenceEngine
                         byte[] getVideo;
                         int min, max;
 
-                        if (task.getIntValue("frame", out getFrame) && frame != getFrame && task.getByteValue("video", out getVideo) && task.getIntValue("min", out min) && task.getIntValue("max", out max))
+                        if (task.GetIntValue("frame", out getFrame) && frame != getFrame && task.GetByteValue("video", out getVideo) && task.GetIntValue("min", out min) && task.GetIntValue("max", out max))
                         {
 
                             frame = getFrame;
@@ -1191,7 +1191,7 @@ namespace PresenceEngine
 
                         int ind;
 
-                        if (task.getIntValue("index", out ind))
+                        if (task.GetIntValue("index", out ind))
                         {
 
                             if (ind != IO.depthIndex)
@@ -1199,8 +1199,8 @@ namespace PresenceEngine
 
                                 // changed
 
-                                task.setIntValue("index", IO.depthIndex);
-                                task.setStringValue("debug", "" + IO.depthIndex);
+                                task.SetIntValue("index", IO.depthIndex);
+                                task.SetStringValue("debug", "" + IO.depthIndex);
 
 
                             }
@@ -1209,8 +1209,8 @@ namespace PresenceEngine
                         else
                         {
 
-                            task.setIntValue("index", IO.depthIndex);
-                            task.setStringValue("debug", "" + IO.depthIndex);
+                            task.SetIntValue("index", IO.depthIndex);
+                            task.SetStringValue("debug", "" + IO.depthIndex);
 
                         }
 
@@ -1223,7 +1223,7 @@ namespace PresenceEngine
                     {
 
                         int ind;
-                        if (task.getIntValue("index", out ind))
+                        if (task.GetIntValue("index", out ind))
                             IO.depthIndex = ind;
 
                     }

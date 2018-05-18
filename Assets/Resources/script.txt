@@ -75,6 +75,7 @@ setfiledefaults
 makefoldermenu
 makefilemenu
 //createclouds
+//moodon
 start servercontrols
 start moodlight
 //setsession

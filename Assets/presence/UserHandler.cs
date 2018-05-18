@@ -346,11 +346,11 @@ namespace PresenceEngine
                     {
                         string status;
 
-                        if (!task.getStringValue("status", out status))
+                        if (!task.GetStringValue("status", out status))
                         {
 
                             Davinci.BeginDetect(task);
-                            task.setStringValue("status", "detecting");
+                            task.SetStringValue("status", "detecting");
 
                         }
 
@@ -364,11 +364,11 @@ namespace PresenceEngine
 
                         string status;
 
-                        task.getStringValue("status", out status);
+                        task.GetStringValue("status", out status);
 
                         if (status == "detected")
                         {
-                            task.setStringValue("status", "detecting");
+                            task.SetStringValue("status", "detecting");
                             signalSound.Play();
                         }
 
@@ -728,7 +728,7 @@ namespace PresenceEngine
                                 int Index = int.Parse(labelSplit[1]);
                                 // PFolder[] allFolders = IO.GetLocalFolders();
 
-                                task.setStringValue("persistantData", "" + Index);
+                                task.SetStringValue("persistantData", "" + Index);
 
 
                             }
@@ -778,7 +778,7 @@ namespace PresenceEngine
 
 
                     string data;
-                    task.getStringValue("persistantData", out data);
+                    task.GetStringValue("persistantData", out data);
 
                     Debug.Log("pers " + data);
 
@@ -789,7 +789,7 @@ namespace PresenceEngine
 
                 case "setfile":
 
-                    task.getStringValue("persistantData", out data);
+                    task.GetStringValue("persistantData", out data);
 
                     IO.SetCheckedOutFile (IO.GetLocalFiles(IO.BrowseFolder)[int.Parse(data)].Path);
                  
@@ -803,10 +803,10 @@ namespace PresenceEngine
 
                     string firstrun;
 
-                    if (!task.getStringValue("firstrun", out firstrun))
+                    if (!task.GetStringValue("firstrun", out firstrun))
                     {
 
-                        task.setStringValue("firstrun", "done");
+                        task.SetStringValue("firstrun", "done");
 
                         NewFile.transform.localScale = Vector3.one;
                         fileNameInput.onEndEdit.RemoveAllListeners();
@@ -832,9 +832,9 @@ namespace PresenceEngine
                     //  NewFile.transform.localScale = Vector3.one;
 
 
-                    if (!task.getStringValue("firstrun", out firstrun))
+                    if (!task.GetStringValue("firstrun", out firstrun))
                     {
-                        task.setStringValue("firstrun", "done");
+                        task.SetStringValue("firstrun", "done");
 
                         NewFile.transform.localScale = Vector3.one;
                         fileNameInput.onEndEdit.RemoveAllListeners();
@@ -1270,7 +1270,7 @@ namespace PresenceEngine
 
 
 
-                    task.setStringValue("debug", gyroOn + " a: " + angle + "z: " + z.ToString());
+                    task.SetStringValue("debug", gyroOn + " a: " + angle + "z: " + z.ToString());
 
 
 
@@ -1522,7 +1522,7 @@ namespace PresenceEngine
                         float comp;
                         float head;
 
-                        if (task.getFloatValue("compass", out comp) && task.getFloatValue("headyaw", out head))
+                        if (task.GetFloatValue("compass", out comp) && task.GetFloatValue("headyaw", out head))
                         {
 
                             // values from mobile
@@ -1538,7 +1538,7 @@ namespace PresenceEngine
 
                             viewerObject.transform.parent.transform.localRotation = Quaternion.Euler(0, SETTINGS.vrHeadOffset, 0);
 
-                            task.setFloatValue("viewerYawOffset", SETTINGS.vrHeadOffset);
+                            task.SetFloatValue("viewerYawOffset", SETTINGS.vrHeadOffset);
 
                             //	task.setStringValue ("debug", "c: " + comp);
 
@@ -1546,7 +1546,7 @@ namespace PresenceEngine
 
                         Quaternion q;
 
-                        if (task.getQuaternionValue("headrotation", out q))
+                        if (task.GetQuaternionValue("headrotation", out q))
                         {
 
                             headSet.transform.rotation = q;
@@ -1556,20 +1556,20 @@ namespace PresenceEngine
                         // put
 
 
-                        task.setVector3Value("viewerPosition", viewerObject.transform.parent.transform.position);
-                        task.setVector3Value("hlPosition", handl.transform.position);
-                        task.setVector3Value("hrPosition", handr.transform.position);
+                        task.SetVector3Value("viewerPosition", viewerObject.transform.parent.transform.position);
+                        task.SetVector3Value("hlPosition", handl.transform.position);
+                        task.SetVector3Value("hrPosition", handr.transform.position);
 
                         // send once
 
                         //      task.setVector3Value("compassPosition", compass.transform.position);
                         //         task.setQuaternionValue("compassRotation", compass.transform.rotation);
 
-                        task.setVector3Value("kinectPosition", Kinect.transform.position);
-                        task.setQuaternionValue("kinectRotation", Kinect.transform.rotation);
+                        task.SetVector3Value("kinectPosition", Kinect.transform.position);
+                        task.SetQuaternionValue("kinectRotation", Kinect.transform.rotation);
 
-                        task.setVector3Value("setPosition", SetHandler.transform.position);
-                        task.setQuaternionValue("setRotation", SetHandler.transform.rotation);
+                        task.SetVector3Value("setPosition", SetHandler.transform.position);
+                        task.SetQuaternionValue("setRotation", SetHandler.transform.rotation);
 
 
                         //	}
@@ -1677,7 +1677,7 @@ namespace PresenceEngine
 
         */
 
-                        task.setQuaternionValue("headrotation", headSet.transform.rotation);
+                        task.SetQuaternionValue("headrotation", headSet.transform.rotation);
 
 
                         // get
@@ -1685,9 +1685,9 @@ namespace PresenceEngine
                         Vector3 kp, sp, cp;
                         Quaternion kq, sq, cq;
 
-                        if (task.getVector3Value("kinectPosition", out kp) && task.getVector3Value("setPosition", out sp)
-                            && task.getQuaternionValue("kinectRotation", out kq) && task.getQuaternionValue("setRotation", out sq)
-                            && task.getVector3Value("compassPosition", out cp) && task.getQuaternionValue("compassRotation", out cq))
+                        if (task.GetVector3Value("kinectPosition", out kp) && task.GetVector3Value("setPosition", out sp)
+                            && task.GetQuaternionValue("kinectRotation", out kq) && task.GetQuaternionValue("setRotation", out sq)
+                            && task.GetVector3Value("compassPosition", out cp) && task.GetQuaternionValue("compassRotation", out cq))
                         {
 
                             // set all the time
@@ -1716,7 +1716,7 @@ namespace PresenceEngine
                         //
                         Vector3 viewerPositionV;
 
-                        if (task.getVector3Value("viewerPosition", out viewerPositionV))
+                        if (task.GetVector3Value("viewerPosition", out viewerPositionV))
                         {
 
                             viewerObject.transform.parent.transform.position = viewerPositionV;
@@ -1725,7 +1725,7 @@ namespace PresenceEngine
 
                         Vector3 hl;
 
-                        if (task.getVector3Value("hlPosition", out hl))
+                        if (task.GetVector3Value("hlPosition", out hl))
                         {
 
                             handl.transform.localPosition = hl;
@@ -1734,7 +1734,7 @@ namespace PresenceEngine
 
                         Vector3 hr;
 
-                        if (task.getVector3Value("hrPosition", out hr))
+                        if (task.GetVector3Value("hrPosition", out hr))
                         {
 
                             handr.transform.localPosition = hr;

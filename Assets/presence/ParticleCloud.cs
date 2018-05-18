@@ -15,22 +15,25 @@ namespace PresenceEngine
 
         public ParticleSystem.Particle[] allParticles;
 
-        public ParticleCloud(int size)
+        public ParticleCloud(int maxSize,string type="Cloud", bool emitInitial = true)
         {
 
             // CLONE CLOUD
-            CloudObject = Object.Instantiate(Resources.Load("Cloud", typeof(GameObject))) as GameObject;
+            CloudObject = Object.Instantiate(Resources.Load(type, typeof(GameObject))) as GameObject;
 
             ps = CloudObject.GetComponent<ParticleSystem>();
             emitParams = new ParticleSystem.EmitParams();
 
             var main = ps.main;
-            main.maxParticles = size;
+            main.maxParticles = maxSize;
 
-            // Emit a batch of particles and stash them.
-            initialEmit(size);
-            allParticles = new ParticleSystem.Particle[size];
-            ps.GetParticles(allParticles);
+            if (emitInitial)
+            {
+                // Emit a batch of particles and stash them.
+                initialEmit(maxSize);
+                allParticles = new ParticleSystem.Particle[maxSize];
+                ps.GetParticles(allParticles);
+            }
 
         }
 

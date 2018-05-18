@@ -13,10 +13,10 @@ namespace PresenceEngine
 
         void Update(UncompressedFrame Frame);
 
-      
 
-      
-        
+
+
+
 
     }
 
@@ -26,7 +26,8 @@ namespace PresenceEngine
         //        ParticleCloud cloud;
 
         GameObject PresenceObject;
-        GameObject Head,Body,HandLeft,HandRight;
+        GameObject Head, Body, HandLeft, HandRight;
+        ParticleCloud Cloud;
         bool __isInitialised = false;
 
         public bool IsInitialised()
@@ -34,7 +35,7 @@ namespace PresenceEngine
             return __isInitialised;
         }
 
-        public  void Initialise(GameObject presenceObject)
+        public void Initialise(GameObject presenceObject)
         {
             PresenceObject = presenceObject;
 
@@ -44,7 +45,7 @@ namespace PresenceEngine
             }
 
             GameObject n;
-                      
+
             n = DebugObject.getNullObject(0.25f, 0.25f, 0.5f);
             n.transform.SetParent(PresenceObject.transform, false);
             Head = n;
@@ -61,10 +62,16 @@ namespace PresenceEngine
             n.transform.SetParent(PresenceObject.transform, false);
             Body = n;
 
+            Cloud = new ParticleCloud(1000, "CloudDyn", false);
+
+
+
             __isInitialised = true;
         }
 
-      
+
+        Vector3 HandLeftP, HandRightP;
+
 
         public void Update(UncompressedFrame Frame)
         {
@@ -81,6 +88,33 @@ namespace PresenceEngine
 
                     Head.transform.rotation = Frame.HeadOrientation;
 
+                    Vector3 last = HandLeftP;
+                    Vector3 current = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft];
+
+                    if (Frame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft])
+                    {
+
+                        for (float i = 0; i < 1; i += 0.5f)
+                        {
+                            Cloud.Emit(Vector3.Lerp(last, current, i));
+                        }
+                    }
+                    HandLeftP = current;
+
+                    last = HandRightP;
+                    current = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight];
+                    if (Frame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight])
+                    {
+                        for (float i = 0; i < 1; i += 0.5f)
+                        {
+                            Cloud.Emit(Vector3.Lerp(last, current, i));
+                        }
+                    }
+                    HandRightP = current;
+
+
+                    //     Cloud.Emit(Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight]);
+
 
                     //  Debug.Log(Body.transform.position = Frame.Body);
                 }
@@ -90,7 +124,7 @@ namespace PresenceEngine
 
         }
 
-       
+
 
 
     }

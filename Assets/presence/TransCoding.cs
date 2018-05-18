@@ -82,10 +82,13 @@ namespace PresenceEngine
     {
 
         public Point[] Points;
+        public bool[] Tracked;
+        public Point Body;
 
         public SkeletonOnlyFrame()
         {
-            Points = new Point[4];
+            Points = new Point[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
+            Tracked = new bool[Points.Length];
         }
 
 
@@ -239,12 +242,15 @@ namespace PresenceEngine
         {
 
             // Streaming
+            task.SetVector3ArrayValue("skeleton", Uframe.Joints);
+            task.SetBoolArrayValue("tracked", Uframe.Tracked);
 
-            task.setVector3Value("head", Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head]);
-            task.setVector3Value("lefthand", Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft]);
-            task.setVector3Value("righthand", Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight]);
-            task.setVector3Value("body", Uframe.Body);
-            task.setIntValue("frame", Uframe.FrameNumber);
+            //task.SetVector3Value("head", Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head]);
+            //task.SetVector3Value("lefthand", Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft]);
+            //task.SetVector3Value("righthand", Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight]);
+
+            task.SetVector3Value("body", Uframe.Body);
+            task.SetIntValue("frame", Uframe.FrameNumber);
 
             //    Debug.Log(Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head]);
 
@@ -259,16 +265,17 @@ namespace PresenceEngine
         {
 
             //    Uframe = new UncompressedFrame();
+            task.GetVector3ArrayValue("skeleton",out Uframe.Joints);
+            task.GetBoolArrayValue("tracked",out Uframe.Tracked);
+            //task.GetVector3Value("head", out Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head]);
+            //task.GetVector3Value("lefthand", out Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft]);
+            //task.GetVector3Value("righthand", out Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight]);
 
-
-            task.getVector3Value("head", out Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head]);
-            task.getVector3Value("lefthand", out Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft]);
-            task.getVector3Value("righthand", out Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight]);
-            task.getVector3Value("body", out Uframe.Body);
+            task.GetVector3Value("body", out Uframe.Body);
 
             //     Debug.Log(Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head]);
 
-            if (!task.getIntValue("frame", out Uframe.FrameNumber))
+            if (!task.GetIntValue("frame", out Uframe.FrameNumber))
                 return false; // Simple check: if one of the values isn't present something's wrong.
 
 
@@ -283,10 +290,20 @@ namespace PresenceEngine
 
             SkeletonOnlyFrame storeFrame = new SkeletonOnlyFrame();
             storeFrame.FrameNumber = Uframe.FrameNumber;
-            storeFrame.Points[0] = new Point(Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head]);
-            storeFrame.Points[1] = new Point(Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft]);
-            storeFrame.Points[2] = new Point(Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight]);
-            storeFrame.Points[3] = new Point(Uframe.Body);
+
+            for (int p = 0; p < Uframe.Joints.Length; p++)
+            {
+                storeFrame.Points[p] = new Point(Uframe.Joints[p]);
+                storeFrame.Tracked[p] = Uframe.Tracked[p];
+            }
+
+
+            //storeFrame.Points[0] = new Point(Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head]);
+            //storeFrame.Points[1] = new Point(Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft]);
+            //storeFrame.Points[2] = new Point(Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight]);
+
+
+            storeFrame.Body = new Point(Uframe.Body);
 
             _bufferFile.Frames.Add(storeFrame);
             _bufferFile.FirstFrame = Mathf.Min(_bufferFile.FirstFrame, storeFrame.FrameNumber);
@@ -308,10 +325,21 @@ namespace PresenceEngine
                 {
                     SkeletonOnlyFrame storeFrame = (SkeletonOnlyFrame)_bufferFile.Frames[index];
 
-                    Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] = storeFrame.Points[0].ToVector3();
-                    Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] = storeFrame.Points[1].ToVector3();
-                    Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] = storeFrame.Points[2].ToVector3();
-                    Uframe.Body = storeFrame.Points[3].ToVector3();
+                    for (int p = 0; p < Uframe.Joints.Length; p++)
+                    {
+                        Uframe.Joints[p] = storeFrame.Points[p].ToVector3();
+                        Uframe.Tracked[p] = storeFrame.Tracked[p];
+
+                    }
+
+
+
+
+                    //Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] = storeFrame.Points[0].ToVector3();
+                    //Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] = storeFrame.Points[1].ToVector3();
+                    //Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] = storeFrame.Points[2].ToVector3();
+
+                    Uframe.Body = storeFrame.Body.ToVector3();
 
                     return true;
                 }

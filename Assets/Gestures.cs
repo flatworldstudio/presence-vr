@@ -80,7 +80,7 @@ public class Gestures : MonoBehaviour, KinectGestures.GestureListenerInterface
         //  throw new System.NotImplementedException();
         Debug.LogError("DETECT");
         if (TaskRef != null)
-            TaskRef.setStringValue("status", "detected");
+            TaskRef.SetStringValue("status", "detected");
         return true;
     }
 

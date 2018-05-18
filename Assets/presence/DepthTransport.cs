@@ -184,7 +184,7 @@ namespace PresenceEngine
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
-                        if (KinectManager.Instance.IsInitialized())
+                        if (OwnsKinect==this && KinectManager.Instance.IsInitialized())
                         {
                             KinectManager.Instance.shutDown();
                             Debug.Log(me + "Shutting down Kinectmanager.");

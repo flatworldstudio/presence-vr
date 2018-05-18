@@ -18,7 +18,7 @@ namespace PresenceEngine
 
     public static class SETTINGS
     {
-        public static int SessionDuration = 3;
+        public static int SessionDuration = 5;
         public static  string  DEFAULTFILE = "/_default/_default";
 
         public static  string  DEFAULTFOLDER = "/_default";
