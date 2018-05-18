@@ -78,7 +78,8 @@ public class Gestures : MonoBehaviour, KinectGestures.GestureListenerInterface
     bool KinectGestures.GestureListenerInterface.GestureCompleted(uint userId, int userIndex, KinectGestures.Gestures gesture, KinectWrapper.NuiSkeletonPositionIndex joint, Vector3 screenPos)
     {
         //  throw new System.NotImplementedException();
-        Debug.LogError("DETECT");
+        Debug.Log("DETECT");
+
         if (TaskRef != null)
             TaskRef.SetStringValue("status", "detected");
         return true;

@@ -138,7 +138,7 @@ end
 stop clientcalibration
 isglobal
 moodon
-detectgesture
+//detectgesture
 end
 
 // Stoppresence stops the kinect if needed and stops userstreaming.
