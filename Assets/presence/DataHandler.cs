@@ -37,6 +37,17 @@ namespace PresenceEngine
 
         string me = "Data handler: ";
 
+        void SetNetworkIndicators (){
+            
+            FPS.text=""+1f/Time.deltaTime;
+
+            if (AssitantDirector.BufferStatusOk){
+                led.GetComponent<Image>().color=Color.green;
+            }else{
+                led.GetComponent<Image>().color=Color.red;
+                }
+            }
+
 
         FileformatBase FindBufferFileInScene(string fileName)
         {
@@ -99,8 +110,12 @@ namespace PresenceEngine
 
         int minPrev, minCur, maxPrev, maxCur;
 
+
+
         public bool TaskHandler(StoryTask task)
         {
+
+            SetNetworkIndicators ();
 
             bool done = false;
 
@@ -1247,7 +1262,11 @@ namespace PresenceEngine
 
                 case "listenforclients":
 
-                    task.setStringValue("debug", "" + dataController.serverConnections());
+                    int ConnectedClients = dataController.serverConnections();
+
+                    led.SetActive(ConnectedClients>0);
+
+                    task.setStringValue("debug", "clients: " + ConnectedClients);
 
                     int newClient = GENERAL.GETNEWCONNECTION();
 
