@@ -107,7 +107,32 @@ namespace PresenceEngine
             switch (task.description)
             {
 
+                case "testtask":
 
+
+                    Application.targetFrameRate = 30;
+                    QualitySettings.vSyncCount = 0;
+
+                    FPS.text=""+1f/Time.deltaTime;
+
+                           
+                    if (GENERAL.AUTHORITY==AUTHORITY.GLOBAL){
+                    task.setIntValue("frame", Time.frameCount);
+
+                    }
+                    if (GENERAL.AUTHORITY==AUTHORITY.LOCAL){
+
+                        task.setStringValue("debug", "load "+AssitantDirector.loadBalance);
+                    }
+                    if (AssitantDirector.BufferStatusOk){
+                        led.GetComponent<Image>().color=Color.green;
+                    }else{
+                        led.GetComponent<Image>().color=Color.red;
+
+                    }
+
+
+                    break;
 
                 case "pause3":
 

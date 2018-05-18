@@ -4434,6 +4434,11 @@ Prefab:
       propertyPath: launchWIN
       value: presenceserver
       objectReference: {fileID: 0}
+    - target: {fileID: 114537222341640082, guid: a7b96c05b61f9410a9b07a41f0fc226d,
+        type: 2}
+      propertyPath: launchOSX
+      value: testserver
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: a7b96c05b61f9410a9b07a41f0fc226d, type: 2}
   m_IsPrefabParent: 0

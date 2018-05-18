@@ -1,5 +1,11 @@
 // CLIENT STORIES.
 
+#testclient
+debugon
+amvrclient
+start serversearch
+end
+
 #presenceclient
 debugon
 amvrclient
@@ -39,6 +45,20 @@ start serversearch
 end
 
 // SERVER STORIES.
+
+// network rework
+#testserver
+debugon
+amserver
+start server
+start globaltest
+end
+
+#globaltest
+isglobal
+testtask
+end
+
 
 #presenceserver
 debugon
@@ -446,7 +466,7 @@ playsequence
 end
 
 
-#clienttest
+#clienttestOLD
 debugon
 networkguion
 createview
