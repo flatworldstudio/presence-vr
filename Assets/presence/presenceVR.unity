@@ -8158,6 +8158,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24ce8a9ee9f56452993fa4822e7fbc75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  setHandlerObject: {fileID: 1348691418}
   kinectImage: {fileID: 2097841365}
   previewImage: {fileID: 0}
   FPS: {fileID: 618082429}
