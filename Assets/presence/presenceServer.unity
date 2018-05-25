@@ -5643,6 +5643,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PresenceObjectPrefab: {fileID: 1698369846984666, guid: 8b89fda28d10117419da45b5a95fe4e6,
     type: 2}
+  presences: {fileID: 1239659715}
   setController: {fileID: 861919365}
   kinectManagerObject: {fileID: 771985735}
   MoodParticles: {fileID: 1153341153}
@@ -10036,6 +10037,34 @@ Transform:
   m_Father: {fileID: 726453873}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+--- !u!1 &1239659715
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 1239659716}
+  m_Layer: 0
+  m_Name: Presences
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1239659716
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1239659715}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 16
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1257632900
 GameObject:
   m_ObjectHideFlags: 0
@@ -16407,6 +16436,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PresenceObjectPrefab: {fileID: 0}
+  presences: {fileID: 0}
   setController: {fileID: 861919365}
   kinectManagerObject: {fileID: 353864663}
   MoodParticles: {fileID: 0}

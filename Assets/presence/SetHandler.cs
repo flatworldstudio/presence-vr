@@ -13,7 +13,7 @@ namespace PresenceEngine
 
     public class SetHandler : MonoBehaviour
     {
-        public GameObject PresenceObjectPrefab;
+        public GameObject PresenceObjectPrefab,presences;
         public SetController setController;
 
 
@@ -132,7 +132,7 @@ namespace PresenceEngine
 
                     if (!SETTINGS.Presences.TryGetValue("user", out SETTINGS.user))
                     {
-                        SETTINGS.user = Presence.Create(this.gameObject);
+                        SETTINGS.user = Presence.Create(presences);
                         SETTINGS.Presences.Add("user", SETTINGS.user);
                     }
 
@@ -149,7 +149,7 @@ namespace PresenceEngine
 
                     if (!SETTINGS.Presences.TryGetValue("instance", out instance))
                     {
-                        instance = Presence.Create(this.gameObject);
+                        instance = Presence.Create(presences);
                         SETTINGS.Presences.Add("instance", instance);
                     }
 
