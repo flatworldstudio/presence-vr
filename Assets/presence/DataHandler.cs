@@ -911,12 +911,13 @@ namespace PresenceEngine
 
                     break;
 
-                case "receivelivedepth":
-                    // For client.
-                    SETTINGS.user.DepthTransport.Mode = DEPTHMODE.LIVE;
-                    done = true;
+                //case "receivelivedepth":
+                    //// For client.
+                    //SETTINGS.user.DepthTransport.Mode = DEPTHMODE.LIVE;
 
-                    break;
+                    //done = true;
+
+                    //break;
 
                 case "depthlive":
 

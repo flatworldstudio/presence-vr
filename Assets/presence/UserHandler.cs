@@ -1402,24 +1402,23 @@ namespace PresenceEngine
 
 #endif
 
-                case "autocalibrateSkip":
+                case "autocalibrate":
 
                     done=true;
                     break;
 
-                case "autocalibrate":
+                case "autocalibrateNON":
 
                     #if DEV
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
+                   
                         if (Input.anyKeyDown){
 
                             task.setCallBack("clientcalibrated");
                             done =true ;
                         }
 
-                    }
+
 
                     #endif
 
