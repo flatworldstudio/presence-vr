@@ -598,11 +598,13 @@ namespace PresenceEngine
 
                 case "makefilemenu":
 
-                    if (serverInterface == null)
-                    {
+                    if (SETTINGS.deviceMode!=DEVICEMODE.SERVER || serverInterface == null){
+
                         done = true;
                         break;
+
                     }
+                                      
 
                     browser = GameObject.Find("FileBrowser");
                     GameObject FileMenu = GameObject.Find("Files");
