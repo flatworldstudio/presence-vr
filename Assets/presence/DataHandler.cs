@@ -273,12 +273,12 @@ namespace PresenceEngine
 
                         // Retrieve list.
 
-                        string[] presenceNames;
+                        string[] taskPresenceNames;
 
-                        if (task.GetStringArrayValue("presences", out presenceNames))
+                        if (task.GetStringArrayValue("presences", out taskPresenceNames))
                         {
 
-                            foreach (string presenceName in presenceNames)
+                            foreach (string presenceName in taskPresenceNames)
                             {
 
                                 Presence presence;
@@ -296,10 +296,6 @@ namespace PresenceEngine
 
                                 // Update depthmode and/or frame.
 
-                                //int depthmode;
-                                //task.GetIntValue(presenceName + "_depthmode", out depthmode);
-                                //presence.DepthTransport.Mode = (DEPTHMODE)depthmode;
-
                                 presence.GetModeFromTask(task, presenceName);
 
 
@@ -311,6 +307,28 @@ namespace PresenceEngine
                                     presence.DepthTransport.FrameNumber = getFrame;
                                     presence.DepthTransport.LoadFrameFromBuffer();
                                 }
+
+                            }
+
+                        }
+
+                        // Reversed: go over presences and destroy if they're no longer listed.
+
+
+                        string[] localPresenceNames= SETTINGS.Presences.Keys.ToArray();
+
+                        for (int i=localPresenceNames.Length-1;i>=0;i--){
+
+                            if (Array.IndexOf(taskPresenceNames, localPresenceNames[i]) == -1 )
+
+                            {
+
+                                // A presence exists locally that has no reference in the task (does not exist on server) so we kill it.
+                                Presence presence = SETTINGS.Presences[localPresenceNames[i]];
+
+                                Destroy(presence.gameObject);
+
+                                SETTINGS.Presences.Remove(localPresenceNames[i]);
 
                             }
 

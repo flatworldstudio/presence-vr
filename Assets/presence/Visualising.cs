@@ -133,7 +133,7 @@ namespace PresenceEngine
                 //Debug.Log(Frame.FrameNumber);
 
 
-                if (Frame.FrameNumber>lastFrame)
+                if (Frame.FrameNumber!=lastFrame)
                 {
                  
                     lastFrame=Frame.FrameNumber;
