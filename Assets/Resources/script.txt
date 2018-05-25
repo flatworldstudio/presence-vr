@@ -188,7 +188,6 @@ pause5
 @playsingle_stop
 deletepresences
 pressedstop
-stop presencehandler
 end
 
 #stopplaysingle

@@ -14,7 +14,8 @@ namespace PresenceEngine
 
     public class DataHandler : MonoBehaviour
     {
-        public GameObject setHandlerObject,presences;
+        //public GameObject setHandlerObject,
+        public GameObject    presences;
         Presence fileplayback;
         //Presence playbackPresence;
         float startListening = 0f;
@@ -358,6 +359,7 @@ namespace PresenceEngine
                             if (Array.IndexOf(taskPresenceNames, localPresenceNames[i]) == -1 )
 
                             {
+                                Debug.Log("removing "+localPresenceNames[i]);
 
                                 // A presence exists locally that has no reference in the task (does not exist on server) so we kill it.
                                 Presence presence = SETTINGS.Presences[localPresenceNames[i]];
@@ -423,7 +425,7 @@ namespace PresenceEngine
                     {
                         if (!SETTINGS.Presences.TryGetValue("playbackpresence", out fileplayback))
                         {
-                            fileplayback = Presence.Create(setHandlerObject);
+                            fileplayback = Presence.Create(presences);
 
                             SETTINGS.Presences.Add("playbackpresence", fileplayback);
                             fileplayback.SetVisualiser("ShowSkeleton");
