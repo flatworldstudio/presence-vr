@@ -8159,6 +8159,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   setHandlerObject: {fileID: 1348691418}
+  presences: {fileID: 1016915580}
   kinectImage: {fileID: 2097841365}
   previewImage: {fileID: 0}
   FPS: {fileID: 618082429}

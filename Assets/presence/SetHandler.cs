@@ -126,58 +126,9 @@ namespace PresenceEngine
 
 
 
-                case "createuser":
+              
 
-
-
-                    if (!SETTINGS.Presences.TryGetValue("user", out SETTINGS.user))
-                    {
-                        SETTINGS.user = Presence.Create(presences);
-                        SETTINGS.Presences.Add("user", SETTINGS.user);
-                    }
-
-                    SETTINGS.user.SetVisualiser("ShowSkeleton");
-                    SETTINGS.user.SetTranscoder("SkeletonOnly");
-
-                    done = true;
-
-                    break;
-
-                case "createinstance":
-
-                    Presence instance;
-
-                    if (!SETTINGS.Presences.TryGetValue("instance", out instance))
-                    {
-                        instance = Presence.Create(presences);
-                        SETTINGS.Presences.Add("instance", instance);
-                    }
-
-                    instance.SetVisualiser("ShowSkeleton");
-                    instance.SetTranscoder("SkeletonOnly");
-
-
-
-                    //int pi = 1;
-
-                    //if (SETTINGS.Presences["duplicate"] == null)
-                    //    SETTINGS.Presences[pi] = Presence.Create( this.gameObject);
-
-                    //SETTINGS.Presences[pi].SetVisualiser("ShowSkeleton");
-                    //SETTINGS.Presences[pi].SetTranscoder("SkeletonOnly");
-                    //SETTINGS.Presences[pi].Initialise();
-
-                    //if (SETTINGS.Precenses[0].DepthTransport == null)
-                    //{
-                    //    SETTINGS.Presences[0].DepthTransport = new DepthTransport();
-                    //    SETTINGS.Presences[0].DepthTransport.SetTranscoder("SkeletonOnly");
-
-
-                    //}
-
-                    done = true;
-                    break;
-
+          
                 //case "createclone":
 
                 //int pi = 1;

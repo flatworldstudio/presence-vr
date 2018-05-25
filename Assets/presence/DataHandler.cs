@@ -14,7 +14,7 @@ namespace PresenceEngine
 
     public class DataHandler : MonoBehaviour
     {
-        public GameObject setHandlerObject;
+        public GameObject setHandlerObject,presences;
         Presence fileplayback;
         //Presence playbackPresence;
         float startListening = 0f;
@@ -142,6 +142,40 @@ namespace PresenceEngine
             switch (task.description)
             {
                 
+                case "createuser":
+
+
+
+                    if (!SETTINGS.Presences.TryGetValue("user", out SETTINGS.user))
+                    {
+                        SETTINGS.user = Presence.Create(presences);
+                        SETTINGS.Presences.Add("user", SETTINGS.user);
+                    }
+
+                    SETTINGS.user.SetVisualiser("ShowSkeleton");
+                    SETTINGS.user.SetTranscoder("SkeletonOnly");
+
+                    done = true;
+
+                    break;
+
+                case "createinstance":
+
+                    Presence newInstance;
+
+                    if (!SETTINGS.Presences.TryGetValue("instance", out newInstance))
+                    {
+                        newInstance = Presence.Create(presences);
+                        SETTINGS.Presences.Add("instance", newInstance);
+                    }
+
+                    newInstance.SetVisualiser("ShowSkeleton");
+                    newInstance.SetTranscoder("SkeletonOnly");
+
+
+
+                    done = true;
+                    break;
 
 
                 case "testtask":
@@ -288,7 +322,7 @@ namespace PresenceEngine
 
                                     // Create instance and retrieve/apply settings.
 
-                                    presence = Presence.Create(setHandlerObject);
+                                    presence = Presence.Create(presences);
                                     SETTINGS.Presences.Add(presenceName, presence);
                                     presence.GetSettingsFromTask(task, presenceName);
 
@@ -449,7 +483,7 @@ namespace PresenceEngine
                             
                             if (!SETTINGS.Presences.TryGetValue("playbackpresence" + c, out fileplayback))
                             {
-                                fileplayback = Presence.Create(setHandlerObject);
+                                fileplayback = Presence.Create(presences);
                                 SETTINGS.Presences.Add("playbackpresence" + c, fileplayback);
                                 fileplayback.SetVisualiser("ShowSkeleton");
                                 fileplayback.SetTranscoder("SkeletonOnly");
