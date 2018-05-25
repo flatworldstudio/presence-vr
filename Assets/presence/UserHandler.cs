@@ -1402,29 +1402,45 @@ namespace PresenceEngine
 
 #endif
 
-                case "autocalibrate":
 
-                    done=true;
-                    break;
 
-                case "autocalibrateNON":
+                //case "autocalibrate":
 
-                    #if DEV
+                    //task.setCallBack("clientcalibrated");
+                    //userMessager.ShowTextMessage("Calibrated", 3);
+
+                    //GENERAL.UserCalibrated = true;
+
+                    //done=true;
+
+                    //break;
+
+
 
                    
-                        if (Input.anyKeyDown){
+                case "autocalibrate":
 
-                            task.setCallBack("clientcalibrated");
-                            done =true ;
-                        }
-
-
-
-                    #endif
-
+                  
 
                     if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
                     {
+
+                        #if DEV
+
+                        userMessager.ShowTextMessage("Calibrated", 3);
+
+                        GENERAL.UserCalibrated = true;
+
+                        task.setCallBack("clientcalibrated");
+
+                        done=true;
+
+
+#else
+
+
+
+                    
 
                         if (!AutoCallibrateObject.activeSelf)
                         {
@@ -1484,13 +1500,15 @@ namespace PresenceEngine
 
 
                         }
+                        #endif
 
                     }
-                    else
-                    {
 
-                        //   userMessager.ShowTextMessage("Waiting for calibration", 3);
-                        // on the server we hold to keep the task alive. 
+
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                    {
+                        
+                       // on the server we hold to keep the task alive. 
 
                     }
 
@@ -1498,6 +1516,8 @@ namespace PresenceEngine
 
 
                     break;
+
+                   
 
 
                 case "calibrate":

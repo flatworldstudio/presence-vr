@@ -9,7 +9,7 @@ alignset
 addkinectnull
 createuser
 //createinstance
-//receivelivedepth
+receivelivedepth
 //autocalibrate
 //moodon
 end

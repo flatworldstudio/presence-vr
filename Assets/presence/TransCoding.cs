@@ -356,6 +356,7 @@ namespace PresenceEngine
             task.GetBoolArrayValue(prefix + "_tracked", out Uframe.Tracked);
 
             task.GetVector3Value(prefix + "_body", out Uframe.Body);
+
             if (!task.GetIntValue(prefix + "_frame", out Uframe.FrameNumber))
                 return false; // Simple check: if one of the values isn't present something's wrong.
 

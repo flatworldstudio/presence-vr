@@ -776,6 +776,8 @@ namespace PresenceEngine
                         // Check if we need to set transcoder
                         DepthTransport MainDT = SETTINGS.user.DepthTransport;
 
+                      //  MainDT.Mode=DEPTHMODE.LIVE;
+
                         //DepthTransport MainDT = SETTINGS.user.DepthTransport;
 
                         //if (MainDT != null && MainDT.TransCoder == null)
@@ -911,13 +913,13 @@ namespace PresenceEngine
 
                     break;
 
-                //case "receivelivedepth":
-                    //// For client.
-                    //SETTINGS.user.DepthTransport.Mode = DEPTHMODE.LIVE;
+                case "receivelivedepth":
+                    // For client.
+                    SETTINGS.user.DepthTransport.Mode = DEPTHMODE.LIVE;
 
-                    //done = true;
+                    done = true;
 
-                    //break;
+                    break;
 
                 case "depthlive":
 
