@@ -809,6 +809,7 @@ namespace PresenceEngine
                         //    task.setStringValue("transcoder", SETTINGS.user.DepthTransport.TransCoder.Name());
 
                         DepthTransport MainDT = SETTINGS.user.DepthTransport;
+                        SETTINGS.user.AddModeToTask(task,"user");
 
                         // Retrieve depth info.
                         MainDT.GetNewFrame();
@@ -851,6 +852,7 @@ namespace PresenceEngine
                         //    Debug.Log("no frame value");
                         //}
 
+                        SETTINGS.user.GetModeFromTask(task,"user");
 
                         if (!MainDT.Decode(task, "user"))
                             Log.Warning("Decode failed");

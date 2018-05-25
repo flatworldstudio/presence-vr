@@ -186,8 +186,8 @@ start presencehandler
 waitforallplaybacktoend
 pause5
 @playsingle_stop
-pressedstop
 deletepresences
+pressedstop
 stop presencehandler
 end
 
