@@ -264,12 +264,14 @@ namespace PresenceEngine
 
                                 presence.Value.AddSettingsToTask(task, presence.Key);
 
-                                task.SetStringArrayValue("presences", SETTINGS.Presences.Keys.ToArray());
+                                //task.SetStringArrayValue("presences", SETTINGS.Presences.Keys.ToArray());
 
                                 //task.SetIntValue(presenceName + "_depthmode", out depthmode);
                                 //presence.DepthTransport.Mode = (DEPTHMODE)depthmode;
                             }
 
+
+                            task.SetStringArrayValue("presences", SETTINGS.Presences.Keys.ToArray());
                             presence.Value.AddModeToTask(task, presence.Key);
 
 
