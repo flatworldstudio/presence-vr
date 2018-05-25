@@ -221,7 +221,7 @@ namespace PresenceEngine
                     done = true;
                     break;
 
-                case "playbackbuffer":
+                case "pressedplay":
 
                     userMessager.ShowTextMessage("Begin playback", 0.5f);
                     if (SETTINGS.deviceMode==DEVICEMODE.SERVER){
@@ -232,7 +232,7 @@ namespace PresenceEngine
                     done = true;
                     break;
 
-                case "stopplaybackbuffer":
+                case "pressedstop":
 
                     userMessager.ShowTextMessage("Stop playback", 0.5f);
                     if (SETTINGS.deviceMode==DEVICEMODE.SERVER){
@@ -341,6 +341,19 @@ namespace PresenceEngine
                 case "detectgesture":
 
 
+                  
+
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                    {
+
+                       
+                        
+
+                    }
+
+
+                  
+
 
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
@@ -351,9 +364,19 @@ namespace PresenceEngine
 
                             Davinci.BeginDetect(task);
                             task.SetStringValue("status", "detecting");
-
+                           
                         }
 
+                        #if DEV
+                        if (Input.anyKeyDown)
+                            task.SetStringValue("status", "detected");
+                        #endif
+
+                        if (status == "detected")
+                        {
+                            task.SetStringValue("status", "detecting");
+                            userMessager.ShowTextMessage("Pose detected",1);
+                        }
 
 
                     }
@@ -393,7 +416,14 @@ namespace PresenceEngine
 
                     // Here we only apply user position from task.
 
-                    UncompressedFrame ShowFrame = SETTINGS.Presences[0].DepthTransport.ActiveFrame;
+                    if (SETTINGS.user==null){
+                        Debug.LogWarning("No user object registered.");
+                        done=true;
+                        break;
+                    }
+                        
+
+                    UncompressedFrame ShowFrame = SETTINGS.user.DepthTransport.ActiveFrame;
 
                     if (ShowFrame != null && ShowFrame.Joints != null && ShowFrame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.Head])
                     {
@@ -404,8 +434,6 @@ namespace PresenceEngine
                     {
                         //Log.Error("Not a valid frame, can't set user position.");
                     }
-
-
 
                     break;
 
@@ -680,33 +708,83 @@ namespace PresenceEngine
                     control.callback = "newfolder";
                     serverInterface.addButton(control);
 
-                    control = new UiButton("recordstart", menu, constraint);
-                    control.callback = "recordstart";
+                    // Flows
+
+                    control = new UiButton("flow01", menu, constraint);
+                    control.callback = "flow01";
                     serverInterface.addButton(control);
 
-                    control = new UiButton("recordstop", menu, constraint);
-                    control.callback = "recordstop";
+                    control = new UiButton("flow02", menu, constraint);
+                    control.callback = "flow02";
                     serverInterface.addButton(control);
+                 
+
+                    // Callbacks for play, record and stop are different for different flows. These are the defaults.
 
                     control = new UiButton("playbackstart", menu, constraint);
-                    control.callback = "playbackstart";
+                    control.callback = "playsingle";
                     serverInterface.addButton(control);
 
                     control = new UiButton("playbackstop", menu, constraint);
-                    control.callback = "playbackstop";
+                    control.callback = "stopplaysingle";
                     serverInterface.addButton(control);
 
-                    //  serverInterface.HideButton("newfile");
-                    serverInterface.HideButton("playbackstop");
+                    control = new UiButton("recordstart", menu, constraint);
+                    control.callback = "recordsingle";
+                    serverInterface.addButton(control);
 
+                    control = new UiButton("recordstop", menu, constraint);
+                    control.callback = "stoprecordsingle";
+                    serverInterface.addButton(control);
+
+                    // Hide buttons.
+
+                    serverInterface.HideButton("playbackstop");
                     serverInterface.HideButton("recordstop");
                     serverInterface.HideButton("stoppresence");
+
                     NewFile.transform.localScale = Vector3.zero;
 
 
                     done = true;
 
                     break;
+
+                case "setdefaultflow":
+                    
+                    UiButton b= serverInterface.GetButton("playbackstart");
+                    b.callback="playsingle";
+
+                    b= serverInterface.GetButton("playbackstop");
+                    b.callback="stopplaysingle";
+
+                    b= serverInterface.GetButton("recordstart");
+                    b.callback="recordsingle";
+
+                    b= serverInterface.GetButton("recordstop");
+                    b.callback="stoprecordsingle";
+
+                    done=true;
+                    break;
+              
+                case "setcumulativeflow":
+
+                     b= serverInterface.GetButton("playbackstart");
+                    b.callback="playcumulative";
+
+                    b= serverInterface.GetButton("playbackstop");
+                    b.callback="stopplaycumulative";
+
+                    b= serverInterface.GetButton("recordstart");
+                    b.callback="recordcumulative";
+
+                    b= serverInterface.GetButton("recordstop");
+                    b.callback="stoprecordcumulative";
+
+
+                    done=true;
+                    break;
+
 
                 case "servercontrol":
 
@@ -1324,12 +1402,27 @@ namespace PresenceEngine
 
 #endif
 
-                case "autocalibrateNONLIVE":
+                case "autocalibrateSkip":
 
                     done=true;
                     break;
 
                 case "autocalibrate":
+
+                    #if DEV
+
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                    {
+                        if (Input.anyKeyDown){
+
+                            task.setCallBack("clientcalibrated");
+                            done =true ;
+                        }
+
+                    }
+
+                    #endif
+
 
                     if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
                     {
@@ -1346,6 +1439,7 @@ namespace PresenceEngine
                             userMessager.ShowTextMessage("Calibrating", 3);
                         }
 
+                       
 
                         if (AutoCallibrateObject.GetComponent<CalibrateOnMarker>().callibrated)
                         {
@@ -1382,6 +1476,7 @@ namespace PresenceEngine
 
                             //userMessager.TextMessageOff();
                             userMessager.ShowTextMessage("Calibrated", 3);
+
                             GENERAL.UserCalibrated = true;
 
                             task.setCallBack("clientcalibrated");

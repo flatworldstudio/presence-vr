@@ -11,11 +11,14 @@ namespace PresenceEngine
 
         void Initialise(GameObject presenceObject);
 
+        void SetTransform (Vector3 pos,Quaternion rot);
+
         void Update(UncompressedFrame Frame);
 
+        string GetName();
 
-
-
+        Vector3 GetPosition();
+        Quaternion GetRotation();
 
 
     }
@@ -30,6 +33,16 @@ namespace PresenceEngine
         ParticleCloud Cloud;
         bool __isInitialised = false;
 
+        string _name = "ShowSkeleton";
+        int lastFrame;
+
+        public string GetName(){
+           
+            return _name;
+                     
+        }
+
+
         public bool IsInitialised()
         {
             return __isInitialised;
@@ -37,6 +50,8 @@ namespace PresenceEngine
 
         public void Initialise(GameObject presenceObject)
         {
+            // Parent object for any visualisation objects.
+
             PresenceObject = presenceObject;
 
             foreach (Transform child in PresenceObject.transform)
@@ -65,13 +80,41 @@ namespace PresenceEngine
             n.transform.SetParent(PresenceObject.transform, false);
             Body = n;
 
-            Cloud = new ParticleCloud(1000, "CloudDyn", false);
 
+            Cloud = new ParticleCloud(5000, "CloudDyn", false);
+            Cloud.CloudObject.transform.SetParent(PresenceObject.transform,false);
 
-
+            lastFrame=-1;
             __isInitialised = true;
         }
 
+
+      public void SetTransform (Vector3 pos,Quaternion rot){
+
+            if (PresenceObject!=null){
+            PresenceObject.transform.localPosition=pos;
+            //PresenceObject.transform.localScale=scale;
+            PresenceObject.transform.localRotation=rot;
+            }
+        }
+
+
+      public  Vector3 GetPosition(){
+            
+            if (PresenceObject!=null)
+                return PresenceObject.transform.localPosition;
+            
+            return Vector3.zero;
+        }
+
+        public  Quaternion GetRotation(){
+
+            if (PresenceObject!=null)
+                return PresenceObject.transform.localRotation;
+
+            return Quaternion.identity;
+        }
+             
 
         Vector3 HandLeftP, HandRightP;
 
@@ -80,20 +123,31 @@ namespace PresenceEngine
         {
             if (__isInitialised)
             {
-                if (Frame != null && Frame.Joints != null)
+
+                // Check validity.
+                if (!(Frame != null && Frame.Joints != null && Frame.Tracked !=null))
+                    return;
+
+                // Check if frame is new.
+
+                //Debug.Log(Frame.FrameNumber);
+
+
+                if (Frame.FrameNumber>lastFrame)
                 {
-                  
+                 
+                    lastFrame=Frame.FrameNumber;
 
-                    HandLeft.transform.position = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft];
-                    HandRight.transform.position = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight];
+                    HandLeft.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft];
+                    HandRight.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight];
 
-                    Body.transform.position = Frame.Body;
+                    Body.transform.localPosition = Frame.Body;
 
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
                       //  if (Frame.Tracked
-                        Head.transform.position = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head];
-                        Head.transform.rotation = Frame.HeadOrientation;
+                        Head.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head];
+                        Head.transform.localRotation = Frame.HeadOrientation;
                     }
 
 
@@ -103,7 +157,7 @@ namespace PresenceEngine
                     if (Frame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft])
                     {
 
-                        for (float i = 0; i < 1; i += 0.5f)
+                        for (float i = 0; i < 1; i += 0.25f)
                         {
                             Cloud.Emit(Vector3.Lerp(last, current, i));
                         }
@@ -115,7 +169,7 @@ namespace PresenceEngine
 
                     if (Frame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight])
                     {
-                        for (float i = 0; i < 1; i += 0.5f)
+                        for (float i = 0; i < 1; i += 0.25f)
                         {
                             Cloud.Emit(Vector3.Lerp(last, current, i));
                         }

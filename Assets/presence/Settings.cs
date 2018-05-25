@@ -2,6 +2,7 @@
 using System;
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace PresenceEngine
 {
@@ -24,7 +25,12 @@ namespace PresenceEngine
         public static  string  DEFAULTFOLDER = "/_default";
 
 
-        public static Presence[] Presences;
+        //public static Presence[] Presences;
+        public static Dictionary<string,Presence> Presences;
+      public static  Presence user; // this is a convience shortcut, set to the "user" entry in the dictionary.
+
+
+
    //     public static Presence MainPresence;
         // KINECT INFO
         //	public static GameObject kinectObject;
@@ -58,7 +64,7 @@ namespace PresenceEngine
 
         public static bool capturing;
 
-        public static CloudSequence capture;
+        //public static CloudSequence capture;
         public static int CaptureFrame;
    
         public static int captureLength = 2500;

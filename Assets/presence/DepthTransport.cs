@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 //using NUnit.Framework.Constraints;
+using System.Net.NetworkInformation;
 
 
 namespace PresenceEngine
@@ -78,7 +79,7 @@ namespace PresenceEngine
         public UncompressedFrame ActiveFrame;
 
 
-
+        //public bool ModeChanged=false;
 
 
 
@@ -129,7 +130,12 @@ namespace PresenceEngine
             set
             {
 
+                if (__mode == value){
+                    //ModeChanged=false;
+                    return;
+                }
                 __mode = value;
+                //ModeChanged=true;
 
                 switch (__mode)
                 {
@@ -177,6 +183,10 @@ namespace PresenceEngine
 
                     case DEPTHMODE.PLAYBACK:
                         //__mode = DEPTHMODE.OFF;
+
+                      
+                            
+
                         break;
                     case DEPTHMODE.OFF:
 
@@ -278,9 +288,17 @@ namespace PresenceEngine
                     ActiveFrame.Body = new Vector3(hx, SETTINGS.kinectHeight, hz);
 
                     ActiveFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] = new Vector3(hx, SETTINGS.kinectHeight * 1.25f, hz);
+                    ActiveFrame.Tracked [(int)KinectWrapper.NuiSkeletonPositionIndex.Head]=true;
 
                     ActiveFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] = new Vector3(hx - 0.5f, SETTINGS.kinectHeight / 2, hz);
+                    ActiveFrame.Tracked [(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft]=true;
+
                     ActiveFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] = new Vector3(hx + 0.5f, SETTINGS.kinectHeight / 2, hz);
+                    ActiveFrame.Tracked [(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight]=true;
+
+                    //ActiveFrame.Tracked = new bool[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
+
+
                     ActiveFrame.FrameNumber = FrameNumber;
 
                   //  ActiveFrame.HeadOrientation = Quaternion.Euler(-45f + 90f * r,0, 0f);
@@ -332,23 +350,23 @@ namespace PresenceEngine
 
         }
 
-        public bool Encode(StoryEngine.StoryTask task)
+        public bool Encode(StoryEngine.StoryTask task,string prefix)
         {
             if (__mode == DEPTHMODE.LIVE || __mode == DEPTHMODE.RECORD)
-                return TransCoder.Encode(ActiveFrame, task, __mode == DEPTHMODE.RECORD);
+                return TransCoder.Encode(ActiveFrame, task,prefix, __mode == DEPTHMODE.RECORD);
 
             return false;
         }
 
-        public bool Decode(StoryEngine.StoryTask task)
+        public bool Decode(StoryEngine.StoryTask task, string prefix)
         {
             if (__mode == DEPTHMODE.LIVE || __mode == DEPTHMODE.RECORD)
-                return TransCoder.Decode(ref ActiveFrame, task, __mode == DEPTHMODE.RECORD);
+                return TransCoder.Decode(ref ActiveFrame, task,prefix, __mode == DEPTHMODE.RECORD);
 
             return false;
         }
 
-
+        /*
         public Vector3 getPosition()
 
         {
@@ -484,6 +502,8 @@ namespace PresenceEngine
             return posJoint;
 
         }
+*/
+
 
         void getSkeleton(ref UncompressedFrame Frame)
         {

@@ -62,7 +62,7 @@ namespace PresenceEngine
 
             setController.addTaskHandler(TaskHandler);
 
-            SETTINGS.Presences = new Presence[2];
+            //SETTINGS.Presences = new Presence[2];
 
 
             //	ParticleCloud.init (GameObject.Find ("Cloud"));
@@ -100,24 +100,72 @@ namespace PresenceEngine
             switch (task.description)
             {
 
+
+
+                //case "playbackfile":
+
+                    //// Play back the checked out file.
+
+                    //Presence filePlayback;
+
+                    //if (!SETTINGS.Presences.TryGetValue("playbackpresence", out filePlayback))
+                    //{
+
+                    //    // if intended presence doesn't exist (and it shouldn't), create it.
+
+                    //    filePlayback = Presence.Create(this.gameObject);
+                    //    SETTINGS.Presences.Add("playbackpresence", filePlayback);
+                    //    filePlayback.SetVisualiser("ShowSkeleton");
+                    //    filePlayback.SetTranscoder("SkeletonOnly");
+
+                    //}
+
+                    //done = true;
+                    //break;
+
+
+
+
+                case "createuser":
+
+
+
+                    if (!SETTINGS.Presences.TryGetValue("user", out SETTINGS.user))
+                    {
+                        SETTINGS.user = Presence.Create(this.gameObject);
+                        SETTINGS.Presences.Add("user", SETTINGS.user);
+                    }
+
+                    SETTINGS.user.SetVisualiser("ShowSkeleton");
+                    SETTINGS.user.SetTranscoder("SkeletonOnly");
+
+                    done = true;
+
+                    break;
+
                 case "createinstance":
 
+                    Presence instance;
 
-                    if (SETTINGS.Presences[0] == null)
-                        SETTINGS.Presences[0] = Presence.Create(PresenceObjectPrefab, this.gameObject);
+                    if (!SETTINGS.Presences.TryGetValue("instance", out instance))
+                    {
+                        instance = Presence.Create(this.gameObject);
+                        SETTINGS.Presences.Add("instance", instance);
+                    }
 
-                    SETTINGS.Presences[0].SetVisualiser("ShowSkeleton");
-                    SETTINGS.Presences[0].SetTranscoder("SkeletonOnly");
-                    SETTINGS.Presences[0].Initialise();
+                    instance.SetVisualiser("ShowSkeleton");
+                    instance.SetTranscoder("SkeletonOnly");
 
-                    int pi = 1;
 
-                    if (SETTINGS.Presences[pi] == null)
-                        SETTINGS.Presences[pi] = Presence.Create(PresenceObjectPrefab, this.gameObject);
 
-                    SETTINGS.Presences[pi].SetVisualiser("ShowSkeleton");
-                    SETTINGS.Presences[pi].SetTranscoder("SkeletonOnly");
-                    SETTINGS.Presences[pi].Initialise();
+                    //int pi = 1;
+
+                    //if (SETTINGS.Presences["duplicate"] == null)
+                    //    SETTINGS.Presences[pi] = Presence.Create( this.gameObject);
+
+                    //SETTINGS.Presences[pi].SetVisualiser("ShowSkeleton");
+                    //SETTINGS.Presences[pi].SetTranscoder("SkeletonOnly");
+                    //SETTINGS.Presences[pi].Initialise();
 
                     //if (SETTINGS.Precenses[0].DepthTransport == null)
                     //{
@@ -132,17 +180,17 @@ namespace PresenceEngine
 
                 //case "createclone":
 
-                    //int pi = 1;
+                //int pi = 1;
 
-                    //if (SETTINGS.Presences[pi] == null)
-                    //    SETTINGS.Presences[pi] = Presence.Create(PresenceObjectPrefab, this.gameObject);
+                //if (SETTINGS.Presences[pi] == null)
+                //    SETTINGS.Presences[pi] = Presence.Create(PresenceObjectPrefab, this.gameObject);
 
-                    //SETTINGS.Presences[pi].SetVisualiser("ShowSkeleton");
-                    //SETTINGS.Presences[pi].SetTranscoder("SkeletonOnly");
-                    //SETTINGS.Presences[pi].Initialise();
+                //SETTINGS.Presences[pi].SetVisualiser("ShowSkeleton");
+                //SETTINGS.Presences[pi].SetTranscoder("SkeletonOnly");
+                //SETTINGS.Presences[pi].Initialise();
 
-                    //done = true;
-                    //break;
+                //done = true;
+                //break;
 
 
                 case "moodlight":
@@ -302,117 +350,118 @@ namespace PresenceEngine
 
 
 
-                case "createclouds":
+                /*
+            case "createclouds":
 
-                    clouds = new ParticleCloud[2];
+                clouds = new ParticleCloud[2];
 
-                    clouds[0] = new ParticleCloud(20000);
-                    clouds[1] = new ParticleCloud(20000);
+                clouds[0] = new ParticleCloud(20000);
+                clouds[1] = new ParticleCloud(20000);
 
-                    SETTINGS.PointCloud = new Vector3[2500];
+                SETTINGS.PointCloud = new Vector3[2500];
 
-                    cloud = clouds[0];
-                    mirror = clouds[1];
-
-
-                    done = true;
-
-                    break;
-
-                case "resetclouds":
-
-                    foreach (ParticleCloud pc in clouds)
-                    {
-                        pc.ApplyParticles(0);
-
-                    }
-
-                    done = true;
-
-                    break;
-
-                case "createsinglecloud":
-
-                    clouds = new ParticleCloud[1];
-
-                    clouds[0] = new ParticleCloud(20000);
-
-                    SETTINGS.PointCloud = new Vector3[2500];
+                cloud = clouds[0];
+                mirror = clouds[1];
 
 
-                    done = true;
+                done = true;
 
-                    break;
+                break;
+
+            case "resetclouds":
+
+                foreach (ParticleCloud pc in clouds)
+                {
+                    pc.ApplyParticles(0);
+
+                }
+
+                done = true;
+
+                break;
+
+            case "createsinglecloud":
+
+                clouds = new ParticleCloud[1];
+
+                clouds[0] = new ParticleCloud(20000);
+
+                SETTINGS.PointCloud = new Vector3[2500];
 
 
-                case "playsequence":
+                done = true;
 
-                    if (Time.time - SETTINGS.TimeStamp > 0.04f)
-                    {
+                break;
+*/
+                /*
+            case "playsequence":
 
-                        SETTINGS.TimeStamp = Time.time;
+                if (Time.time - SETTINGS.TimeStamp > 0.04f)
+                {
 
-                        CloudFrame currentFrame = SETTINGS.capture.Frames[SETTINGS.CaptureFrame];
+                    SETTINGS.TimeStamp = Time.time;
 
-                        int pointCount = currentFrame.Points.Length;
+                    CloudFrame currentFrame = SETTINGS.capture.Frames[SETTINGS.CaptureFrame];
 
-
-                        for (int p = 0; p < pointCount; p++)
-                        {
-
-                            clouds[0].allParticles[p].position = currentFrame.Points[p];
-
-                        }
+                    int pointCount = currentFrame.Points.Length;
 
 
-                        clouds[0].ApplyParticles(pointCount);
-
-                        SETTINGS.CaptureFrame++;
-
-                        if (SETTINGS.CaptureFrame == SETTINGS.capture.Frames.Length)
-                        {
-
-                            SETTINGS.CaptureFrame = 0;
-                        }
-
-                        task.SetStringValue("debug", "" + SETTINGS.CaptureFrame);
-
-                    }
-
-                    break;
-
-                case "capture":
-
-                    if (Time.time - SETTINGS.TimeStamp > 0.04f)
+                    for (int p = 0; p < pointCount; p++)
                     {
 
-                        SETTINGS.TimeStamp = Time.time;
-
-                        CloudFrame newFrame = new CloudFrame(SETTINGS.FrameSize);
-
-                        Array.Copy(SETTINGS.PointCloud, newFrame.Points, SETTINGS.FrameSize);
-
-                        SETTINGS.capture.Frames[SETTINGS.CaptureFrame] = newFrame;
-
-                        SETTINGS.CaptureFrame++;
-
-                        //	Debug.Log (PRESENCE.CaptureFrame + " " + PRESENCE.capture.Frames.Length);
-
-                        if (SETTINGS.CaptureFrame == SETTINGS.capture.Frames.Length)
-                        {
-
-                            done = true;
-
-                        }
-
-                        task.SetStringValue("debug", "" + SETTINGS.CaptureFrame);
-
+                        clouds[0].allParticles[p].position = currentFrame.Points[p];
 
                     }
 
 
-                    break;
+                    clouds[0].ApplyParticles(pointCount);
 
+                    SETTINGS.CaptureFrame++;
+
+                    if (SETTINGS.CaptureFrame == SETTINGS.capture.Frames.Length)
+                    {
+
+                        SETTINGS.CaptureFrame = 0;
+                    }
+
+                    task.SetStringValue("debug", "" + SETTINGS.CaptureFrame);
+
+                }
+
+                break;
+
+            case "capture":
+
+                if (Time.time - SETTINGS.TimeStamp > 0.04f)
+                {
+
+                    SETTINGS.TimeStamp = Time.time;
+
+                    CloudFrame newFrame = new CloudFrame(SETTINGS.FrameSize);
+
+                    Array.Copy(SETTINGS.PointCloud, newFrame.Points, SETTINGS.FrameSize);
+
+                    SETTINGS.capture.Frames[SETTINGS.CaptureFrame] = newFrame;
+
+                    SETTINGS.CaptureFrame++;
+
+                    //	Debug.Log (PRESENCE.CaptureFrame + " " + PRESENCE.capture.Frames.Length);
+
+                    if (SETTINGS.CaptureFrame == SETTINGS.capture.Frames.Length)
+                    {
+
+                        done = true;
+
+                    }
+
+                    task.SetStringValue("debug", "" + SETTINGS.CaptureFrame);
+
+
+                }
+
+
+                break;
+*/
                 case "cloudstream2":
 
 
@@ -1140,192 +1189,191 @@ namespace PresenceEngine
 
                 break;
                 */
+                /*
+            case "nextdepth":
 
-                case "nextdepth":
+                IO.depthIndex++;
 
-                    IO.depthIndex++;
+                if (IO.depthIndex == IO.savedDepthCaptures.Count)
+                {
+                    IO.depthIndex = 0;
+                }
 
-                    if (IO.depthIndex == IO.savedDepthCaptures.Count)
+                Debug.Log(me + "next depth");
+
+                done = true;
+
+                break;
+
+            case "showdepthdata":
+
+                cloud = clouds[0];
+
+                if (IO.savedDepthCaptures.Count > 0)
+                {
+
+                    interval2++;
+
+                    if (interval2 == 100)
                     {
-                        IO.depthIndex = 0;
-                    }
+                        interval2 = 0;
 
-                    Debug.Log(me + "next depth");
+                        IO.depthIndex++;
 
-                    done = true;
-
-                    break;
-
-                case "showdepthdata":
-
-                    cloud = clouds[0];
-
-                    if (IO.savedDepthCaptures.Count > 0)
-                    {
-
-                        interval2++;
-
-                        if (interval2 == 100)
+                        if (IO.depthIndex == IO.savedDepthCaptures.Count)
                         {
-                            interval2 = 0;
-
-                            IO.depthIndex++;
-
-                            if (IO.depthIndex == IO.savedDepthCaptures.Count)
-                            {
-                                IO.depthIndex = 0;
-                            }
-
-
-
+                            IO.depthIndex = 0;
                         }
 
 
 
                     }
 
-                    if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL)
+
+
+                }
+
+                if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL)
+                {
+
+
+
+                    int ind;
+
+                    if (task.GetIntValue("index", out ind))
                     {
 
-
-
-                        int ind;
-
-                        if (task.GetIntValue("index", out ind))
+                        if (ind != IO.depthIndex)
                         {
 
-                            if (ind != IO.depthIndex)
-                            {
-
-                                // changed
-
-                                task.SetIntValue("index", IO.depthIndex);
-                                task.SetStringValue("debug", "" + IO.depthIndex);
-
-
-                            }
-
-                        }
-                        else
-                        {
+                            // changed
 
                             task.SetIntValue("index", IO.depthIndex);
                             task.SetStringValue("debug", "" + IO.depthIndex);
 
+
                         }
-
-
-
-
 
                     }
                     else
                     {
 
-                        int ind;
-                        if (task.GetIntValue("index", out ind))
-                            IO.depthIndex = ind;
+                        task.SetIntValue("index", IO.depthIndex);
+                        task.SetStringValue("debug", "" + IO.depthIndex);
 
                     }
 
 
-                    if (IO.depthIndex >= 0)
+
+
+
+                }
+                else
+                {
+
+                    int ind;
+                    if (task.GetIntValue("index", out ind))
+                        IO.depthIndex = ind;
+
+                }
+
+
+                if (IO.depthIndex >= 0)
+                {
+
+                    //				int index = 0;
+                    //
+                    //				if (!task.getIntValue ("index", out index)) {
+                    //
+                    //					task.setIntValue ("index", 0);
+                    //				}
+
+                    //				int index = IO.depthIndex;
+
+
+
+                    //				string index;
+                    //
+                    //				if (task.getStringValue("debug" , out index)){
+                    //
+                    //					if (int.Parse(index) != IO.depthIndex) {
+                    //						
+                    //						task.setStringValue("debug",""+IO.depthIndex);
+                    //
+                    //					}
+                    //
+                    //
+                    //				}
+
+
+                    //				int ind;
+                    //
+                    //				if (task.getIntValue ("index", out ind)) {
+                    //
+                    //
+                    //
+                    //
+                    //
+                    //				} else {
+                    //
+                    //					task.setIntValue ("index", IO.depthIndex);
+                    //				}
+
+
+                    DepthCapture.current = IO.savedDepthCaptures[IO.depthIndex];
+
+                    //				ParticleCloud.setLifeTime (0.1f);
+
+                    if (interval == 4 && DepthCapture.current != null)
                     {
 
-                        //				int index = 0;
-                        //
-                        //				if (!task.getIntValue ("index", out index)) {
-                        //
-                        //					task.setIntValue ("index", 0);
-                        //				}
+                        interval = 0;
 
-                        //				int index = IO.depthIndex;
+                        depthMap = DepthCapture.current.GetRawDepthMap();
 
+                        width = DepthCapture.current.getUserDepthWidth();
+                        height = DepthCapture.current.getUserDepthHeight();
 
+                        sample = 8;
 
-                        //				string index;
-                        //
-                        //				if (task.getStringValue("debug" , out index)){
-                        //
-                        //					if (int.Parse(index) != IO.depthIndex) {
-                        //						
-                        //						task.setStringValue("debug",""+IO.depthIndex);
-                        //
-                        //					}
-                        //
-                        //
-                        //				}
+                        //	Vector3 point;
 
-
-                        //				int ind;
-                        //
-                        //				if (task.getIntValue ("index", out ind)) {
-                        //
-                        //
-                        //
-                        //
-                        //
-                        //				} else {
-                        //
-                        //					task.setIntValue ("index", IO.depthIndex);
-                        //				}
-
-
-                        DepthCapture.current = IO.savedDepthCaptures[IO.depthIndex];
-
-                        //				ParticleCloud.setLifeTime (0.1f);
-
-                        if (interval == 4 && DepthCapture.current != null)
+                        for (int y = 0; y < height; y += sample)
                         {
 
-                            interval = 0;
-
-                            depthMap = DepthCapture.current.GetRawDepthMap();
-
-                            width = DepthCapture.current.getUserDepthWidth();
-                            height = DepthCapture.current.getUserDepthHeight();
-
-                            sample = 8;
-
-                            //	Vector3 point;
-
-                            for (int y = 0; y < height; y += sample)
+                            for (int x = 0; x < width; x += sample)
                             {
 
-                                for (int x = 0; x < width; x += sample)
+                                int i = y * width + x;
+
+                                ushort userMap = (ushort)(depthMap[i] & 7);
+                                ushort userDepth = (ushort)(depthMap[i] >> 3);
+
+                                if (userMap != 0)
                                 {
+                                    point = depthToWorld(x, y, userDepth);
+                                    point.y = -point.y;
+                                    point.y += 1.5f;
 
-                                    int i = y * width + x;
-
-                                    ushort userMap = (ushort)(depthMap[i] & 7);
-                                    ushort userDepth = (ushort)(depthMap[i] >> 3);
-
-                                    if (userMap != 0)
-                                    {
-                                        point = depthToWorld(x, y, userDepth);
-                                        point.y = -point.y;
-                                        point.y += 1.5f;
-
-                                        cloud.Emit(point);
-                                    }
-
+                                    cloud.Emit(point);
                                 }
 
                             }
 
                         }
 
-                        interval++;
-
-                    }
-                    else
-                    {
-
-
-                        done = true;
-
                     }
 
+                    interval++;
+
+                }
+                else
+                {
+
+
+                    done = true;
+
+                }
 
 
 
@@ -1333,10 +1381,11 @@ namespace PresenceEngine
 
 
 
-                    break;
+
+                break;
 
 
-
+*/
 
 
                 case "pointcloud":

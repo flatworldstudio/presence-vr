@@ -21,11 +21,11 @@ namespace PresenceEngine
 
         FileformatBase CreateBufferFile(string name);
 
-        string Name();
+        string GetName();
 
-        bool Encode(UncompressedFrame Uframe, StoryEngine.StoryTask task, bool recording = false);
+        bool Encode(UncompressedFrame Uframe, StoryEngine.StoryTask task, string prefix, bool recording = false);
 
-        bool Decode(ref UncompressedFrame Uframe, StoryEngine.StoryTask task, bool recording = false);
+        bool Decode(ref UncompressedFrame Uframe, StoryEngine.StoryTask task, string prefix, bool recording = false);
 
         bool PlayFrame(int frameNumber, ref UncompressedFrame Uframe);
     }
@@ -34,26 +34,113 @@ namespace PresenceEngine
     public class FileformatBase
     {
         public List<FrameBase> Frames;
+
         public string TransCoderName, Name;
-        public int FirstFrame=99999999, LastFrame=-1;
+        public int FirstFrame = 99999999, LastFrame = -1;
+
+        public float[] Transform;
+
 
         public FileformatBase()
         {
             Frames = new List<FrameBase>();
+            //Transform = new float[3 + 4 + 3];
+            //SetTransform(Vector3.zero, Vector3.one, Quaternion.identity);// set default
 
         }
 
-        //public void SetFrameRange()
+
+      
+
+        //public static   FileformatBase FindBufferFileInScene(string fileName)
         //{
-        //    if (Frames != null && Frames.Count > 0)
+
+        //    Debug.Log("Trying to find buffer " + fileName);
+
+        //    foreach (KeyValuePair<string, Presence> entry in SETTINGS.Presences)
         //    {
 
-        //        FirstFrame = Frames[0].FrameNumber;
-        //        LastFrame = Frames[Frames.Count - 1].FrameNumber;
+        //        // do something with entry.Value or entry.Key
+
+        //        if (entry.Value != null && entry.Value.DepthTransport != null && entry.Value.DepthTransport.TransCoder != null)
+        //        {
+        //            FileformatBase bufferFile = entry.Value.DepthTransport.TransCoder.GetBufferFile();
+
+        //            if (bufferFile != null && bufferFile.Name == fileName)
+        //            {
+        //                Debug.Log("found buffer file");
+        //                return bufferFile;
+        //            }
+
+        //        }
 
         //    }
 
+
+        //    Debug.Log("Didn't find buffer file");
+
+        //    return null;
         //}
+
+        //public static      FileformatBase GetFileBuffer(string filePath)
+        //{
+
+        //    FileformatBase Buffered = FindBufferFileInScene(filePath);
+
+        //    if (Buffered == null)
+        //    {
+        //        // try loading it from disk
+        //        //Debug.Log("loading from disk");
+
+        //        Buffered = IO.LoadFromFile(filePath);  // returns null and logs error on fail.
+
+        //        //if (Buffered == null)
+        //        //{
+        //        //    Log.Error("loading file failed");
+
+        //        //    return null;
+        //        //}
+        //    }
+
+
+        //    return Buffered;
+
+
+        //}
+
+
+
+        //public void SetTransform(Vector3 position, Vector3 scale, Quaternion rotation)
+        //{
+
+        //    // Pass a transform and store it in a serialisable format.
+
+        //    Transform[0] = position.x;
+        //    Transform[1] = position.y;
+        //    Transform[2] = position.z;
+        //    Transform[3] = scale.x;
+        //    Transform[4] = scale.y;
+        //    Transform[5] = scale.z;
+        //    Transform[6] = rotation.x;
+        //    Transform[7] = rotation.y;
+        //    Transform[8] = rotation.z;
+        //    Transform[9] = rotation.w;
+
+        //}
+
+        //public void GetTransform(out Vector3 position, out Vector3 scale, out Quaternion rotation)
+        //{
+
+        //    // Get a transform and return it as pos, rot, scale.
+
+        //    position = new Vector3(Transform[0], Transform[1], Transform[2]);
+        //    scale = new Vector3(Transform[3], Transform[4], Transform[5]);
+        //    rotation = new Quaternion(Transform[6], Transform[7], Transform[8], Transform[9]);
+
+
+        //}
+
+
 
 
     }
@@ -85,11 +172,16 @@ namespace PresenceEngine
         public bool[] Tracked;
         public Point Body;
 
+
+
         public SkeletonOnlyFrame()
         {
             Points = new Point[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
             Tracked = new bool[Points.Length];
+
+
         }
+
 
 
     }
@@ -125,12 +217,15 @@ namespace PresenceEngine
         public Quaternion HeadOrientation;
         public int FrameNumber;
 
+
+
         public UncompressedFrame()
         {
 
             Joints = new Vector3[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
 
             Tracked = new bool[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
+
 
 
         }
@@ -211,7 +306,7 @@ namespace PresenceEngine
 
         }
 
-        public string Name()
+        public string GetName()
         {
             return _name;
         }
@@ -238,21 +333,14 @@ namespace PresenceEngine
             return _bufferFile;
         }
 
-        public bool Encode(UncompressedFrame Uframe, StoryEngine.StoryTask task, bool recording = false)
+        public bool Encode(UncompressedFrame Uframe, StoryEngine.StoryTask task, string prefix, bool recording = false)
         {
 
-            // Streaming
-            task.SetVector3ArrayValue("skeleton", Uframe.Joints);
-            task.SetBoolArrayValue("tracked", Uframe.Tracked);
+            task.SetVector3ArrayValue(prefix + "_skeleton", Uframe.Joints);
+            task.SetBoolArrayValue(prefix + "_tracked", Uframe.Tracked);
 
-            //task.SetVector3Value("head", Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head]);
-            //task.SetVector3Value("lefthand", Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft]);
-            //task.SetVector3Value("righthand", Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight]);
-
-            task.SetVector3Value("body", Uframe.Body);
-            task.SetIntValue("frame", Uframe.FrameNumber);
-
-            //    Debug.Log(Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head]);
+            task.SetVector3Value(prefix + "_body", Uframe.Body);
+            task.SetIntValue(prefix + "_frame", Uframe.FrameNumber);
 
             if (recording)
                 RecordFrame(Uframe);
@@ -261,21 +349,14 @@ namespace PresenceEngine
             return true;
         }
 
-        public bool Decode(ref UncompressedFrame Uframe, StoryEngine.StoryTask task, bool recording = false)
+        public bool Decode(ref UncompressedFrame Uframe, StoryEngine.StoryTask task, string prefix, bool recording = false)
         {
 
-            //    Uframe = new UncompressedFrame();
-            task.GetVector3ArrayValue("skeleton",out Uframe.Joints);
-            task.GetBoolArrayValue("tracked",out Uframe.Tracked);
-            //task.GetVector3Value("head", out Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head]);
-            //task.GetVector3Value("lefthand", out Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft]);
-            //task.GetVector3Value("righthand", out Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight]);
+            task.GetVector3ArrayValue(prefix + "_skeleton", out Uframe.Joints);
+            task.GetBoolArrayValue(prefix + "_tracked", out Uframe.Tracked);
 
-            task.GetVector3Value("body", out Uframe.Body);
-
-            //     Debug.Log(Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head]);
-
-            if (!task.GetIntValue("frame", out Uframe.FrameNumber))
+            task.GetVector3Value(prefix + "_body", out Uframe.Body);
+            if (!task.GetIntValue(prefix + "_frame", out Uframe.FrameNumber))
                 return false; // Simple check: if one of the values isn't present something's wrong.
 
 
@@ -297,12 +378,6 @@ namespace PresenceEngine
                 storeFrame.Tracked[p] = Uframe.Tracked[p];
             }
 
-
-            //storeFrame.Points[0] = new Point(Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head]);
-            //storeFrame.Points[1] = new Point(Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft]);
-            //storeFrame.Points[2] = new Point(Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight]);
-
-
             storeFrame.Body = new Point(Uframe.Body);
 
             _bufferFile.Frames.Add(storeFrame);
@@ -319,9 +394,11 @@ namespace PresenceEngine
             if (_bufferFile != null)
             {
 
-                int index = frameNumber- _bufferFile.FirstFrame;
-             //   Debug.Log("Getting frame "+frameNumber + " of "+ _bufferFile.Frames.Count)
-                if (index < _bufferFile.Frames.Count && index >=0)
+                int index = frameNumber - _bufferFile.FirstFrame;
+
+                //   Debug.Log("Getting frame "+frameNumber + " of "+ _bufferFile.Frames.Count)
+
+                if (index < _bufferFile.Frames.Count && index >= 0)
                 {
                     SkeletonOnlyFrame storeFrame = (SkeletonOnlyFrame)_bufferFile.Frames[index];
 
@@ -332,14 +409,8 @@ namespace PresenceEngine
 
                     }
 
-
-
-
-                    //Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] = storeFrame.Points[0].ToVector3();
-                    //Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] = storeFrame.Points[1].ToVector3();
-                    //Uframe.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] = storeFrame.Points[2].ToVector3();
-
                     Uframe.Body = storeFrame.Body.ToVector3();
+                    Uframe.FrameNumber = frameNumber;
 
                     return true;
                 }

@@ -7,7 +7,8 @@ start moodlight
 start serversearch
 alignset
 addkinectnull
-createinstance
+createuser
+//createinstance
 receivelivedepth
 //autocalibrate
 //moodon
@@ -60,7 +61,8 @@ start server
 displaycheck
 alignset
 addkinectnull
-createinstance
+createuser
+//createinstance
 makeservercontrols
 setfiledefaults
 makefoldermenu
@@ -152,30 +154,88 @@ stop clientcalibration
 stop clientcalibrated
 end
 
-// 
+// Presencehandler handles presence playback and mirrors everything to the client.
 
-#recordstart
+#presencehandler
+isglobal
+handlepresences
+end
+
+// Flows - default
+
+#flow01
+setdefaultflow
+end
+
+#recordsingle
 isglobal
 recordstart
-@stoprecord
+@recordsingle_stop
 recordstop
 makefilemenu
 end
 
-#recordstop
-tell recordstart stoprecord
+#stoprecordsingle
+tell recordsingle recordsingle_stop
 end
 
-#playbackstart
+#playsingle
+pressedplay
+playbackfile
+start presencehandler
+waitforallplaybacktoend
+pause5
+@playsingle_stop
+pressedstop
+deletepresences
+stop presencehandler
+end
+
+#stopplaysingle
+tell playsingle playsingle_stop
+end
+
+// Flows - cumulative. Playback and record both play back the previous 2 files.
+
+#flow02
+setcumulativeflow
+end
+
+#recordcumulative
 isglobal
-playbackbuffer
-@stopplayback
-stopplaybackbuffer
+start presencehandler
+playcumulative
+recordstart
+@recordcumulative_stop
+recordstop
+deletepresences
+stop presencehandler
+makefilemenu
 end
 
-#playbackstop
-tell playbackstart stopplayback
+#stoprecordcumulative
+tell recordcumulative recordcumulative_stop
 end
+
+// Play back cumulatively.
+
+#playcumulative
+pressedplay
+playbackfile
+playcumulative
+start presencehandler
+waitforallplaybacktoend
+pause5
+@playcumulative_stop
+pressedstop
+deletepresences
+stop presencehandler
+end
+
+#stopplaycumulative
+tell playcumulative playcumulative_stop
+end
+
 
 // GENERAL STORIES
 
