@@ -5,7 +5,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System;
 using System.Linq;
-using NUnit.Framework;
+//using NUnit.Framework;
 
 namespace PresenceEngine
 {

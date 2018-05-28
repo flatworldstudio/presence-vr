@@ -554,8 +554,10 @@ namespace PresenceEngine
 
             EncodeDepth(Uframe, out Data, out DepthSampling, out Min, out Max);
 
-            //       task.SetStringValue("debug", "" +Mathf.Round(Data.Length/1024f));
-            task.SetStringValue("debug", "" + debugString);
+                task.SetStringValue("debug", "" +Mathf.Round(Data.Length/1024f) +" ");
+
+
+         //   task.SetStringValue("debug", "" + debugString);
 
             task.SetVector3ArrayValue(prefix + "_skeleton", Uframe.Joints);
             task.SetBoolArrayValue(prefix + "_tracked", Uframe.Tracked);
@@ -563,11 +565,21 @@ namespace PresenceEngine
             task.SetVector3Value(prefix + "_body", Uframe.Body);
             task.SetIntValue(prefix + "_frame", Uframe.FrameNumber);
 
+            if (Data.Length > 20000)
+            {
+                Debug.LogWarning("message size over 20k");
 
-            task.SetIntValue(prefix + "_sampling", DepthSampling);
-            task.SetByteValue(prefix + "_data", Data);
-            task.SetIntValue(prefix + "_min", Min);
-            task.SetIntValue(prefix + "_max", Max);
+
+            }
+            else
+            {
+
+                task.SetIntValue(prefix + "_sampling", DepthSampling);
+                task.SetByteValue(prefix + "_data", Data);
+                task.SetIntValue(prefix + "_min", Min);
+                task.SetIntValue(prefix + "_max", Max);
+            }
+ 
 
             if (recording)
             {

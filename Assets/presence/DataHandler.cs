@@ -157,7 +157,7 @@ namespace PresenceEngine
                  //   SETTINGS.user.SetTranscoder("SkeletonOnly");
 
                     SETTINGS.user.SetTranscoder("SkeletonAndDepth");
-                    SETTINGS.user.SetDepthSampling(2);
+                    SETTINGS.user.SetDepthSampling(4);
 
                     done = true;
 
