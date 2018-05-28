@@ -565,7 +565,7 @@ namespace PresenceEngine
 
 
             task.SetIntValue(prefix + "_sampling", DepthSampling);
-            //task.SetByteValue(prefix + "_data", Data);
+            task.SetByteValue(prefix + "_data", Data);
             task.SetIntValue(prefix + "_min", Min);
             task.SetIntValue(prefix + "_max", Max);
 
