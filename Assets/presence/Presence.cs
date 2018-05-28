@@ -49,6 +49,14 @@ namespace PresenceEngine
             DepthTransport.SetTranscoder(name);
         }
 
+        public void SetDepthSampling(int sampling)
+        {
+
+            if (DepthTransport != null)
+                DepthTransport.DepthSampling = sampling;
+
+        }
+
         public string GetTranscoder()
         {
 
@@ -64,6 +72,10 @@ namespace PresenceEngine
             {
                 case "ShowSkeleton":
                     Visualiser = new ShowSkeleton();
+                    Visualiser.Initialise(this.gameObject);
+                    break;
+                case "PointCloud":
+                    Visualiser = new PointCloud();
                     Visualiser.Initialise(this.gameObject);
                     break;
                 default:

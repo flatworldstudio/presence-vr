@@ -24,7 +24,7 @@ namespace PresenceEngine
 
         public static  string  DEFAULTFOLDER = "/_default";
 
-        public static int DEPTHSAMPLING =1;
+     //   public static int DEPTHSAMPLING =1;
 
 
         //public static Presence[] Presences;

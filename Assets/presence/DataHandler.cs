@@ -153,8 +153,11 @@ namespace PresenceEngine
                         SETTINGS.Presences.Add("user", SETTINGS.user);
                     }
 
-                    SETTINGS.user.SetVisualiser("ShowSkeleton");
-                    SETTINGS.user.SetTranscoder("SkeletonOnly");
+                    SETTINGS.user.SetVisualiser("PointCloud");
+                 //   SETTINGS.user.SetTranscoder("SkeletonOnly");
+
+                    SETTINGS.user.SetTranscoder("SkeletonAndDepth");
+                    SETTINGS.user.SetDepthSampling(2);
 
                     done = true;
 
@@ -171,9 +174,9 @@ namespace PresenceEngine
                     }
 
                     newInstance.SetVisualiser("ShowSkeleton");
-                    //newInstance.SetTranscoder("SkeletonOnly");
-                    newInstance.SetTranscoder("SkeletonAndDepth");
-
+                   newInstance.SetTranscoder("SkeletonOnly");
+                    //newInstance.SetTranscoder("SkeletonAndDepth");
+                    //newInstance.SetDepthSampling(2);
 
 
                     done = true;
@@ -429,8 +432,11 @@ namespace PresenceEngine
                             fileplayback = Presence.Create(presences);
 
                             SETTINGS.Presences.Add("playbackpresence", fileplayback);
-                            fileplayback.SetVisualiser("ShowSkeleton");
-                            fileplayback.SetTranscoder("SkeletonOnly");
+                         //   fileplayback.SetVisualiser("ShowSkeleton");
+                            fileplayback.SetVisualiser("PointCloud");
+
+                            fileplayback.SetTranscoder(pbBuffer.TransCoderName);
+                          //  fileplayback.SetTranscoder("SkeletonOnly");
 
                         }
 
@@ -493,10 +499,13 @@ namespace PresenceEngine
                             {
                                 fileplayback = Presence.Create(presences);
                                 SETTINGS.Presences.Add("playbackpresence" + c, fileplayback);
-                                fileplayback.SetVisualiser("ShowSkeleton");
-                                fileplayback.SetTranscoder("SkeletonOnly");
+                             //   fileplayback.SetVisualiser("ShowSkeleton");
+                                    fileplayback.SetVisualiser("PointCloud");
+                                    //   fileplayback.SetTranscoder("SkeletonOnly");
+                                    fileplayback.SetTranscoder(pbcBuf.TransCoderName);
 
-                            }
+
+                                }
 
 
                             fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
@@ -739,6 +748,7 @@ namespace PresenceEngine
                                 SETTINGS.user.DepthTransport.Mode = DEPTHMODE.RECORD;
 
                                 SETTINGS.user.DepthTransport.TransCoder.CreateBufferFile(IO.CheckedOutFile);
+
                                 task.SetStringValue("user_file", IO.CheckedOutFile);
 
                             }

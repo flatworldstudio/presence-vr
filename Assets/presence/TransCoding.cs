@@ -175,6 +175,8 @@ namespace PresenceEngine
         public Point Body;
 
         public byte[] Data;
+        public int Min, Max;
+        public int DepthSampling;
 
         public SkeletonAndDepthFrame()
         {
@@ -250,7 +252,7 @@ namespace PresenceEngine
 
             Tracked = new bool[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
 
-
+            RawDepth = new ushort[160 * 120];
 
         }
         public void Clear()
@@ -289,13 +291,13 @@ namespace PresenceEngine
                 switch (value)
                 {
                     case 1:
-                        RawDepth=new ushort[640*480];
+                        RawDepth = new ushort[640 * 480];
                         break;
                     case 2:
-                        RawDepth=new ushort[320*240];
+                        RawDepth = new ushort[320 * 240];
                         break;
                     case 4:
-                        RawDepth=new ushort[160*120];
+                        RawDepth = new ushort[160 * 120];
                         break;
                     default:
                         Debug.LogError("Invalid depthsampling.");
@@ -391,7 +393,8 @@ namespace PresenceEngine
         {
             _bufferFile = new FileformatBase
             {
-                Name = name
+                Name = name,
+                TransCoderName = _name
             };
 
             Debug.Log("Created buffer file " + _bufferFile.Name);
@@ -530,7 +533,8 @@ namespace PresenceEngine
         {
             _bufferFile = new FileformatBase
             {
-                Name = name
+                Name = name,
+                TransCoderName = _name
             };
 
             Debug.Log("Created buffer file " + _bufferFile.Name);
@@ -543,15 +547,15 @@ namespace PresenceEngine
 
         public bool Encode(UncompressedFrame Uframe, StoryEngine.StoryTask task, string prefix, bool recording = false)
         {
-            
+
             // Write info to task.
-            int Min,Max,DepthSampling;
+            int Min, Max, DepthSampling;
             byte[] Data;
 
-            EncodeDepth(Uframe,out Data,out DepthSampling ,out Min,out Max);
+            EncodeDepth(Uframe, out Data, out DepthSampling, out Min, out Max);
 
-            task.SetStringValue("debug", "" +Data.Length/1024f);
-
+            //       task.SetStringValue("debug", "" +Mathf.Round(Data.Length/1024f));
+            task.SetStringValue("debug", "" + debugString);
 
             task.SetVector3ArrayValue(prefix + "_skeleton", Uframe.Joints);
             task.SetBoolArrayValue(prefix + "_tracked", Uframe.Tracked);
@@ -560,14 +564,15 @@ namespace PresenceEngine
             task.SetIntValue(prefix + "_frame", Uframe.FrameNumber);
 
 
-            task.SetIntValue(prefix + "_sampling",DepthSampling);
+            task.SetIntValue(prefix + "_sampling", DepthSampling);
             //task.SetByteValue(prefix + "_data", Data);
-            task.SetIntValue(prefix + "_min",Min);
-            task.SetIntValue(prefix + "_max",Max);
+            task.SetIntValue(prefix + "_min", Min);
+            task.SetIntValue(prefix + "_max", Max);
 
-            if (recording) {
-                
-                RecordFrame(Uframe,Data,DepthSampling,Min,Max);
+            if (recording)
+            {
+
+                RecordFrame(Uframe, Data, DepthSampling, Min, Max);
 
             }
 
@@ -583,37 +588,39 @@ namespace PresenceEngine
             task.GetVector3ArrayValue(prefix + "_skeleton", out Uframe.Joints);
             task.GetBoolArrayValue(prefix + "_tracked", out Uframe.Tracked);
             task.GetVector3Value(prefix + "_body", out Uframe.Body);
-                   
-                  
+
+
             byte[] Data;
 
-            //if (!task.GetByteValue(prefix + "_data", out Data))
-                //return false;
+            if (!task.GetByteValue(prefix + "_data", out Data))
+                return false;
 
 
             int Sampling;
-            task.GetIntValue(prefix + "_sampling",out Sampling);
+            task.GetIntValue(prefix + "_sampling", out Sampling);
             Uframe.DepthSampling = Sampling;
 
-            int Min,Max;
-            task.GetIntValue(prefix + "_min",out Min);
-            task.GetIntValue(prefix + "_max",out Max);
+            int Min, Max;
+            task.GetIntValue(prefix + "_min", out Min);
+            task.GetIntValue(prefix + "_max", out Max);
 
-            //DecodeDepth(Uframe,Data,Sampling,Min,Max);
-                       
-            if (recording){
-                
-                //RecordFrame(Uframe,Data,Sampling,Min,Max);
+            DecodeDepth(Uframe, Data, Sampling, Min, Max);
+
+            if (recording)
+            {
+
+                RecordFrame(Uframe, Data, Sampling, Min, Max);
 
             }
-               
+
 
             return true;
         }
 
+        string debugString;
 
-
-        void EncodeDepth (UncompressedFrame Uframe,out byte[] Data,out int Sampling,out int Min, out int Max){
+        void EncodeDepth(UncompressedFrame Uframe, out byte[] Data, out int Sampling, out int Min, out int Max)
+        {
 
             // Encode depth
 
@@ -628,10 +635,12 @@ namespace PresenceEngine
             int NumberOfBlocks = Rows * Columns;
             Block[] Blocks = new Block[NumberOfBlocks];
 
-             Min = 999999;
-             Max = -999999;
+            Min = 999999;
+            Max = -999999;
 
             int ZeroedBlocks = 0;
+            int FullBlocks = 0;
+            int SingleByte = 0;
 
             // Go over blocks.
 
@@ -661,9 +670,13 @@ namespace PresenceEngine
                             if (block.userMap[BlockIndexBase + x] != 0)
                             {
                                 block.isZero = false;
-                                Min = Mathf.Min(Min, block.depthMap[BlockIndexBase + x]);
-                                Max = Mathf.Max(Max, block.depthMap[BlockIndexBase + x]);
+                                block.Min = Mathf.Min(block.Min, block.depthMap[BlockIndexBase + x]);
+                                block.Max = Mathf.Max(block.Max, block.depthMap[BlockIndexBase + x]);
 
+                            }
+                            else
+                            {
+                                block.isFull = false;
                             }
 
                         }
@@ -671,6 +684,19 @@ namespace PresenceEngine
 
                     if (block.isZero)
                         ZeroedBlocks++;
+
+                    if (block.isFull)
+                    {
+                        if (block.Max - block.Min < 16)
+                            SingleByte++;
+
+                        FullBlocks++;
+
+                    }
+
+                    Min = Mathf.Min(Min, block.Min);
+                    Max = Mathf.Max(Max, block.Max);
+
 
                     Blocks[BlockIndex] = block;
 
@@ -680,9 +706,9 @@ namespace PresenceEngine
             // Define data size. First a series of bytes to say zero or non zero. (can be /8)
 
             int NonZeroBlocks = NumberOfBlocks - ZeroedBlocks;
-            int DepthDataIndex=NumberOfBlocks;
+            int DepthDataIndex = NumberOfBlocks;
             //int ZeroDataIndex=1;
-
+            int BlockDataSize = BlockSize * BlockSize;
             Data = new byte[DepthDataIndex + NonZeroBlocks * BlockSize * BlockSize];
 
             //Data[0]=(byte)Uframe.DepthSampling;
@@ -690,7 +716,7 @@ namespace PresenceEngine
 
             // Now go over blocks again and write data.
 
-            float Span = Max-Min;
+            int Span = Max - Min;
 
             for (int r = 0; r < Rows; r++)
             {
@@ -698,28 +724,33 @@ namespace PresenceEngine
                 {
                     int BlockIndex = r * Columns + c;
 
-                    if (Blocks[BlockIndex].isZero){
+                    if (Blocks[BlockIndex].isZero)
+                    {
 
-                        Data[BlockIndex]=0;
+                        Data[BlockIndex] = 0;
 
-                    }else{
+                    }
+                    else
+                    {
 
-                        Data[BlockIndex]=1;
+                        Data[BlockIndex] = 1;
                         Block block = Blocks[BlockIndex];
 
                         for (int y = 0; y < BlockSize; y++)
                         {
                             for (int x = 0; x < BlockSize; x++)
                             {
-                                int index = y*BlockSize+x;
-                                int value =block.depthMap[index];
-
-                                Data[DepthDataIndex+index]= (byte) ((value-Min)/Span * 254 +1);
+                                int index = y * BlockSize + x;
+                                
+                                Data[DepthDataIndex + index] =
+                                    block.userMap[index] != 0 ?
+                                    (byte)(((block.depthMap[index] - Min) * 254) / Span + 1) : (byte) 0;
+                               
 
                             }
                         }
 
-                        DepthDataIndex+=BlockSize*BlockSize;
+                        DepthDataIndex += BlockDataSize;
                     }
 
                 }
@@ -727,6 +758,8 @@ namespace PresenceEngine
             }
 
 
+            debugString = "" + FullBlocks + " " + SingleByte;
+
 
         }
 
@@ -735,32 +768,83 @@ namespace PresenceEngine
 
 
 
-        void DecodeDepth (UncompressedFrame Uframe,byte[] Data,int Sampling, float Min,float Max )
+        void DecodeDepth(UncompressedFrame Uframe, byte[] Data, int Sampling, int Min, int Max)
         {
 
             int BlockSize = 8;
-            int Rows,Columns;
-            //int DepthSampling = Uframe.DepthSampling;
+            int Rows, Columns;
+            
+            Uframe.DepthSampling = Sampling; // also creates buffer!
 
-            //if (!(Sampling==1 || DepthSampling==2 || DepthSampling==4)){
-            //    Debug.LogError("invalid depth sampling");
-            //    return;
-            //}
-               
-            Columns=(640/Sampling)*BlockSize;
-            Rows=(480/Sampling)/BlockSize;
+            Columns = (640 / Sampling) / BlockSize;
+            Rows = (480 / Sampling) / BlockSize;
+
+            int Span = Max - Min;
+
+            int NumberOfBlocks = Rows * Columns;
+            int DepthDataIndex = NumberOfBlocks;
+            int BlockDataSize = BlockSize * BlockSize;
+      int      BlockDataIndex = 0;
+
+            for (int r = 0; r < Rows; r++)
+            {
+                for (int c = 0; c < Columns; c++)
+                {
+
+                    // Populate block
+
+                    int BlockIndex = r * Columns + c;
+
+                    byte isZero = Data[BlockIndex];
+
+
+                    for (int y = 0; y < BlockSize; y++)
+                    {
+                        int RawIndexBase = (r * BlockSize + y) * Uframe.Width + (c * BlockSize);
+                        int DataIndexBase = BlockDataIndex + y * BlockSize;
+
+                        for (int x = 0; x< BlockSize; x++)
+                        {
+                            
+                            if (isZero == 0)
+                            {
+                                Uframe.RawDepth[RawIndexBase + x] = 0;
+                            }
+                            else
+                            {
+                                int depthMap = Data[DepthDataIndex + DataIndexBase + x];
+
+                                int userMap = (depthMap == 0  ? 0 : 1);
+
+                                Uframe.RawDepth[RawIndexBase + x] = (ushort)(((depthMap*Span)/254+Min) << 3 | userMap);
+
+                            }
+                
+                            
+                        }
+
+                    }
+
+                    if (isZero != 0)
+                    {
+
+                        BlockDataIndex += BlockDataSize;
+                        //if (DepthDataIndex+BlockDataIndex > Data.Length - BlockDataSize)
+                        //{
+                        //    BlockDataIndex = 0;
+
+                        //}
+                    }
+                    
+                }
+
+            }
 
 
 
 
-        
 
 
-
-
-              
-
-              
         }
 
 
@@ -768,9 +852,9 @@ namespace PresenceEngine
 
 
 
-        void RecordFrame(UncompressedFrame Uframe,byte[] Data,int Sampling, float Min, float Max)
+        void RecordFrame(UncompressedFrame Uframe, byte[] Data, int Sampling, int Min, int Max)
         {
-            
+
             SkeletonAndDepthFrame storeFrame = new SkeletonAndDepthFrame();
 
             storeFrame.FrameNumber = Uframe.FrameNumber;
@@ -782,10 +866,10 @@ namespace PresenceEngine
             }
 
             storeFrame.Body = new Point(Uframe.Body);
-            storeFrame.Data=Data;
-            storeFrame.DepthSampling =Sampling;
-            storeFrame.Min=Min;
-            storeFrame.Max=Max;
+            storeFrame.Data = Data;
+            storeFrame.DepthSampling = Sampling;
+            storeFrame.Min = Min;
+            storeFrame.Max = Max;
 
             _bufferFile.Frames.Add(storeFrame);
             _bufferFile.FirstFrame = Mathf.Min(_bufferFile.FirstFrame, storeFrame.FrameNumber);
@@ -819,7 +903,7 @@ namespace PresenceEngine
                     Uframe.Body = storeFrame.Body.ToVector3();
                     Uframe.FrameNumber = frameNumber;
 
-                    DecodeDepth(Uframe,storeFrame.Data);
+                    DecodeDepth(Uframe, storeFrame.Data, storeFrame.DepthSampling, storeFrame.Min, storeFrame.Max);
 
                     return true;
                 }
@@ -841,14 +925,18 @@ namespace PresenceEngine
 
 
         public bool isZero = true;
+        public bool isFull = true;
         public ushort[] userMap;
         public ushort[] depthMap;
+        public int Min, Max;
 
         public Block(int size)
         {
 
             userMap = new ushort[size * size];
             depthMap = new ushort[size * size];
+            Min = 999999;
+            Max = -999999;
 
         }
 

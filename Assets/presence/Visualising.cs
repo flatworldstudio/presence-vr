@@ -223,7 +223,7 @@ namespace PresenceEngine
 
     public class PointCloud : iVisualiser
     {
-        string _name = "ShowSkeleton";
+        string _name = "PointCloud";
 
         GameObject PresenceObject;
         GameObject Head, Body, HandLeft, HandRight;
@@ -276,7 +276,7 @@ namespace PresenceEngine
             Body = n;
 
 
-            Cloud = new ParticleCloud(5000, "Cloud", true);
+            Cloud = new ParticleCloud(20000, "Cloud", true);
             Cloud.CloudObject.transform.SetParent(PresenceObject.transform, false);
 
             lastFrame = new UncompressedFrame();
@@ -371,6 +371,8 @@ namespace PresenceEngine
                 // takes a kinect styled uint[] RawDepthMap
                 // and plots the points into a Particle Cloud, with scale corrected if the frame was downsampled.
 
+               
+
                 int ParticleIndex = 0;
 
                 int Width = Frame.Width;
@@ -396,8 +398,8 @@ namespace PresenceEngine
 
                             point = depthToWorld(x * Scale, y * Scale, userDepth);
                             point.x = -point.x;
-                            point.y = -point.y;
-                            //point += Transform;
+                            point.y = -point.y+ SETTINGS.kinectHeight;
+                      //     point += SETTINGS.kinectHeight;
 
                             Cloud.allParticles[ParticleIndex].position = point;
 

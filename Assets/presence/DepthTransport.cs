@@ -82,6 +82,7 @@ namespace PresenceEngine
 
         //public bool ModeChanged=false;
 
+            public int DepthSampling=1;
 
 
         static public DepthTransport OwnsKinect;
@@ -204,6 +205,7 @@ namespace PresenceEngine
                         if (OwnsKinect==this && KinectManager.Instance.IsInitialized())
                         {
                             KinectManager.Instance.shutDown();
+                            OwnsKinect = null;
                             Debug.Log(me + "Shutting down Kinectmanager.");
                         }
 
@@ -647,38 +649,37 @@ namespace PresenceEngine
 
                 ushort[] FullRes = KinectManager.Instance.GetRawDepthMap();
 
-                if (SETTINGS.DEPTHSAMPLING == 1)
+                if (DepthSampling == 1)
                     return FullRes;
 
-                if (SETTINGS.DEPTHSAMPLING == 2 || SETTINGS.DEPTHSAMPLING == 4)
+                if (DepthSampling == 2 || DepthSampling == 4)
                 {
                     // Downsample.
-
-                    int sampling = SETTINGS.DEPTHSAMPLING;
-                    ushort[] LoRes = new ushort[DEPTHMAPSIZE[sampling]];
-                    int ty, tx;
-
-                    ty = 0;
-                    for (int y = 0; y < 480 / sampling; y += sampling)
+                                      
+                    ushort[] LoRes = new ushort[DEPTHMAPSIZE[DepthSampling]];
+                                     
+                    for (int y = 0; y < 480 / DepthSampling; y ++)
                     {
-                        tx = 0;
-                        for (int x = 0; x < 640 / sampling; x += sampling)
+                        int rowIndex = y * 640 / DepthSampling;
+                        int originalRowIndex = y * DepthSampling * 640;
+
+                        for (int x = 0; x < 640 / DepthSampling; x ++)
                         {
-                            LoRes[ty * 640 / sampling + tx] = FullRes[y * 640 + x];
-                            tx++;
+                            LoRes[rowIndex + x] = FullRes[originalRowIndex + x* DepthSampling];
+                            
                         }
-                        ty++;
+                      
                     }
                     return LoRes;
                 }
 
-                Debug.LogWarning("Depth sample size invalid: "+SETTINGS.DEPTHSAMPLING);
+                Debug.LogWarning("Depth sample size invalid: "+ DepthSampling);
 
             }
 
             #endif
 
-            return new ushort[DEPTHMAPSIZE[SETTINGS.DEPTHSAMPLING]];
+            return new ushort[DEPTHMAPSIZE[DepthSampling]];
         }
 
 
