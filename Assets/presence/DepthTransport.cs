@@ -7,6 +7,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 //using NUnit.Framework.Constraints;
 using System.Net.NetworkInformation;
+using Amazon.CognitoIdentity.Model;
 
 
 namespace PresenceEngine
@@ -70,9 +71,9 @@ namespace PresenceEngine
 
         string me = "Depthtransport: ";
 
-        int[] DEPTHMAPSIZE = { 0, 640 * 480, 320 * 240, 0, 160, 120 };
+        int[] DEPTHMAPSIZE = { 0, 640 * 480, 320 * 240, 0, 160 * 120 };
 
-       public int FrameNumber = 0;
+        public int FrameNumber = 0;
 
         public iTransCoder TransCoder;
 
@@ -90,7 +91,7 @@ namespace PresenceEngine
         public DepthTransport()
         {
 
-            ActiveFrame = new UncompressedFrame(); // Create object once and reuse to save resources.
+            ActiveFrame = new UncompressedFrame(); // Initial empty frame.
 
         }
 
@@ -103,6 +104,11 @@ namespace PresenceEngine
                 case "SkeletonOnly":
                     TransCoder = new SkeletonOnly();
                     break;
+
+                case "SkeletonAndDepth":
+                    TransCoder = new SkeletonAndDepth();
+                    break;
+
                 default:
                     Debug.LogError("Trying to set unkown transcoder.");
                     break;
@@ -130,7 +136,8 @@ namespace PresenceEngine
             set
             {
 
-                if (__mode == value){
+                if (__mode == value)
+                {
                     //ModeChanged=false;
                     return;
                 }
@@ -146,7 +153,7 @@ namespace PresenceEngine
                         // Any instance can be 'live', which means it'll be working with live buffer data.
                         // On windows, the first instance to go live will assume control over the kinect.
 
-                    //    __mode = DEPTHMODE.LIVE;
+                        //    __mode = DEPTHMODE.LIVE;
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
@@ -184,13 +191,13 @@ namespace PresenceEngine
                     case DEPTHMODE.PLAYBACK:
                         //__mode = DEPTHMODE.OFF;
 
-                      
-                            
+
+
 
                         break;
                     case DEPTHMODE.OFF:
 
-                       // __mode = DEPTHMODE.OFF;
+                        // __mode = DEPTHMODE.OFF;
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
@@ -249,6 +256,7 @@ namespace PresenceEngine
                 case DEPTHMODE.LIVE:
                 case DEPTHMODE.RECORD:
 
+                    ActiveFrame = new UncompressedFrame();
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
@@ -257,6 +265,7 @@ namespace PresenceEngine
                         FrameNumber++;
 
                         ActiveFrame.RawDepth = GetRawDepthMap();
+
                         getSkeleton(ref ActiveFrame);
 
 
@@ -279,7 +288,7 @@ namespace PresenceEngine
 
                     float hx = 6f * Mathf.PerlinNoise(0.1f * time, 0);
                     float hz = 6f * Mathf.PerlinNoise(0, 0.1f * time);
-                    float r = Mathf.PerlinNoise(0.1f * time + 20f, 0.1f * time+10f);
+                    float r = Mathf.PerlinNoise(0.1f * time + 20f, 0.1f * time + 10f);
 
 
                     //ActiveFrame.Joints = new Vector3[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
@@ -288,20 +297,20 @@ namespace PresenceEngine
                     ActiveFrame.Body = new Vector3(hx, SETTINGS.kinectHeight, hz);
 
                     ActiveFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] = new Vector3(hx, SETTINGS.kinectHeight * 1.25f, hz);
-                    ActiveFrame.Tracked [(int)KinectWrapper.NuiSkeletonPositionIndex.Head]=true;
+                    ActiveFrame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] = true;
 
                     ActiveFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] = new Vector3(hx - 0.5f, SETTINGS.kinectHeight / 2, hz);
-                    ActiveFrame.Tracked [(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft]=true;
+                    ActiveFrame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] = true;
 
                     ActiveFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] = new Vector3(hx + 0.5f, SETTINGS.kinectHeight / 2, hz);
-                    ActiveFrame.Tracked [(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight]=true;
+                    ActiveFrame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] = true;
 
                     //ActiveFrame.Tracked = new bool[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
 
 
                     ActiveFrame.FrameNumber = FrameNumber;
 
-                  //  ActiveFrame.HeadOrientation = Quaternion.Euler(-45f + 90f * r,0, 0f);
+                    //  ActiveFrame.HeadOrientation = Quaternion.Euler(-45f + 90f * r,0, 0f);
                     //   Frame = NewFrame;
 
 
@@ -345,15 +354,15 @@ namespace PresenceEngine
 
         public bool LoadFrameFromBuffer()
         {
-            
-            return TransCoder.PlayFrame( FrameNumber,ref ActiveFrame);
+
+            return TransCoder.PlayFrame(FrameNumber, out ActiveFrame);
 
         }
 
-        public bool Encode(StoryEngine.StoryTask task,string prefix)
+        public bool Encode(StoryEngine.StoryTask task, string prefix)
         {
             if (__mode == DEPTHMODE.LIVE || __mode == DEPTHMODE.RECORD)
-                return TransCoder.Encode(ActiveFrame, task,prefix, __mode == DEPTHMODE.RECORD);
+                return TransCoder.Encode(ActiveFrame, task, prefix, __mode == DEPTHMODE.RECORD);
 
             return false;
         }
@@ -361,7 +370,7 @@ namespace PresenceEngine
         public bool Decode(StoryEngine.StoryTask task, string prefix)
         {
             if (__mode == DEPTHMODE.LIVE || __mode == DEPTHMODE.RECORD)
-                return TransCoder.Decode(ref ActiveFrame, task,prefix, __mode == DEPTHMODE.RECORD);
+                return TransCoder.Decode(out ActiveFrame, task, prefix, __mode == DEPTHMODE.RECORD);
 
             return false;
         }
@@ -630,16 +639,46 @@ namespace PresenceEngine
 
             // Get raw depth map, so depth plus user map in a ushort[]
 
-#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+            #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+
 
             if (KinectManager.Instance.IsInitialized())
-                return KinectManager.Instance.GetRawDepthMap();
+            {
 
+                ushort[] FullRes = KinectManager.Instance.GetRawDepthMap();
 
-#endif
+                if (SETTINGS.DEPTHSAMPLING == 1)
+                    return FullRes;
 
+                if (SETTINGS.DEPTHSAMPLING == 2 || SETTINGS.DEPTHSAMPLING == 4)
+                {
+                    // Downsample.
 
-            return new ushort[DEPTHMAPSIZE[0]];
+                    int sampling = SETTINGS.DEPTHSAMPLING;
+                    ushort[] LoRes = new ushort[DEPTHMAPSIZE[sampling]];
+                    int ty, tx;
+
+                    ty = 0;
+                    for (int y = 0; y < 480 / sampling; y += sampling)
+                    {
+                        tx = 0;
+                        for (int x = 0; x < 640 / sampling; x += sampling)
+                        {
+                            LoRes[ty * 640 / sampling + tx] = FullRes[y * 640 + x];
+                            tx++;
+                        }
+                        ty++;
+                    }
+                    return LoRes;
+                }
+
+                Debug.LogWarning("Depth sample size invalid: "+SETTINGS.DEPTHSAMPLING);
+
+            }
+
+            #endif
+
+            return new ushort[DEPTHMAPSIZE[SETTINGS.DEPTHSAMPLING]];
         }
 
 

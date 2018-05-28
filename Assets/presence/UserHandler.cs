@@ -152,6 +152,8 @@ namespace PresenceEngine
             switch (task.description)
             {
 
+                // Connectivity messages.
+
                 case "listenforserver":
 
                     userMessager.ShowTextMessage("Waiting for server", 3);
@@ -176,8 +178,9 @@ namespace PresenceEngine
                     done = true;
                     break;
 
+                    // Flow messages
 
-
+             
 
                 case "depthlive":
 
@@ -588,10 +591,11 @@ namespace PresenceEngine
                 case "setfiledefaults":
 
 
-                    IO.SetCheckedOutFile(SETTINGS.DEFAULTFILE);
-                    IO.SetBrowseFolder(SETTINGS.DEFAULTFOLDER);
-                    Debug.Log(IO.CheckedOutFile);
-                    Debug.Log(IO.BrowseFolder);
+                    IO.SelectFile(SETTINGS.DEFAULTFILE);
+                    IO.SelectFolder(SETTINGS.DEFAULTFOLDER);
+
+                    //Debug.Log(IO.CheckedOutFile);
+                    //Debug.Log(IO.BrowseFolder);
 
                     done = true;
                     break;
@@ -613,7 +617,11 @@ namespace PresenceEngine
                     position.x = Screen.width;
                     FileMenu.transform.localPosition = position;
 
-                    PFile[] files = IO.GetLocalFiles(IO.BrowseFolder);
+                    //List <PFile> files = IO.GetFileList(IO.SelectedFolder);
+
+
+                    List <PFile> files = IO.FilesInSelectedFolder;
+
 
                     for (int i = 0; i < 18; i++)
                     {
@@ -625,7 +633,7 @@ namespace PresenceEngine
                         folderButton.callback = "file";
                         serverInterface.addButton(folderButton);
 
-                        if (i < files.Length)
+                        if (i < files.Count)
                         {
 
                             icon.GetComponentInChildren<UnityEngine.UI.Text>().text = files[i].Name;
@@ -644,7 +652,6 @@ namespace PresenceEngine
                     break;
 
                 case "makeservercontrols":
-
 
 
                     serverInterface = new UxInterface();
@@ -713,30 +720,38 @@ namespace PresenceEngine
                     // Flows
 
                     control = new UiButton("flow01", menu, constraint);
-                    control.callback = "flow01";
+                    control.callback = "flow_solo";
                     serverInterface.addButton(control);
 
                     control = new UiButton("flow02", menu, constraint);
-                    control.callback = "flow02";
+                    control.callback = "flow_mirror";
+                    serverInterface.addButton(control);
+
+                    control = new UiButton("flow03", menu, constraint);
+                    control.callback = "flow_delay";
+                    serverInterface.addButton(control);
+
+                    control = new UiButton("flow04", menu, constraint);
+                    control.callback = "flow_echo";
                     serverInterface.addButton(control);
                  
 
                     // Callbacks for play, record and stop are different for different flows. These are the defaults.
 
                     control = new UiButton("playbackstart", menu, constraint);
-                    control.callback = "playsingle";
+                    control.callback = "";
                     serverInterface.addButton(control);
 
                     control = new UiButton("playbackstop", menu, constraint);
-                    control.callback = "stopplaysingle";
+                    control.callback = "";
                     serverInterface.addButton(control);
 
                     control = new UiButton("recordstart", menu, constraint);
-                    control.callback = "recordsingle";
+                    control.callback = "";
                     serverInterface.addButton(control);
 
                     control = new UiButton("recordstop", menu, constraint);
-                    control.callback = "stoprecordsingle";
+                    control.callback = "";
                     serverInterface.addButton(control);
 
                     // Hide buttons.
@@ -752,9 +767,31 @@ namespace PresenceEngine
 
                     break;
 
-                case "setdefaultflow":
-                    
+                case "setflow_solo":
+
+                    userMessager.ShowTextMessage("Flow: Solo", 1);
+
                     UiButton b= serverInterface.GetButton("playbackstart");
+                    b.callback="playsolo";
+
+                    b= serverInterface.GetButton("playbackstop");
+                    b.callback="stopplaysolo";
+
+                    b= serverInterface.GetButton("recordstart");
+                    b.callback="recordsolo";
+
+                    b= serverInterface.GetButton("recordstop");
+                    b.callback="stoprecordsolo";
+
+                    done=true;
+                    break;
+             
+
+
+                case "setflow_mirror":
+
+                    /*
+                     b= serverInterface.GetButton("playbackstart");
                     b.callback="playsingle";
 
                     b= serverInterface.GetButton("playbackstop");
@@ -765,27 +802,50 @@ namespace PresenceEngine
 
                     b= serverInterface.GetButton("recordstop");
                     b.callback="stoprecordsingle";
+*/
 
                     done=true;
                     break;
-              
-                case "setcumulativeflow":
 
-                     b= serverInterface.GetButton("playbackstart");
-                    b.callback="playcumulative";
+                case "setflow_delay":
+
+                    /*
+                    b= serverInterface.GetButton("playbackstart");
+                    b.callback="playsingle";
 
                     b= serverInterface.GetButton("playbackstop");
-                    b.callback="stopplaycumulative";
+                    b.callback="stopplaysingle";
 
                     b= serverInterface.GetButton("recordstart");
-                    b.callback="recordcumulative";
+                    b.callback="recordsingle";
 
                     b= serverInterface.GetButton("recordstop");
-                    b.callback="stoprecordcumulative";
+                    b.callback="stoprecordsingle";
+*/
+
+                    done=true;
+                    break;
+
+                case "setflow_echo":
+
+                    userMessager.ShowTextMessage("Flow: Echo", 1);
+
+                    b= serverInterface.GetButton("playbackstart");
+                    b.callback="playecho";
+
+                    b= serverInterface.GetButton("playbackstop");
+                    b.callback="stopplayecho";
+
+                    b= serverInterface.GetButton("recordstart");
+                    b.callback="recordecho";
+
+                    b= serverInterface.GetButton("recordstop");
+                    b.callback="stoprecordecho";
 
 
                     done=true;
                     break;
+
 
 
                 case "servercontrol":
@@ -862,7 +922,7 @@ namespace PresenceEngine
 
                     Debug.Log("pers " + data);
 
-                    IO.SetBrowseFolder ( IO.GetLocalFolders()[int.Parse(data)].Path);
+                    IO.SelectFolder ( IO.GetLocalFolders()[int.Parse(data)].Path);
 
                     done = true;
                     break;
@@ -871,9 +931,8 @@ namespace PresenceEngine
 
                     task.GetStringValue("persistantData", out data);
 
-                    IO.SetCheckedOutFile (IO.GetLocalFiles(IO.BrowseFolder)[int.Parse(data)].Path);
+                    IO.SelectFile (IO.FilesInSelectedFolder[int.Parse(data)].Path);
                  
-
                     done = true;
 
                     break;
@@ -892,7 +951,7 @@ namespace PresenceEngine
                         fileNameInput.onEndEdit.RemoveAllListeners();
                         fileNameInput.onEndEdit.AddListener((name) =>
                         {
-                            IO.MakeNewFile(IO.BrowseFolder+"/"+name);
+                            IO.MakeNewFile(IO.SelectedFolder+"/"+name+".prs");
 
                             NewFile.transform.localScale = Vector3.zero;
                             if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
@@ -1510,7 +1569,20 @@ namespace PresenceEngine
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
                         
-                       // on the server we hold to keep the task alive. 
+                       // on the server we hold to keep the task alive IF there are clients.
+                        int clients;
+                        if (task.GetIntValue("connectedclients",out clients)){
+
+                            if (clients==0){
+
+                                task.setCallBack("clientcalibrated");
+                                //done=true;
+                            }
+
+
+                        }
+
+                      
 
                     }
 
@@ -1994,6 +2066,7 @@ namespace PresenceEngine
             return done;
 
         }
+
 
 
         void Update()

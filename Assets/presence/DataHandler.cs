@@ -171,7 +171,8 @@ namespace PresenceEngine
                     }
 
                     newInstance.SetVisualiser("ShowSkeleton");
-                    newInstance.SetTranscoder("SkeletonOnly");
+                    //newInstance.SetTranscoder("SkeletonOnly");
+                    newInstance.SetTranscoder("SkeletonAndDepth");
 
 
 
@@ -419,7 +420,7 @@ namespace PresenceEngine
                     // Play back the checked out file.
                                     
 
-                    FileformatBase pbBuffer = IO.GetFileBuffer(IO.CheckedOutFile);
+                    FileformatBase pbBuffer = IO.LoadFile(IO.CheckedOutFile);
 
                     if (pbBuffer != null)
                     {
@@ -471,16 +472,19 @@ namespace PresenceEngine
                     break;
                
 
-                case "playcumulative":
+                case "playecho":
 
                     // Play back the previous n files if available.
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                    {
+
 
                     int checkedOut = IO.CheckedOutFileIndex();
 
                     for (int c = 1; c < 3; c++)
                     {
                                                
-                        FileformatBase pbcBuf = IO.GetFileBuffer(IO.GetFilePath(checkedOut+c));
+                        FileformatBase pbcBuf = IO.LoadFile(IO.GetFilePath(checkedOut+c));
 
                         if (pbcBuf != null)
                         {
@@ -507,7 +511,7 @@ namespace PresenceEngine
 
 
                     }
-
+                    }
 
                     done = true;
 
@@ -566,7 +570,7 @@ namespace PresenceEngine
                                 task.SetStringValue(prefix + "_file", IO.CheckedOutFile);
 
 
-                                FileformatBase Buffered = IO.GetFileBuffer(IO.CheckedOutFile);
+                                FileformatBase Buffered = IO.LoadFile(IO.CheckedOutFile);
 
 
                                 //= FindBufferFileInScene(IO.CheckedOutFile);
@@ -650,10 +654,10 @@ namespace PresenceEngine
                             if (task.GetStringValue("file", out file) && file != "")
                             {
 
-                                IO.SetCheckedOutFile(file);
+                                IO.SelectFile(file);
                                 task.SetStringValue("file", "");
 
-                                FileformatBase Buffered = IO.GetFileBuffer(IO.CheckedOutFile);
+                                FileformatBase Buffered = IO.LoadFile(IO.CheckedOutFile);
 
                                 //if (Buffered == null)
                                 //{
@@ -760,7 +764,7 @@ namespace PresenceEngine
                             string file;
                             if (task.GetStringValue("user_file", out file))
                             {
-                                IO.SetCheckedOutFile(file);
+                                IO.SelectFile(file);
                                 SETTINGS.user.DepthTransport.Mode = DEPTHMODE.RECORD;
                                 SETTINGS.user.DepthTransport.TransCoder.CreateBufferFile(IO.CheckedOutFile);
 
@@ -783,7 +787,7 @@ namespace PresenceEngine
 
 
                         FileformatBase BufferFile = SETTINGS.user.DepthTransport.TransCoder.GetBufferFile();
-                        IO.SaveToCheckedOutFile(BufferFile);
+                        IO.SaveFileToSelected(BufferFile);
 
                     }
 
@@ -1603,6 +1607,14 @@ namespace PresenceEngine
 
                     break;
 
+
+                case "autocalibrate":
+
+
+                    task.SetIntValue("connectedclients",dataController.serverConnections());
+                                     
+                    done=true;
+                    break;
                 case "startdiscover":
 
                     dataController.startBroadcastClient();

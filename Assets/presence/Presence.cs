@@ -145,7 +145,7 @@ namespace PresenceEngine
 
         SetVisualiser(visualiser);
         SetTranscoder(transcoder);
-        DepthTransport.TransCoder.SetBufferFile(IO.GetFileBuffer(buffer));
+        DepthTransport.TransCoder.SetBufferFile(IO.LoadFile(buffer));
         Visualiser.SetTransform(position, rotation);
 
         Debug.Log( GetVisualiser());

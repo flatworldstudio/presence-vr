@@ -62,8 +62,8 @@ displaycheck
 alignset
 addkinectnull
 createuser
-//createinstance
 makeservercontrols
+setflow_solo
 setfiledefaults
 makefoldermenu
 makefilemenu
@@ -161,77 +161,74 @@ end
 
 // Flows - default
 
-#flow01
-setdefaultflow
+#flow_solo
+setflow_solo
 end
 
-#recordsingle
+#recordsolo
 isglobal
 recordstart
-@recordsingle_stop
+@recordsolo_stop
 recordstop
 makefilemenu
 end
 
-#stoprecordsingle
-tell recordsingle recordsingle_stop
+#stoprecordsolo
+tell recordsolo recordsolo_stop
 end
 
-#playsingle
+#playsolo
 pressedplay
 playbackfile
 start presencehandler
 waitforallplaybacktoend
 pause5
-@playsingle_stop
+@playsolo_stop
 deletepresences
 pressedstop
-stop presencehandler
 end
 
-#stopplaysingle
-tell playsingle playsingle_stop
+#stopplaysolo
+tell playsolo playsolo_stop
 end
 
 // Flows - cumulative. Playback and record both play back the previous 2 files.
 
-#flow02
-setcumulativeflow
+#flow_echo
+setflow_echo
 end
 
-#recordcumulative
+#recordecho
 isglobal
 start presencehandler
-playcumulative
+playecho
 recordstart
-@recordcumulative_stop
+@recordecho_stop
 recordstop
 deletepresences
-stop presencehandler
 makefilemenu
 end
 
-#stoprecordcumulative
-tell recordcumulative recordcumulative_stop
+#stoprecordecho
+tell recordecho recordecho_stop
 end
 
 // Play back cumulatively.
 
-#playcumulative
+#playecho
 pressedplay
 playbackfile
-playcumulative
+playecho
 start presencehandler
 waitforallplaybacktoend
 pause5
-@playcumulative_stop
-pressedstop
+@playecho_stop
 deletepresences
-stop presencehandler
+pressedstop
 end
 
-#stopplaycumulative
-tell playcumulative playcumulative_stop
+#stopplayecho
+tell playecho playecho_stop
 end
 
 

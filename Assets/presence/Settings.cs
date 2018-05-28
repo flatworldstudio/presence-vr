@@ -20,9 +20,11 @@ namespace PresenceEngine
     public static class SETTINGS
     {
         public static int SessionDuration = 5;
-        public static  string  DEFAULTFILE = "/_default/_default";
+        public static  string  DEFAULTFILE = "/_default/_default.prs";
 
         public static  string  DEFAULTFOLDER = "/_default";
+
+        public static int DEPTHSAMPLING =1;
 
 
         //public static Presence[] Presences;
