@@ -750,6 +750,7 @@ namespace PresenceEngine
 
                             task.SetStringValue("user_file", IO.CheckedOutFile);
 
+                            done = true;
 
                         }
                         else
@@ -771,9 +772,12 @@ namespace PresenceEngine
                                 SETTINGS.user.DepthTransport.TransCoder.CreateBufferFile(IO.CheckedOutFile);
 
                                 done = true;
+
                             }
 
 
+                        } else {
+                            done = true;
                         }
                     }
 
