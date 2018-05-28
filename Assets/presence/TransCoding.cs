@@ -554,10 +554,10 @@ namespace PresenceEngine
 
             EncodeDepth(Uframe, out Data, out DepthSampling, out Min, out Max);
 
-                task.SetStringValue("debug", "" +Mathf.Round(Data.Length/1024f) +" ");
+           //     task.SetStringValue("debug", "" +Mathf.Round(Data.Length/1024f) +" ");
 
 
-         //   task.SetStringValue("debug", "" + debugString);
+           task.SetStringValue("debug", "" + debugString);
 
             task.SetVector3ArrayValue(prefix + "_skeleton", Uframe.Joints);
             task.SetBoolArrayValue(prefix + "_tracked", Uframe.Tracked);
@@ -567,7 +567,7 @@ namespace PresenceEngine
 
             if (Data.Length > 20000)
             {
-                Debug.LogWarning("message size over 20k");
+              //  Debug.LogWarning("message size over 20k");
 
 
             }
@@ -600,7 +600,7 @@ namespace PresenceEngine
             task.GetVector3ArrayValue(prefix + "_skeleton", out Uframe.Joints);
             task.GetBoolArrayValue(prefix + "_tracked", out Uframe.Tracked);
             task.GetVector3Value(prefix + "_body", out Uframe.Body);
-
+            task.GetIntValue(prefix + "_frame",out  Uframe.FrameNumber);
 
             byte[] Data;
 
@@ -770,7 +770,7 @@ namespace PresenceEngine
             }
 
 
-            debugString = "" + FullBlocks + " " + SingleByte;
+            debugString = "F" + FullBlocks + " S" +SingleByte+ " D"+ Mathf.Round(Data.Length / 1024f) + " ";
 
 
         }
