@@ -15,7 +15,7 @@ namespace PresenceEngine
     public class DataHandler : MonoBehaviour
     {
         //public GameObject setHandlerObject,
-        public GameObject    presences;
+        public GameObject presences;
         Presence fileplayback;
         //Presence playbackPresence;
         float startListening = 0f;
@@ -142,7 +142,7 @@ namespace PresenceEngine
 
             switch (task.description)
             {
-                
+
                 case "createuser":
 
 
@@ -154,7 +154,7 @@ namespace PresenceEngine
                     }
 
                     SETTINGS.user.SetVisualiser("PointCloud");
-                 //   SETTINGS.user.SetTranscoder("SkeletonOnly");
+                    //   SETTINGS.user.SetTranscoder("SkeletonOnly");
 
                     SETTINGS.user.SetTranscoder("SkeletonAndDepth");
                     SETTINGS.user.SetDepthSampling(4);
@@ -174,7 +174,7 @@ namespace PresenceEngine
                     }
 
                     newInstance.SetVisualiser("ShowSkeleton");
-                   newInstance.SetTranscoder("SkeletonOnly");
+                    newInstance.SetTranscoder("SkeletonOnly");
                     //newInstance.SetTranscoder("SkeletonAndDepth");
                     //newInstance.SetDepthSampling(2);
 
@@ -356,14 +356,15 @@ namespace PresenceEngine
                         // Reversed: go over presences and destroy if they're no longer listed.
 
 
-                        string[] localPresenceNames= SETTINGS.Presences.Keys.ToArray();
+                        string[] localPresenceNames = SETTINGS.Presences.Keys.ToArray();
 
-                        for (int i=localPresenceNames.Length-1;i>=0;i--){
+                        for (int i = localPresenceNames.Length - 1; i >= 0; i--)
+                        {
 
-                            if (Array.IndexOf(taskPresenceNames, localPresenceNames[i]) == -1 )
+                            if (Array.IndexOf(taskPresenceNames, localPresenceNames[i]) == -1)
 
                             {
-                                Debug.Log("removing "+localPresenceNames[i]);
+                                Debug.Log("removing " + localPresenceNames[i]);
 
                                 // A presence exists locally that has no reference in the task (does not exist on server) so we kill it.
                                 Presence presence = SETTINGS.Presences[localPresenceNames[i]];
@@ -385,9 +386,9 @@ namespace PresenceEngine
 
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
-                        
-                    if (fileplayback != null)
-                        fileplayback.DepthTransport.Mode = DEPTHMODE.OFF;
+
+                        if (fileplayback != null)
+                            fileplayback.DepthTransport.Mode = DEPTHMODE.OFF;
 
                     }
                     done = true;
@@ -401,19 +402,20 @@ namespace PresenceEngine
 
                         foreach (KeyValuePair<string, Presence> presence in SETTINGS.Presences)
                         {
-                            if (presence.Key !="user"){
+                            if (presence.Key != "user")
+                            {
 
-                                presence.Value.DepthTransport.Mode=DEPTHMODE.OFF;
-                               
+                                presence.Value.DepthTransport.Mode = DEPTHMODE.OFF;
+
                             }
 
                         }
 
-                    
 
 
 
-                             }
+
+                    }
                     done = true;
                     break;
 
@@ -421,7 +423,7 @@ namespace PresenceEngine
                 case "playbackfile":
 
                     // Play back the checked out file.
-                                    
+
 
                     FileformatBase pbBuffer = IO.LoadFile(IO.CheckedOutFile);
 
@@ -432,11 +434,11 @@ namespace PresenceEngine
                             fileplayback = Presence.Create(presences);
 
                             SETTINGS.Presences.Add("playbackpresence", fileplayback);
-                         //   fileplayback.SetVisualiser("ShowSkeleton");
+                            //   fileplayback.SetVisualiser("ShowSkeleton");
                             fileplayback.SetVisualiser("PointCloud");
 
                             fileplayback.SetTranscoder(pbBuffer.TransCoderName);
-                          //  fileplayback.SetTranscoder("SkeletonOnly");
+                            //  fileplayback.SetTranscoder("SkeletonOnly");
 
                         }
 
@@ -452,31 +454,32 @@ namespace PresenceEngine
                     break;
 
                 case "deletepresences":
-                    
+
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
 
-                      
+
                         foreach (KeyValuePair<string, Presence> presence in SETTINGS.Presences)
                         {
-                            if (presence.Key !="user"){
+                            if (presence.Key != "user")
+                            {
 
-                                Destroy(   presence.Value.gameObject);
-                              
-                            } 
+                                Destroy(presence.Value.gameObject);
+
+                            }
                         }
 
                         SETTINGS.Presences.Clear();
-                        SETTINGS.Presences.Add("user",SETTINGS.user);
+                        SETTINGS.Presences.Add("user", SETTINGS.user);
 
 
 
                     }
 
 
-                    done=true;
+                    done = true;
                     break;
-               
+
 
                 case "playecho":
 
@@ -485,21 +488,21 @@ namespace PresenceEngine
                     {
 
 
-                    int checkedOut = IO.CheckedOutFileIndex();
+                        int checkedOut = IO.CheckedOutFileIndex();
 
-                    for (int c = 1; c < 3; c++)
-                    {
-                                               
-                        FileformatBase pbcBuf = IO.LoadFile(IO.GetFilePath(checkedOut+c));
-
-                        if (pbcBuf != null)
+                        for (int c = 1; c < 3; c++)
                         {
-                            
-                            if (!SETTINGS.Presences.TryGetValue("playbackpresence" + c, out fileplayback))
+
+                            FileformatBase pbcBuf = IO.LoadFile(IO.GetFilePath(checkedOut + c));
+
+                            if (pbcBuf != null)
                             {
-                                fileplayback = Presence.Create(presences);
-                                SETTINGS.Presences.Add("playbackpresence" + c, fileplayback);
-                             //   fileplayback.SetVisualiser("ShowSkeleton");
+
+                                if (!SETTINGS.Presences.TryGetValue("playbackpresence" + c, out fileplayback))
+                                {
+                                    fileplayback = Presence.Create(presences);
+                                    SETTINGS.Presences.Add("playbackpresence" + c, fileplayback);
+                                    //   fileplayback.SetVisualiser("ShowSkeleton");
                                     fileplayback.SetVisualiser("PointCloud");
                                     //   fileplayback.SetTranscoder("SkeletonOnly");
                                     fileplayback.SetTranscoder(pbcBuf.TransCoderName);
@@ -508,18 +511,18 @@ namespace PresenceEngine
                                 }
 
 
-                            fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
-                            fileplayback.DepthTransport.TransCoder.SetBufferFile(pbcBuf);
-                            fileplayback.DepthTransport.FrameNumber = fileplayback.DepthTransport.TransCoder.GetBufferFile().FirstFrame;
-                            fileplayback.Visualiser.SetTransform(Vector3.zero, Quaternion.identity);
+                                fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
+                                fileplayback.DepthTransport.TransCoder.SetBufferFile(pbcBuf);
+                                fileplayback.DepthTransport.FrameNumber = fileplayback.DepthTransport.TransCoder.GetBufferFile().FirstFrame;
+                                fileplayback.Visualiser.SetTransform(Vector3.zero, Quaternion.identity);
+
+                            }
+
+
+
+
 
                         }
-
-
-
-
-
-                    }
                     }
 
                     done = true;
@@ -530,24 +533,25 @@ namespace PresenceEngine
 
                     // 
 
-                    bool AllOff=true;
+                    bool AllOff = true;
 
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
-                        
+
                         foreach (KeyValuePair<string, Presence> presence in SETTINGS.Presences)
                         {
-                            if (presence.Key !="user" && presence.Value.DepthTransport.Mode!=DEPTHMODE.OFF){
+                            if (presence.Key != "user" && presence.Value.DepthTransport.Mode != DEPTHMODE.OFF)
+                            {
 
-                                AllOff=false;
+                                AllOff = false;
 
-                            } 
+                            }
                         }
 
                     }
 
                     if (AllOff)
-                        done=true;
+                        done = true;
 
 
                     break;
@@ -734,6 +738,47 @@ namespace PresenceEngine
                     done = true;
                     break;
 
+                case "recordprepare":
+
+
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                    {
+                        if (SETTINGS.user.DepthTransport != null && IO.CheckedOutFile != "")
+                        {
+
+                            SETTINGS.user.DepthTransport.TransCoder.CreateBufferFile(IO.CheckedOutFile);
+
+                            task.SetStringValue("user_file", IO.CheckedOutFile);
+
+
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+
+                    }
+
+                    if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
+                    {
+                        if (SETTINGS.user.DepthTransport != null)
+                        {
+                            // Wait for filename then fall through
+                            string file;
+                            if (task.GetStringValue("user_file", out file))
+                            {
+                                IO.SelectFile(file);
+                                SETTINGS.user.DepthTransport.TransCoder.CreateBufferFile(IO.CheckedOutFile);
+
+                                done = true;
+                            }
+
+
+                        }
+                    }
+
+                    break;
+
                 case "recordstart":
 
 
@@ -746,10 +791,6 @@ namespace PresenceEngine
                                 TimeOut = Time.time + SETTINGS.SessionDuration;
                                 task.SetFloatValue("timeout", TimeOut);
                                 SETTINGS.user.DepthTransport.Mode = DEPTHMODE.RECORD;
-
-                                SETTINGS.user.DepthTransport.TransCoder.CreateBufferFile(IO.CheckedOutFile);
-
-                                task.SetStringValue("user_file", IO.CheckedOutFile);
 
                             }
 
@@ -770,16 +811,11 @@ namespace PresenceEngine
                     {
                         if (SETTINGS.user.DepthTransport != null)
                         {
-                            // Wait for filename then fall through
-                            string file;
-                            if (task.GetStringValue("user_file", out file))
-                            {
-                                IO.SelectFile(file);
-                                SETTINGS.user.DepthTransport.Mode = DEPTHMODE.RECORD;
-                                SETTINGS.user.DepthTransport.TransCoder.CreateBufferFile(IO.CheckedOutFile);
 
-                                done = true;
-                            }
+                            SETTINGS.user.DepthTransport.Mode = DEPTHMODE.RECORD;
+
+                            done = true;
+
 
 
                         }
@@ -788,6 +824,8 @@ namespace PresenceEngine
                     break;
 
                 case "recordstop":
+
+                    // Same for server and client.
 
                     if (SETTINGS.user.DepthTransport.Mode == DEPTHMODE.RECORD)
                     {
@@ -827,7 +865,7 @@ namespace PresenceEngine
                         //    task.setStringValue("transcoder", SETTINGS.user.DepthTransport.TransCoder.Name());
 
                         DepthTransport MainDT = SETTINGS.user.DepthTransport;
-                        SETTINGS.user.AddModeToTask(task,"user");
+                        //SETTINGS.user.AddModeToTask(task, "user");
 
                         // Retrieve depth info.
                         MainDT.GetNewFrame();
@@ -847,7 +885,7 @@ namespace PresenceEngine
                         // Check if we need to set transcoder
                         DepthTransport MainDT = SETTINGS.user.DepthTransport;
 
-                      //  MainDT.Mode=DEPTHMODE.LIVE;
+                        //  MainDT.Mode=DEPTHMODE.LIVE;
 
                         //DepthTransport MainDT = SETTINGS.user.DepthTransport;
 
@@ -870,7 +908,7 @@ namespace PresenceEngine
                         //    Debug.Log("no frame value");
                         //}
 
-                        SETTINGS.user.GetModeFromTask(task,"user");
+                        //SETTINGS.user.GetModeFromTask(task, "user");
 
                         if (!MainDT.Decode(task, "user"))
                             Log.Warning("Decode failed");
@@ -1621,9 +1659,9 @@ namespace PresenceEngine
                 case "autocalibrate":
 
 
-                    task.SetIntValue("connectedclients",dataController.serverConnections());
-                                     
-                    done=true;
+                    task.SetIntValue("connectedclients", dataController.serverConnections());
+
+                    done = true;
                     break;
                 case "startdiscover":
 

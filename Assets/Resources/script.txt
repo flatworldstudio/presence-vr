@@ -167,6 +167,7 @@ end
 
 #recordsolo
 isglobal
+recordprepare
 recordstart
 @recordsolo_stop
 recordstop
