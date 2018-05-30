@@ -74,16 +74,16 @@ namespace PresenceEngine
 
 #if UNITY_IOS
 
-		// Callibration: rotate headset so that north is always north.
+            // Callibration: rotate headset so that north is always north.
 
-		Input.compass.enabled = true;
-		Input.compensateSensors=false;
+            Input.compass.enabled = true;
+            Input.compensateSensors = false;
 
-//		PRESENCE.mobileInitialHeading1 = Input.compass.magneticHeading;
-//		PRESENCE.mobileInitialHeading = Input.compass.magneticHeading;
+            //		PRESENCE.mobileInitialHeading1 = Input.compass.magneticHeading;
+            //		PRESENCE.mobileInitialHeading = Input.compass.magneticHeading;
 
-//		viewerObject.transform.parent.transform.localRotation = Quaternion.Euler (0, -1f* PRESENCE.mobileInitialHeading, 0);
-	
+            //		viewerObject.transform.parent.transform.localRotation = Quaternion.Euler (0, -1f* PRESENCE.mobileInitialHeading, 0);
+
 
 #endif
 
@@ -178,9 +178,9 @@ namespace PresenceEngine
                     done = true;
                     break;
 
-                    // Flow messages
+                // Flow messages
 
-             
+
 
                 case "depthlive":
 
@@ -206,9 +206,10 @@ namespace PresenceEngine
 
                     userMessager.ShowTextMessage("Begin recording", 0.5f);
 
-                    if (SETTINGS.deviceMode==DEVICEMODE.SERVER){
-                    serverInterface.HideButton("recordstart");
-                    serverInterface.ShowButton("recordstop");
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                    {
+                        serverInterface.HideButton("recordstart");
+                        serverInterface.ShowButton("recordstop");
                     }
                     done = true;
                     break;
@@ -216,9 +217,10 @@ namespace PresenceEngine
                 case "recordstop":
 
                     userMessager.ShowTextMessage("Stop recording", 0.5f);
-                    if (SETTINGS.deviceMode==DEVICEMODE.SERVER){
-                    serverInterface.HideButton("recordstop");
-                    serverInterface.ShowButton("recordstart");
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                    {
+                        serverInterface.HideButton("recordstop");
+                        serverInterface.ShowButton("recordstart");
                     }
 
                     done = true;
@@ -227,9 +229,10 @@ namespace PresenceEngine
                 case "pressedplay":
 
                     userMessager.ShowTextMessage("Begin playback", 0.5f);
-                    if (SETTINGS.deviceMode==DEVICEMODE.SERVER){
-                    serverInterface.HideButton("playbackstart");
-                    serverInterface.ShowButton("playbackstop");
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                    {
+                        serverInterface.HideButton("playbackstart");
+                        serverInterface.ShowButton("playbackstop");
                     }
 
                     done = true;
@@ -238,9 +241,10 @@ namespace PresenceEngine
                 case "pressedstop":
 
                     userMessager.ShowTextMessage("Stop playback", 0.5f);
-                    if (SETTINGS.deviceMode==DEVICEMODE.SERVER){
-                    serverInterface.HideButton("playbackstop");
-                    serverInterface.ShowButton("playbackstart");
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                    {
+                        serverInterface.HideButton("playbackstop");
+                        serverInterface.ShowButton("playbackstart");
                     }
 
                     done = true;
@@ -385,9 +389,9 @@ namespace PresenceEngine
 
                         if (status == "detected")
                         {
-                           // task.SetStringValue("status", "detecting");
-                           if (!signalSound.isPlaying)
-                            signalSound.Play();
+                            // task.SetStringValue("status", "detecting");
+                            if (!signalSound.isPlaying)
+                                signalSound.Play();
 
                             done = true;
                         }
@@ -404,18 +408,18 @@ namespace PresenceEngine
                 case "detectgesture":
 
 
-                  
+
 
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
 
-                       
-                        
+
+
 
                     }
 
 
-                  
+
 
 
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
@@ -427,18 +431,18 @@ namespace PresenceEngine
 
                             Davinci.BeginDetect(task);
                             task.SetStringValue("status", "detecting");
-                           
+
                         }
 
-                        #if DEV
+#if DEV
                         if (Input.anyKeyDown)
                             task.SetStringValue("status", "detected");
-                        #endif
+#endif
 
                         if (status == "detected")
                         {
                             task.SetStringValue("status", "detecting");
-                            userMessager.ShowTextMessage("Pose detected",1);
+                            userMessager.ShowTextMessage("Pose detected", 1);
                         }
 
 
@@ -479,24 +483,47 @@ namespace PresenceEngine
 
                     // Here we only apply user position from task.
 
-                    if (SETTINGS.user==null){
+
+                    if (SETTINGS.user == null)
+                    {
                         Debug.LogWarning("No user object registered.");
-                        done=true;
+                        done = true;
                         break;
                     }
-                        
+
 
                     UncompressedFrame ShowFrame = SETTINGS.user.DepthTransport.ActiveFrame;
 
                     if (ShowFrame != null && ShowFrame.Joints != null && ShowFrame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.Head])
                     {
+                        // apply user head position to camera on both server and client
                         viewerObject.transform.parent.transform.position = ShowFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head];
 
                     }
-                    else
+
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
-                        //Log.Error("Not a valid frame, can't set user position.");
+                        Quaternion ho;
+
+                        if (task.GetQuaternionValue("user_headrotation", out ho))
+                        {
+                            viewerObject.transform.localRotation = ho;
+                        }
+
                     }
+
+
+                    //UncompressedFrame ShowFrame = SETTINGS.user.DepthTransport.ActiveFrame;
+
+                    //if (ShowFrame != null && ShowFrame.Joints != null && ShowFrame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.Head])
+                    //{
+                    //    viewerObject.transform.parent.transform.position = ShowFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head];
+
+                    //}
+                    //else
+                    //{
+                    //    //Log.Error("Not a valid frame, can't set user position.");
+                    //}
 
                     break;
 
@@ -662,13 +689,14 @@ namespace PresenceEngine
 
                 case "makefilemenu":
 
-                    if (SETTINGS.deviceMode!=DEVICEMODE.SERVER || serverInterface == null){
+                    if (SETTINGS.deviceMode != DEVICEMODE.SERVER || serverInterface == null)
+                    {
 
                         done = true;
                         break;
 
                     }
-                                      
+
 
                     browser = GameObject.Find("FileBrowser");
                     GameObject FileMenu = GameObject.Find("Files");
@@ -680,7 +708,7 @@ namespace PresenceEngine
                     //List <PFile> files = IO.GetFileList(IO.SelectedFolder);
 
 
-                    List <PFile> files = IO.FilesInSelectedFolder;
+                    List<PFile> files = IO.FilesInSelectedFolder;
 
 
                     for (int i = 0; i < 18; i++)
@@ -794,7 +822,7 @@ namespace PresenceEngine
                     control = new UiButton("flow04", menu, constraint);
                     control.callback = "flow_echo";
                     serverInterface.addButton(control);
-                 
+
 
                     // Callbacks for play, record and stop are different for different flows. These are the defaults.
 
@@ -831,21 +859,21 @@ namespace PresenceEngine
 
                     userMessager.ShowTextMessage("Flow: Solo", 1);
 
-                    UiButton b= serverInterface.GetButton("playbackstart");
-                    b.callback="playsolo";
+                    UiButton b = serverInterface.GetButton("playbackstart");
+                    b.callback = "playsolo";
 
-                    b= serverInterface.GetButton("playbackstop");
-                    b.callback="stopplaysolo";
+                    b = serverInterface.GetButton("playbackstop");
+                    b.callback = "stopplaysolo";
 
-                    b= serverInterface.GetButton("recordstart");
-                    b.callback="recordsolo";
+                    b = serverInterface.GetButton("recordstart");
+                    b.callback = "recordsolo";
 
-                    b= serverInterface.GetButton("recordstop");
-                    b.callback="stoprecordsolo";
+                    b = serverInterface.GetButton("recordstop");
+                    b.callback = "stoprecordsolo";
 
-                    done=true;
+                    done = true;
                     break;
-             
+
 
 
                 case "setflow_mirror":
@@ -864,7 +892,7 @@ namespace PresenceEngine
                     b.callback="stoprecordsingle";
 */
 
-                    done=true;
+                    done = true;
                     break;
 
                 case "setflow_delay":
@@ -883,27 +911,27 @@ namespace PresenceEngine
                     b.callback="stoprecordsingle";
 */
 
-                    done=true;
+                    done = true;
                     break;
 
                 case "setflow_echo":
 
                     userMessager.ShowTextMessage("Flow: Echo", 1);
 
-                    b= serverInterface.GetButton("playbackstart");
-                    b.callback="playecho";
+                    b = serverInterface.GetButton("playbackstart");
+                    b.callback = "playecho";
 
-                    b= serverInterface.GetButton("playbackstop");
-                    b.callback="stopplayecho";
+                    b = serverInterface.GetButton("playbackstop");
+                    b.callback = "stopplayecho";
 
-                    b= serverInterface.GetButton("recordstart");
-                    b.callback="recordecho";
+                    b = serverInterface.GetButton("recordstart");
+                    b.callback = "recordecho";
 
-                    b= serverInterface.GetButton("recordstop");
-                    b.callback="stoprecordecho";
+                    b = serverInterface.GetButton("recordstop");
+                    b.callback = "stoprecordecho";
 
 
-                    done=true;
+                    done = true;
                     break;
 
 
@@ -982,7 +1010,7 @@ namespace PresenceEngine
 
                     Debug.Log("pers " + data);
 
-                    IO.SelectFolder ( IO.GetLocalFolders()[int.Parse(data)].Path);
+                    IO.SelectFolder(IO.GetLocalFolders()[int.Parse(data)].Path);
 
                     done = true;
                     break;
@@ -991,8 +1019,8 @@ namespace PresenceEngine
 
                     task.GetStringValue("persistantData", out data);
 
-                    IO.SelectFile (IO.FilesInSelectedFolder[int.Parse(data)].Path);
-                 
+                    IO.SelectFile(IO.FilesInSelectedFolder[int.Parse(data)].Path);
+
                     done = true;
 
                     break;
@@ -1011,7 +1039,7 @@ namespace PresenceEngine
                         fileNameInput.onEndEdit.RemoveAllListeners();
                         fileNameInput.onEndEdit.AddListener((name) =>
                         {
-                            IO.MakeNewFile(IO.SelectedFolder+"/"+name+".prs");
+                            IO.MakeNewFile(IO.SelectedFolder + "/" + name + ".prs");
 
                             NewFile.transform.localScale = Vector3.zero;
                             if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
@@ -1039,7 +1067,7 @@ namespace PresenceEngine
                         fileNameInput.onEndEdit.RemoveAllListeners();
                         fileNameInput.onEndEdit.AddListener((name) =>
                         {
-                            IO.MakeNewFolder("/"+name);
+                            IO.MakeNewFolder("/" + name);
                             NewFile.transform.localScale = Vector3.zero;
                             if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
                                 uxController.setSpringTarget(target, 0);
@@ -1123,26 +1151,26 @@ namespace PresenceEngine
 
 #if UNITY_IOS
 
-		uxMap.ux_none += UxMethods.rotateCamera;
+                    uxMap.ux_none += UxMethods.rotateCamera;
 
-		uxMap.ux_tap_2d += UxMethods.highlightButton2d;
-		uxMap.ux_tap_3d += UxMethods.select3dObject;
-		uxMap.ux_tap_none += UxMethods.clearSelectedObjects;
-		uxMap.ux_tap_none += UxMethods.stopControls;
+                    uxMap.ux_tap_2d += UxMethods.highlightButton2d;
+                    uxMap.ux_tap_3d += UxMethods.select3dObject;
+                    uxMap.ux_tap_none += UxMethods.clearSelectedObjects;
+                    uxMap.ux_tap_none += UxMethods.stopControls;
 
-		uxMap.ux_single_2d += UxMethods.drag2d;
-		uxMap.ux_single_3d += UxMethods.panCamera;
-		uxMap.ux_single_none += UxMethods.panCamera;
+                    uxMap.ux_single_2d += UxMethods.drag2d;
+                    uxMap.ux_single_3d += UxMethods.panCamera;
+                    uxMap.ux_single_none += UxMethods.panCamera;
 
-		uxMap.ux_double_2d += UxMethods.drag2d;
-		uxMap.ux_double_3d += UxMethods.zoomCamera;
-		uxMap.ux_double_none += UxMethods.zoomCamera;
+                    uxMap.ux_double_2d += UxMethods.drag2d;
+                    uxMap.ux_double_3d += UxMethods.zoomCamera;
+                    uxMap.ux_double_none += UxMethods.zoomCamera;
 
-			viewInterface.defaultUxMap = uxMap;
+                    viewInterface.defaultUxMap = uxMap;
 
-			viewInterface.camera = new UxCamera (viewerObject);
-			viewInterface.camera.control = CAMERACONTROL.GYRO;
-			viewInterface.camera.constraint = new UiConstraint ();
+                    viewInterface.camera = new UxCamera(viewerObject);
+                    viewInterface.camera.control = CAMERACONTROL.GYRO;
+                    viewInterface.camera.constraint = new UiConstraint();
 
 
 #else
@@ -1494,32 +1522,33 @@ namespace PresenceEngine
 
 #if UNITY_IOS
 
-		case "compass":
+                case "compass":
 
 
-	//		Input.compass.enabled = true;
+                    //		Input.compass.enabled = true;
 
 
-			if (Input.compass.rawVector.magnitude != 0) {
+                    if (Input.compass.rawVector.magnitude != 0)
+                    {
 
-				// wait for a reading.
+                        // wait for a reading.
 
                         SETTINGS.mobileInitialHeading = Input.compass.magneticHeading;
 
-                        viewerObject.transform.parent.transform.localRotation = Quaternion.Euler (0,  SETTINGS.mobileInitialHeading, 0);
+                        viewerObject.transform.parent.transform.localRotation = Quaternion.Euler(0, SETTINGS.mobileInitialHeading, 0);
 
-				done = true;
+                        done = true;
 
-			}
+                    }
 
-//			float compassYaw=Input.compass.magneticHeading;
-//			string compassOn = Input.compass.enabled ? "on " : "off ";
-//
-//			task.setStringValue ("debug", compassOn + compassYaw);
+                    //			float compassYaw=Input.compass.magneticHeading;
+                    //			string compassOn = Input.compass.enabled ? "on " : "off ";
+                    //
+                    //			task.setStringValue ("debug", compassOn + compassYaw);
 
 
 
-			break;
+                    break;
 
 #endif
 
@@ -1527,26 +1556,26 @@ namespace PresenceEngine
 
                 //case "autocalibrate":
 
-                    //task.setCallBack("clientcalibrated");
-                    //userMessager.ShowTextMessage("Calibrated", 3);
+                //task.setCallBack("clientcalibrated");
+                //userMessager.ShowTextMessage("Calibrated", 3);
 
-                    //GENERAL.UserCalibrated = true;
+                //GENERAL.UserCalibrated = true;
 
-                    //done=true;
+                //done=true;
 
-                    //break;
+                //break;
 
 
 
-                   
+
                 case "autocalibrate":
 
-                  
+
 
                     if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
                     {
 
-                        #if DEV
+#if DEV
 
                         userMessager.ShowTextMessage("Calibrated", 3);
 
@@ -1561,7 +1590,7 @@ namespace PresenceEngine
 
 
 
-                    
+
 
                         if (!AutoCallibrateObject.activeSelf)
                         {
@@ -1575,7 +1604,7 @@ namespace PresenceEngine
                             userMessager.ShowTextMessage("Calibrating", 3);
                         }
 
-                       
+
 
                         if (AutoCallibrateObject.GetComponent<CalibrateOnMarker>().callibrated)
                         {
@@ -1604,7 +1633,7 @@ namespace PresenceEngine
 
                             //AutoCallibrateObject.SetActive(true);
                             signalSound.Play();
-                          
+
 
                             //AutoCallibrateObject.SetActive(false);
 
@@ -1614,45 +1643,51 @@ namespace PresenceEngine
                             userMessager.ShowTextMessage("Calibrated", 3);
 
                             GENERAL.UserCalibrated = true;
-                            task.SetStringValue("status","calibrated");
+                            task.SetStringValue("status", "calibrated");
 
                             done = true;
 
-                         //   task.setCallBack("clientcalibrated");
+                            //   task.setCallBack("clientcalibrated");
 
                             //AutoCallibrateObject.GetComponent<RawImageWebCamTexture>().callibrated=false;//repeat
 
 
                         }
-                        #endif
+#endif
 
                     }
 
 
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
-                        
-                       // on the server we hold to keep the task alive IF there are clients.
+
+                        // on the server we hold to keep the task alive IF there are clients.
                         int clients;
 
-                        if (task.GetIntValue("connectedclients",out clients)){
+                        if (task.GetIntValue("connectedclients", out clients))
+                        {
 
-                            if (clients==0){
+                            if (clients == 0)
+                            {
 
-                                done=true;
+                                done = true;
 
-                            } else {
-                                
+                            }
+                            else
+                            {
+
                                 string value;
 
-                                if (task.GetStringValue("status", out value)){
-                                    if (value=="calibrated"){
+                                if (task.GetStringValue("status", out value))
+                                {
+                                    if (value == "calibrated")
+                                    {
 
-                                        done=true;
+                                        done = true;
 
                                     }
                                 }
-                                    
+
                             }
 
                         }
@@ -1664,7 +1699,7 @@ namespace PresenceEngine
 
                     break;
 
-                   
+
 
 
                 case "calibrate":
