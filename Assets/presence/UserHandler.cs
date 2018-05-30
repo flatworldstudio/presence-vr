@@ -885,7 +885,7 @@ namespace PresenceEngine
 
                     userMessager.ShowTextMessage("Flow: Mirror", 1);
 
-                     b = serverInterface.GetButton("playbackstart");
+                    b = serverInterface.GetButton("playbackstart");
                     b.callback = "playmirror";
 
                     b = serverInterface.GetButton("playbackstop");
@@ -901,24 +901,24 @@ namespace PresenceEngine
                     break;
 
 
-//                case "setflow_mirror":
+                //                case "setflow_mirror":
 
-//                    /*
-//                     b= serverInterface.GetButton("playbackstart");
-//                    b.callback="playsingle";
+                //                    /*
+                //                     b= serverInterface.GetButton("playbackstart");
+                //                    b.callback="playsingle";
 
-//                    b= serverInterface.GetButton("playbackstop");
-//                    b.callback="stopplaysingle";
+                //                    b= serverInterface.GetButton("playbackstop");
+                //                    b.callback="stopplaysingle";
 
-//                    b= serverInterface.GetButton("recordstart");
-//                    b.callback="recordsingle";
+                //                    b= serverInterface.GetButton("recordstart");
+                //                    b.callback="recordsingle";
 
-//                    b= serverInterface.GetButton("recordstop");
-//                    b.callback="stoprecordsingle";
-//*/
+                //                    b= serverInterface.GetButton("recordstop");
+                //                    b.callback="stoprecordsingle";
+                //*/
 
-//                    done = true;
-//                    break;
+                //                    done = true;
+                //                    break;
 
                 case "setflow_delay":
 
@@ -1730,34 +1730,24 @@ namespace PresenceEngine
                     {
 
                         // on the server we hold to keep the task alive IF there are clients.
-                        int clients;
 
-                        if (task.GetIntValue("connectedclients", out clients))
+                        if (!GENERAL.wasConnected)
                         {
+                            done = true;
+                            Debug.Log("no connected clients, skipping calibration");
+                            break;
+                        }
 
-                            if (clients == 0)
+                        string value;
+
+                        if (task.GetStringValue("status", out value))
+                        {
+                            if (value == "calibrated")
                             {
 
                                 done = true;
 
                             }
-                            else
-                            {
-
-                                string value;
-
-                                if (task.GetStringValue("status", out value))
-                                {
-                                    if (value == "calibrated")
-                                    {
-
-                                        done = true;
-
-                                    }
-                                }
-
-                            }
-
                         }
 
                     }

@@ -1804,13 +1804,13 @@ namespace PresenceEngine
                     break;
 
 
-                case "autocalibrate":
+                //case "autocalibrate":
 
 
-                    task.SetIntValue("connectedclients", dataController.serverConnections());
+                //    task.SetIntValue("connectedclients", dataController.serverConnections());
 
-                    done = true;
-                    break;
+                //    done = true;
+                //    break;
                 case "startdiscover":
 
                     dataController.startBroadcastClient();
