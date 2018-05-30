@@ -1642,7 +1642,7 @@ namespace PresenceEngine
                                 
                                 string value;
 
-                                if (task.GetStringValue("status", out value){
+                                if (task.GetStringValue("status", out value)){
                                     if (value=="calibrated"){
 
                                         done=true;
