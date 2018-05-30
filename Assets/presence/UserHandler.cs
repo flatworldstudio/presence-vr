@@ -13,6 +13,7 @@ namespace PresenceEngine
     public class UserHandler : MonoBehaviour
     {
 
+
         public UserController userController;
         UxInterface overviewInterface, viewInterface, serverInterface;
 
@@ -308,10 +309,10 @@ namespace PresenceEngine
 
                 //case "materialiseon":
 
-                    //presenceSound.Play();
+                //presenceSound.Play();
 
-                    //done=true;
-                    //break;
+                //done=true;
+                //break;
 
                 case "playsignal":
 
@@ -777,8 +778,8 @@ namespace PresenceEngine
 
                     serverInterface.camera.constraint = new UiConstraint();
                     serverInterface.camera.constraint.pitchClamp = true;
-                    serverInterface.camera.constraint.pitchClampMin = 10f;
-                    serverInterface.camera.constraint.pitchClampMax = 80f;
+                    serverInterface.camera.constraint.pitchClampMin = 5f;
+                    serverInterface.camera.constraint.pitchClampMax = 85f;
 
                     serverInterface.canvasObject = uxCanvas;
                     serverInterface.tapNoneCallback = "screentap";
@@ -1260,8 +1261,8 @@ namespace PresenceEngine
                     overviewInterface.camera.control = CAMERACONTROL.ORBIT;
                     overviewInterface.camera.constraint = new UiConstraint();
                     overviewInterface.camera.constraint.pitchClamp = true;
-                    overviewInterface.camera.constraint.pitchClampMin = 10f;
-                    overviewInterface.camera.constraint.pitchClampMax = 80f;
+                    overviewInterface.camera.constraint.pitchClampMin = 1f;
+                    overviewInterface.camera.constraint.pitchClampMax = 89f;
 
                     overviewInterface.canvasObject = uxCanvas;
                     overviewInterface.tapNoneCallback = "screentap";
@@ -1290,41 +1291,95 @@ namespace PresenceEngine
                     if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL)
                     {
 
-                        // only execute on server
+                        // only execute on server. we'll cycle through.
+
 
                         Camera viewCam = overviewObject.GetComponentInChildren<Camera>();
                         Camera userCam = viewerObject.GetComponentInChildren<Camera>();
-                        Camera projectionCam = projectionObject.GetComponentInChildren<Camera>();
+
+                        int t = viewCam.targetDisplay;
+
+                        viewCam.targetDisplay = userCam.targetDisplay;
+                        userCam.targetDisplay = t;
 
 
 
-                        if (projectionCam.targetDisplay == 1)
-                        {
-                            //	cam.enabled = !cam.enabled;
 
-                            // were in overview mode, so switch to pov mode. 
+                        //if (viewCam.targetDisplay == 1)
+                        //{
+                        //    if (userCam.targetDisplay == 2)
+                        //    {
+                        //        // switch to viewcam on 2, projectioncam on 1
+                        //        viewCam.targetDisplay = 2;
+                        //        userCam.targetDisplay = 0;
+                        //        projectionCam.targetDisplay = 1;
 
-                            userCam.targetDisplay = 1;
-                            //	userCam.enabled = true;
+                        //    }
+                        //    else
+                        //    {
+                        //        // switch to viewcam on 2, projectioncam on 1
+                        //        viewCam.targetDisplay = 2;
+                        //        userCam.targetDisplay = 0;
+                        //        projectionCam.targetDisplay = 1;
 
-                            projectionCam.targetDisplay = 2;
-
-
-                            //		viewCam.enabled = true;
-                            //	viewCam.targetDisplay = 0;
-
-
-                        }
-                        else
-                        {
-
-                            userCam.targetDisplay = 2;
-
-                            projectionCam.targetDisplay = 1;
+                        //    }
 
 
+                        //}
 
-                        }
+
+
+
+                        //    if (userCam.targetDisplay == 2)
+                        //{
+                        //    // user view on 2nd
+
+                        //    if (viewCam.targetDisplay == 1)
+                        //    {
+                        //        // overview on 1st
+                        //        viewCam.targetDisplay =2;
+                        //        userCam.targetDisplay = 0;
+                        //        projectionCam.targetDisplay = 1;
+
+                        //    }
+                        //    else
+                        //    {
+
+                        //    }
+                        //    viewCam.targetDisplay == 2;
+
+
+
+                        //}
+
+
+                        //    if (projectionCam.targetDisplay == 1)
+                        //{
+                        //    //	cam.enabled = !cam.enabled;
+
+                        //    // were in overview mode, so switch to pov mode. 
+
+                        //    userCam.targetDisplay = 1;
+                        //    //	userCam.enabled = true;
+
+                        //    projectionCam.targetDisplay = 2;
+
+
+                        //    //		viewCam.enabled = true;
+                        //    //	viewCam.targetDisplay = 0;
+
+
+                        //}
+                        //else
+                        //{
+
+                        //    userCam.targetDisplay = 2;
+
+                        //    projectionCam.targetDisplay = 1;
+
+
+
+                        //}
 
 
 
@@ -1586,10 +1641,10 @@ namespace PresenceEngine
                         userMessager.ShowTextMessage("Calibrated", 3);
 
                         GENERAL.UserCalibrated = true;
-                        task.SetStringValue("status","calibrated");
-                      //  task.setCallBack("clientcalibrated");
+                        task.SetStringValue("status", "calibrated");
+                        //  task.setCallBack("clientcalibrated");
 
-                        done=true;
+                        done = true;
 
 
 #else
