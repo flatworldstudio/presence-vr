@@ -203,7 +203,7 @@ namespace PresenceEngine
 
 
 
-                case "recordstart":
+                case "pressedrecordstart":
 
                     userMessager.ShowTextMessage("Begin recording", 0.5f);
 
@@ -215,7 +215,7 @@ namespace PresenceEngine
                     done = true;
                     break;
 
-                case "recordstop":
+                case "pressedrecordstop":
 
                     userMessager.ShowTextMessage("Stop recording", 0.5f);
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
@@ -1632,17 +1632,6 @@ namespace PresenceEngine
 #endif
 
 
-
-                //case "autocalibrate":
-
-                //task.setCallBack("clientcalibrated");
-                //userMessager.ShowTextMessage("Calibrated", 3);
-
-                //GENERAL.UserCalibrated = true;
-
-                //done=true;
-
-                //break;
 
 
 

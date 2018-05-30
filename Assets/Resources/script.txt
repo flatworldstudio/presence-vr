@@ -135,6 +135,7 @@ setflow_solo
 end
 
 #recordsolo
+pressedrecordstart
 isglobal
 //moodoff
 materialiseoff
@@ -147,6 +148,7 @@ waitforgesture
 materialiseon
 recordstart
 @recordsolo_stop
+pressedrecordstop
 recordstop
 materialiseoff
 makefilemenu
