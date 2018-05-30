@@ -156,7 +156,7 @@ namespace PresenceEngine
 
                 case "listenforserver":
 
-                    userMessager.ShowTextMessage("Waiting for server", 3);
+                    userMessager.ShowTextMessage("Waiting for server", 1);
 
                     done = true;
                     break;
@@ -184,7 +184,7 @@ namespace PresenceEngine
 
                 case "depthlive":
 
-                    userMessager.ShowTextMessage("Streaming live depth", 1);
+                    userMessager.ShowTextMessage("Streaming depth", 1);
                     serverInterface.HideButton("startpresence");
                     serverInterface.ShowButton("stoppresence");
 

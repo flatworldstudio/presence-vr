@@ -569,7 +569,7 @@ PlayerSettings:
   webGLUseWasm: 0
   webGLCompressionFormat: 1
   scriptingDefineSymbols:
-    1: NETWORKED;DEV
+    1: NETWORKED
     4: NETWORKED;IOS
   platformArchitecture: {}
   scriptingBackend: {}
