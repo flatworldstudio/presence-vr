@@ -535,20 +535,20 @@ namespace PresenceEngine
             //     task.SetIntValue(prefix + "_frame", Uframe.FrameNumber);
             task.SetFloatValue(prefix + "_time", Uframe.Time);
 
-            if (Data.Length > 20000)
-            {
-                //  Debug.LogWarning("message size over 20k");
+            //if (Data.Length > 20000)
+            //{
+            //    //  Debug.LogWarning("message size over 20k");
 
 
-            }
-            else
-            {
+            //}
+            //else
+            //{
 
                 task.SetIntValue(prefix + "_sampling", DepthSampling);
                 task.SetByteValue(prefix + "_data", Data);
                 task.SetIntValue(prefix + "_min", Min);
                 task.SetIntValue(prefix + "_max", Max);
-            }
+            //}
 
 
             if (recording)
