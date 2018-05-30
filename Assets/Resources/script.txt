@@ -8,10 +8,7 @@ start serversearch
 alignset
 addkinectnull
 createuser
-//createinstance
 receivelivedepth
-//autocalibrate
-//moodon
 end
 
 // Serversearch waits for server and launches #foundserver.
@@ -40,18 +37,6 @@ end
 
 // SERVER STORIES.
 
-// network rework
-#testserver
-debugon
-amserver
-start server
-start globaltest
-end
-
-#globaltest
-isglobal
-testtask
-end
 
 
 #presenceserver
@@ -67,7 +52,6 @@ setflow_solo
 setfiledefaults
 makefoldermenu
 makefilemenu
-//moodon
 start servercontrols
 start moodlight
 end
@@ -124,22 +108,8 @@ end
 #startpresence
 depthlive
 start userstreaming
-//waitforuser
-//pause3
-//start clientcalibration
 end
 
-#clientcalibration
-isglobal
-autocalibrate
-end
-
-// Clientcalibrated is called when the client is calibrated
-
-#clientcalibrated
-stop clientcalibration
-moodon
-end
 
 // Stoppresence stops the kinect if needed and stops userstreaming.
 
@@ -148,8 +118,6 @@ depthoff
 moodoff
 stop startpresence
 stop userstreaming
-stop clientcalibration
-stop clientcalibrated
 end
 
 // Presencehandler handles presence playback and mirrors everything to the client.

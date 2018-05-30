@@ -1551,8 +1551,8 @@ namespace PresenceEngine
                         userMessager.ShowTextMessage("Calibrated", 3);
 
                         GENERAL.UserCalibrated = true;
-
-                        task.setCallBack("clientcalibrated");
+                        task.SetStringValue("status","calibrated");
+                      //  task.setCallBack("clientcalibrated");
 
                         done=true;
 
@@ -1615,7 +1615,7 @@ namespace PresenceEngine
 
                             GENERAL.UserCalibrated = true;
 
-                            task.setCallBack("clientcalibrated");
+                         //   task.setCallBack("clientcalibrated");
 
                             //AutoCallibrateObject.GetComponent<RawImageWebCamTexture>().callibrated=false;//repeat
 
@@ -1631,18 +1631,28 @@ namespace PresenceEngine
                         
                        // on the server we hold to keep the task alive IF there are clients.
                         int clients;
+
                         if (task.GetIntValue("connectedclients",out clients)){
 
                             if (clients==0){
 
-                                task.setCallBack("clientcalibrated");
                                 done=true;
+
+                            } else {
+                                
+                                string value;
+
+                                if (task.GetStringValue("status", out value){
+                                    if (value=="calibrated"){
+
+                                        done=true;
+
+                                    }
+                                }
+                                    
                             }
 
-
                         }
-
-                      
 
                     }
 
