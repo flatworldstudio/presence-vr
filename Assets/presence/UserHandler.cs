@@ -881,26 +881,44 @@ namespace PresenceEngine
                     done = true;
                     break;
 
-
-
                 case "setflow_mirror":
 
-                    /*
-                     b= serverInterface.GetButton("playbackstart");
-                    b.callback="playsingle";
+                    userMessager.ShowTextMessage("Flow: Mirror", 1);
 
-                    b= serverInterface.GetButton("playbackstop");
-                    b.callback="stopplaysingle";
+                     b = serverInterface.GetButton("playbackstart");
+                    b.callback = "playmirror";
 
-                    b= serverInterface.GetButton("recordstart");
-                    b.callback="recordsingle";
+                    b = serverInterface.GetButton("playbackstop");
+                    b.callback = "stopplaymirror";
 
-                    b= serverInterface.GetButton("recordstop");
-                    b.callback="stoprecordsingle";
-*/
+                    b = serverInterface.GetButton("recordstart");
+                    b.callback = "recordmirror";
+
+                    b = serverInterface.GetButton("recordstop");
+                    b.callback = "stoprecordmirror";
 
                     done = true;
                     break;
+
+
+//                case "setflow_mirror":
+
+//                    /*
+//                     b= serverInterface.GetButton("playbackstart");
+//                    b.callback="playsingle";
+
+//                    b= serverInterface.GetButton("playbackstop");
+//                    b.callback="stopplaysingle";
+
+//                    b= serverInterface.GetButton("recordstart");
+//                    b.callback="recordsingle";
+
+//                    b= serverInterface.GetButton("recordstop");
+//                    b.callback="stoprecordsingle";
+//*/
+
+//                    done = true;
+//                    break;
 
                 case "setflow_delay":
 

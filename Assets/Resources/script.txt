@@ -220,6 +220,28 @@ end
 tell playecho playecho_stop
 end
 
+// Flows - mirror. Shows a mirrored copy in realtime.
+
+#flow_mirror
+setflow_mirror
+end
+
+#playmirror
+pressedplay
+playbackfile
+playmirror
+start presencehandler
+waitforallplaybacktoend
+pause5
+@playmirror_stop
+deletepresences
+pressedstop
+end
+
+#stopplaymirror
+tell playmirror playmirror_stop
+end
+
 
 // GENERAL STORIES
 
