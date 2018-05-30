@@ -341,6 +341,66 @@ namespace PresenceEngine
 
                     break;
 #endif
+
+
+                case "waitforgesture":
+
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                    {
+                        string status;
+
+                        if (!task.GetStringValue("status", out status))
+                        {
+
+                            Davinci.BeginDetect(task);
+                            task.SetStringValue("status", "detecting");
+
+                        }
+
+#if DEV
+                        if (Input.anyKeyDown)
+                            task.SetStringValue("status", "detected");
+#endif
+
+                        if (status == "detected")
+                        {
+                            task.SetStringValue("status", "detecting");
+                            userMessager.ShowTextMessage("Pose detected", 1);
+
+                            Davinci.EndDetect();
+
+                            done = true;
+                        }
+
+
+                    }
+
+                    if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
+                    {
+
+
+                        string status;
+
+                        task.GetStringValue("status", out status);
+
+                        if (status == "detected")
+                        {
+                           // task.SetStringValue("status", "detecting");
+                           if (!signalSound.isPlaying)
+                            signalSound.Play();
+
+                            done = true;
+                        }
+
+                    }
+
+
+
+
+                    break;
+
+
+
                 case "detectgesture":
 
 
@@ -1576,7 +1636,7 @@ namespace PresenceEngine
                             if (clients==0){
 
                                 task.setCallBack("clientcalibrated");
-                                //done=true;
+                                done=true;
                             }
 
 

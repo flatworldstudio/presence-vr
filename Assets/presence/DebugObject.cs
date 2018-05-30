@@ -147,9 +147,9 @@ namespace PresenceEngine
             NullObject.transform.localScale = 0.1f * scale;
 
             mat = new Material[3];
-            mat[0] = Resources.Load("Red") as Material;
-            mat[1] = Resources.Load("Green") as Material;
-            mat[2] = Resources.Load("Blue") as Material;
+            mat[0] = Resources.Load("Null01") as Material;
+            mat[1] = Resources.Load("Null01") as Material;
+            mat[2] = Resources.Load("Null01") as Material;
 
             NullObject.GetComponent<Renderer>().materials = mat;
 

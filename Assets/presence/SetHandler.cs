@@ -190,9 +190,9 @@ namespace PresenceEngine
 
                     // And now we apply those values.
 
-                    MainStageLight.Variation = 2f * Mathf.PerlinNoise(MainPerlinStart + MainPerlin, 0);
-                    MoodLight01.Variation = 2f * Mathf.PerlinNoise(MoodLight01PerlinStart + MoodLight01Perlin, 0);
-                    MoodLight02.Variation = 2f * Mathf.PerlinNoise(MoodLight02PerlinStart + MoodLight02Perlin, 0);
+                    MainStageLight.Variation = 1f * Mathf.PerlinNoise(MainPerlinStart + MainPerlin, 0);
+                    MoodLight01.Variation = 1f * Mathf.PerlinNoise(MoodLight01PerlinStart + MoodLight01Perlin, 0);
+                    MoodLight02.Variation = 1f * Mathf.PerlinNoise(MoodLight02PerlinStart + MoodLight02Perlin, 0);
 
                     // We include confinement here
 
@@ -201,14 +201,14 @@ namespace PresenceEngine
                     {
 
 
-                        MainStageLight.Master = GENERAL.UserCalibrated ? 4f : 2f;
+                        MainStageLight.Master = GENERAL.UserCalibrated ? 2f : 0.5f;
 
 
                     }
                     else
                     {
 
-                        MainStageLight.Master = 0.25f;
+                        MainStageLight.Master = 0.1f;
 
                     }
 

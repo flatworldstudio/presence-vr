@@ -40,7 +40,7 @@ MonoBehaviour:
         stationaryBlending: 0.95
         motionBlending: 0.85
   ambientOcclusion:
-    m_Enabled: 1
+    m_Enabled: 0
     m_Settings:
       intensity: 1
       radius: 0.3
@@ -101,7 +101,7 @@ MonoBehaviour:
     m_Settings:
       bloom:
         intensity: 4.59
-        threshold: 1.1
+        threshold: 0.78
         softKnee: 0.5
         radius: 4
         antiFlicker: 0
@@ -127,9 +127,9 @@ MonoBehaviour:
         saturation: 1
         contrast: 1
       channelMixer:
-        red: {x: 1, y: 0, z: 0}
+        red: {x: 1, y: 0, z: 0.28}
         green: {x: 0, y: 1, z: 0}
-        blue: {x: 0, y: 0, z: 1}
+        blue: {x: 0, y: -0.11, z: 1}
         currentEditingChannel: 0
       colorWheels:
         mode: 1
@@ -266,11 +266,11 @@ MonoBehaviour:
             m_Curve: []
             m_PreInfinity: 2
             m_PostInfinity: 2
-            m_RotationOrder: 4
+            m_RotationOrder: 0
           m_Loop: 0
           m_ZeroValue: 0.5
           m_Range: 1
-        e_CurrentEditingCurve: 0
+        e_CurrentEditingCurve: 4
         e_CurveY: 1
         e_CurveR: 0
         e_CurveG: 0
@@ -289,9 +289,9 @@ MonoBehaviour:
     m_Enabled: 1
     m_Settings:
       colored: 0
-      intensity: 0.3
-      size: 0.75
-      luminanceContribution: 0.8
+      intensity: 0.261
+      size: 0.53
+      luminanceContribution: 0.79
   vignette:
     m_Enabled: 0
     m_Settings:

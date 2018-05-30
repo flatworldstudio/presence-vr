@@ -33,11 +33,25 @@ namespace PresenceEngine
         void Update()
         {
 
-            if (Visualiser != null && !Visualiser.IsInitialised())
-                Visualiser.Initialise(this.gameObject);
 
-            if (DepthTransport != null && Visualiser != null && Visualiser.IsInitialised())
-                Visualiser.Update(DepthTransport.ActiveFrame); // frame may or may not be different, it's up to the interface implementation to deal with that.
+            if (DepthTransport != null && DepthTransport.Mode != DEPTHMODE.OFF)
+            {
+                if (Visualiser != null && !Visualiser.IsInitialised())
+                    Visualiser.Initialise(this.gameObject);
+
+                if (DepthTransport != null && Visualiser != null && Visualiser.IsInitialised())
+                    Visualiser.Update(DepthTransport.ActiveFrame); // frame may or may not be different, it's up to the interface implementation to deal with that.
+            }
+            else
+            {
+                if (Visualiser != null)
+                    Visualiser.Deinitialise();
+            }
+
+
+           
+
+           
         }
 
         public void SetTranscoder(string name)

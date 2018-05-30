@@ -37,7 +37,7 @@ public class KinectWrapper
 		
 		public const bool IsNearMode = false;
 		
-		public const float MinTimeBetweenSameGestures = 0.0f;
+		public const float MinTimeBetweenSameGestures = 0.5f;
 		public const float PoseCompleteDuration = 1f;
 		public const float ClickStayDuration = 2.5f;
 	}

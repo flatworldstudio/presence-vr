@@ -78,9 +78,9 @@ namespace PresenceEngine
                 {
 
                     // create it
-                    Debug.Log("CREATING FILE " + filePath);
+                    //Debug.Log("CREATING FILE " + filePath);
 
-                    Buffered = new FileformatBase();
+                    //Buffered = new FileformatBase();
 
                 }
 
@@ -331,7 +331,7 @@ namespace PresenceEngine
             }
 
 
-            Debug.Log("Didn't find buffer file");
+            Debug.Log("Didn't find buffer file in scene.");
 
             return null;
         }
@@ -395,7 +395,7 @@ namespace PresenceEngine
 
             FileStream file = File.Create(localStorageFolder + CheckedOutFile);
 
-            bf.Serialize(file, "Presence placeholder file.");
+            bf.Serialize(file, new FileformatBase());
 
             file.Close();
 
@@ -419,7 +419,7 @@ namespace PresenceEngine
 
                 try
                 {
-                    Debug.Log("Loading buffer from file");
+                    Debug.Log("Loading buffer from file: "+filePath);
                     BinaryFormatter bf = new BinaryFormatter();
                     loaded = (FileformatBase)bf.Deserialize(fs);
                     fs.Close();

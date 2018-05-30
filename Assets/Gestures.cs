@@ -24,6 +24,20 @@ public class Gestures : MonoBehaviour, KinectGestures.GestureListenerInterface
         }
        
     }
+
+    public void EndDetect()
+    {
+        KinectManager.Instance.ClearGestures(User);
+
+
+        Debug.Log("ENDING GESTURE DETECT");
+
+        TaskRef = null;
+        active = false;
+        userPresent = false;
+        User = 0;
+
+    }
    
 
     // Use this for initialization
@@ -41,7 +55,7 @@ public class Gestures : MonoBehaviour, KinectGestures.GestureListenerInterface
     void KinectGestures.GestureListenerInterface.UserDetected(uint userId, int userIndex)
     {
         //     throw new System.NotImplementedException();
-        Debug.Log("user is detected");
+        Debug.Log("Gestures: user is detected");
 
         User = userId;
         userPresent = true;
@@ -58,9 +72,10 @@ public class Gestures : MonoBehaviour, KinectGestures.GestureListenerInterface
 
     void KinectGestures.GestureListenerInterface.UserLost(uint userId, int userIndex)
     {
-      //  Debug.LogError("Lost user");
+        //  Debug.LogError("Lost user");
+        Debug.Log("Gestures: user is lost");
 
-       
+
         userPresent = false;
 
         //  throw new System.NotImplementedException();
@@ -87,8 +102,12 @@ public class Gestures : MonoBehaviour, KinectGestures.GestureListenerInterface
 
     bool KinectGestures.GestureListenerInterface.GestureCancelled(uint userId, int userIndex, KinectGestures.Gestures gesture, KinectWrapper.NuiSkeletonPositionIndex joint)
     {
-      // Debug.Log("......");
+        // Debug.Log("......");
         //    throw new System.NotImplementedException();
+
+        //    return TaskRef!=null;
+        Debug.Log("Gestures: cancelled");
+
         return true;
     }
 }

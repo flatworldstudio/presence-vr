@@ -11,7 +11,7 @@ namespace PresenceEngine
         bool IsInitialised();
 
         void Initialise(GameObject presenceObject);
-
+        void Deinitialise();
         void SetTransform(Vector3 pos, Quaternion rot);
 
         void Update(UncompressedFrame Frame);
@@ -21,6 +21,12 @@ namespace PresenceEngine
         Vector3 GetPosition();
         Quaternion GetRotation();
 
+
+        void SettingsToTask(StoryEngine.StoryTask task, string prefix);
+
+
+         void SettingsFromTask(StoryEngine.StoryTask task, string prefix);
+       
 
     }
 
@@ -37,6 +43,18 @@ namespace PresenceEngine
         string _name = "ShowSkeleton";
         UncompressedFrame lastFrame;
 
+        public void SettingsToTask(StoryEngine.StoryTask task, string prefix)
+        {
+         
+
+        }
+        public void SettingsFromTask(StoryEngine.StoryTask task, string prefix)
+        {
+
+           
+        }
+
+
         public string GetName()
         {
 
@@ -49,7 +67,16 @@ namespace PresenceEngine
         {
             return __isInitialised;
         }
+        public void Deinitialise()
+        {
 
+            foreach (Transform child in PresenceObject.transform)
+            {
+                GameObject.Destroy(child.gameObject);
+            }
+
+            __isInitialised = false;
+        }
         public void Initialise(GameObject presenceObject)
         {
             // Parent object for any visualisation objects.
@@ -142,7 +169,7 @@ namespace PresenceEngine
                 HandLeft.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft];
                 HandRight.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight];
 
-                Body.transform.localPosition = Frame.Body;
+                Body.transform.localPosition = Frame.UserPosition;
 
                 if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                 {
@@ -230,6 +257,32 @@ namespace PresenceEngine
         ParticleCloud Cloud;
         bool __isInitialised = false;
         UncompressedFrame lastFrame;
+        GameObject PLight;
+
+        public float CloudVisible = 0;
+
+        public void SettingsToTask (StoryEngine.StoryTask task, string prefix)
+        {
+            task.SetFloatValue(prefix + "_cloudvisible", CloudVisible);
+          
+        }
+        public void SettingsFromTask(StoryEngine.StoryTask task, string prefix)
+        {
+
+            task.GetFloatValue(prefix + "_cloudvisible", out CloudVisible);
+
+            //int cloudcontrol;
+            //if (task.GetIntValue(prefix+"_cloudcontrol", out cloudcontrol))
+            //{
+
+            //    CloudOn = cloudcontrol == 1 ? true : false;
+            //}
+
+
+
+
+
+        }
 
         public string GetName()
         {
@@ -241,6 +294,17 @@ namespace PresenceEngine
         public bool IsInitialised()
         {
             return __isInitialised;
+        }
+
+        public void Deinitialise()
+        {
+
+            foreach (Transform child in PresenceObject.transform)
+            {
+                GameObject.Destroy(child.gameObject);
+            }
+
+            __isInitialised = false;
         }
 
         public void Initialise(GameObject presenceObject)
@@ -274,6 +338,20 @@ namespace PresenceEngine
             n = DebugObject.getNullObject(0.5f);
             n.transform.SetParent(PresenceObject.transform, false);
             Body = n;
+
+            PLight = new GameObject("PLight");
+            Light lightComp = PLight.AddComponent<Light>();
+            lightComp.color = new Color(137f / 256f, 223f / 256f, 249f / 256f);
+            lightComp.intensity = 0.35f;
+            PLight.transform.localPosition = new Vector3(0, 1.5f, 0);
+
+
+            //PLight = new Light();
+
+            PLight.transform.SetParent(PresenceObject.transform, false);
+            //pLight.transform.localPosition = Vector3.zero;
+            //pLight.type = LightType.Point;
+
 
 
             Cloud = new ParticleCloud(20000, "Cloud", true);
@@ -357,10 +435,17 @@ namespace PresenceEngine
                     return;
                 }
 
+                Body.SetActive(Frame.UserTracked);
+                Head.SetActive(Frame.UserTracked);
+                HandLeft.SetActive(Frame.UserTracked);
+                HandRight.SetActive(Frame.UserTracked);
+                PLight.SetActive(Frame.UserTracked);
+                
                 HandLeft.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft];
                 HandRight.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight];
 
-                Body.transform.localPosition = Frame.Body;
+                Body.transform.localPosition = Frame.UserPosition;
+                PLight.transform.localPosition = new Vector3(Frame.UserPosition.x, 1, Frame.UserPosition.z);
 
                 if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                 {
@@ -371,7 +456,7 @@ namespace PresenceEngine
                 // takes a kinect styled uint[] RawDepthMap
                 // and plots the points into a Particle Cloud, with scale corrected if the frame was downsampled.
 
-               
+
 
                 int ParticleIndex = 0;
 
@@ -398,8 +483,8 @@ namespace PresenceEngine
 
                             point = depthToWorld(x * Scale, y * Scale, userDepth);
                             point.x = -point.x;
-                            point.y = -point.y+ SETTINGS.kinectHeight;
-                      //     point += SETTINGS.kinectHeight;
+                            point.y = -point.y + SETTINGS.kinectHeight;
+                            //     point += SETTINGS.kinectHeight;
 
                             Cloud.allParticles[ParticleIndex].position = point;
 
@@ -420,7 +505,7 @@ namespace PresenceEngine
 
                 }
 
-                Cloud.ApplyParticles(ParticleIndex);
+                Cloud.ApplyParticles(CloudVisible>0 ? ParticleIndex : 0);
 
                 // Check if frame is new.
 

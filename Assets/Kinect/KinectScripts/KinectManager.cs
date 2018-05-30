@@ -1652,6 +1652,7 @@ public class KinectManager : MonoBehaviour
 
             // Shutdown OpenNI
             KinectWrapper.NuiShutdown();
+            KinectInitialized = false;
            // instance = null;
         }
     }
@@ -1664,7 +1665,8 @@ public class KinectManager : MonoBehaviour
 
             // Shutdown OpenNI
             KinectWrapper.NuiShutdown();
-         //   instance = null;
+            KinectInitialized = false;
+            //   instance = null;
         }
 
     }

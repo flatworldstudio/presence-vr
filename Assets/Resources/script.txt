@@ -124,9 +124,9 @@ end
 #startpresence
 depthlive
 start userstreaming
-waitforuser
-pause3
-start clientcalibration
+//waitforuser
+//pause3
+//start clientcalibration
 end
 
 #clientcalibration
@@ -167,10 +167,19 @@ end
 
 #recordsolo
 isglobal
+moodoff
+materialiseoff
 recordprepare
+waitforuser
+autocalibrate
+moodon
+pause3
+waitforgesture
+materialiseon
 recordstart
 @recordsolo_stop
 recordstop
+materialiseoff
 makefilemenu
 end
 
@@ -202,10 +211,20 @@ end
 #recordecho
 isglobal
 start presencehandler
+moodoff
+materialiseoff
+recordprepare
+waitforuser
+autocalibrate
+moodon
+pause3
+waitforgesture
+materialiseon
 playecho
 recordstart
 @recordecho_stop
 recordstop
+materialiseoff
 deletepresences
 makefilemenu
 end

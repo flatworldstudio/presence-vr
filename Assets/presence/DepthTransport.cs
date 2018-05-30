@@ -12,45 +12,7 @@ using Amazon.CognitoIdentity.Model;
 
 namespace PresenceEngine
 {
-
-    /*
-     * 
-     *       private Vector3[] player1JointsPos, player2JointsPos;
-     *       
-     *         public Vector3 GetJointPosition(uint UserId, int joint) -> retrieves.
-     *             public bool IsJointTracked(uint UserId, int joint)
-
-     *         
-     *  HipCenter = 0,
-        Spine = 1,
-        ShoulderCenter = 2,
-        Head = 3,
-        ShoulderLeft = 4,
-        ElbowLeft = 5,
-        WristLeft = 6,
-        HandLeft = 7,
-        ShoulderRight = 8,
-        ElbowRight = 9,
-        WristRight = 10,
-        HandRight = 11,
-        HipLeft = 12,
-        KneeLeft = 13,
-        AnkleLeft = 14,
-        FootLeft = 15,
-        HipRight = 16,
-        KneeRight = 17,
-        AnkleRight = 18,
-        FootRight = 19,
-        Count = 20
-        */
-
-
-
-
-
-
-
-
+    
     public enum DEPTHMODE
     {
         OFF,
@@ -60,10 +22,7 @@ namespace PresenceEngine
 
 
     }
-
-
-
-
+    
     public class DepthTransport
     {
 
@@ -73,7 +32,10 @@ namespace PresenceEngine
 
         int[] DEPTHMAPSIZE = { 0, 640 * 480, 320 * 240, 0, 160 * 120 };
 
-        public int FrameNumber = 0;
+      //  public int FrameNumber = 0;
+
+        public float TimeStamp = 0;
+        public float CurrentTime = 0;
 
         public iTransCoder TransCoder;
 
@@ -111,7 +73,8 @@ namespace PresenceEngine
                     break;
 
                 default:
-                    Debug.LogError("Trying to set unkown transcoder.");
+                    TransCoder = new SkeletonOnly();
+                    Debug.Log("Unknown transcoder, using SkeletonOnly.");
                     break;
             }
 
@@ -151,6 +114,9 @@ namespace PresenceEngine
                     case DEPTHMODE.LIVE:
                     case DEPTHMODE.RECORD:
 
+                        TimeStamp = Time.time;           
+                        
+                        
                         // Any instance can be 'live', which means it'll be working with live buffer data.
                         // On windows, the first instance to go live will assume control over the kinect.
 
@@ -247,7 +213,7 @@ namespace PresenceEngine
 
 
 
-        public int GetNewFrame()
+        public float GetNewFrame()
         {
 
             // Get new frame can only be called on the instance that owns the kinect. 
@@ -259,21 +225,24 @@ namespace PresenceEngine
                 case DEPTHMODE.RECORD:
 
                     ActiveFrame = new UncompressedFrame();
+                    ActiveFrame.Time = Time.time - TimeStamp;
+                    CurrentTime = ActiveFrame.Time;
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
                     if (OwnsKinect == this && KinectManager.Instance.IsInitialized())
                     {
-                        FrameNumber++;
+                        //FrameNumber++;
 
                         ActiveFrame.RawDepth = GetRawDepthMap();
 
                         getSkeleton(ref ActiveFrame);
 
+                       
 
-                        ActiveFrame.FrameNumber = FrameNumber;
+                        //ActiveFrame.FrameNumber = FrameNumber;
 
-                        return FrameNumber;
+                        return ActiveFrame.Time;
                     }
 
 
@@ -282,7 +251,7 @@ namespace PresenceEngine
                     // If we've fallen through we generate data for development purposes.
 
 
-                    FrameNumber++;
+               //     FrameNumber++;
 
                     //    float time = System.DateTime.Now.ToBinary();
 
@@ -296,7 +265,8 @@ namespace PresenceEngine
                     //ActiveFrame.Joints = new Vector3[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
                     //ActiveFrame.Tracked = new bool[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
 
-                    ActiveFrame.Body = new Vector3(hx, SETTINGS.kinectHeight, hz);
+                    ActiveFrame.UserPosition = new Vector3(hx, SETTINGS.kinectHeight, hz);
+                    ActiveFrame.UserTracked = true;
 
                     ActiveFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] = new Vector3(hx, SETTINGS.kinectHeight * 1.25f, hz);
                     ActiveFrame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] = true;
@@ -310,13 +280,13 @@ namespace PresenceEngine
                     //ActiveFrame.Tracked = new bool[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
 
 
-                    ActiveFrame.FrameNumber = FrameNumber;
+                    //   ActiveFrame.FrameNumber = FrameNumber;
 
                     //  ActiveFrame.HeadOrientation = Quaternion.Euler(-45f + 90f * r,0, 0f);
                     //   Frame = NewFrame;
 
-
-                    return FrameNumber;
+                    return ActiveFrame.Time;
+                //    return FrameNumber;
 
 
                 default:
@@ -327,37 +297,15 @@ namespace PresenceEngine
 
 
 
-            //   UncompressedFrame NewFrame = new UncompressedFrame();
-
-            //#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-
-            //            if (OwnsKinect == this && KinectManager.Instance.IsInitialized())
-            //            {
-            //                CurrentFrame++;
-
-            //                NewFrame.RawDepth = GetRawDepthMap();
-            //                getSkeleton(ref NewFrame);
-            //                NewFrame.FrameNumber = CurrentFrame;
-
-            //                Frame = NewFrame;
-
-            ////                return CurrentFrame;
-            //            }
-
-
-
-            //#endif
-            // For debugging we generate skeletondata.
-
 
 
 
         }
 
-        public bool LoadFrameFromBuffer()
+        public int LoadFrameFromBuffer(float Time)
         {
 
-            return TransCoder.PlayFrame(FrameNumber, out ActiveFrame);
+            return TransCoder.PlayFrame(Time, out ActiveFrame);
 
         }
 
@@ -377,144 +325,7 @@ namespace PresenceEngine
             return false;
         }
 
-        /*
-        public Vector3 getPosition()
-
-        {
-
-            Vector3 position = Vector3.zero;
-
-            if (__mode == DEPTHMODE.LIVE || __mode == DEPTHMODE.RECORD)
-
-            {
-#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-
-                uint playerID = KinectManager.Instance != null ? KinectManager.Instance.GetPlayer1ID() : 0;
-
-                //   Debug.Log(playerID);
-
-
-                if (playerID >= 0)
-                {
-
-                    bool MirroredMovement = true;
-
-                    position = KinectManager.Instance.GetUserPosition(playerID);
-
-                    position.z = !MirroredMovement ? -position.z : position.z;
-                    position.x = MirroredMovement ? -position.x : position.x;
-                    position.y += SETTINGS.kinectHeight;
-
-                    //    if (MirroredMovement)
-                    //   {
-                    //       position.x = -position.x;
-                    //   }
-
-
-
-                }
-
-
-#endif
-            }
-
-            return position;
-
-        }
-
-        //        public Vector3 getJoint(int joint)
-        //        {
-
-        //            Vector3 posJoint = Vector3.zero;
-
-        //            if (__mode == DEPTHMODE.LIVE || __mode == DEPTHMODE.RECORD)
-
-        //            {
-
-
-        //#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-
-        //                uint playerID = KinectManager.Instance != null ? KinectManager.Instance.GetPlayer1ID() : 0;
-
-        //                if (playerID >= 0)
-        //                {
-
-        //                    bool MirroredMovement = true;
-
-        //                    posJoint = KinectManager.Instance.GetJointPosition(playerID, joint);
-
-        //                    posJoint.z = !MirroredMovement ? -posJoint.z : posJoint.z;
-        //                    posJoint.x = MirroredMovement ? -posJoint.x : posJoint.x;
-        //                    posJoint.y += PRESENCE.kinectHeight;
-
-        //                    ///     if (MirroredMovement)
-        //                    //    {
-        //                    //      posJoint.x = -posJoint.x;
-        //                    //}
-
-
-
-        //                }
-        //                else
-        //                {
-
-        //                    // playerid is 0 : no player.
-
-        //                    //  Debug.Log("playerid is 0");
-        //                }
-
-        //#endif
-
-
-        //            }
-
-
-
-        //            return posJoint;
-
-        //        }
-
-        Vector3 getJoint(int joint)
-        {
-
-            Vector3 posJoint = Vector3.zero;
-
-
-#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-
-            if (OwnsKinect == this && KinectManager.Instance.IsInitialized())
-            {
-
-                uint playerID = KinectManager.Instance != null ? KinectManager.Instance.GetPlayer1ID() : 0;
-
-                if (playerID >= 0)
-                {
-
-                    bool MirroredMovement = true;
-
-                    posJoint = KinectManager.Instance.GetJointPosition(playerID, joint);
-
-                    posJoint.z = !MirroredMovement ? -posJoint.z : posJoint.z;
-                    posJoint.x = MirroredMovement ? -posJoint.x : posJoint.x;
-                    posJoint.y += SETTINGS.kinectHeight;
-
-                }
-                else
-                {
-
-                    // playerid is 0 : no player.
-
-                    //  Debug.Log("playerid is 0");
-                }
-            }
-#endif
-
-
-            return posJoint;
-
-        }
-*/
-
+       
 
         void getSkeleton(ref UncompressedFrame Frame)
         {
@@ -535,8 +346,17 @@ namespace PresenceEngine
                 {
                     Frame.Joints = new Vector3[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
                     Frame.Tracked = new bool[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
+                    Frame.UserTracked = KinectManager.Instance.IsUserDetected();
+
+                    
 
                     bool MirroredMovement = true;
+
+                    Frame.UserPosition = KinectManager.Instance.GetUserPosition(playerID);
+                    Frame.UserPosition.z = !MirroredMovement ? -Frame.UserPosition.z : Frame.UserPosition.z;
+                    Frame.UserPosition.x = MirroredMovement ? -Frame.UserPosition.x : Frame.UserPosition.x;
+                    Frame.UserPosition.y += SETTINGS.kinectHeight;
+
 
                     for (int joint = 0; joint < Frame.Joints.Length; joint++)
                     {

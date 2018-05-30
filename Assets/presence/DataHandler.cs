@@ -252,7 +252,7 @@ namespace PresenceEngine
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
 
-                        // Get current task list.
+                        // Get current list from the task.
 
                         string[] presenceNames;
 
@@ -265,42 +265,49 @@ namespace PresenceEngine
                             if (Array.IndexOf(presenceNames, presence.Key) == -1 && presence.Key != "user")
 
                             {
-                                // If a presence isn't in the task list yet, add its settings to the task and update the list.
+                                // If a presence isn't on the list yet, add its settings to the task and update the list.
 
                                 presence.Value.AddSettingsToTask(task, presence.Key);
-
-                                //task.SetStringArrayValue("presences", SETTINGS.Presences.Keys.ToArray());
-
-                                //task.SetIntValue(presenceName + "_depthmode", out depthmode);
-                                //presence.DepthTransport.Mode = (DEPTHMODE)depthmode;
+                                presence.Value.Visualiser.SettingsToTask(task, presence.Key); // just once, not animated
                             }
 
-
                             task.SetStringArrayValue("presences", SETTINGS.Presences.Keys.ToArray());
-                            presence.Value.AddModeToTask(task, presence.Key);
+
+                            presence.Value.AddModeToTask(task, presence.Key); // mode updated all the time
 
 
                             if (presence.Value.DepthTransport.Mode == DEPTHMODE.PLAYBACK)
                             {
                                 // Play back while in playback mode and playback successful else fall through.
 
-                                if (presence.Value.DepthTransport.LoadFrameFromBuffer())
+                              
+                                switch  (presence.Value.DepthTransport.LoadFrameFromBuffer(presence.Value.DepthTransport.CurrentTime))
                                 {
-                                    presence.Value.DepthTransport.FrameNumber++;
+                                    case -1:
+                                    case 0:
+                                        
+                                        // we're before the start or in the buffer
+                                        presence.Value.DepthTransport.CurrentTime += Time.deltaTime;
+
+                                        break;
+
+
+                                    case 1:
+                                        // wé're at the end
+                                        presence.Value.DepthTransport.CurrentTime = presence.Value.DepthTransport.TransCoder.GetBufferFile().StartTime;
+                                        break;
+
+                                    default:
+                                        // Error.
+                                        break;
+
 
                                 }
-                                else
-                                {
-                                    // loop
-                                    presence.Value.DepthTransport.Mode = DEPTHMODE.OFF;
+                                                             
 
-                                    //presence.Value.DepthTransport.FrameNumber = presence.Value.DepthTransport.TransCoder.GetBufferFile().FirstFrame;
+                                task.SetFloatValue(presence.Key + "_time", presence.Value.DepthTransport.CurrentTime);
 
-
-                                }
-
-                                task.SetIntValue(presence.Key + "_frame", presence.Value.DepthTransport.FrameNumber);
-                                //task.SetStringValue("debug", "" + presence.Value.DepthTransport.FrameNumber);
+                                task.SetStringValue("debug", "" + presence.Value.DepthTransport.CurrentTime);
 
                             }
 
@@ -332,21 +339,22 @@ namespace PresenceEngine
                                     presence = Presence.Create(presences);
                                     SETTINGS.Presences.Add(presenceName, presence);
                                     presence.GetSettingsFromTask(task, presenceName);
-
+                                    presence.Visualiser.SettingsFromTask(task, presenceName);
                                 }
 
-                                // Update depthmode and/or frame.
+                                // Update depthmode 
 
                                 presence.GetModeFromTask(task, presenceName);
 
+                                float getTime;
 
-                                int getFrame;
+                                // We're displaying the point in time as indicated by the server.
 
-                                if (presence.DepthTransport.Mode == DEPTHMODE.PLAYBACK && task.GetIntValue(presenceName + "_frame", out getFrame))
+                                if (presence.DepthTransport.Mode == DEPTHMODE.PLAYBACK && task.GetFloatValue(presenceName + "_frame", out getTime))
+
                                 {
-
-                                    presence.DepthTransport.FrameNumber = getFrame;
-                                    presence.DepthTransport.LoadFrameFromBuffer();
+                                    presence.DepthTransport.CurrentTime = getTime;
+                                    presence.DepthTransport.LoadFrameFromBuffer(getTime);
                                 }
 
                             }
@@ -354,7 +362,6 @@ namespace PresenceEngine
                         }
 
                         // Reversed: go over presences and destroy if they're no longer listed.
-
 
                         string[] localPresenceNames = SETTINGS.Presences.Keys.ToArray();
 
@@ -423,29 +430,47 @@ namespace PresenceEngine
                 case "playbackfile":
 
                     // Play back the checked out file.
+                    //   string name = IO.GetFilePath(checkedOut + c);
 
+                    Debug.Log("starting name " + IO.CheckedOutFile);
 
                     FileformatBase pbBuffer = IO.LoadFile(IO.CheckedOutFile);
 
                     if (pbBuffer != null)
                     {
-                        if (!SETTINGS.Presences.TryGetValue("playbackpresence", out fileplayback))
+
+
+                        if (pbBuffer.EndTime > pbBuffer.StartTime)
                         {
-                            fileplayback = Presence.Create(presences);
+                            // Not a placeholder file so proceed.
 
-                            SETTINGS.Presences.Add("playbackpresence", fileplayback);
-                            //   fileplayback.SetVisualiser("ShowSkeleton");
+                            if (!SETTINGS.Presences.TryGetValue("playbackpresence", out fileplayback))
+                            {
+
+                                // No presence in scene so create it.
+                                fileplayback = Presence.Create(presences);
+                                SETTINGS.Presences.Add("playbackpresence", fileplayback);
+
+                            }
+
                             fileplayback.SetVisualiser("PointCloud");
-
                             fileplayback.SetTranscoder(pbBuffer.TransCoderName);
-                            //  fileplayback.SetTranscoder("SkeletonOnly");
+
+                            fileplayback.DepthTransport.TransCoder.SetBufferFile(pbBuffer);
+                            fileplayback.DepthTransport.CurrentTime = fileplayback.DepthTransport.TransCoder.GetBufferFile().StartTime;
+                            fileplayback.Visualiser.SetTransform(Vector3.zero, Quaternion.identity);
+
+                            fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
+
+                            Debug.Log("started buffer " + pbBuffer.Name);
+
+                            task.SetFloatValue("playbackpresence_cloudvisible", 1);
+                            fileplayback.Visualiser.SettingsFromTask(task, "playbackpresence");
+
 
                         }
 
-                        fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
-                        fileplayback.DepthTransport.TransCoder.SetBufferFile(pbBuffer);
-                        fileplayback.DepthTransport.FrameNumber = fileplayback.DepthTransport.TransCoder.GetBufferFile().FirstFrame;
-                        fileplayback.Visualiser.SetTransform(Vector3.zero, Quaternion.identity);
+
 
                     }
 
@@ -493,28 +518,72 @@ namespace PresenceEngine
                         for (int c = 1; c < 3; c++)
                         {
 
+
+                            string name = IO.GetFilePath(checkedOut + c);
+
+                            Debug.Log("starting name " + c + " " + name);
+
                             FileformatBase pbcBuf = IO.LoadFile(IO.GetFilePath(checkedOut + c));
 
                             if (pbcBuf != null)
                             {
 
-                                if (!SETTINGS.Presences.TryGetValue("playbackpresence" + c, out fileplayback))
+
+
+                                if (pbcBuf.EndTime > pbcBuf.StartTime)
                                 {
-                                    fileplayback = Presence.Create(presences);
-                                    SETTINGS.Presences.Add("playbackpresence" + c, fileplayback);
-                                    //   fileplayback.SetVisualiser("ShowSkeleton");
+                                    // Not a placeholder file so proceed.
+
+
+                                    if (!SETTINGS.Presences.TryGetValue("playbackpresence" + c, out fileplayback))
+                                    {
+
+                                        // No presence in scene so create it.
+                                        fileplayback = Presence.Create(presences);
+                                        SETTINGS.Presences.Add("playbackpresence" + c, fileplayback);
+
+                                    }
+
                                     fileplayback.SetVisualiser("PointCloud");
-                                    //   fileplayback.SetTranscoder("SkeletonOnly");
                                     fileplayback.SetTranscoder(pbcBuf.TransCoderName);
 
+                                    fileplayback.DepthTransport.TransCoder.SetBufferFile(pbcBuf);
 
+                                    fileplayback.DepthTransport.CurrentTime = fileplayback.DepthTransport.TransCoder.GetBufferFile().StartTime-UnityEngine.Random.Range(0.5f,3f);
+
+                                    fileplayback.Visualiser.SetTransform(Vector3.zero, Quaternion.identity);
+
+                                    fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
+
+                                    task.SetFloatValue("playbackpresence" + c+"_cloudvisible", 1);
+                                    fileplayback.Visualiser.SettingsFromTask(task, "playbackpresence" + c);
+
+                                    Debug.Log("started buffer " + c + " " + pbcBuf.Name);
                                 }
 
 
-                                fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
-                                fileplayback.DepthTransport.TransCoder.SetBufferFile(pbcBuf);
-                                fileplayback.DepthTransport.FrameNumber = fileplayback.DepthTransport.TransCoder.GetBufferFile().FirstFrame;
-                                fileplayback.Visualiser.SetTransform(Vector3.zero, Quaternion.identity);
+
+
+
+                                //if (!SETTINGS.Presences.TryGetValue("playbackpresence" + c, out fileplayback))
+                                //{
+                                //    fileplayback = Presence.Create(presences);
+                                //    SETTINGS.Presences.Add("playbackpresence" + c, fileplayback);
+                                //    //   fileplayback.SetVisualiser("ShowSkeleton");
+                                //    fileplayback.SetVisualiser("PointCloud");
+                                //    //   fileplayback.SetTranscoder("SkeletonOnly");
+                                //    fileplayback.SetTranscoder(pbcBuf.TransCoderName);
+
+
+                                //}
+
+
+                                //fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
+                                //fileplayback.DepthTransport.TransCoder.SetBufferFile(pbcBuf);
+                                ////   fileplayback.DepthTransport.FrameNumber = fileplayback.DepthTransport.TransCoder.GetBufferFile().FirstFrame;
+                                //fileplayback.DepthTransport.CurrentTime = fileplayback.DepthTransport.TransCoder.GetBufferFile().StartTime;
+
+                                //fileplayback.Visualiser.SetTransform(Vector3.zero, Quaternion.identity);
 
                             }
 
@@ -557,186 +626,186 @@ namespace PresenceEngine
                     break;
 
 
-                case "playbackbuffer":
+                //case "playbackbuffer":
 
 
-                    string prefix = "instance";
+                //    string prefix = "instance";
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
+                //    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                //    {
 
-                        Presence instance;
-                        if (!SETTINGS.Presences.TryGetValue(prefix, out instance))
-                        {
+                //        Presence instance;
+                //        if (!SETTINGS.Presences.TryGetValue(prefix, out instance))
+                //        {
 
-                            done = true;
-                            break;
+                //            done = true;
+                //            break;
 
-                        }
+                //        }
 
-                        int frame;
+                //        int frame;
 
-                        if (!task.GetIntValue(prefix + "_frame", out frame))
-                        {
-                            if (IO.CheckedOutFile != "")
-                            {
-                                task.SetStringValue(prefix + "_file", IO.CheckedOutFile);
-
-
-                                FileformatBase Buffered = IO.LoadFile(IO.CheckedOutFile);
+                //        if (!task.GetIntValue(prefix + "_frame", out frame))
+                //        {
+                //            if (IO.CheckedOutFile != "")
+                //            {
+                //                task.SetStringValue(prefix + "_file", IO.CheckedOutFile);
 
 
-                                //= FindBufferFileInScene(IO.CheckedOutFile);
-
-                                //if (Buffered == null)
-                                //{
-                                //    // try loading it from disk
-                                //    Debug.Log("loading from disk");
-
-                                //    Buffered = IO.LoadFromFile(IO.CheckedOutFile);
-
-                                //    if (Buffered == null)
-                                //    {
-                                //        Log.Error("loading file failed");
-                                //        done = true;
-                                //        break;
-                                //    }
-                                //}
-
-                                instance.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
-                                instance.DepthTransport.TransCoder.SetBufferFile(Buffered);
-                                instance.DepthTransport.FrameNumber = instance.DepthTransport.TransCoder.GetBufferFile().FirstFrame;
-                                task.SetIntValue(prefix + "_frame", instance.DepthTransport.FrameNumber);
-
-                            }
-                            else
-                            {
-                                done = true;
-                            }
-                        }
-
-                        if (instance.DepthTransport.Mode == DEPTHMODE.PLAYBACK)
-                        {
-                            // Play back while in playback mode and playback successful else fall through.
+                //                FileformatBase Buffered = IO.LoadFile(IO.CheckedOutFile);
 
 
-                            if (instance.DepthTransport.LoadFrameFromBuffer())
-                            {
-                                instance.DepthTransport.FrameNumber++;
+                //                //= FindBufferFileInScene(IO.CheckedOutFile);
+
+                //                //if (Buffered == null)
+                //                //{
+                //                //    // try loading it from disk
+                //                //    Debug.Log("loading from disk");
+
+                //                //    Buffered = IO.LoadFromFile(IO.CheckedOutFile);
+
+                //                //    if (Buffered == null)
+                //                //    {
+                //                //        Log.Error("loading file failed");
+                //                //        done = true;
+                //                //        break;
+                //                //    }
+                //                //}
+
+                //                instance.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
+                //                instance.DepthTransport.TransCoder.SetBufferFile(Buffered);
+                //                instance.DepthTransport.FrameNumber = instance.DepthTransport.TransCoder.GetBufferFile().FirstFrame;
+                //                task.SetIntValue(prefix + "_frame", instance.DepthTransport.FrameNumber);
+
+                //            }
+                //            else
+                //            {
+                //                done = true;
+                //            }
+                //        }
+
+                //        if (instance.DepthTransport.Mode == DEPTHMODE.PLAYBACK)
+                //        {
+                //            // Play back while in playback mode and playback successful else fall through.
 
 
-
-                            }
-                            else
-                            {
-                                // loop
-                                instance.DepthTransport.FrameNumber = instance.DepthTransport.TransCoder.GetBufferFile().FirstFrame;
-
-
-                            }
-
-
-                            task.SetIntValue(prefix + "_frame", instance.DepthTransport.FrameNumber);
-                            task.SetStringValue("debug", "" + instance.DepthTransport.FrameNumber);
-                        }
-                        else
-                        {
-
-                            done = true;
-                        }
-
-                    }
-
-                    if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
-                    {
-                        Presence instance;
-                        if (!SETTINGS.Presences.TryGetValue(prefix, out instance))
-                        {
-
-                            done = true;
-                            break;
-
-                        }
-
-                        int frame;
-                        if (task.GetIntValue("frame", out frame))
-                        {
-
-                            string file;
-
-                            if (task.GetStringValue("file", out file) && file != "")
-                            {
-
-                                IO.SelectFile(file);
-                                task.SetStringValue("file", "");
-
-                                FileformatBase Buffered = IO.LoadFile(IO.CheckedOutFile);
-
-                                //if (Buffered == null)
-                                //{
-                                //    // try loading it from disk
-                                //    Debug.Log("loading from disk");
-
-                                //    Buffered = IO.LoadFromFile(IO.CheckedOutFile);
-
-                                //    if (Buffered == null)
-                                //    {
-                                //        Log.Error("loading file failed");
-                                //        // File failed
-                                //        done = true;
-                                //        break;
-                                //    }
-
-                                //}
-
-                                instance.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
-                                instance.DepthTransport.TransCoder.SetBufferFile(Buffered);
-
-                            }
-
-                            instance.DepthTransport.FrameNumber = frame;
-
-                        }
+                //            if (instance.DepthTransport.LoadFrameFromBuffer())
+                //            {
+                //                instance.DepthTransport.FrameNumber++;
 
 
 
-                        if (instance.DepthTransport.Mode == DEPTHMODE.PLAYBACK)
-                        {
-                            if (!instance.DepthTransport.LoadFrameFromBuffer())
-                                Debug.Log("Skipping playback frame?");
-                        }
-                        else
-                        {
-
-                            done = true;
-                        }
+                //            }
+                //            else
+                //            {
+                //                // loop
+                //                instance.DepthTransport.FrameNumber = instance.DepthTransport.TransCoder.GetBufferFile().FirstFrame;
 
 
+                //            }
 
 
-                    }
+                //            task.SetIntValue(prefix + "_frame", instance.DepthTransport.FrameNumber);
+                //            task.SetStringValue("debug", "" + instance.DepthTransport.FrameNumber);
+                //        }
+                //        else
+                //        {
+
+                //            done = true;
+                //        }
+
+                //    }
+
+                //    if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
+                //    {
+                //        Presence instance;
+                //        if (!SETTINGS.Presences.TryGetValue(prefix, out instance))
+                //        {
+
+                //            done = true;
+                //            break;
+
+                //        }
+
+                //        int frame;
+                //        if (task.GetIntValue("frame", out frame))
+                //        {
+
+                //            string file;
+
+                //            if (task.GetStringValue("file", out file) && file != "")
+                //            {
+
+                //                IO.SelectFile(file);
+                //                task.SetStringValue("file", "");
+
+                //                FileformatBase Buffered = IO.LoadFile(IO.CheckedOutFile);
+
+                //                //if (Buffered == null)
+                //                //{
+                //                //    // try loading it from disk
+                //                //    Debug.Log("loading from disk");
+
+                //                //    Buffered = IO.LoadFromFile(IO.CheckedOutFile);
+
+                //                //    if (Buffered == null)
+                //                //    {
+                //                //        Log.Error("loading file failed");
+                //                //        // File failed
+                //                //        done = true;
+                //                //        break;
+                //                //    }
+
+                //                //}
+
+                //                instance.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
+                //                instance.DepthTransport.TransCoder.SetBufferFile(Buffered);
+
+                //            }
+
+                //            instance.DepthTransport.FrameNumber = frame;
+
+                //        }
 
 
-                    break;
 
-                case "stopplaybackbuffer":
+                //        if (instance.DepthTransport.Mode == DEPTHMODE.PLAYBACK)
+                //        {
+                //            if (!instance.DepthTransport.LoadFrameFromBuffer())
+                //                Debug.Log("Skipping playback frame?");
+                //        }
+                //        else
+                //        {
 
-                    prefix = "instance";
+                //            done = true;
+                //        }
 
-                    Presence p;
 
-                    if (!SETTINGS.Presences.TryGetValue(prefix, out p))
-                    {
 
-                        done = true;
-                        break;
 
-                    }
+                //    }
 
-                    p.DepthTransport.Mode = DEPTHMODE.OFF;
 
-                    done = true;
-                    break;
+                //    break;
+
+                //case "stopplaybackbuffer":
+
+                //    prefix = "instance";
+
+                //    Presence p;
+
+                //    if (!SETTINGS.Presences.TryGetValue(prefix, out p))
+                //    {
+
+                //        done = true;
+                //        break;
+
+                //    }
+
+                //    p.DepthTransport.Mode = DEPTHMODE.OFF;
+
+                //    done = true;
+                //    break;
 
                 case "recordprepare":
 
@@ -745,6 +814,7 @@ namespace PresenceEngine
                     {
                         if (SETTINGS.user.DepthTransport != null && IO.CheckedOutFile != "")
                         {
+                            Debug.Log("preparing record for " + IO.CheckedOutFile);
 
                             SETTINGS.user.DepthTransport.TransCoder.CreateBufferFile(IO.CheckedOutFile);
 
@@ -755,6 +825,7 @@ namespace PresenceEngine
                         }
                         else
                         {
+                            Debug.LogWarning("Cannot prepare record");
                             done = true;
                         }
 
@@ -776,7 +847,9 @@ namespace PresenceEngine
                             }
 
 
-                        } else {
+                        }
+                        else
+                        {
                             done = true;
                         }
                     }
@@ -848,13 +921,71 @@ namespace PresenceEngine
                     break;
 
 
+                case "materialiseon":
+
+                    // Use visualiser's to and from task method to change setting.
+
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                    {
+                        task.SetFloatValue("user_cloudvisible", 1);
+
+                        SETTINGS.user.Visualiser.SettingsFromTask(task, "user");
+
+                        done = true;
+                    }
+
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                    {
+                        float v;
+                        if (task.GetFloatValue("user_cloudvisible", out v))
+                        {
+
+                            SETTINGS.user.Visualiser.SettingsFromTask(task, "user");
+
+                        }
+
+
+                        done = true;
+                    }
+
+
+                    break;
+
+                case "materialiseoff":
+
+                    // Use visualiser's to and from task method to change setting.
+
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                    {
+                        task.SetFloatValue("user_cloudvisible", 0);
+
+                        SETTINGS.user.Visualiser.SettingsFromTask(task, "user");
+
+                        done = true;
+                    }
+
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                    {
+                        float v;
+                        if (task.GetFloatValue("user_cloudvisible", out v))
+                        {
+
+                            SETTINGS.user.Visualiser.SettingsFromTask(task, "user");
+
+                        }
+
+
+                        done = true;
+                    }
+
+
+                    break;
 
 
                 case "userstream":
 
 
                     // This task takes care of the actual current user only.
-                    // It assumes the presence object has been created and set on both sides.
 
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
@@ -862,23 +993,26 @@ namespace PresenceEngine
                         Application.targetFrameRate = 30;
                         QualitySettings.vSyncCount = 0;
 
-                        // Write the transcoder to the task.
+                        DepthTransport UserDT = SETTINGS.user.DepthTransport;
 
-                        //string TransCoder;
-                        //if (!task.getStringValue("transcoder", out TransCoder))
-                        //    task.setStringValue("transcoder", SETTINGS.user.DepthTransport.TransCoder.Name());
-
-                        DepthTransport MainDT = SETTINGS.user.DepthTransport;
-                        //SETTINGS.user.AddModeToTask(task, "user");
-
-                        // Retrieve depth info.
-                        MainDT.GetNewFrame();
+                        // Retrieve new depth info.
+                        UserDT.GetNewFrame();
 
                         // Get latest value for headrotation (from client, via task) and add it to the frame (for recording).
-                        task.GetQuaternionValue("user_headrotation", out MainDT.ActiveFrame.HeadOrientation);
+                        task.GetQuaternionValue("user_headrotation", out UserDT.ActiveFrame.HeadOrientation);
 
-                        if (!MainDT.Encode(task, "user"))
+                        if (!UserDT.Encode(task, "user"))
                             Log.Warning("Encode failed");
+
+                        task.SetStringValue("debug", "time: " + UserDT.CurrentTime);
+
+                        // user may move in or out of detection.
+
+                        //  task.SetIntValue("user_debugcontrol", UserDT.IsUserDetected() ? 1:0);
+                        //    SETTINGS.user.Visualiser.SetMode(task, "user");
+
+                        //task.SetIntValue("user_cloudcontrol", GENERAL.UserMaterialised ? 1 : 0);
+
 
                     }
 
@@ -886,143 +1020,29 @@ namespace PresenceEngine
                     {
                         Application.targetFrameRate = 30;
                         QualitySettings.vSyncCount = 0;
-                        // Check if we need to set transcoder
-                        DepthTransport MainDT = SETTINGS.user.DepthTransport;
 
-                        //  MainDT.Mode=DEPTHMODE.LIVE;
+                        DepthTransport UserDT = SETTINGS.user.DepthTransport;
 
-                        //DepthTransport MainDT = SETTINGS.user.DepthTransport;
-
-                        //if (MainDT != null && MainDT.TransCoder == null)
-                        //{
-                        //    // No transcoder set, try to get it from task.
-                        //    string TransCoder;
-                        //    if (task.getStringValue("transcoder", out TransCoder))
-                        //        SETTINGS.user.DepthTransport.SetTranscoder(TransCoder);
-                        //}
-                        //int test;
-                        //if (task.GetIntValue("frame", out test))
-                        //{
-
-                        //    //      Debug.Log(test);
-
-                        //}
-                        //else
-                        //{
-                        //    Debug.Log("no frame value");
-                        //}
-
-                        //SETTINGS.user.GetModeFromTask(task, "user");
-
-                        if (!MainDT.Decode(task, "user"))
+                        if (!UserDT.Decode(task, "user"))
                             Log.Warning("Decode failed");
 
                         // put head orientation 
 
                         task.SetQuaternionValue("user_headrotation", headSet.transform.rotation);
-                        MainDT.ActiveFrame.HeadOrientation = headSet.transform.rotation;
+                        UserDT.ActiveFrame.HeadOrientation = headSet.transform.rotation;
+                        //    int usercalibrated;
 
+                        //  task.GetIntValue("usercalibrated", out usercalibrated);
+                        //      SETTINGS.user.Visualiser.SetMode(task, "user");
+                        //   GENERAL.UserCalibrated = (usercalibrated == 1);
                     }
+
 
                     break;
 
 
-                /*
-            case "depthcompress":
-                Application.targetFrameRate = 30;
-                QualitySettings.vSyncCount = 0;
-                FPS.text = ("FPS: " + 1f / Time.smoothDeltaTime);
 
-                ushort[] getRawDepth = DepthTransport.OwnsKinect.GetRawDepthMap();
-                rawDepthPrev = rawDepthCur;
-                rawDepthCur = getRawDepth;
-
-
-
-
-                if (rawDepthPrev == null)
-                    rawDepthPrev = new ushort[640 * 480];
-
-                ushort[] rawDepth = rawDepthCur;
-
-                if (kinectImage.texture == null)
-                {
-
-                    DepthTexture = new Texture2D(DepthTransport.OwnsKinect.DepthWidth, DepthTransport.OwnsKinect.DepthHeight);
-                    kinectImage.texture = DepthTexture;
-
-                }
-
-                //if (previewImage.texture == null)
-                //{
-
-                //    PreviewTexture = new Texture2D(DepthTransport.Width, DepthTransport.Height);
-                //    previewImage.texture = PreviewTexture;
-
-                //}
-
-                DepthTransport.OwnsKinect.RawDepthToTexture(rawDepth, DepthTexture);
-
-                minPrev = minCur;
-                maxPrev = maxCur;
-
-
-                minCur = DepthTransport.OwnsKinect.Min;
-                maxCur = DepthTransport.OwnsKinect.Max;
-
-
-
-                byte[] data = StreamSDK.GetVideo();
-
-
-
-                if (data != null)
-                {
-
-                    //task.setByteValue("data", data);
-                    //task.setStringValue("debug", "datasize: " + data.Length);
-
-                    //FPS.text = ("FPS: " + 1f / Time.smoothDeltaTime);
-
-                    StreamSDK.UpdateStreamRemote(data);
-
-                    DepthTransport.OwnsKinect.ApplyEdge(rawDepthPrev, (Texture2D)previewImage.texture, minPrev, maxPrev);
-
-
-                }
-
-                //previewImage.texture = PreviewTexture;
-
-
-                //Texture2D testTexture = new Texture2D(DepthTransport.Width, DepthTransport.Height);
-
-
-                //DepthTransport.RawDepthToTexture(rawDepth, DepthTexture);
-                //previewImage.texture = DepthPreviewTextureTexture;
-
-                //ushort[] decodeDepth = DepthTransport.TextureToRawDepth(DepthTexture, min, max);
-
-
-                ushort[] decodeDepth = DepthTransport.OwnsKinect.TextureToRawDepth((Texture2D)previewImage.texture, minPrev, maxPrev);
-
-                task.setUshortValue("depth", decodeDepth);
-
-
-
-                //ComputeParticles(DepthTransport.GetRawDepthMap(), DepthTransport.Width, DepthTransport.Height, 2, new Vector3(0, PRESENCE.kinectHeight, 0), clouds[0]);
-
-
-
-
-
-                break;
-*/
                 case "detectgesture":
-
-
-
-
-
 
 
                     break;
