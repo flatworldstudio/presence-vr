@@ -1604,7 +1604,7 @@ namespace PresenceEngine
 
                             //AutoCallibrateObject.SetActive(true);
                             signalSound.Play();
-                            done = true;
+                          
 
                             //AutoCallibrateObject.SetActive(false);
 
@@ -1614,6 +1614,9 @@ namespace PresenceEngine
                             userMessager.ShowTextMessage("Calibrated", 3);
 
                             GENERAL.UserCalibrated = true;
+                            task.SetStringValue("status","calibrated");
+
+                            done = true;
 
                          //   task.setCallBack("clientcalibrated");
 
