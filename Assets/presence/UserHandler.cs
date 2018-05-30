@@ -306,6 +306,12 @@ namespace PresenceEngine
 
                     break;
 
+                //case "materialiseon":
+
+                    //presenceSound.Play();
+
+                    //done=true;
+                    //break;
 
                 case "playsignal":
 

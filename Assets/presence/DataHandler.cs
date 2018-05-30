@@ -20,6 +20,7 @@ namespace PresenceEngine
         //Presence playbackPresence;
         float startListening = 0f;
         bool listening = false;
+        public AudioSource presenceSound;
 
         //Capture capture;
         GameObject captureTarget;
@@ -397,7 +398,14 @@ namespace PresenceEngine
 
                                 {
                                     presence.DepthTransport.CurrentTime = getTime;
-                                    presence.DepthTransport.LoadFrameFromBuffer(getTime);
+                                  int status=  presence.DepthTransport.LoadFrameFromBuffer(getTime);
+                                   
+
+                                    if (status==0 && !presence.SoundPlayed){
+                                        presence.SoundPlayed=true;
+                                        presenceSound.Play();
+                                    }
+                                        
                                 }
 
                             }
@@ -987,6 +995,7 @@ namespace PresenceEngine
 
                         }
 
+                        presenceSound.Play();
 
                         done = true;
                     }

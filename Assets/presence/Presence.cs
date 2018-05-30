@@ -9,7 +9,7 @@ namespace PresenceEngine
     {
         public iVisualiser Visualiser;
         public DepthTransport DepthTransport;
-
+        public bool SoundPlayed=false;
 
         static public Presence Create(GameObject parent)
         {

@@ -1,7 +1,7 @@
 // CLIENT STORIES.
 
 #presenceclient
-debugon
+//debugon
 amvrclient
 start moodlight
 start serversearch
@@ -22,6 +22,7 @@ end
 
 #foundserver
 startclient
+moodon
 monitorconnection
 end
 
@@ -47,6 +48,7 @@ displaycheck
 alignset
 addkinectnull
 createuser
+moodon
 makeservercontrols
 setflow_solo
 setfiledefaults
@@ -115,7 +117,6 @@ end
 
 #stoppresence
 depthoff
-moodoff
 stop startpresence
 stop userstreaming
 end
@@ -135,12 +136,12 @@ end
 
 #recordsolo
 isglobal
-moodoff
+//moodoff
 materialiseoff
 recordprepare
 waitforuser
 autocalibrate
-moodon
+//moodon
 pause3
 waitforgesture
 materialiseon
@@ -179,12 +180,12 @@ end
 #recordecho
 isglobal
 start presencehandler
-moodoff
+//moodoff
 materialiseoff
 recordprepare
 waitforuser
 autocalibrate
-moodon
+//moodon
 pause3
 waitforgesture
 materialiseon
