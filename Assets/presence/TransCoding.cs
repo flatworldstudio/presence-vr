@@ -573,6 +573,7 @@ namespace PresenceEngine
             int ut;
             task.GetIntValue(prefix + "_usertracked", out ut);
             Uframe.UserTracked = ut == 1;
+
             task.GetFloatValue(prefix + "_time", out Uframe.Time);
 
 

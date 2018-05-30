@@ -350,7 +350,7 @@ namespace PresenceEngine
 
                                 // We're displaying the point in time as indicated by the server.
 
-                                if (presence.DepthTransport.Mode == DEPTHMODE.PLAYBACK && task.GetFloatValue(presenceName + "_frame", out getTime))
+                                if (presence.DepthTransport.Mode == DEPTHMODE.PLAYBACK && task.GetFloatValue(presenceName + "_time", out getTime))
 
                                 {
                                     presence.DepthTransport.CurrentTime = getTime;
@@ -934,7 +934,7 @@ namespace PresenceEngine
                         done = true;
                     }
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                    if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
                     {
                         float v;
                         if (task.GetFloatValue("user_cloudvisible", out v))
@@ -964,7 +964,7 @@ namespace PresenceEngine
                         done = true;
                     }
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                    if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
                     {
                         float v;
                         if (task.GetFloatValue("user_cloudvisible", out v))

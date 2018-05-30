@@ -435,8 +435,11 @@ namespace PresenceEngine
                     return;
                 }
 
+                if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                    Head.SetActive(Frame.UserTracked);
+
+
                 Body.SetActive(Frame.UserTracked);
-                Head.SetActive(Frame.UserTracked);
                 HandLeft.SetActive(Frame.UserTracked);
                 HandRight.SetActive(Frame.UserTracked);
                 PLight.SetActive(Frame.UserTracked);
