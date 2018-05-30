@@ -23,7 +23,9 @@ namespace PresenceEngine
 
         //Capture capture;
         GameObject captureTarget;
-        GameObject led;
+
+      public  GameObject BufferStatusIn, BufferStatusOut;
+
         int interval;
         //int width, height;
         ushort[] depthMap;
@@ -48,15 +50,51 @@ namespace PresenceEngine
 
             FPS.text = "" + (Mathf.Round(1f / Time.deltaTime));
 
+            BufferStatusIn.SetActive(GENERAL.wasConnected);
+            BufferStatusOut.SetActive(GENERAL.wasConnected);
 
-            if (AssitantDirector.BufferStatusOk)
+
+            switch (AssitantDirector.BufferStatusIn)
             {
-                led.GetComponent<Image>().color = Color.green;
+                case 0:
+                    BufferStatusIn.GetComponent<Image>().color = Color.grey;
+                    break;
+                case 1:
+                    BufferStatusIn.GetComponent<Image>().color = Color.green;
+
+                    break;
+
+                default:
+                    BufferStatusIn.GetComponent<Image>().color = Color.blue;
+                    break;
+
+
+
             }
-            else
+            switch (AssitantDirector.BufferStatusOut)
             {
-                led.GetComponent<Image>().color = Color.red;
+                case 0:
+                    BufferStatusOut.GetComponent<Image>().color = Color.grey;
+                    break;
+                case 1:
+                    BufferStatusOut.GetComponent<Image>().color = Color.green;
+
+                    break;
+
+                default:
+                    BufferStatusOut.GetComponent<Image>().color = Color.blue;
+                    break;
+
+
+
             }
+
+
+
+
+
+
+
         }
 
 
@@ -109,8 +147,8 @@ namespace PresenceEngine
         void Start()
         {
 
-            led = GameObject.Find("led");
-            led.SetActive(false);
+            //led = GameObject.Find("led");
+            //led.SetActive(false);
 
             dataController.addTaskHandler(TaskHandler);
 
@@ -128,12 +166,17 @@ namespace PresenceEngine
 
         int minPrev, minCur, maxPrev, maxCur;
 
+         void Update()
+        {
 
+            SetNetworkIndicators();
+
+        }
 
         public bool TaskHandler(StoryTask task)
         {
 
-            SetNetworkIndicators();
+          
 
             Application.targetFrameRate = 30;
             QualitySettings.vSyncCount = 0;
@@ -183,34 +226,34 @@ namespace PresenceEngine
                     break;
 
 
-                case "testtask":
+                //case "testtask":
 
 
-                    //Application.targetFrameRate = 30;
-                    //QualitySettings.vSyncCount = 0;
+                //    //Application.targetFrameRate = 30;
+                //    //QualitySettings.vSyncCount = 0;
 
-                    //FPS.text=""+1f/Time.deltaTime;
-
-
-                    if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL)
-                    {
-                        task.SetIntValue("frame", Time.frameCount);
-
-                    }
-                    if (GENERAL.AUTHORITY == AUTHORITY.LOCAL)
-                    {
-
-                        task.SetStringValue("debug", "load " + AssitantDirector.loadBalance);
-                    }
-                    //if (AssitantDirector.BufferStatusOk){
-                    //    led.GetComponent<Image>().color=Color.green;
-                    //}else{
-                    //    led.GetComponent<Image>().color=Color.red;
-
-                    //}
+                //    //FPS.text=""+1f/Time.deltaTime;
 
 
-                    break;
+                //    if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL)
+                //    {
+                //        task.SetIntValue("frame", Time.frameCount);
+
+                //    }
+                //    if (GENERAL.AUTHORITY == AUTHORITY.LOCAL)
+                //    {
+
+                //        task.SetStringValue("debug", "load " + AssitantDirector.loadBalance);
+                //    }
+                //    //if (AssitantDirector.BufferStatusOk){
+                //    //    led.GetComponent<Image>().color=Color.green;
+                //    //}else{
+                //    //    led.GetComponent<Image>().color=Color.red;
+
+                //    //}
+
+
+                //    break;
 
                 case "pause3":
 
@@ -280,12 +323,12 @@ namespace PresenceEngine
                             {
                                 // Play back while in playback mode and playback successful else fall through.
 
-                              
-                                switch  (presence.Value.DepthTransport.LoadFrameFromBuffer(presence.Value.DepthTransport.CurrentTime))
+
+                                switch (presence.Value.DepthTransport.LoadFrameFromBuffer(presence.Value.DepthTransport.CurrentTime))
                                 {
                                     case -1:
                                     case 0:
-                                        
+
                                         // we're before the start or in the buffer
                                         presence.Value.DepthTransport.CurrentTime += Time.deltaTime;
 
@@ -303,7 +346,7 @@ namespace PresenceEngine
 
 
                                 }
-                                                             
+
 
                                 task.SetFloatValue(presence.Key + "_time", presence.Value.DepthTransport.CurrentTime);
 
@@ -549,13 +592,13 @@ namespace PresenceEngine
 
                                     fileplayback.DepthTransport.TransCoder.SetBufferFile(pbcBuf);
 
-                                    fileplayback.DepthTransport.CurrentTime = fileplayback.DepthTransport.TransCoder.GetBufferFile().StartTime-UnityEngine.Random.Range(0.5f,3f);
+                                    fileplayback.DepthTransport.CurrentTime = fileplayback.DepthTransport.TransCoder.GetBufferFile().StartTime - UnityEngine.Random.Range(0.5f, 3f);
 
                                     fileplayback.Visualiser.SetTransform(Vector3.zero, Quaternion.identity);
 
                                     fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
 
-                                    task.SetFloatValue("playbackpresence" + c+"_cloudvisible", 1);
+                                    task.SetFloatValue("playbackpresence" + c + "_cloudvisible", 1);
                                     fileplayback.Visualiser.SettingsFromTask(task, "playbackpresence" + c);
 
                                     Debug.Log("started buffer " + c + " " + pbcBuf.Name);
@@ -1740,9 +1783,14 @@ namespace PresenceEngine
 
                 case "listenforclients":
 
+
+                    // Server side.
+
                     int ConnectedClients = dataController.serverConnections();
 
-                    led.SetActive(ConnectedClients > 0);
+                    //  led.SetActive(ConnectedClients > 0);
+                    GENERAL.wasConnected = (ConnectedClients > 0);
+
 
                     task.SetStringValue("debug", "clients: " + ConnectedClients);
 
@@ -1793,7 +1841,7 @@ namespace PresenceEngine
 
                     }
 
-                    led.SetActive(GENERAL.wasConnected);
+                    //    led.SetActive(GENERAL.wasConnected);
 
                     break;
 
@@ -2177,26 +2225,26 @@ namespace PresenceEngine
 
         }
 
-        void Update()
-        {
+        //void Update()
+        //{
 
-            // HACK
-            string inputString = Input.inputString;
-            if (inputString.Length > 0)
-            {
+        //    // HACK
+        //    string inputString = Input.inputString;
+        //    if (inputString.Length > 0)
+        //    {
 
-                if (inputString == "d")
-                {
+        //        if (inputString == "d")
+        //        {
 
-                    Debug.Log(me + "Simulating disconnect/pause ...");
+        //            Debug.Log(me + "Simulating disconnect/pause ...");
 
-                    dataController.StopNetworkClient();
+        //            dataController.StopNetworkClient();
 
-                }
+        //        }
 
-            }
+        //    }
 
-        }
+        //}
 
         //FileformatBase GetFileBuffer(string filePath)
         //{
