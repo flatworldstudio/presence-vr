@@ -341,9 +341,17 @@ namespace PresenceEngine
 
             PLight = new GameObject("PLight");
             Light lightComp = PLight.AddComponent<Light>();
-            lightComp.color = new Color(137f / 256f, 223f / 256f, 249f / 256f);
-            lightComp.intensity = 0.35f;
-            PLight.transform.localPosition = new Vector3(0, 1.5f, 0);
+
+
+            //lightComp.color = new Color(137f / 256f, 223f / 256f, 249f / 256f);
+
+            //lightComp.color= new Color32 (137,223,255,255);
+            //lightComp.color= new Color32 (137,223,161,255);
+
+            lightComp.color= new Color32 (255,255,255,255);
+
+            lightComp.intensity = 0.15f;
+            PLight.transform.localPosition = new Vector3(0, 0.5f, 0);
 
 
             //PLight = new Light();
@@ -469,10 +477,34 @@ namespace PresenceEngine
 
                 Vector3 point;
 
+                Color32 Color01 = new Color32 (137,223,255,255);
+                Color32 Color02 = new Color32 (137,223,161,255);
+
+                Gradient g;
+                GradientColorKey[] gck;
+                GradientAlphaKey[] gak;
+                g = new Gradient();
+                gck = new GradientColorKey[2];
+                gck[0].color = Color01;
+                gck[0].time = 0.0F;
+                gck[1].color = Color02;
+                gck[1].time = 1.0F;
+                gak = new GradientAlphaKey[2];
+                gak[0].alpha = 1.0F;
+                gak[0].time = 0.0F;
+                gak[1].alpha = 0.1F;
+                gak[1].time = 1.0F;
+                g.SetKeys(gck, gak);
+
+
+
                 // Downsampling is handled in depthtransport.
 
                 for (int y = 0; y < Height; y++)
                 {
+                    
+                    Color32 pointColor=g.Evaluate((float)y/Height);
+
 
                     for (int x = 0; x < Width; x++)
                     {
@@ -490,6 +522,8 @@ namespace PresenceEngine
                             //     point += SETTINGS.kinectHeight;
 
                             Cloud.allParticles[ParticleIndex].position = point;
+                            Cloud.allParticles[ParticleIndex].startColor = pointColor;
+
 
                             ParticleIndex++;
                             if (ParticleIndex == Cloud.allParticles.Length)

@@ -52,6 +52,9 @@ namespace PresenceEngine
         void Start()
         {
 
+
+            uxCanvas.SetActive(true);
+
             userController.addTaskHandler(TaskHandler);
 
             uxController = new UxController();
