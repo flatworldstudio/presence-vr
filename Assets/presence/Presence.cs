@@ -110,6 +110,11 @@ namespace PresenceEngine
             return Visualiser != null ? Visualiser.GetPosition() : Vector3.zero;
         }
 
+        public Vector3 GetScale()
+        {
+            return Visualiser != null ? Visualiser.GetScale() : Vector3.one;
+        }
+
         public Quaternion GetRotation()
         {
             return Visualiser != null ? Visualiser.GetRotation() : Quaternion.identity;
@@ -127,6 +132,8 @@ namespace PresenceEngine
             task.SetStringValue(prefix + "_visualiser", GetVisualiser());
             task.SetStringValue(prefix + "_transcoder", GetTranscoder());
             task.SetVector3Value(prefix + "_position", GetPosition());
+            task.SetVector3Value(prefix + "_scale", GetScale());
+
             task.SetQuaternionValue(prefix + "_rotation", GetRotation());
             task.SetStringValue(prefix + "_buffer", GetBufferFileName());
 
@@ -139,11 +146,18 @@ namespace PresenceEngine
         }
         public void AddModeToTask(StoryTask task, string prefix)
         {
-            int mode=0;
-            if (DepthTransport!=null)
+            int mode=(int)DEPTHMODE.OFF;
+            string target = "";
+            if (DepthTransport!=null){
+                
                 mode =(int)DepthTransport.Mode;
+                target = DepthTransport.Target;
+
+            }
                 
             task.SetIntValue(prefix + "_depthmode",mode);
+            task.SetStringValue(prefix + "_target",target);
+
 
         }
 
@@ -152,27 +166,35 @@ namespace PresenceEngine
             int mode;
             task.GetIntValue(prefix + "_depthmode", out mode);
 
-            if (DepthTransport!=null)
+            string target;
+            task.GetStringValue(prefix + "_target", out target);
+
+
+            if (DepthTransport!=null){
                 DepthTransport.Mode=(DEPTHMODE)mode;
+                DepthTransport.Target=target;
+            }
 
         }
 
     public void GetSettingsFromTask (StoryTask task, string prefix){
 
         string visualiser, transcoder, buffer;
-        Vector3 position;
+        Vector3 position,scale;
         Quaternion rotation;
 
         task.GetStringValue(prefix + "_visualiser", out visualiser);
         task.GetStringValue(prefix + "_transcoder", out transcoder);
         task.GetStringValue(prefix + "_buffer", out buffer);
         task.GetVector3Value(prefix + "_position", out position);
+            task.GetVector3Value(prefix + "_scale", out scale);
+
         task.GetQuaternionValue(prefix + "_rotation", out rotation);
 
         SetVisualiser(visualiser);
         SetTranscoder(transcoder);
         DepthTransport.TransCoder.SetBufferFile(IO.LoadFile(buffer));
-        Visualiser.SetTransform(position, rotation);
+        Visualiser.SetTransform(position,scale, rotation);
 
         Debug.Log( GetVisualiser());
         Debug.Log( GetTranscoder());

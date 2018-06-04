@@ -12,13 +12,15 @@ namespace PresenceEngine
 
         void Initialise(GameObject presenceObject);
         void Deinitialise();
-        void SetTransform(Vector3 pos, Quaternion rot);
+        void SetTransform(Vector3 pos, Vector3 scale,Quaternion rot);
 
         void Update(UncompressedFrame Frame);
 
         string GetName();
 
         Vector3 GetPosition();
+        Vector3 GetScale();
+
         Quaternion GetRotation();
 
 
@@ -120,13 +122,13 @@ namespace PresenceEngine
         }
 
 
-        public void SetTransform(Vector3 pos, Quaternion rot)
+        public void SetTransform(Vector3 pos,Vector3 scale, Quaternion rot)
         {
 
             if (PresenceObject != null)
             {
                 PresenceObject.transform.localPosition = pos;
-                //PresenceObject.transform.localScale=scale;
+                PresenceObject.transform.localScale=scale;
                 PresenceObject.transform.localRotation = rot;
             }
         }
@@ -139,6 +141,15 @@ namespace PresenceEngine
                 return PresenceObject.transform.localPosition;
 
             return Vector3.zero;
+        }
+
+        public Vector3 GetScale()
+        {
+
+            if (PresenceObject != null)
+                return PresenceObject.transform.localScale;
+
+            return Vector3.one;
         }
 
         public Quaternion GetRotation()
@@ -322,20 +333,20 @@ namespace PresenceEngine
 
             if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
             {
-                n = DebugObject.getNullObject(0.25f, 0.25f, 0.5f);
+                n = DebugObject.getNullObject(0.1f, 0.1f, 0.2f);
                 n.transform.SetParent(PresenceObject.transform, false);
                 Head = n;
             }
 
-            n = DebugObject.getNullObject(0.25f);
+            n = DebugObject.getNullObject(0.1f);
             n.transform.SetParent(PresenceObject.transform, false);
             HandLeft = n;
 
-            n = DebugObject.getNullObject(0.25f);
+            n = DebugObject.getNullObject(0.1f);
             n.transform.SetParent(PresenceObject.transform, false);
             HandRight = n;
 
-            n = DebugObject.getNullObject(0.5f);
+            n = DebugObject.getNullObject(0.2f);
             n.transform.SetParent(PresenceObject.transform, false);
             Body = n;
 
@@ -371,13 +382,13 @@ namespace PresenceEngine
         }
 
 
-        public void SetTransform(Vector3 pos, Quaternion rot)
+        public void SetTransform(Vector3 pos,Vector3 scale, Quaternion rot)
         {
 
             if (PresenceObject != null)
             {
                 PresenceObject.transform.localPosition = pos;
-                //PresenceObject.transform.localScale=scale;
+                PresenceObject.transform.localScale=scale;
                 PresenceObject.transform.localRotation = rot;
             }
         }
@@ -390,6 +401,16 @@ namespace PresenceEngine
                 return PresenceObject.transform.localPosition;
 
             return Vector3.zero;
+        }
+
+
+        public Vector3 GetScale()
+        {
+
+            if (PresenceObject != null)
+                return PresenceObject.transform.localScale;
+
+            return Vector3.one;
         }
 
         public Quaternion GetRotation()

@@ -473,7 +473,7 @@ namespace PresenceEngine
         string _name = "SkeletonAndDepth";
 
         FileformatBase _bufferFile;
-        int PlayHead = 0;
+         int PlayHead = 0;
 
         public SkeletonAndDepth()
         {
@@ -873,7 +873,7 @@ namespace PresenceEngine
             {
 
                 time += 1f / 60f; // assuming 30 fps, we aim in the middle between frame times.
-
+                //Debug.Log("time  "+time);
                 // Scan for index, using current head as starting point.
 
                 int count = _bufferFile.Frames.Count - 2; // last frame is skipped.
@@ -883,15 +883,22 @@ namespace PresenceEngine
                 do
                 {
                     float delta0 = time - _bufferFile.Frames[PlayHead].Time;
+
+                    //Debug.Log("Playhead "+PlayHead+" " +_bufferFile.Frames[PlayHead].Time);
+
                     float delta1 = time - _bufferFile.Frames[PlayHead + 1].Time;
+
+                    //Debug.Log(""+delta0+" "+delta1);
 
                     if (delta0 < 0 && delta1 < 0)
                     {
                         search = -1;
+                        //Debug.Log("search backward ");
                     }
                     else if (delta0 > 0 && delta1 > 0)
                     {
                         search = 1;
+                        //Debug.Log("search forward ");
                     }
                     else
                     {
@@ -926,6 +933,9 @@ namespace PresenceEngine
 
                 if (PlayHead < _bufferFile.Frames.Count && PlayHead >= 0)
                 {
+
+                    //Debug.Log("playhead "+PlayHead);
+
                     SkeletonAndDepthFrame storeFrame = (SkeletonAndDepthFrame)_bufferFile.Frames[PlayHead];
 
                     for (int p = 0; p < Uframe.Joints.Length; p++)

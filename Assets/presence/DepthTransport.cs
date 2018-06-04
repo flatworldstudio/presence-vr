@@ -18,7 +18,8 @@ namespace PresenceEngine
         OFF,
         LIVE,
         RECORD,
-        PLAYBACK
+        PLAYBACK,
+        COPY
 
 
     }
@@ -41,7 +42,8 @@ namespace PresenceEngine
 
         public UncompressedFrame ActiveFrame;
 
-
+        public string Target="";
+        private Presence _targetPresence;
         //public bool ModeChanged=false;
 
             public int DepthSampling=1;
@@ -82,10 +84,36 @@ namespace PresenceEngine
 
 
 
+     
+
+
+        public Presence TargetPresence {
+
+
+            get{
+
+                if (_targetPresence!=null)
+                    return _targetPresence;
+
+                //Presence targetPresence;
+
+                SETTINGS.Presences.TryGetValue(Target,out _targetPresence);
+
+                if (_targetPresence==null){
+                    return SETTINGS.user; // there's allways a user so we'll return that by default.
+                }
+                return _targetPresence;
+
+            }
+
+            set{
+                Debug.LogWarning("Can't set targetpresence, set target string instead.");
+
+            }
 
 
 
-
+        }
 
 
         // static public int DepthMin, DepthMax;
@@ -162,6 +190,10 @@ namespace PresenceEngine
 
 
                         break;
+                    case DEPTHMODE.COPY:
+
+                        break;
+
                     case DEPTHMODE.OFF:
 
                         // __mode = DEPTHMODE.OFF;

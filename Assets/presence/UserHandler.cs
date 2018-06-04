@@ -61,7 +61,7 @@ namespace PresenceEngine
 
             fileBrowserConstraint = new UiConstraint();
 
-            float width = Screen.width;
+            float width=1280;
 
             fileBrowserConstraint.hardClamp = true;
             fileBrowserConstraint.hardClampMin = new Vector3(-width - 100, 0);
@@ -69,9 +69,30 @@ namespace PresenceEngine
 
             fileBrowserConstraint.springs = true;
             fileBrowserConstraint.springPositions = new Vector2[3];
-            fileBrowserConstraint.springPositions[0] = new Vector2(-width, 0);
-            fileBrowserConstraint.springPositions[1] = new Vector2(0, 0);
-            fileBrowserConstraint.springPositions[2] = new Vector2(width, 0);
+            fileBrowserConstraint.springPositions[0] = new Vector2(-width, 0); // files.
+            fileBrowserConstraint.springPositions[1] = new Vector2(0, 0); // folders.
+            fileBrowserConstraint.springPositions[2] = new Vector2(width, 0); // offscreen
+
+            //MakeBrowserConstraint();
+
+            //float width = Screen.width;
+            //Display[0].widtj;
+            //float width =  
+                //Display.displays[0].
+            
+                                  //Display.displays[1].Activate();
+
+            //float width  =  Display.main.renderingWidth;
+
+            //fileBrowserConstraint.hardClamp = true;
+            //fileBrowserConstraint.hardClampMin = new Vector3(-width - 100, 0);
+            //fileBrowserConstraint.hardClampMax = new Vector3(width + 100, 0);
+
+            //fileBrowserConstraint.springs = true;
+            //fileBrowserConstraint.springPositions = new Vector2[3];
+            //fileBrowserConstraint.springPositions[0] = new Vector2(-width, 0); // files.
+            //fileBrowserConstraint.springPositions[1] = new Vector2(0, 0); // folders.
+            //fileBrowserConstraint.springPositions[2] = new Vector2(width, 0); // offscreen
 
 
 
@@ -422,18 +443,6 @@ namespace PresenceEngine
 
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
-
-
-
-
-                    }
-
-
-
-
-
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
                         string status;
 
                         if (!task.GetStringValue("status", out status))
@@ -645,6 +654,23 @@ namespace PresenceEngine
                     GameObject FolderMenu = GameObject.Find("Folders");
 
 
+                    //MakeBrowserConstraint();
+                        
+                    //fileBrowserConstraint = new UiConstraint();
+
+                    //float width  =  Display.main.renderingWidth;
+
+                    //fileBrowserConstraint.hardClamp = true;
+                    //fileBrowserConstraint.hardClampMin = new Vector3(-width - 100, 0);
+                    //fileBrowserConstraint.hardClampMax = new Vector3(width + 100, 0);
+
+                    //fileBrowserConstraint.springs = true;
+                    //fileBrowserConstraint.springPositions = new Vector2[3];
+                    //fileBrowserConstraint.springPositions[0] = new Vector2(-width, 0); // files.
+                    //fileBrowserConstraint.springPositions[1] = new Vector2(0, 0); // folders.
+                    //fileBrowserConstraint.springPositions[2] = new Vector2(width, 0); // offscreen
+
+
                     PFolder[] folders = IO.GetLocalFolders();
 
                     //    if (folders.Length > 0)
@@ -707,6 +733,7 @@ namespace PresenceEngine
 
                     }
 
+                    //MakeBrowserConstraint();
 
                     browser = GameObject.Find("FileBrowser");
                     GameObject FileMenu = GameObject.Find("Files");
@@ -925,19 +952,21 @@ namespace PresenceEngine
 
                 case "setflow_delay":
 
-                    /*
+
+                    userMessager.ShowTextMessage("Flow: Delay", 1);
+
                     b= serverInterface.GetButton("playbackstart");
-                    b.callback="playsingle";
+                    b.callback="playdelay";
 
                     b= serverInterface.GetButton("playbackstop");
-                    b.callback="stopplaysingle";
+                    b.callback="stopplaydelay";
 
                     b= serverInterface.GetButton("recordstart");
-                    b.callback="recordsingle";
+                    b.callback="recorddelay";
 
                     b= serverInterface.GetButton("recordstop");
-                    b.callback="stoprecordsingle";
-*/
+                    b.callback="stoprecorddelay";
+
 
                     done = true;
                     break;
@@ -1003,8 +1032,11 @@ namespace PresenceEngine
                 case "togglebrowser":
 
                     //    UiButton target;
+
                     if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
                     {
+                        //MakeBrowserConstraint();
+
                         uxController.setSpringTarget(target, 1);
 
                         //if (target.gameObject.GetComponent<RectTransform>().position.x > Screen.width-250-10)
@@ -1028,6 +1060,7 @@ namespace PresenceEngine
                 case "setfolder":
 
                     // UiButton target;
+
                     if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
                         uxController.setSpringTarget(target, 0);
 
@@ -1036,7 +1069,7 @@ namespace PresenceEngine
                     string data;
                     task.GetStringValue("persistantData", out data);
 
-                    Debug.Log("pers " + data);
+                    //Debug.Log("pers " + data);
 
                     IO.SelectFolder(IO.GetLocalFolders()[int.Parse(data)].Path);
 
@@ -2236,7 +2269,24 @@ namespace PresenceEngine
 
         }
 
+        //void MakeBrowserConstraint(){
+                     
+        //    //float width  =  Display.displays[0].renderingWidth;
+        //    //Debug.Log("WIDTH: "+width);
 
+        //    float width=1280;
+
+        //    fileBrowserConstraint.hardClamp = true;
+        //    fileBrowserConstraint.hardClampMin = new Vector3(-width - 100, 0);
+        //    fileBrowserConstraint.hardClampMax = new Vector3(width + 100, 0);
+
+        //    fileBrowserConstraint.springs = true;
+        //    fileBrowserConstraint.springPositions = new Vector2[3];
+        //    fileBrowserConstraint.springPositions[0] = new Vector2(-width, 0); // files.
+        //    fileBrowserConstraint.springPositions[1] = new Vector2(0, 0); // folders.
+        //    fileBrowserConstraint.springPositions[2] = new Vector2(width, 0); // offscreen
+
+        //}
 
         void Update()
         {
