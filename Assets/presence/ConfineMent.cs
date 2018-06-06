@@ -53,7 +53,19 @@ public class ConfineMent : MonoBehaviour
 
         for (int b = 0; b < 2; b++)
         {
-            Cloud[b] = new ParticleCloud(41*21, "Cloud", true);
+            //Cloud[b] = new ParticleCloud(41*21, "Cloud", true);
+            Cloud[b] = new ParticleCloud(41*41, "Cloud", true);
+
+            var ex=   Cloud[b].ps.externalForces;
+            ex.enabled = false;
+            //ex.multiplier = 0.25f;
+
+            var ns =  Cloud[b] .ps.noise;
+            ns.enabled =false;
+
+            Cloud[b].initialEmit(41*41);
+
+
             Cloud[b].ApplyParticles(0);
             Cloud[b].CloudObject.transform.SetParent(ColliderObject.transform, false);
             CloudVisible[b] = false;
@@ -98,7 +110,7 @@ public class ConfineMent : MonoBehaviour
         for (int b = 0; b < Cloud.Length; b++)
         {
 
-            if (!CloudVisible[b])
+            if (!CloudVisible[b] )
                 return b;
 
         }
@@ -122,14 +134,29 @@ public class ConfineMent : MonoBehaviour
 
     }
 
-    void BuildBarrier(int barrier, int barrierCloudIndex)
+    void BuildBarrier(int barrier, int barrierCloudIndex,float alpha=1f)
     {
 
         Barrier[barrierCloudIndex] = barrier;
 
         ParticleCloud cloud = Cloud[barrierCloudIndex];
+
         bool visible = CloudVisible[barrierCloudIndex];
+
+
         // -2 to 2
+
+        /*
+        var ex=  cloud.ps.externalForces;
+        ex.enabled = true;
+        ex.multiplier = 0.25f;
+
+        var ns = cloud.ps.noise;
+        ns.enabled =true;
+       
+        cloud.initialEmit(cloud.allParticles.Length);
+*/
+
 
         // baseline for the barrier
         //Vector3 base0 = new Vector3(-2f, 0.05f, -2f);
@@ -144,19 +171,19 @@ public class ConfineMent : MonoBehaviour
         int across = 40;
         // number of point up (same distance between points as on baseline)
 
-        //float up = Height[barrierCloudIndex];
+        float up = Height[barrierCloudIndex];
 
-        float up = 0;
-        //int div=0;
-        for (int b=0;b<Cloud.Length;b++){
-            if (CloudVisible[b]){
+        //float up = 0;
+        ////int div=0;
+        //for (int b=0;b<Cloud.Length;b++){
+        //    if (CloudVisible[b]){
 
-                up=Mathf.Max(up,Height[b]);
-                //div++;
-            }
+        //        up=Mathf.Max(up,Height[b]);
+        //        //div++;
+        //    }
 
 
-        }
+        //}
 
         //up = div>0?up/div:0;
 
@@ -166,25 +193,32 @@ public class ConfineMent : MonoBehaviour
         Vector3 point;
         int p = 0;
 
+        Color multiply = new Color32(255,255,255,(byte)(alpha*255));
 
 
         for (float y = 0; y < up; y += distance)
         {
 
-            Color32 pointColor = g.Evaluate(1f - y / up);
+            Color pointColor = g.Evaluate(1f - y / up);
+            pointColor=pointColor*multiply;
 
-            for (float t = 0; t <= 1; t += step)
+            for (float t = step; t < 1; t += step)
             {
 
                 point = Vector3.Lerp(base0, base1, t);
                 point.y += y;
 
                 cloud.allParticles[p].position = point;
-                //cloud.allParticles[p].startSize = 0.025f;
-                cloud.allParticles[p].startSize = 0.0075f;
+                cloud.allParticles[p].startSize = 0.025f;
+                //cloud.allParticles[p].startSize = 0.0075f;
                 //barrier.allParticles[p].startColor = Color.blue;
+                cloud.allParticles[p].startLifetime = 2f;
 
                 cloud.allParticles[p].startColor = pointColor;
+                //cloud.allParticles[p].externalForces
+                //cloud.allParticles[p].gravit = pointColor;
+
+
                 p++;
 
 
@@ -217,12 +251,24 @@ public class ConfineMent : MonoBehaviour
         int index = AvailableCloudIndex();
 
         CloudVisible[index] = true;
-        BuildBarrier(barrier, index);
+        Height[index]=2f;
+
+        var ex=   Cloud[index].ps.externalForces;
+        ex.enabled = false;
+        //ex.multiplier = 0.25f;
+
+        var ns =  Cloud[index] .ps.noise;
+        ns.enabled =false;
+
+        Cloud[index].initialEmit(Cloud[index].allParticles.Length);
+
+        BuildBarrier(barrier, index,0f);
 
     }
     private void OnTriggerStay(Collider other)
     {
 
+       
         int barrier = System.Array.IndexOf(colliders, other);
 
         int index = CloudIndexOf(barrier);
@@ -230,8 +276,10 @@ public class ConfineMent : MonoBehaviour
         if (index >= 0 && index < Cloud.Length)
         {
             Vector3 closestPoint = other.ClosestPoint(transform.position);
-            Height[index] = (1f-Vector3.Distance(closestPoint, transform.position)) * 2f;// player collider radius is 1
-            BuildBarrier(barrier, index);//rebuild
+            float d = Vector3.Distance(closestPoint, transform.position);
+            //Height[index] = (1f-Vector3.Distance(closestPoint, transform.position)) * 2f;// player collider radius is 1
+            BuildBarrier(barrier, index,Mathf.Clamp(1f-d,0f,1f));//rebuild
+
         }
 
 
@@ -253,7 +301,9 @@ public class ConfineMent : MonoBehaviour
     void OnTriggerExit(Collider other)
     {
 
+
         GENERAL.UserInConfinedArea = true;
+
 
         int barrier = System.Array.IndexOf(colliders, other);
 
@@ -261,11 +311,29 @@ public class ConfineMent : MonoBehaviour
 
         int index = CloudIndexOf(barrier);
 
+
+
+
         if (index >= 0 && index < Cloud.Length)
         {
 
+
+            /*
+            var ex=  Cloud[index].ps.externalForces;
+            ex.enabled = true;
+            ex.multiplier = 0.25f;
+
+            var ns = Cloud[index].ps.noise;
+            ns.enabled =true;
+
+            Cloud[index].initialEmit(Cloud[index].allParticles.Length);
+
+            BuildBarrier(barrier, index,0.1f);
+
+*/
+
             CloudVisible[index] = false;
-            Height[index]=0;
+            //Height[index]=0;
             Cloud[index].ApplyParticles(0);
 
         }

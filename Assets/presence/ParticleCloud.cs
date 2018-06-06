@@ -84,6 +84,9 @@ namespace PresenceEngine
         {
 
             emitParams = new ParticleSystem.EmitParams();
+            ps.Clear(true);
+
+            //emitParams.
             //emitParams.startColor=Color.black;
 
             for (int p = 0; p < number; p++)

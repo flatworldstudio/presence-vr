@@ -40,7 +40,7 @@ end
 
 
 #presenceserver
-debugon
+debugoff
 amserver
 start server
 displaycheck

@@ -242,8 +242,9 @@ namespace PresenceEngine
                             {
                                 // Play back while in playback mode and playback successful else fall through.
 
+                                int status = presence.Value.DepthTransport.LoadFrameFromBuffer(presence.Value.DepthTransport.CurrentTime);
 
-                                switch (presence.Value.DepthTransport.LoadFrameFromBuffer(presence.Value.DepthTransport.CurrentTime))
+                                switch (status)
                                 {
                                     case -1:
                                     case 0:
@@ -270,6 +271,15 @@ namespace PresenceEngine
 
 
                                 task.SetFloatValue(presence.Key + "_time", presence.Value.DepthTransport.CurrentTime);
+
+                              
+
+                                if (status == 0 && !presence.Value.SoundPlayed)
+                                {
+                                    presence.Value.SoundPlayed = true;
+                                    presenceSound.Play();
+                                }
+
 
                                 if (presence.Key=="playbackpresence"){
                                     
