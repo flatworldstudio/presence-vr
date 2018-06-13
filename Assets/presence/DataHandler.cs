@@ -341,11 +341,11 @@ namespace PresenceEngine
                                     int status = presence.DepthTransport.LoadFrameFromBuffer(getTime);
 
 
-                                    if (status == 0 && !presence.SoundPlayed)
-                                    {
-                                        presence.SoundPlayed = true;
-                                        presenceSound.Play();
-                                    }
+                                    //if (status == 0 && !presence.SoundPlayed)
+                                    //{
+                                    //    presence.SoundPlayed = true;
+                                    //    presenceSound.Play();
+                                    //}
 
                                 }
 
