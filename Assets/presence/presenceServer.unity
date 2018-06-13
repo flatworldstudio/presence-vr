@@ -1206,7 +1206,7 @@ Camera:
   m_GameObject: {fileID: 231812581}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 3
+  m_ClearFlags: 2
   m_BackGroundColor: {r: 0.9019608, g: 0.9019608, b: 0.9019608, a: 1}
   m_NormalizedViewPortRect:
     serializedVersion: 2
@@ -17789,7 +17789,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2096326734
 Transform:
   m_ObjectHideFlags: 0
