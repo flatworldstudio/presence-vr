@@ -14,6 +14,8 @@ namespace PresenceEngine
 
     public class DataHandler : MonoBehaviour
     {
+        public Camera CaptureCamera;
+
         public GameObject presences;
         Presence fileplayback;
         float startListening = 0f;
@@ -84,6 +86,12 @@ namespace PresenceEngine
         {
 
             SetNetworkIndicators();
+
+            if (Input.GetKeyUp("g"))
+            {
+                Debug.Log("grabbing frame");
+                GrabFrame();
+            }
 
         }
 
@@ -2367,6 +2375,45 @@ namespace PresenceEngine
             }
 
             return done;
+
+        }
+        int sshotnum = 0;
+
+        void GrabFrame()
+        {
+            RenderTexture rt = new RenderTexture(1920, 1080, 24, RenderTextureFormat.ARGB32);
+
+         
+
+
+            CaptureCamera.targetTexture = rt;
+            CaptureCamera.Render();
+
+            // Set the supplied RenderTexture as the active one
+            RenderTexture.active = rt;
+
+
+            // Create a new Texture2D and read the RenderTexture image into it
+            Texture2D tex = new Texture2D(rt.width, rt.height);
+            tex.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0);
+
+            byte[] bytes;
+            bytes = tex.EncodeToPNG();
+
+            System.IO.File.WriteAllBytes(Application.dataPath+"/test.png", bytes);
+            //    int ssn = sshotnum++;
+
+            CaptureCamera.targetTexture = null;
+            //Texture2D sshot = new Texture2D(destination.width, destination.height);
+            //sshot.ReadPixels(new Rect(0, 0, destination.width, destination.height), 0, 0);
+            //sshot.Apply();
+
+            //  byte[] pngShot =( (Texture2D) TargetTexture).EncodeToPNG();
+
+            //    Destroy(sshot);
+            //   File.WriteAllBytes(Application.dataPath + "/../screenshot_" + ssn.ToString() + "_" + Random.Range(0, 1024).ToString() + ".png", pngShot);
+            //   screenshot = false;
+
 
         }
 

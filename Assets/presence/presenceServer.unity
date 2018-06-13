@@ -1206,7 +1206,7 @@ Camera:
   m_GameObject: {fileID: 231812581}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 2
+  m_ClearFlags: 3
   m_BackGroundColor: {r: 0.9019608, g: 0.9019608, b: 0.9019608, a: 1}
   m_NormalizedViewPortRect:
     serializedVersion: 2
@@ -4699,6 +4699,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24ce8a9ee9f56452993fa4822e7fbc75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CaptureCamera: {fileID: 231812585}
   presences: {fileID: 1239659715}
   presenceSound: {fileID: 1394765494}
   BufferStatusIn: {fileID: 1338503764}
@@ -17788,7 +17789,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2096326734
 Transform:
   m_ObjectHideFlags: 0
