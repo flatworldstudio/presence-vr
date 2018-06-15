@@ -19,7 +19,7 @@ namespace PresenceEngine
 
     public static class SETTINGS
     {
-        public static int SessionDuration = 15;
+        public static int SessionDuration = 30;
         public static  string  DEFAULTFILE = "/_default/_default.prs";
 
         public static  string  DEFAULTFOLDER = "/_default";
@@ -44,7 +44,7 @@ namespace PresenceEngine
 
         public static float north = 0;
 
-        public static float kinectHeight = 1.35f;
+        public static float kinectHeight = 1.6f;
 
         public static float kinectHeading = 45f;
 
