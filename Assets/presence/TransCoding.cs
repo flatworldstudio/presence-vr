@@ -1,17 +1,9 @@
-﻿
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using System.Text;
 
-
-
-
 namespace PresenceEngine
 {
-
-
-
 
     public interface iTransCoder
     {
@@ -29,6 +21,7 @@ namespace PresenceEngine
         bool Decode(out UncompressedFrame Uframe, StoryEngine.StoryTask task, string prefix, bool recording = false);
 
         int PlayFrame(float Time, out UncompressedFrame Uframe);
+
     }
 
     [System.Serializable]
@@ -37,28 +30,22 @@ namespace PresenceEngine
         public List<FrameBase> Frames;
 
         public string TransCoderName, Name;
-        //  public int FirstFrame = 99999999, LastFrame = -1;
         public float StartTime = 999, EndTime = -1;
         public float[] Transform;
-
+        public float SensorY;
 
         public FileformatBase()
         {
             Frames = new List<FrameBase>();
-
         }
-
 
     }
 
     [System.Serializable]
     public class FrameBase
     {
-        //   public int FrameNumber;
         public float Time;
     }
-
-
 
     [System.Serializable]
     public class SkeletonAndDepthFrame : FrameBase
@@ -77,14 +64,8 @@ namespace PresenceEngine
         {
             Points = new Point[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
             Tracked = new bool[Points.Length];
-
-
         }
-
-
-
     }
-
 
     [System.Serializable]
     public class SkeletonOnlyFrame : FrameBase
@@ -92,20 +73,15 @@ namespace PresenceEngine
 
         public Point[] Points;
         public bool[] Tracked;
-       // public Point Body;
         public Point UserPosition;
         public bool UserTracked;
-
 
         public SkeletonOnlyFrame()
         {
             Points = new Point[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
             Tracked = new bool[Points.Length];
 
-
         }
-
-
 
     }
 
@@ -134,28 +110,25 @@ namespace PresenceEngine
     {
 
         public Vector3[] Joints;
-       
         public Vector3 UserPosition;
         public bool UserTracked;
-
 
         public bool[] Tracked;
         public ushort[] RawDepth;
         public Quaternion HeadOrientation;
-        //public int FrameNumber;
         public float Time;
 
+        public float SensorY;
 
         public UncompressedFrame()
         {
 
             Joints = new Vector3[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
-
             Tracked = new bool[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
-
             RawDepth = new ushort[160 * 120];
 
         }
+
         public void Clear()
         {
 
@@ -163,9 +136,7 @@ namespace PresenceEngine
             {
                 Joints[j] = Vector3.zero;
                 Tracked[j] = false;
-
-            }
-
+                }
 
         }
 
@@ -295,7 +266,8 @@ namespace PresenceEngine
             _bufferFile = new FileformatBase
             {
                 Name = name,
-                TransCoderName = _name
+                TransCoderName = _name,
+                SensorY=SETTINGS.SensorY
             };
 
             Debug.Log("Created buffer file " + _bufferFile.Name);
@@ -310,8 +282,8 @@ namespace PresenceEngine
             task.SetBoolArrayValue(prefix + "_tracked", Uframe.Tracked);
 
             task.SetVector3Value(prefix + "_body", Uframe.UserPosition);
+            task.SetFloatValue(prefix + "_sensory", Uframe.SensorY);
 
-            //   task.SetIntValue(prefix + "_frame", Uframe.FrameNumber);
             task.SetFloatValue(prefix + "_time", Uframe.Time);
 
             if (recording)
@@ -331,6 +303,7 @@ namespace PresenceEngine
 
             task.GetVector3Value(prefix + "_body", out Uframe.UserPosition);
 
+            task.GetFloatValue(prefix + "_sensory", out Uframe.SensorY);
 
             if (!task.GetFloatValue(prefix + "_time", out Uframe.Time))
                 return false; // Simple check: if one of the values isn't present something's wrong.
@@ -448,6 +421,9 @@ namespace PresenceEngine
 
                     Uframe.UserPosition = storeFrame.UserPosition.ToVector3();
                     Uframe.Time = storeFrame.Time;
+
+                    Uframe.SensorY=_bufferFile.SensorY;
+
                     //  Uframe.FrameNumber = frameNumber;
 
                     return 0;
@@ -473,7 +449,7 @@ namespace PresenceEngine
         string _name = "SkeletonAndDepth";
 
         FileformatBase _bufferFile;
-         int PlayHead = 0;
+        int PlayHead = 0;
 
         public SkeletonAndDepth()
         {
@@ -500,7 +476,8 @@ namespace PresenceEngine
             _bufferFile = new FileformatBase
             {
                 Name = name,
-                TransCoderName = _name
+                TransCoderName = _name,
+                SensorY=SETTINGS.SensorY
             };
 
             Debug.Log("Created buffer file " + _bufferFile.Name);
@@ -530,7 +507,9 @@ namespace PresenceEngine
 
             task.SetVector3Value(prefix + "_userposition", Uframe.UserPosition);
 
-            task.SetIntValue(prefix + "_usertracked", Uframe.UserTracked?1:0);
+            task.SetIntValue(prefix + "_usertracked", Uframe.UserTracked ? 1 : 0);
+
+            task.SetFloatValue(prefix + "_sensory", Uframe.SensorY);
 
             //     task.SetIntValue(prefix + "_frame", Uframe.FrameNumber);
             task.SetFloatValue(prefix + "_time", Uframe.Time);
@@ -544,10 +523,10 @@ namespace PresenceEngine
             //else
             //{
 
-                task.SetIntValue(prefix + "_sampling", DepthSampling);
-                task.SetByteValue(prefix + "_data", Data);
-                task.SetIntValue(prefix + "_min", Min);
-                task.SetIntValue(prefix + "_max", Max);
+            task.SetIntValue(prefix + "_sampling", DepthSampling);
+            task.SetByteValue(prefix + "_data", Data);
+            task.SetIntValue(prefix + "_min", Min);
+            task.SetIntValue(prefix + "_max", Max);
             //}
 
 
@@ -575,7 +554,7 @@ namespace PresenceEngine
             Uframe.UserTracked = ut == 1;
 
             task.GetFloatValue(prefix + "_time", out Uframe.Time);
-
+            task.GetFloatValue(prefix + "_sensory", out Uframe.SensorY);
 
             byte[] Data;
 
@@ -918,13 +897,13 @@ namespace PresenceEngine
                     if (PlayHead < 0)
                     {
                         PlayHead = 0;
-                       
+
                         return -1;
                     }
                     if (PlayHead >= count)
                     {
-                        PlayHead = count ;
-                       
+                        PlayHead = count;
+
                         return 1;
                     }
 
@@ -949,6 +928,8 @@ namespace PresenceEngine
                     Uframe.UserTracked = storeFrame.UserTracked;
 
                     Uframe.Time = storeFrame.Time;
+
+                    Uframe.SensorY=_bufferFile.SensorY;
 
                     DecodeDepth(Uframe, storeFrame.Data, storeFrame.DepthSampling, storeFrame.Min, storeFrame.Max);
 

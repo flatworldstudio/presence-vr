@@ -73,6 +73,10 @@ namespace PresenceEngine
             fileBrowserConstraint.springPositions[1] = new Vector2(0, 0); // folders.
             fileBrowserConstraint.springPositions[2] = new Vector2(width, 0); // offscreen
 
+
+            SETTINGS.ActiveCamera =  overviewObject.GetComponentInChildren<Camera>();
+
+
             //MakeBrowserConstraint();
 
             //float width = Screen.width;
@@ -1356,6 +1360,7 @@ namespace PresenceEngine
                         viewCam.targetDisplay = userCam.targetDisplay;
                         userCam.targetDisplay = t;
 
+                        SETTINGS.ActiveCamera = t==1? viewCam:userCam;
 
 
 

@@ -461,7 +461,11 @@ namespace PresenceEngine
 
                             }
 
-                            fileplayback.SetVisualiser("PointCloud");
+                            //fileplayback.SetVisualiser("PointCloud");
+
+                            //fileplayback.SetVisualiser("ShowMesh");
+                            fileplayback.SetVisualiser("PointShaded");
+
                             fileplayback.SetTranscoder(pbBuffer.TransCoderName);
 
                             fileplayback.DepthTransport.TransCoder.SetBufferFile(pbBuffer);

@@ -12,7 +12,7 @@ using Amazon.CognitoIdentity.Model;
 
 namespace PresenceEngine
 {
-    
+
     public enum DEPTHMODE
     {
         OFF,
@@ -23,7 +23,7 @@ namespace PresenceEngine
 
 
     }
-    
+
     public class DepthTransport
     {
 
@@ -33,8 +33,6 @@ namespace PresenceEngine
 
         int[] DEPTHMAPSIZE = { 0, 640 * 480, 320 * 240, 0, 160 * 120 };
 
-      //  public int FrameNumber = 0;
-
         public float TimeStamp = 0;
         public float CurrentTime = 0;
 
@@ -42,16 +40,12 @@ namespace PresenceEngine
 
         public UncompressedFrame ActiveFrame;
 
-        public string Target="";
+        public string Target = "";
         private Presence _targetPresence;
-        //public bool ModeChanged=false;
-
-            public int DepthSampling=1;
-
+       
+        public int DepthSampling = 1;
 
         static public DepthTransport OwnsKinect;
-
-
 
         public DepthTransport()
         {
@@ -84,39 +78,37 @@ namespace PresenceEngine
 
 
 
-     
 
 
-        public Presence TargetPresence {
+
+        public Presence TargetPresence
+        {
 
 
-            get{
+            get
+            {
 
-                if (_targetPresence!=null)
+                if (_targetPresence != null)
                     return _targetPresence;
+                
+                SETTINGS.Presences.TryGetValue(Target, out _targetPresence);
 
-                //Presence targetPresence;
-
-                SETTINGS.Presences.TryGetValue(Target,out _targetPresence);
-
-                if (_targetPresence==null){
+                if (_targetPresence == null)
+                {
                     return SETTINGS.user; // there's allways a user so we'll return that by default.
                 }
                 return _targetPresence;
 
             }
 
-            set{
+            set
+            {
                 Debug.LogWarning("Can't set targetpresence, set target string instead.");
 
             }
 
-
-
         }
 
-
-        // static public int DepthMin, DepthMax;
         private DEPTHMODE __mode = DEPTHMODE.OFF;
 
         public DEPTHMODE Mode
@@ -130,11 +122,10 @@ namespace PresenceEngine
 
                 if (__mode == value)
                 {
-                    //ModeChanged=false;
+                    
                     return;
                 }
                 __mode = value;
-                //ModeChanged=true;
 
                 switch (__mode)
                 {
@@ -142,9 +133,9 @@ namespace PresenceEngine
                     case DEPTHMODE.LIVE:
                     case DEPTHMODE.RECORD:
 
-                        TimeStamp = Time.time;           
-                        
-                        
+                        TimeStamp = Time.time;
+
+
                         // Any instance can be 'live', which means it'll be working with live buffer data.
                         // On windows, the first instance to go live will assume control over the kinect.
 
@@ -260,6 +251,8 @@ namespace PresenceEngine
                     ActiveFrame.Time = Time.time - TimeStamp;
                     CurrentTime = ActiveFrame.Time;
 
+                    ActiveFrame.SensorY=SETTINGS.SensorY;
+
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
                     if (OwnsKinect == this && KinectManager.Instance.IsInitialized())
@@ -283,7 +276,7 @@ namespace PresenceEngine
                     // If we've fallen through we generate data for development purposes.
 
 
-               //     FrameNumber++;
+                    //     FrameNumber++;
 
                     //    float time = System.DateTime.Now.ToBinary();
 
@@ -297,16 +290,20 @@ namespace PresenceEngine
                     //ActiveFrame.Joints = new Vector3[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
                     //ActiveFrame.Tracked = new bool[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
 
-                    ActiveFrame.UserPosition = new Vector3(hx, SETTINGS.kinectHeight, hz);
+                    //float GeneratedDataSensorY = SETTINGS.SensorY;
+
+                    ActiveFrame.SensorY=SETTINGS.SensorY;
+
+                    ActiveFrame.UserPosition = new Vector3(hx, 0, hz);
                     ActiveFrame.UserTracked = true;
 
-                    ActiveFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] = new Vector3(hx, SETTINGS.kinectHeight * 1.25f, hz);
+                    ActiveFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] = new Vector3(hx, 0.5f, hz);
                     ActiveFrame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] = true;
 
-                    ActiveFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] = new Vector3(hx - 0.5f, SETTINGS.kinectHeight / 2, hz);
+                    ActiveFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] = new Vector3(hx - 0.5f, -0.25f, hz);
                     ActiveFrame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] = true;
 
-                    ActiveFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] = new Vector3(hx + 0.5f, SETTINGS.kinectHeight / 2, hz);
+                    ActiveFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] = new Vector3(hx + 0.5f, -0.25f, hz);
                     ActiveFrame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] = true;
 
                     //ActiveFrame.Tracked = new bool[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
@@ -357,7 +354,7 @@ namespace PresenceEngine
             return false;
         }
 
-       
+
 
         void getSkeleton(ref UncompressedFrame Frame)
         {
@@ -493,7 +490,7 @@ namespace PresenceEngine
 
             // Get raw depth map, so depth plus user map in a ushort[]
 
-            #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
 
             if (KinectManager.Instance.IsInitialized())
@@ -529,7 +526,7 @@ namespace PresenceEngine
 
             }
 
-            #endif
+#endif
 
             return new ushort[DEPTHMAPSIZE[DepthSampling]];
         }

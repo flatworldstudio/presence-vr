@@ -92,6 +92,17 @@ namespace PresenceEngine
                     Visualiser = new PointCloud();
                     Visualiser.Initialise(this.gameObject);
                     break;
+                case "ShowMesh":
+                    Visualiser = new ShowMesh();
+                    Visualiser.Initialise(this.gameObject);
+                    break;
+                case "PointShaded":
+                    Visualiser = new PointShaded();
+                    Visualiser.Initialise(this.gameObject);
+                    break;
+
+
+
                 default:
                     Debug.LogError("Trying to set unkown visualiser.");
                     break;

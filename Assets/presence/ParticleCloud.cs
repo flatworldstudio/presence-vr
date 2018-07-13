@@ -39,7 +39,13 @@ namespace PresenceEngine
 
 
 
+        public void SetPointSize (float size){
 
+          
+            ParticleSystemRenderer psr = CloudObject.GetComponent<ParticleSystemRenderer>();
+            psr.maxParticleSize=size;
+
+        }
 
 
 

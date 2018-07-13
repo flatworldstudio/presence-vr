@@ -57,6 +57,11 @@ start servercontrols
 start moodlight
 end
 
+#screentap
+toggleview
+end
+
+
 // Server starts server and waits and calls #newclient when a client connects.
 
 #server
@@ -608,6 +613,3 @@ end
 
 
 
-#screentap
-toggleview
-end

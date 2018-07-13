@@ -31,6 +31,7 @@ namespace PresenceEngine
         public static Dictionary<string,Presence> Presences;
       public static  Presence user; // this is a convience shortcut, set to the "user" entry in the dictionary.
 
+        public static Camera ActiveCamera;
 
 
    //     public static Presence MainPresence;
@@ -44,7 +45,7 @@ namespace PresenceEngine
 
         public static float north = 0;
 
-        public static float kinectHeight = 1.6f;
+        public static float SensorY = 1.6f;
 
         public static float kinectHeading = 45f;
 
