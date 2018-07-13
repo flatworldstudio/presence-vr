@@ -96,8 +96,8 @@ namespace PresenceEngine
                 //   pos = Vector3.zero;
 
                 emitParams.position = pos;
-            //    emitParams.startSize = 0.0075f;
-                emitParams.startSize = 0.0125f;
+              emitParams.startSize = 0.0075f;
+           //     emitParams.startSize = 0.0125f;
 
                 ps.Emit(emitParams, 1);
             }

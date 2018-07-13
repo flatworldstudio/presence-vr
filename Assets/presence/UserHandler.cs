@@ -380,6 +380,8 @@ namespace PresenceEngine
 
                 case "waitforgesture":
 
+                   
+
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
                         string status;
@@ -406,7 +408,7 @@ namespace PresenceEngine
 
                             done = true;
                         }
-
+                        task.SetStringValue("status", "detected"); // SKIPPING!
 
                     }
 

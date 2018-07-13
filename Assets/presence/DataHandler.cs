@@ -1126,6 +1126,8 @@ namespace PresenceEngine
 
                         SETTINGS.user.Visualiser.SettingsFromTask(task, "user");
 
+                        presenceSound.Play();
+
                         done = true;
                     }
 
@@ -1139,7 +1141,7 @@ namespace PresenceEngine
 
                         }
 
-                        presenceSound.Play();
+                      //  presenceSound.Play();
 
                         done = true;
                     }
@@ -2381,7 +2383,7 @@ namespace PresenceEngine
 
         void GrabFrame()
         {
-            RenderTexture rt = new RenderTexture(1920, 1080, 24, RenderTextureFormat.ARGB32);
+            RenderTexture rt = new RenderTexture(4096, 4096/16*9, 24, RenderTextureFormat.ARGB32);
 
          
 
