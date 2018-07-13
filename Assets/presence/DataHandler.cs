@@ -43,7 +43,7 @@ namespace PresenceEngine
 
         string me = "Data handler: ";
 
-       
+
 
         void Awake()
         {
@@ -108,13 +108,7 @@ namespace PresenceEngine
             switch (task.description)
             {
 
-
-
-
-
                 case "createuser":
-
-
 
                     if (!SETTINGS.Presences.TryGetValue("user", out SETTINGS.user))
                     {
@@ -122,9 +116,7 @@ namespace PresenceEngine
                         SETTINGS.Presences.Add("user", SETTINGS.user);
                     }
 
-                    SETTINGS.user.SetVisualiser("PointCloud");
-                    //   SETTINGS.user.SetTranscoder("SkeletonOnly");
-
+                    SETTINGS.user.SetVisualiser(SETTINGS.DefaultVisualiser);
                     SETTINGS.user.SetTranscoder("SkeletonAndDepth");
                     SETTINGS.user.SetDepthSampling(4);
 
@@ -134,22 +126,22 @@ namespace PresenceEngine
 
                 //case "createinstance":
 
-                    //Presence newInstance;
+                //Presence newInstance;
 
-                    //if (!SETTINGS.Presences.TryGetValue("instance", out newInstance))
-                    //{
-                    //    newInstance = Presence.Create(presences);
-                    //    SETTINGS.Presences.Add("instance", newInstance);
-                    //}
+                //if (!SETTINGS.Presences.TryGetValue("instance", out newInstance))
+                //{
+                //    newInstance = Presence.Create(presences);
+                //    SETTINGS.Presences.Add("instance", newInstance);
+                //}
 
-                    //newInstance.SetVisualiser("ShowSkeleton");
-                    //newInstance.SetTranscoder("SkeletonOnly");
-                    ////newInstance.SetTranscoder("SkeletonAndDepth");
-                    ////newInstance.SetDepthSampling(2);
+                //newInstance.SetVisualiser("ShowSkeleton");
+                //newInstance.SetTranscoder("SkeletonOnly");
+                ////newInstance.SetTranscoder("SkeletonAndDepth");
+                ////newInstance.SetDepthSampling(2);
 
 
-                    //done = true;
-                    //break;
+                //done = true;
+                //break;
 
 
                 //case "testtask":
@@ -258,7 +250,14 @@ namespace PresenceEngine
                                     case 0:
 
                                         // we're before the start or in the buffer
-                                        presence.Value.DepthTransport.CurrentTime += Time.deltaTime;
+
+
+                                        if (!SETTINGS.ManualPlayback)
+                                        {
+                                            presence.Value.DepthTransport.CurrentTime += Time.deltaTime;
+                                        }
+
+
                                         //Debug.Log("playing");
                                         break;
 
@@ -277,10 +276,8 @@ namespace PresenceEngine
 
                                 }
 
-
                                 task.SetFloatValue(presence.Key + "_time", presence.Value.DepthTransport.CurrentTime);
 
-                              
 
                                 if (status == 0 && !presence.Value.SoundPlayed)
                                 {
@@ -289,8 +286,9 @@ namespace PresenceEngine
                                 }
 
 
-                                if (presence.Key=="playbackpresence"){
-                                    
+                                if (presence.Key == "playbackpresence")
+                                {
+
                                     task.SetStringValue("debug", "" + presence.Value.DepthTransport.CurrentTime);
 
                                 }
@@ -388,6 +386,42 @@ namespace PresenceEngine
 
                     break;
 
+                    
+                case "nextframe":
+
+                    SETTINGS.ManualPlayback = true;
+
+                    Presence pbp;
+                    
+                    if (SETTINGS.Presences.TryGetValue("playbackpresence", out pbp))
+                    {
+                        pbp.DepthTransport.CurrentTime += 1 / 60f;
+
+                    }
+
+                    done = true;
+                    break;
+
+                case "previousframe":
+
+                    SETTINGS.ManualPlayback = true;
+
+                    if (SETTINGS.Presences.TryGetValue("playbackpresence", out pbp))
+                    {
+                        pbp.DepthTransport.CurrentTime -= 1 / 60f;
+
+                    }
+
+                    done = true;
+                    break;
+
+                case "togglemanualplayback":
+
+                    SETTINGS.ManualPlayback = !SETTINGS.ManualPlayback;
+
+                    done = true;
+                    break;
+
 
                 case "stopplaybackfile":
 
@@ -448,7 +482,7 @@ namespace PresenceEngine
                         if (pbBuffer.EndTime > pbBuffer.StartTime)
                         {
 
-                            Debug.Log("Start time: "+pbBuffer.StartTime+" End time: "+pbBuffer.EndTime);
+                            Debug.Log("Start time: " + pbBuffer.StartTime + " End time: " + pbBuffer.EndTime);
 
                             // Not a placeholder file so proceed.
 
@@ -464,7 +498,7 @@ namespace PresenceEngine
                             //fileplayback.SetVisualiser("PointCloud");
 
                             //fileplayback.SetVisualiser("ShowMesh");
-                            fileplayback.SetVisualiser("PointShaded");
+                            fileplayback.SetVisualiser(SETTINGS.DefaultVisualiser);
 
                             fileplayback.SetTranscoder(pbBuffer.TransCoderName);
 
@@ -539,7 +573,7 @@ namespace PresenceEngine
                                 SETTINGS.Presences.Add(mirrorPresence, fileplayback);
                             }
 
-                            fileplayback.SetVisualiser("PointCloud");
+                            fileplayback.SetVisualiser(SETTINGS.DefaultVisualiser);
                             fileplayback.SetTranscoder(pbcBuf.TransCoderName);
                             fileplayback.DepthTransport.TransCoder.SetBufferFile(pbcBuf);
                             fileplayback.DepthTransport.CurrentTime = 0;
@@ -606,7 +640,7 @@ namespace PresenceEngine
 
                                     }
 
-                                    fileplayback.SetVisualiser("PointCloud");
+                                    fileplayback.SetVisualiser(SETTINGS.DefaultVisualiser);
                                     fileplayback.SetTranscoder(pbcBuf.TransCoderName);
 
                                     fileplayback.DepthTransport.TransCoder.SetBufferFile(pbcBuf);
@@ -627,25 +661,7 @@ namespace PresenceEngine
 
 
 
-                                //if (!SETTINGS.Presences.TryGetValue("playbackpresence" + c, out fileplayback))
-                                //{
-                                //    fileplayback = Presence.Create(presences);
-                                //    SETTINGS.Presences.Add("playbackpresence" + c, fileplayback);
-                                //    //   fileplayback.SetVisualiser("ShowSkeleton");
-                                //    fileplayback.SetVisualiser("PointCloud");
-                                //    //   fileplayback.SetTranscoder("SkeletonOnly");
-                                //    fileplayback.SetTranscoder(pbcBuf.TransCoderName);
 
-
-                                //}
-
-
-                                //fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
-                                //fileplayback.DepthTransport.TransCoder.SetBufferFile(pbcBuf);
-                                ////   fileplayback.DepthTransport.FrameNumber = fileplayback.DepthTransport.TransCoder.GetBufferFile().FirstFrame;
-                                //fileplayback.DepthTransport.CurrentTime = fileplayback.DepthTransport.TransCoder.GetBufferFile().StartTime;
-
-                                //fileplayback.Visualiser.SetTransform(Vector3.zero, Quaternion.identity);
 
                             }
 
@@ -670,7 +686,7 @@ namespace PresenceEngine
 
                         for (int c = 1; c < 3; c++)
                         {
-                            
+
                             //string name = IO.GetFilePath(checkedOut + c);
 
                             //Debug.Log("Generating name " + c);
@@ -679,38 +695,38 @@ namespace PresenceEngine
 
                             if (pbcBuf != null)
                             {
-                                
+
                                 //if (pbcBuf.EndTime > pbcBuf.StartTime)
                                 //{
-                                    // Not a placeholder file so proceed.
+                                // Not a placeholder file so proceed.
 
-                                    if (!SETTINGS.Presences.TryGetValue("playbackpresence" + c, out fileplayback))
-                                    {
+                                if (!SETTINGS.Presences.TryGetValue("playbackpresence" + c, out fileplayback))
+                                {
 
                                     fileplayback = Presence.Create(presences);
-                                        SETTINGS.Presences.Add("playbackpresence" + c, fileplayback);
+                                    SETTINGS.Presences.Add("playbackpresence" + c, fileplayback);
 
-                                    }
+                                }
 
-                                    fileplayback.SetVisualiser("PointCloud");
-                                    fileplayback.SetTranscoder(pbcBuf.TransCoderName);
+                                fileplayback.SetVisualiser(SETTINGS.DefaultVisualiser);
+                                fileplayback.SetTranscoder(pbcBuf.TransCoderName);
                                 fileplayback.DepthTransport.TransCoder.SetBufferFile(pbcBuf);
 
-                                    fileplayback.DepthTransport.CurrentTime = -0.5f*c;
+                                fileplayback.DepthTransport.CurrentTime = -0.5f * c;
 
-                                fileplayback.Visualiser.SetTransform(new Vector3(0.5f*c,0,0), Vector3.one, Quaternion.identity);
+                                fileplayback.Visualiser.SetTransform(new Vector3(0.5f * c, 0, 0), Vector3.one, Quaternion.identity);
 
-                                    fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
+                                fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
 
-                                    task.SetFloatValue("playbackpresence" + c + "_cloudvisible", 1);
-                                    fileplayback.Visualiser.SettingsFromTask(task, "playbackpresence" + c);
+                                task.SetFloatValue("playbackpresence" + c + "_cloudvisible", 1);
+                                fileplayback.Visualiser.SettingsFromTask(task, "playbackpresence" + c);
 
-                                    Debug.Log("started buffer " + c + " " + pbcBuf.Name);
+                                Debug.Log("started buffer " + c + " " + pbcBuf.Name);
 
 
                                 //}
 
-                              
+
 
                             }
 
@@ -2387,7 +2403,7 @@ namespace PresenceEngine
         {
             RenderTexture rt = new RenderTexture(1920, 1080, 24, RenderTextureFormat.ARGB32);
 
-         
+
 
 
             CaptureCamera.targetTexture = rt;
@@ -2404,7 +2420,7 @@ namespace PresenceEngine
             byte[] bytes;
             bytes = tex.EncodeToPNG();
 
-            System.IO.File.WriteAllBytes(Application.dataPath+"/test.png", bytes);
+            System.IO.File.WriteAllBytes(Application.dataPath + "/test.png", bytes);
             //    int ssn = sshotnum++;
 
             CaptureCamera.targetTexture = null;

@@ -40,7 +40,7 @@ end
 
 
 #presenceserver
-debugoff
+debugon
 amserver
 start server
 displaycheck
@@ -54,6 +54,7 @@ setfiledefaults
 makefoldermenu
 makefilemenu
 start servercontrols
+start keyboardcontrols
 start moodlight
 end
 
@@ -129,6 +130,24 @@ end
 #presencehandler
 isglobal
 handlepresences
+end
+
+// Keyboard controls
+
+#keyboardcontrols
+keyboardcontrol
+end
+
+#nextframe
+nextframe
+end
+
+#previousframe
+previousframe
+end
+
+#togglemanualplayback
+togglemanualplayback
 end
 
 // Flows - solo

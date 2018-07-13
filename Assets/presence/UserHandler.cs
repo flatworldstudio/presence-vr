@@ -1360,9 +1360,9 @@ namespace PresenceEngine
                         viewCam.targetDisplay = userCam.targetDisplay;
                         userCam.targetDisplay = t;
 
-                        SETTINGS.ActiveCamera = t==1? viewCam:userCam;
+                      //  SETTINGS.ActiveCamera = t==1? viewCam:userCam;
 
-
+                        SETTINGS.ActiveCamera = t == 1 ?   userCam: viewCam;
 
                         //if (viewCam.targetDisplay == 1)
                         //{
@@ -2148,6 +2148,35 @@ namespace PresenceEngine
 
 
                     break;
+
+                case "keyboardcontrol":
+
+                    if (Input.GetKeyDown("m"))
+                    {
+                        task.setCallBack("togglemanualplayback");
+
+                    }
+
+
+                    if (Input.GetKey("p"))
+                    {
+                        if (SETTINGS.ManualPlayback)
+                        task.setCallBack("previousframe");
+
+                    }
+                    
+
+                    if (Input.GetKey("n"))
+                    {
+                        if (SETTINGS.ManualPlayback)
+                            task.setCallBack("nextframe");
+
+                    }
+
+
+
+                    break;
+
 
                 case "interfaceactive2":
 

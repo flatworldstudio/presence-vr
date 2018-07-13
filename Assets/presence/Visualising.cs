@@ -11,14 +11,17 @@ namespace PresenceEngine
         bool IsInitialised();
 
         void Initialise(GameObject presenceObject);
+
         void Deinitialise();
-        void SetTransform(Vector3 pos, Vector3 scale,Quaternion rot);
+
+        void SetTransform(Vector3 pos, Vector3 scale, Quaternion rot);
 
         void Update(UncompressedFrame Frame);
 
         string GetName();
 
         Vector3 GetPosition();
+
         Vector3 GetScale();
 
         Quaternion GetRotation();
@@ -26,44 +29,32 @@ namespace PresenceEngine
         void SettingsToTask(StoryEngine.StoryTask task, string prefix);
 
         void SettingsFromTask(StoryEngine.StoryTask task, string prefix);
-       
 
     }
 
-
-
-
     public class ShowSkeleton : iVisualiser
     {
-        //        ParticleCloud cloud;
 
         GameObject PresenceObject;
         GameObject Head, Body, HandLeft, HandRight;
         ParticleCloud Cloud;
         bool __isInitialised = false;
-
         string _name = "ShowSkeleton";
         UncompressedFrame lastFrame;
 
         public void SettingsToTask(StoryEngine.StoryTask task, string prefix)
         {
-         
 
         }
         public void SettingsFromTask(StoryEngine.StoryTask task, string prefix)
         {
 
-           
         }
-
 
         public string GetName()
         {
-
             return _name;
-
         }
-
 
         public bool IsInitialised()
         {
@@ -122,13 +113,13 @@ namespace PresenceEngine
         }
 
 
-        public void SetTransform(Vector3 pos,Vector3 scale, Quaternion rot)
+        public void SetTransform(Vector3 pos, Vector3 scale, Quaternion rot)
         {
 
             if (PresenceObject != null)
             {
                 PresenceObject.transform.localPosition = pos;
-                PresenceObject.transform.localScale=scale;
+                PresenceObject.transform.localScale = scale;
                 PresenceObject.transform.localRotation = rot;
             }
         }
@@ -177,15 +168,17 @@ namespace PresenceEngine
                     return;
                 }
 
-                HandLeft.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft];
-                HandRight.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight];
+                Vector3 offset = new Vector3(0, Frame.SensorY, 0);
 
-                Body.transform.localPosition = Frame.UserPosition;
+                HandLeft.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] + offset;
+                HandRight.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] + offset;
+
+                Body.transform.localPosition = Frame.UserPosition + offset;
 
                 if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                 {
                     //  if (Frame.Tracked
-                    Head.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head];
+                    Head.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] + offset;
                     Head.transform.localRotation = Frame.HeadOrientation;
                 }
 
@@ -198,8 +191,8 @@ namespace PresenceEngine
 
                 {
 
-                    Vector3 last = lastFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft];
-                    Vector3 current = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft];
+                    Vector3 last = lastFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] + offset;
+                    Vector3 current = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] + offset;
 
                     if (lastFrame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] &&
                         Frame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft])
@@ -214,8 +207,8 @@ namespace PresenceEngine
 
                     //HandLeftP = current;
 
-                    last = lastFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight];
-                    current = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight];
+                    last = lastFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] + offset;
+                    current = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] + offset;
 
                     if (lastFrame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] &&
                         Frame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight])
@@ -272,25 +265,17 @@ namespace PresenceEngine
 
         public float CloudVisible = 0;
 
-        public void SettingsToTask (StoryEngine.StoryTask task, string prefix)
+        public void SettingsToTask(StoryEngine.StoryTask task, string prefix)
         {
             task.SetFloatValue(prefix + "_cloudvisible", CloudVisible);
-          
+
         }
         public void SettingsFromTask(StoryEngine.StoryTask task, string prefix)
         {
 
             task.GetFloatValue(prefix + "_cloudvisible", out CloudVisible);
 
-            //int cloudcontrol;
-            //if (task.GetIntValue(prefix+"_cloudcontrol", out cloudcontrol))
-            //{
-
-            //    CloudOn = cloudcontrol == 1 ? true : false;
-            //}
-
-
-
+            
 
 
         }
@@ -359,7 +344,7 @@ namespace PresenceEngine
             //lightComp.color= new Color32 (137,223,255,255);
             //lightComp.color= new Color32 (137,223,161,255);
 
-            lightComp.color= new Color32 (255,255,255,255);
+            lightComp.color = new Color32(255, 255, 255, 255);
 
             lightComp.intensity = 0.15f;
             PLight.transform.localPosition = new Vector3(0, 0.5f, 0);
@@ -382,13 +367,13 @@ namespace PresenceEngine
         }
 
 
-        public void SetTransform(Vector3 pos,Vector3 scale, Quaternion rot)
+        public void SetTransform(Vector3 pos, Vector3 scale, Quaternion rot)
         {
 
             if (PresenceObject != null)
             {
                 PresenceObject.transform.localPosition = pos;
-                PresenceObject.transform.localScale=scale;
+                PresenceObject.transform.localScale = scale;
                 PresenceObject.transform.localRotation = rot;
             }
         }
@@ -472,24 +457,24 @@ namespace PresenceEngine
                 HandLeft.SetActive(Frame.UserTracked);
                 HandRight.SetActive(Frame.UserTracked);
                 PLight.SetActive(Frame.UserTracked);
-                
-                HandLeft.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft];
-                HandRight.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight];
 
-                Body.transform.localPosition = Frame.UserPosition;
+                Vector3 offset = new Vector3(0, Frame.SensorY, 0);
+
+                HandLeft.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft]+offset;
+                HandRight.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] + offset;
+
+                Body.transform.localPosition = Frame.UserPosition + offset;
                 PLight.transform.localPosition = new Vector3(Frame.UserPosition.x, 1, Frame.UserPosition.z);
 
                 if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                 {
-                    Head.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head];
+                    Head.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] + offset;
                     Head.transform.localRotation = Frame.HeadOrientation;
                 }
 
                 // takes a kinect styled uint[] RawDepthMap
                 // and plots the points into a Particle Cloud, with scale corrected if the frame was downsampled.
-
-
-
+                
                 int ParticleIndex = 0;
 
                 int Width = Frame.Width;
@@ -504,7 +489,7 @@ namespace PresenceEngine
 
                 for (int y = 0; y < Height; y++)
                 {
-                    
+
                     for (int x = 0; x < Width; x++)
                     {
                         int i = y * Width + x;
@@ -517,39 +502,31 @@ namespace PresenceEngine
 
                             point = depthToWorld(x * Scale, y * Scale, userDepth);
                             point.x = -point.x;
-                            point.y = -point.y + Frame.SensorY; // kinectheight needs to move away from these 
-                          
-                            AllPoints[i]=point;
-                        
+                            point.y = -point.y + Frame.SensorY; 
+
+                            AllPoints[i] = point;
+
                         }
 
                     }
 
                 }
 
+                // Adjust point size for distance from camera. 
+
                 Vector3 CameraPosition = SETTINGS.ActiveCamera.transform.position;
-                float distance = Vector3.Distance(CameraPosition,Frame.UserPosition);
+                float distance = Vector3.Distance(CameraPosition, Frame.UserPosition);
+                float factor = (Mathf.Clamp(distance, 0.5f, 4f) - 0.5f) / 3.5f; // 0-1
 
-                float factor = (Mathf.Clamp(distance,0.5f,4f)-0.5f)/3.5f; // 0-1
-                //Debug.Log(distance);
+                factor = Mathf.Pow((1f - factor), 2f);
 
-                // range 2 - 0.25 -> 0.005
-
-                //float size = 1f/distance
-
-                factor = Mathf.Pow((1f-factor),2f);
-
-                //float size = 0.005f-factor*0.004f;
-                float size = 0.001f+factor*0.005f;
-
-                //Frame.UserPosition
-
+                float size = 0.001f + factor * 0.005f;
                 Cloud.SetPointSize(size);
 
+                // Now calculate normals, lighting and assign colours accordingly
 
-                // Now calculate normals and assign colours.
-                Color32 Color01 = new Color32 (137,223,255,255);
-                Color32 Color02 = new Color32 (137,223,161,255);
+                Color32 Color01 = new Color32(137, 223, 255, 255);
+                Color32 Color02 = new Color32(137, 223, 161, 255);
 
                 Gradient g;
                 GradientColorKey[] gck;
@@ -567,72 +544,67 @@ namespace PresenceEngine
                 gak[1].time = 1.0F;
                 g.SetKeys(gck, gak);
 
-                Vector3 light = new Vector3 (0,-1,1);
+                Vector3 light = new Vector3(0, -1, 1);
                 light.Normalize();
 
 
                 // Downsampling is handled in depthtransport.
 
-                for (int y = 0; y < Height-1; y++)
+                for (int y = 0; y < Height - 1; y++)
                 {
-                    
-                    Color32 ColorBase=g.Evaluate((float)y/Height);
+
+                    Color32 ColorBase = g.Evaluate((float)y / Height);
 
 
-                    for (int x = 0; x < Width-1; x++)
+                    for (int x = 0; x < Width - 1; x++)
                     {
                         int i = y * Width + x;
 
                         ushort userMap = (ushort)(Frame.RawDepth[i] & 7);
-                      
+
 
                         if (userMap != 0)
                         {
 
-                          
+
                             point = AllPoints[i];
 
-                            Vector3 point2=AllPoints[i+1];
-                            Vector3 point3=AllPoints[i+Width];
+                            Vector3 point2 = AllPoints[i + 1];
+                            Vector3 point3 = AllPoints[i + Width];
 
+                            // Test for drawing wireframe.
 
                             //Debug.DrawLine(point, point2, Color.grey);
                             //Debug.DrawLine(point2, point3, Color.grey);
                             //Debug.DrawLine(point3, point, Color.grey);
-                        
-
-
-                            Vector3 V1 = point2-point;
-                            Vector3 v2 = point3-point;
-
-                            Vector3 normal = Vector3.Cross(V1,v2);
+                            
+                            Vector3 V1 = point2 - point;
+                            Vector3 v2 = point3 - point;
+                            Vector3 normal = Vector3.Cross(V1, v2);
                             normal.Normalize();
+                            
+                  //         float angle = Vector3.Angle(V1, v2);
 
-                          
+                            float Cos = normal.x * light.x + normal.y * light.y + normal.z * light.z;
 
-                            float angle = Vector3.Angle(V1,v2);
+                            Color32 PointColour;
 
-                            //float Cos = Xa * Xb + Ya * Yb + Za * Zb
-
-                            float Cos = normal.x * light.x + normal.y * light.y + normal.z *light.z;
-
-                            Color32 PointColour ;
-
-                            if (Cos>0){
-                                //PointColour  =  new Color (Cos,Cos,Cos,1);
-
-                                PointColour  = (Color) ColorBase * (0.5f+0.5f*Cos);
-                              
-
-                            }else{
-                                PointColour=  (Color) ColorBase * (0.5f);
+                            if (Cos > 0)
+                            {
+                               
+                                PointColour = (Color)ColorBase * (0.5f + 0.5f * Cos);
+                                
+                            }
+                            else
+                            {
+                                PointColour = (Color)ColorBase * (0.5f);
                             }
 
-                            PointColour.a=ColorBase.a;
+                            PointColour.a = ColorBase.a;
 
                             Cloud.allParticles[ParticleIndex].position = point;
                             Cloud.allParticles[ParticleIndex].startColor = PointColour;
-                           
+
 
                             ParticleIndex++;
                             if (ParticleIndex == Cloud.allParticles.Length)
@@ -651,7 +623,7 @@ namespace PresenceEngine
 
                 }
 
-                Cloud.ApplyParticles(CloudVisible>0 ? ParticleIndex : 0);
+                Cloud.ApplyParticles(CloudVisible > 0 ? ParticleIndex : 0);
 
                 // Check if frame is new.
 
@@ -687,7 +659,7 @@ namespace PresenceEngine
 
         public float CloudVisible = 0;
 
-        public void SettingsToTask (StoryEngine.StoryTask task, string prefix)
+        public void SettingsToTask(StoryEngine.StoryTask task, string prefix)
         {
             task.SetFloatValue(prefix + "_cloudvisible", CloudVisible);
 
@@ -697,7 +669,7 @@ namespace PresenceEngine
 
             task.GetFloatValue(prefix + "_cloudvisible", out CloudVisible);
 
-          
+
 
 
         }
@@ -766,7 +738,7 @@ namespace PresenceEngine
             //lightComp.color= new Color32 (137,223,255,255);
             //lightComp.color= new Color32 (137,223,161,255);
 
-            lightComp.color= new Color32 (255,255,255,255);
+            lightComp.color = new Color32(255, 255, 255, 255);
 
             lightComp.intensity = 0.15f;
             PLight.transform.localPosition = new Vector3(0, 0.5f, 0);
@@ -789,13 +761,13 @@ namespace PresenceEngine
         }
 
 
-        public void SetTransform(Vector3 pos,Vector3 scale, Quaternion rot)
+        public void SetTransform(Vector3 pos, Vector3 scale, Quaternion rot)
         {
 
             if (PresenceObject != null)
             {
                 PresenceObject.transform.localPosition = pos;
-                PresenceObject.transform.localScale=scale;
+                PresenceObject.transform.localScale = scale;
                 PresenceObject.transform.localRotation = rot;
             }
         }
@@ -880,15 +852,17 @@ namespace PresenceEngine
                 HandRight.SetActive(Frame.UserTracked);
                 PLight.SetActive(Frame.UserTracked);
 
-                HandLeft.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft];
-                HandRight.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight];
+                Vector3 offset = new Vector3(0, Frame.SensorY, 0);
 
-                Body.transform.localPosition = Frame.UserPosition;
+                HandLeft.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft]+offset;
+                HandRight.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] + offset;
+
+                Body.transform.localPosition = Frame.UserPosition + offset;
                 PLight.transform.localPosition = new Vector3(Frame.UserPosition.x, 1, Frame.UserPosition.z);
 
                 if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                 {
-                    Head.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head];
+                    Head.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] + offset;
                     Head.transform.localRotation = Frame.HeadOrientation;
                 }
 
@@ -905,8 +879,8 @@ namespace PresenceEngine
 
                 Vector3 point;
 
-                Color32 Color01 = new Color32 (137,223,255,255);
-                Color32 Color02 = new Color32 (137,223,161,255);
+                Color32 Color01 = new Color32(137, 223, 255, 255);
+                Color32 Color02 = new Color32(137, 223, 161, 255);
 
                 Gradient g;
                 GradientColorKey[] gck;
@@ -931,7 +905,7 @@ namespace PresenceEngine
                 for (int y = 0; y < Height; y++)
                 {
 
-                    Color32 pointColor=g.Evaluate((float)y/Height);
+                    Color32 pointColor = g.Evaluate((float)y / Height);
 
 
                     for (int x = 0; x < Width; x++)
@@ -971,9 +945,9 @@ namespace PresenceEngine
 
                 }
 
-                Cloud.ApplyParticles(CloudVisible>0 ? ParticleIndex : 0);
+                Cloud.ApplyParticles(CloudVisible > 0 ? ParticleIndex : 0);
 
-          
+
 
 
                 lastFrame = Frame;
@@ -994,7 +968,7 @@ namespace PresenceEngine
     {
         string _name = "ShowMesh";
 
-        GameObject PresenceObject,MeshObject;
+        GameObject PresenceObject, MeshObject;
         GameObject Head, Body, HandLeft, HandRight;
         ParticleCloud Cloud;
         bool __isInitialised = false;
@@ -1004,7 +978,7 @@ namespace PresenceEngine
 
         public float CloudVisible = 0;
 
-        public void SettingsToTask (StoryEngine.StoryTask task, string prefix)
+        public void SettingsToTask(StoryEngine.StoryTask task, string prefix)
         {
             task.SetFloatValue(prefix + "_cloudvisible", CloudVisible);
 
@@ -1080,7 +1054,7 @@ namespace PresenceEngine
             //lightComp.color= new Color32 (137,223,255,255);
             //lightComp.color= new Color32 (137,223,161,255);
 
-            lightComp.color= new Color32 (255,255,255,255);
+            lightComp.color = new Color32(255, 255, 255, 255);
 
             lightComp.intensity = 0.15f;
             PLight.transform.localPosition = new Vector3(0, 0.5f, 0);
@@ -1089,16 +1063,16 @@ namespace PresenceEngine
             //PLight = new Light();
 
             PLight.transform.SetParent(PresenceObject.transform, false);
-      
+
             MeshObject = new GameObject("Meshobject");
             MeshObject.transform.SetParent(PresenceObject.transform, false);
 
             MeshObject.AddComponent<MeshFilter>();
             MeshObject.AddComponent<MeshRenderer>();
 
-             mesh = new Mesh();
+            mesh = new Mesh();
             MeshObject.GetComponent<MeshFilter>().mesh = mesh;
-                      
+
 
             MeshObject.GetComponent<Renderer>().material = Resources.Load("Default") as Material;
 
@@ -1110,13 +1084,13 @@ namespace PresenceEngine
         }
 
 
-        public void SetTransform(Vector3 pos,Vector3 scale, Quaternion rot)
+        public void SetTransform(Vector3 pos, Vector3 scale, Quaternion rot)
         {
 
             if (PresenceObject != null)
             {
                 PresenceObject.transform.localPosition = pos;
-                PresenceObject.transform.localScale=scale;
+                PresenceObject.transform.localScale = scale;
                 PresenceObject.transform.localRotation = rot;
             }
         }
@@ -1201,24 +1175,22 @@ namespace PresenceEngine
                 HandRight.SetActive(Frame.UserTracked);
                 PLight.SetActive(Frame.UserTracked);
 
-                HandLeft.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft];
-                HandRight.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight];
+                Vector3 offset = new Vector3(0, Frame.SensorY, 0);
 
-                Body.transform.localPosition = Frame.UserPosition;
+                HandLeft.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft]+offset;
+                HandRight.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] + offset;
+
+                Body.transform.localPosition = Frame.UserPosition + offset;
                 PLight.transform.localPosition = new Vector3(Frame.UserPosition.x, 1, Frame.UserPosition.z);
 
                 if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                 {
-                    Head.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head];
+                    Head.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] + offset;
                     Head.transform.localRotation = Frame.HeadOrientation;
                 }
 
                 // takes a kinect styled uint[] RawDepthMap
-                // and plots the points into a Particle Cloud, with scale corrected if the frame was downsampled.
-
-
-
-                int ParticleIndex = 0;
+                         
 
                 int Width = Frame.Width;
                 int Height = Frame.Height;
@@ -1226,8 +1198,8 @@ namespace PresenceEngine
 
                 Vector3 point;
 
-                Color32 Color01 = new Color32 (137,223,255,255);
-                Color32 Color02 = new Color32 (137,223,161,255);
+                Color32 Color01 = new Color32(137, 223, 255, 255);
+                Color32 Color02 = new Color32(137, 223, 161, 255);
 
                 Gradient g;
                 GradientColorKey[] gck;
@@ -1259,12 +1231,12 @@ namespace PresenceEngine
                  * 
                 */
 
-                Vector3[] vertices = new Vector3[Height*Width];
+                Vector3[] vertices = new Vector3[Height * Width];
 
                 for (int y = 0; y < Height; y++)
                 {
 
-                    Color32 pointColor=g.Evaluate((float)y/Height);
+                    Color32 pointColor = g.Evaluate((float)y / Height);
 
 
                     for (int x = 0; x < Width; x++)
@@ -1281,52 +1253,54 @@ namespace PresenceEngine
                             point.y = -point.y + Frame.SensorY;
 
                             vertices[i] = point;
-                                
-                        }else{
 
-                            vertices[i]=Vector3.zero;
+                        }
+                        else
+                        {
+
+                            vertices[i] = Vector3.zero;
                         }
 
                     }
 
                 }
 
-                int[] triangles = new int[(Height-1)*(Width-1)*2*3];
+                int[] triangles = new int[(Height - 1) * (Width - 1) * 2 * 3];
 
-                for (int y = 0; y < Height-1; y++)
+                for (int y = 0; y < Height - 1; y++)
                 {
-                    
-                    for (int x = 0; x < Width-1; x++)
+
+                    for (int x = 0; x < Width - 1; x++)
                     {
                         int a = y * Width + x;
-                        int b = a+1;
-                        int c = a+Width;
-                        int d = a+1+Width;
+                        int b = a + 1;
+                        int c = a + Width;
+                        int d = a + 1 + Width;
 
-                        int i= (y * (Width-1) + x)*6;
+                        int i = (y * (Width - 1) + x) * 6;
 
-                        triangles[i+0]=a;
-                        triangles[i+2]=b;
-                        triangles[i+1]=c;
-                        triangles[i+3]=c;
-                        triangles[i+5]=b;
-                        triangles[i+4]=d;
-                                             
+                        triangles[i + 0] = a;
+                        triangles[i + 2] = b;
+                        triangles[i + 1] = c;
+                        triangles[i + 3] = c;
+                        triangles[i + 5] = b;
+                        triangles[i + 4] = d;
+
 
                     }
 
                 }
 
                 mesh.Clear();
-                mesh.vertices=vertices;
+                mesh.vertices = vertices;
                 //mesh.triangles=triangles;
-                mesh.SetTriangles(triangles,0);
+                mesh.SetTriangles(triangles, 0);
 
 
                 mesh.RecalculateNormals();
 
 
-               // Cloud.ApplyParticles(CloudVisible>0 ? ParticleIndex : 0);
+                // Cloud.ApplyParticles(CloudVisible>0 ? ParticleIndex : 0);
 
                 // Check if frame is new.
 

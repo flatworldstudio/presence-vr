@@ -384,7 +384,7 @@ namespace PresenceEngine
                     Frame.UserPosition = KinectManager.Instance.GetUserPosition(playerID);
                     Frame.UserPosition.z = !MirroredMovement ? -Frame.UserPosition.z : Frame.UserPosition.z;
                     Frame.UserPosition.x = MirroredMovement ? -Frame.UserPosition.x : Frame.UserPosition.x;
-                    Frame.UserPosition.y += SETTINGS.kinectHeight;
+                 //   Frame.UserPosition.y += SETTINGS.kinectHeight;
 
 
                     for (int joint = 0; joint < Frame.Joints.Length; joint++)
@@ -398,7 +398,7 @@ namespace PresenceEngine
 
                             Frame.Joints[joint].z = !MirroredMovement ? -Frame.Joints[joint].z : Frame.Joints[joint].z;
                             Frame.Joints[joint].x = MirroredMovement ? -Frame.Joints[joint].x : Frame.Joints[joint].x;
-                            Frame.Joints[joint].y += SETTINGS.kinectHeight;
+                         //   Frame.Joints[joint].y += SETTINGS.kinectHeight;
 
                         }
                         else

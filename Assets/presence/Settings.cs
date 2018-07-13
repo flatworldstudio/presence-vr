@@ -29,10 +29,13 @@ namespace PresenceEngine
 
         //public static Presence[] Presences;
         public static Dictionary<string,Presence> Presences;
+
       public static  Presence user; // this is a convience shortcut, set to the "user" entry in the dictionary.
 
         public static Camera ActiveCamera;
 
+        public static string DefaultVisualiser = "PointShaded";
+        public static bool ManualPlayback;
 
    //     public static Presence MainPresence;
         // KINECT INFO

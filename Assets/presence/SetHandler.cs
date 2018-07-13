@@ -1091,7 +1091,7 @@ namespace PresenceEngine
                         viewer.transform.position = p;
 
                         p = Vector3.zero;
-                        p.y = SETTINGS.kinectHeight;
+                        p.y = SETTINGS.SensorY;
 
                         kinectObject.transform.position = p;
 
