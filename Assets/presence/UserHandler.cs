@@ -2157,6 +2157,12 @@ namespace PresenceEngine
 
                     }
 
+                    if (Input.GetKeyDown("g"))
+                    {
+                        task.setCallBack("grabframe");
+
+                    }
+
 
                     if (Input.GetKey("p"))
                     {

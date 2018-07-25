@@ -134,6 +134,10 @@ end
 
 // Keyboard controls
 
+#grabframe
+grabframe
+end
+
 #keyboardcontrols
 keyboardcontrol
 end
