@@ -512,15 +512,16 @@ namespace PresenceEngine
 
                 }
 
-                // Adjust point size for distance from camera. 
+                // Adjust point size for distance from camera. Currently it's squaring. Might want to go linear.
 
                 Vector3 CameraPosition = SETTINGS.ActiveCamera.transform.position;
                 float distance = Vector3.Distance(CameraPosition, Frame.UserPosition);
-                float factor = (Mathf.Clamp(distance, 0.5f, 4f) - 0.5f) / 3.5f; // 0-1
+                float factor = (Mathf.Clamp(distance, 0.5f, 4f) - 0.5f) / 3.5f; //result is normalised to 0-1
 
                 factor = Mathf.Pow((1f - factor), 2f);
 
-                float size = 0.001f + factor * 0.005f;
+           //     float size = 0.001f + factor * 0.005f;
+                float size = 0.001f + factor * 0.0065f;
                 Cloud.SetPointSize(size);
 
                 // Now calculate normals, lighting and assign colours accordingly
