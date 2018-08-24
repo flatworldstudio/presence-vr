@@ -64,7 +64,7 @@ namespace PresenceEngine
             float width = 1280;
 
             SETTINGS.ViewerPositionOffset = Vector3.zero;
-            SETTINGS.ViewerOrientationOffset = Quaternion.identity;
+            SETTINGS.ViewerOrientationOffset = Quaternion.Euler(0,0,0);
 
 
             fileBrowserConstraint.hardClamp = true;

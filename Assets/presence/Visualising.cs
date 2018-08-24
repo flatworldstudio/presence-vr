@@ -168,7 +168,9 @@ namespace PresenceEngine
                     return;
                 }
 
-                Vector3 offset = new Vector3(0, Frame.SensorY, 0);
+                //    Vector3 offset = new Vector3(0, Frame.SensorY, 0);\
+                Vector3 offset = Vector3.zero;
+                // no offset. we're using kinect height which means that whatever height it was at, joints will be correct.
 
                 HandLeft.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] + offset;
                 HandRight.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] + offset;

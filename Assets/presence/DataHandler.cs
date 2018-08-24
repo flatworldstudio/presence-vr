@@ -237,12 +237,15 @@ namespace PresenceEngine
                             if (Array.IndexOf(presenceNames, presence.Key) == -1 && presence.Key != "user")
 
                             {
-                                presence.Value.AddSettingsToTask(task, presence.Key);
-                                presence.Value.Visualiser.SettingsToTask(task, presence.Key); // just once, not animated
+                                presence.Value.PushAllSettingToTask(task, presence.Key);
+                              //  presence.Value.Visualiser.SettingsToTask(task, presence.Key); // just once, not animated
+
+                             //   presence.Value.VisualiserSettingsToTask(task,presence.Key);
+
                             }
 
                             task.SetStringArrayValue("presences", SETTINGS.Presences.Keys.ToArray());
-                            presence.Value.AddModeToTask(task, presence.Key); // mode updated all the time
+                            presence.Value.PushModeToTask(task, presence.Key); // mode updated all the time
 
                             if (presence.Value.DepthTransport.Mode == DEPTHMODE.COPY)
                             {
@@ -334,13 +337,13 @@ namespace PresenceEngine
 
                                     presence = Presence.Create(presences);
                                     SETTINGS.Presences.Add(presenceName, presence);
-                                    presence.GetSettingsFromTask(task, presenceName);
-                                    presence.Visualiser.SettingsFromTask(task, presenceName);
+                                    presence.PullAllSettingsFromTask(task, presenceName);
+                                    //presence.Visualiser.SettingsFromTask(task, presenceName);
                                 }
 
                                 // Update depthmode 
 
-                                presence.GetModeFromTask(task, presenceName);
+                                presence.PullModeFromTask(task, presenceName);
 
                                 if (presence.DepthTransport.Mode == DEPTHMODE.COPY)
                                 {
@@ -507,23 +510,23 @@ namespace PresenceEngine
 
                             }
 
-                            //fileplayback.SetVisualiser("PointCloud");
-
-                            //fileplayback.SetVisualiser("ShowMesh");
+                 
                             fileplayback.SetVisualiser(SETTINGS.DefaultVisualiser);
 
                             fileplayback.SetTranscoder(pbBuffer.TransCoderName);
 
                             fileplayback.DepthTransport.TransCoder.SetBufferFile(pbBuffer);
                             fileplayback.DepthTransport.CurrentTime = fileplayback.DepthTransport.TransCoder.GetBufferFile().StartTime;
-                            fileplayback.Visualiser.SetTransform(Vector3.zero, Vector3.one, Quaternion.identity);
+
+                            fileplayback.SetVisualiseTransform(Vector3.zero, Vector3.one, Quaternion.identity);
 
                             fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
 
                             Debug.Log("started buffer " + pbBuffer.Name);
 
+
                             task.SetFloatValue("playbackpresence_cloudvisible", 1);
-                            fileplayback.Visualiser.SettingsFromTask(task, "playbackpresence");
+                            fileplayback.PullVisualiserSettingsFromTask(task, "playbackpresence");
 
 
                         }
@@ -589,9 +592,9 @@ namespace PresenceEngine
                             fileplayback.SetTranscoder(pbcBuf.TransCoderName);
                             fileplayback.DepthTransport.TransCoder.SetBufferFile(pbcBuf);
                             fileplayback.DepthTransport.CurrentTime = 0;
-                            fileplayback.Visualiser.SetTransform(new Vector3(0, 0, 1), new Vector3(1, 1, -1), Quaternion.identity);
+                            fileplayback.SetVisualiseTransform(new Vector3(0, 0, 1), new Vector3(1, 1, -1), Quaternion.identity);
                             task.SetFloatValue(mirrorPresence + "_cloudvisible", 1);
-                            fileplayback.Visualiser.SettingsFromTask(task, mirrorPresence);
+                            fileplayback.PullVisualiserSettingsFromTask(task, mirrorPresence);
                             fileplayback.DepthTransport.Mode = DEPTHMODE.COPY;
 
                             if (SETTINGS.user.DepthTransport.Mode == DEPTHMODE.RECORD)
@@ -659,12 +662,12 @@ namespace PresenceEngine
 
                                     fileplayback.DepthTransport.CurrentTime = fileplayback.DepthTransport.TransCoder.GetBufferFile().StartTime - UnityEngine.Random.Range(0.5f, 3f);
 
-                                    fileplayback.Visualiser.SetTransform(Vector3.zero, Vector3.one, Quaternion.identity);
+                                    fileplayback.SetVisualiseTransform(Vector3.zero, Vector3.one, Quaternion.identity);
 
                                     fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
 
                                     task.SetFloatValue("playbackpresence" + c + "_cloudvisible", 1);
-                                    fileplayback.Visualiser.SettingsFromTask(task, "playbackpresence" + c);
+                                    fileplayback.PullVisualiserSettingsFromTask(task, "playbackpresence" + c);
 
                                     Debug.Log("started buffer " + c + " " + pbcBuf.Name);
                                 }
@@ -726,12 +729,12 @@ namespace PresenceEngine
 
                                 fileplayback.DepthTransport.CurrentTime = -0.5f * c;
 
-                                fileplayback.Visualiser.SetTransform(new Vector3(0.5f * c, 0, 0), Vector3.one, Quaternion.identity);
+                                fileplayback.SetVisualiseTransform(new Vector3(0.5f * c, 0, 0), Vector3.one, Quaternion.identity);
 
                                 fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
 
                                 task.SetFloatValue("playbackpresence" + c + "_cloudvisible", 1);
-                                fileplayback.Visualiser.SettingsFromTask(task, "playbackpresence" + c);
+                                fileplayback.PullVisualiserSettingsFromTask(task, "playbackpresence" + c);
 
                                 Debug.Log("started buffer " + c + " " + pbcBuf.Name);
 
@@ -1191,7 +1194,7 @@ namespace PresenceEngine
                     {
                         task.SetFloatValue("user_cloudvisible", 1);
 
-                        SETTINGS.user.Visualiser.SettingsFromTask(task, "user");
+                        SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
 
                         presenceSound.Play();
 
@@ -1204,7 +1207,7 @@ namespace PresenceEngine
                         if (task.GetFloatValue("user_cloudvisible", out v))
                         {
 
-                            SETTINGS.user.Visualiser.SettingsFromTask(task, "user");
+                            SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
 
                         }
 
@@ -1223,7 +1226,7 @@ namespace PresenceEngine
                     {
                         task.SetFloatValue("user_cloudvisible", 0);
 
-                        SETTINGS.user.Visualiser.SettingsFromTask(task, "user");
+                        SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
 
                         done = true;
                     }
@@ -1234,7 +1237,7 @@ namespace PresenceEngine
                         if (task.GetFloatValue("user_cloudvisible", out v))
                         {
 
-                            SETTINGS.user.Visualiser.SettingsFromTask(task, "user");
+                            SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
 
                         }
 
@@ -1265,6 +1268,8 @@ namespace PresenceEngine
                         // Get latest value for headrotation (from client, via task) and add it to the frame (for recording).
                         task.GetQuaternionValue("user_headrotation", out UserDT.ActiveFrame.HeadOrientation);
 
+                        // Encode depth to task.
+
                         if (!UserDT.Encode(task, "user"))
                             Log.Warning("Encode failed");
 
@@ -1286,6 +1291,8 @@ namespace PresenceEngine
                         QualitySettings.vSyncCount = 0;
 
                         DepthTransport UserDT = SETTINGS.user.DepthTransport;
+
+                        // Decode depth from task
 
                         if (!UserDT.Decode(task, "user"))
                             Log.Warning("Decode failed");
