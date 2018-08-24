@@ -162,6 +162,7 @@ end
 
 #playguided
 pressedplay
+isglobal
 pause5
 //MaterialiseOn
 //DrawingOn
