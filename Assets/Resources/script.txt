@@ -1,7 +1,7 @@
 // CLIENT STORIES.
 
 #presenceclient
-//debugon
+debugon
 amvrclient
 start moodlight
 start serversearch
@@ -153,6 +153,38 @@ end
 #togglemanualplayback
 togglemanualplayback
 end
+
+// Flows - guided
+
+#flow_guided
+setflow_guided
+end
+
+#playguided
+pause5
+guide_opening
+pause5
+guide_sitdown
+waitforseated
+guide_begin
+@playguided_stop
+pause5
+end
+
+#stopplayguided
+tell playguided playguided_stop
+end
+
+#recordguided
+pause5
+@recordguided_stop
+pause5
+end
+
+#stoprecordguided
+tell recordguided_stop
+end
+
 
 // Flows - solo
 

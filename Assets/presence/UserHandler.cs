@@ -995,7 +995,25 @@ namespace PresenceEngine
                     done = true;
                     break;
 
+                case "setflow_guided":
 
+                    userMessager.ShowTextMessage("Flow: Guided", 1);
+
+                    b = serverInterface.GetButton("playbackstart");
+                    b.callback = "playguided";
+
+                    b = serverInterface.GetButton("playbackstop");
+                    b.callback = "stopplayguided";
+
+                    b = serverInterface.GetButton("recordstart");
+                    b.callback = "recordguided";
+
+                    b = serverInterface.GetButton("recordstop");
+                    b.callback = "stoprecordguided";
+
+
+                    done = true;
+                    break;
 
                 case "servercontrol":
 
