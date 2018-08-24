@@ -1148,7 +1148,42 @@ namespace PresenceEngine
                     break;
 
 
+                case "DrawingOn":
+
+
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                    {
+                        task.SetFloatValue("user_cloudvisible", 1);
+
+                        SETTINGS.user.SetVisualiser("ShowSkeleton");
+                                                               
+
+                       
+                    }
+
+                    done = true;
+
+                    break;
+
+                case "DrawingOff":
+
+
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                    {
+                        task.SetFloatValue("user_cloudvisible", 1);
+
+                        SETTINGS.user.SetVisualiser("PointShaded");
+
+
+
+                    }
+
+                    done = true;
+
+                    break;
+
                 case "materialiseon":
+                    case"MaterialiseOn":
 
                     // Use visualiser's to and from task method to change setting.
 
@@ -1157,6 +1192,8 @@ namespace PresenceEngine
                         task.SetFloatValue("user_cloudvisible", 1);
 
                         SETTINGS.user.Visualiser.SettingsFromTask(task, "user");
+
+                        presenceSound.Play();
 
                         done = true;
                     }
@@ -1171,13 +1208,12 @@ namespace PresenceEngine
 
                         }
 
-                        presenceSound.Play();
+                 //       presenceSound.Play();
 
                         done = true;
                     }
 
-
-                    break;
+                                        break;
 
                 case "materialiseoff":
 

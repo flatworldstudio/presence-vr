@@ -13,8 +13,10 @@ namespace PresenceEngine
 
     public class SetHandler : MonoBehaviour
     {
-        public GameObject PresenceObjectPrefab,presences;
+        public GameObject PresenceObjectPrefab, presences;
         public SetController setController;
+
+        public AudioSource VoiceOver;
 
 
         //public GameObject cloud;
@@ -99,36 +101,443 @@ namespace PresenceEngine
 
             switch (task.description)
             {
+                // ------------------------------------------------------------------------------------------------------------------------
+                // Guide VO Playback
+                // Note: make this work on remote only.
+
+                case "GuideOpening":
+
+                    if (PlayVoiceOver("GuideOpening", task))
+                    {
+                        if (VoiceOver.isPlaying)
+                        {
+                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+
+                    break;
+
+                case "GuideSitdown":
+
+                    if (PlayVoiceOver("GuideSitdown", task))
+                    {
+                        if (VoiceOver.isPlaying)
+                        {
+                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+
+                    break;
+
+                case "GuideBegin":
+
+                    if (PlayVoiceOver("GuideBegin", task))
+                    {
+                        if (VoiceOver.isPlaying)
+                        {
+                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+
+                    break;
+
+                case "GuideObservehands":
+
+                    if (PlayVoiceOver("GuideObservehands", task))
+                    {
+                        if (VoiceOver.isPlaying)
+                        {
+                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+
+                    break;
+
+                case "GuideDrawing":
+
+                    if (PlayVoiceOver("GuideDrawing", task))
+                    {
+                        if (VoiceOver.isPlaying)
+                        {
+                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+
+                    break;
+
+                case "GuideObservedrawing":
+
+                    if (PlayVoiceOver("GuideObservedrawing", task))
+                    {
+                        if (VoiceOver.isPlaying)
+                        {
+                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+
+                    break;
+
+                case "GuideGetup":
+
+                    if (PlayVoiceOver("GuideGetup", task))
+                    {
+                        if (VoiceOver.isPlaying)
+                        {
+                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+
+                    break;
+
+                case "GuideThirdpersonintro":
+
+                    if (PlayVoiceOver("GuideThirdpersonintro", task))
+                    {
+                        if (VoiceOver.isPlaying)
+                        {
+                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+
+                    break;
+
+                case "GuideThirdperson":
+
+                    if (PlayVoiceOver("GuideThirdperson", task))
+                    {
+                        if (VoiceOver.isPlaying)
+                        {
+                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+
+                    break;
+
+                case "GuideThirdpersonexit":
+
+                    if (PlayVoiceOver("GuideThirdpersonexit", task))
+                    {
+                        if (VoiceOver.isPlaying)
+                        {
+                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+
+                    break;
+
+                case "GuideReturntocenter":
+
+                    if (PlayVoiceOver("GuideReturntocenter", task))
+                    {
+                        if (VoiceOver.isPlaying)
+                        {
+                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+
+                    break;
+
+                case "GuideMirrorintro":
+
+                    if (PlayVoiceOver("GuideMirrorintro", task))
+                    {
+                        if (VoiceOver.isPlaying)
+                        {
+                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+
+                    break;
+
+                case "GuideMirror":
+
+                    if (PlayVoiceOver("GuideMirror", task))
+                    {
+                        if (VoiceOver.isPlaying)
+                        {
+                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+
+                    break;
+
+                case "GuideSlowdown":
+
+                    if (PlayVoiceOver("GuideSlowdown", task))
+                    {
+                        if (VoiceOver.isPlaying)
+                        {
+                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+
+                    break;
+
+                case "GuideReverse":
+
+                    if (PlayVoiceOver("GuideReverse", task))
+                    {
+                        if (VoiceOver.isPlaying)
+                        {
+                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+
+                    break;
+
+                case "GuideFreeze":
+
+                    if (PlayVoiceOver("GuideFreeze", task))
+                    {
+                        if (VoiceOver.isPlaying)
+                        {
+                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+
+                    break;
+
+                case "GuideShatter":
+
+                    if (PlayVoiceOver("GuideShatter", task))
+                    {
+                        if (VoiceOver.isPlaying)
+                        {
+                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+
+                    break;
+
+                case "GuideCircleintro":
+
+                    if (PlayVoiceOver("GuideCircleintro", task))
+                    {
+                        if (VoiceOver.isPlaying)
+                        {
+                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+
+                    break;
+
+                case "GuideCircle":
+
+                    if (PlayVoiceOver("GuideCircle", task))
+                    {
+                        if (VoiceOver.isPlaying)
+                        {
+                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+
+                    break;
+
+                case "GuideCircleclone":
+
+                    if (PlayVoiceOver("GuideCircleclone", task))
+                    {
+                        if (VoiceOver.isPlaying)
+                        {
+                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+
+                    break;
+
+                case "GuideCircleobserve":
+
+                    if (PlayVoiceOver("GuideCircleobserve", task))
+                    {
+                        if (VoiceOver.isPlaying)
+                        {
+                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+
+                    break;
+
+                case "GuideNotalone":
+
+                    if (PlayVoiceOver("GuideNotalone", task))
+                    {
+                        if (VoiceOver.isPlaying)
+                        {
+                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+
+                    break;
+
+                case "GuidePresences":
+
+                    if (PlayVoiceOver("GuidePresences", task))
+                    {
+                        if (VoiceOver.isPlaying)
+                        {
+                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+
+                    break;
+
+                case "GuideEndpresences":
+
+                    if (PlayVoiceOver("GuideEndpresences", task))
+                    {
+                        if (VoiceOver.isPlaying)
+                        {
+                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+
+                    break;
+
+                case "GuideEndsession":
+
+                    if (PlayVoiceOver("GuideEndsession", task))
+                    {
+                        if (VoiceOver.isPlaying)
+                        {
+                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+
+                    break;
+
+
+
+                // ------------------------------------------------------------------------------------------------------------------------
 
 
 
                 //case "playbackfile":
 
-                    //// Play back the checked out file.
+                //// Play back the checked out file.
 
-                    //Presence filePlayback;
+                //Presence filePlayback;
 
-                    //if (!SETTINGS.Presences.TryGetValue("playbackpresence", out filePlayback))
-                    //{
+                //if (!SETTINGS.Presences.TryGetValue("playbackpresence", out filePlayback))
+                //{
 
-                    //    // if intended presence doesn't exist (and it shouldn't), create it.
+                //    // if intended presence doesn't exist (and it shouldn't), create it.
 
-                    //    filePlayback = Presence.Create(this.gameObject);
-                    //    SETTINGS.Presences.Add("playbackpresence", filePlayback);
-                    //    filePlayback.SetVisualiser("ShowSkeleton");
-                    //    filePlayback.SetTranscoder("SkeletonOnly");
+                //    filePlayback = Presence.Create(this.gameObject);
+                //    SETTINGS.Presences.Add("playbackpresence", filePlayback);
+                //    filePlayback.SetVisualiser("ShowSkeleton");
+                //    filePlayback.SetTranscoder("SkeletonOnly");
 
-                    //}
+                //}
 
-                    //done = true;
-                    //break;
-
-
+                //done = true;
+                //break;
 
 
-              
 
-          
+
+
+
+
                 //case "createclone":
 
                 //int pi = 1;
@@ -1443,7 +1852,29 @@ namespace PresenceEngine
 
         }
 
+        bool PlayVoiceOver(string clipName, StoryTask taskRef)
+        {
 
+            string vostatus;
+
+            if (!taskRef.GetStringValue("vo", out vostatus))
+            {
+                taskRef.SetStringValue("vo", clipName);
+                AudioClip clip = (AudioClip)Resources.Load("audio/" + clipName);
+
+                VoiceOver.clip = clip;
+                VoiceOver.Play();
+
+                return false;
+
+            }
+            else
+            {
+                return true;
+
+            }
+
+        }
 
         void Update()
         {

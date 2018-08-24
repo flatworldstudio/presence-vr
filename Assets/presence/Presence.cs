@@ -8,6 +8,8 @@ namespace PresenceEngine
     public class Presence : MonoBehaviour
     {
         public iVisualiser Visualiser;
+        //public iVisualiser Visualiser;
+
         public DepthTransport DepthTransport;
         public bool SoundPlayed=false;
 
@@ -29,6 +31,11 @@ namespace PresenceEngine
 
         }
 
+         void Start()
+        {
+            
+
+        }
 
         void Update()
         {

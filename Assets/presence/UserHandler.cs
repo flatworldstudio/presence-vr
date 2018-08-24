@@ -31,7 +31,7 @@ namespace PresenceEngine
 
         public CalibrateOnMarker CalibrationScript;
 
-        public Gestures Davinci;
+     //   public GestureDetection GestureDetection;
 
         public GameObject NewFile;
         public UnityEngine.UI.InputField fileNameInput;
@@ -61,7 +61,11 @@ namespace PresenceEngine
 
             fileBrowserConstraint = new UiConstraint();
 
-            float width=1280;
+            float width = 1280;
+
+            SETTINGS.ViewerPositionOffset = Vector3.zero;
+            SETTINGS.ViewerOrientationOffset = Quaternion.identity;
+
 
             fileBrowserConstraint.hardClamp = true;
             fileBrowserConstraint.hardClampMin = new Vector3(-width - 100, 0);
@@ -74,7 +78,7 @@ namespace PresenceEngine
             fileBrowserConstraint.springPositions[2] = new Vector2(width, 0); // offscreen
 
 
-            SETTINGS.ActiveCamera =  overviewObject.GetComponentInChildren<Camera>();
+            SETTINGS.ActiveCamera = overviewObject.GetComponentInChildren<Camera>();
 
 
             //MakeBrowserConstraint();
@@ -82,9 +86,9 @@ namespace PresenceEngine
             //float width = Screen.width;
             //Display[0].widtj;
             //float width =  
-                //Display.displays[0].
-            
-                                  //Display.displays[1].Activate();
+            //Display.displays[0].
+
+            //Display.displays[1].Activate();
 
             //float width  =  Display.main.renderingWidth;
 
@@ -180,6 +184,192 @@ namespace PresenceEngine
 
             switch (task.description)
             {
+                // -----------------------------------------------------------------------
+                // Gestures
+
+              
+                case "WaitforSeated":
+
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                    {
+                        string status;
+
+                        if (!task.GetStringValue("status", out status))
+                        {
+
+                            GestureDetection.Instance.BeginDetect(task,KinectGestures.Gestures.Centerseat);
+                            task.SetStringValue("status", "detecting");
+
+                        }
+
+#if DEV
+                        if (Input.anyKeyDown)
+                            task.SetStringValue("status", "detected");
+#endif
+
+                        if (status == "detected")
+                        {
+                            task.SetStringValue("status", "detected");
+                            userMessager.ShowTextMessage("Pose detected", 1);
+
+                            GestureDetection.Instance.EndDetect();
+                            done = true;
+                        }
+                        
+                    }
+
+                    break;
+
+                case "WaitforGetup":
+
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                    {
+                        string status;
+
+                        if (!task.GetStringValue("status", out status))
+                        {
+
+                            GestureDetection.Instance.BeginDetect(task, KinectGestures.Gestures.Getup);
+                            task.SetStringValue("status", "detecting");
+
+                        }
+
+#if DEV
+                        if (Input.anyKeyDown)
+                            task.SetStringValue("status", "detected");
+#endif
+
+                        if (status == "detected")
+                        {
+                            task.SetStringValue("status", "detected");
+                            userMessager.ShowTextMessage("Pose detected", 1);
+
+                            GestureDetection.Instance.EndDetect();
+                            done = true;
+                        }
+
+                    }
+
+                    break;
+
+                case "WaitforRaisedhands":
+
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                    {
+                        string status;
+
+                        if (!task.GetStringValue("status", out status))
+                        {
+
+                            GestureDetection.Instance.BeginDetect(task, KinectGestures.Gestures.HandsFolded);
+                            task.SetStringValue("status", "detecting");
+
+                        }
+
+#if DEV
+                        if (Input.anyKeyDown)
+                            task.SetStringValue("status", "detected");
+#endif
+
+                        if (status == "detected")
+                        {
+                            task.SetStringValue("status", "detected");
+                            userMessager.ShowTextMessage("Pose detected", 1);
+
+                            GestureDetection.Instance.EndDetect();
+                            done = true;
+                        }
+
+                    }
+
+                    break;
+
+                case "waitforgesture":
+
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                    {
+                        string status;
+
+                        if (!task.GetStringValue("status", out status))
+                        {
+
+                            GestureDetection.Instance.BeginDetect(task, KinectGestures.Gestures.Tpose);
+
+                       //     GestureTpose gestureSeated = GestureObject.AddComponent<GestureTpose>();
+                    //        gestureSeated.BeginDetect(task);
+                            //                            Davinci.BeginDetect(task);
+                            task.SetStringValue("status", "detecting");
+
+                        }
+
+#if DEV
+                        if (Input.anyKeyDown)
+                            task.SetStringValue("status", "detected");
+#endif
+
+                        if (status == "detected")
+                        {
+                            task.SetStringValue("status", "detecting");
+                            userMessager.ShowTextMessage("Pose detected", 1);
+                            //  GestureObject.GetComponent<GestureTpose>().EndDetect();
+                            GestureDetection.Instance.EndDetect();
+                       //     GestureObject.GetComponent<GestureTpose>().EndDetect();
+                         //   Destroy(GestureObject.GetComponent<GestureTpose>());
+                            //   Davinci.EndDetect();
+
+                            done = true;
+                        }
+
+
+                    }
+
+                    if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
+                    {
+
+
+                        string status;
+
+                        task.GetStringValue("status", out status);
+
+                        if (status == "detected")
+                        {
+                            // task.SetStringValue("status", "detecting");
+                            if (!signalSound.isPlaying)
+                                signalSound.Play();
+
+                            done = true;
+                        }
+
+                    }
+
+
+
+
+                    break;
+
+
+                // -----------------------------------------------------------------------
+
+
+                case "ThirdpersonOn":
+
+                    SETTINGS.ViewerOrientationOffset = Quaternion.Euler(90f, 180f, 0f);
+                    SETTINGS.ViewerPositionOffset = new Vector3(0, 2, 0);
+
+                
+                    done = true;
+                    break;
+
+                case "ThirdpersonOff":
+
+                    SETTINGS.ViewerOrientationOffset = Quaternion.identity;
+                    SETTINGS.ViewerPositionOffset = Vector3.zero;
+
+
+                    done = true;
+                    break;
+
+                // -----------------------------------------------------------------------
 
                 // Connectivity messages.
 
@@ -382,125 +572,71 @@ namespace PresenceEngine
 #endif
 
 
-                case "waitforgesture":
+               
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                /*
+            case "detectgesture":
+
+
+
+
+                if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                {
+                    string status;
+
+                    if (!task.GetStringValue("status", out status))
                     {
-                        string status;
 
-                        if (!task.GetStringValue("status", out status))
-                        {
+                        Davinci.BeginDetect(task);
+                        task.SetStringValue("status", "detecting");
 
-                            Davinci.BeginDetect(task);
-                            task.SetStringValue("status", "detecting");
-
-                        }
+                    }
 
 #if DEV
-                        if (Input.anyKeyDown)
-                            task.SetStringValue("status", "detected");
+                    if (Input.anyKeyDown)
+                        task.SetStringValue("status", "detected");
 #endif
 
-                        if (status == "detected")
-                        {
-                            task.SetStringValue("status", "detecting");
-                            userMessager.ShowTextMessage("Pose detected", 1);
-
-                            Davinci.EndDetect();
-
-                            done = true;
-                        }
-
-
-                    }
-
-                    if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
+                    if (status == "detected")
                     {
-
-
-                        string status;
-
-                        task.GetStringValue("status", out status);
-
-                        if (status == "detected")
-                        {
-                            // task.SetStringValue("status", "detecting");
-                            if (!signalSound.isPlaying)
-                                signalSound.Play();
-
-                            done = true;
-                        }
-
+                        task.SetStringValue("status", "detecting");
+                        userMessager.ShowTextMessage("Pose detected", 1);
                     }
 
 
+                }
+
+                if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
+                {
 
 
-                    break;
+                    string status;
 
+                    task.GetStringValue("status", out status);
 
-
-                case "detectgesture":
-
-
-
-
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                    if (status == "detected")
                     {
-                        string status;
-
-                        if (!task.GetStringValue("status", out status))
-                        {
-
-                            Davinci.BeginDetect(task);
-                            task.SetStringValue("status", "detecting");
-
-                        }
-
-#if DEV
-                        if (Input.anyKeyDown)
-                            task.SetStringValue("status", "detected");
-#endif
-
-                        if (status == "detected")
-                        {
-                            task.SetStringValue("status", "detecting");
-                            userMessager.ShowTextMessage("Pose detected", 1);
-                        }
-
-
+                        task.SetStringValue("status", "detecting");
+                        signalSound.Play();
                     }
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
-                    {
-
-
-                        string status;
-
-                        task.GetStringValue("status", out status);
-
-                        if (status == "detected")
-                        {
-                            task.SetStringValue("status", "detecting");
-                            signalSound.Play();
-                        }
-
-                    }
+                }
 
 
 
-                    //    uint playerID2 = KinectManager.Instance != null ? KinectManager.Instance.GetPlayer1ID() : 0;
+                //    uint playerID2 = KinectManager.Instance != null ? KinectManager.Instance.GetPlayer1ID() : 0;
 
-                    //     if (playerID2 > 0)
-                    //      {
-                    //          KinectManager.Instance.DetectGesture(playerID2, KinectGestures.Gestures.RaiseLeftHand);
+                //     if (playerID2 > 0)
+                //      {
+                //          KinectManager.Instance.DetectGesture(playerID2, KinectGestures.Gestures.RaiseLeftHand);
 
-                    //    done = true;
-                    //      }
+                //    done = true;
+                //      }
 
 
 
-                    break;
+                break;
+                */
 
                 case "userstream":
 
@@ -520,17 +656,25 @@ namespace PresenceEngine
                     if (ShowFrame != null && ShowFrame.Joints != null && ShowFrame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.Head])
                     {
                         // apply user head position to camera on both server and client
-                        viewerObject.transform.parent.transform.position = ShowFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head];
+                        // apply offset from settings
+                        viewerObject.transform.parent.transform.position = ShowFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head]+SETTINGS.ViewerPositionOffset;
 
                     }
 
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
+
+                        // apply user head rotation from device
+                        // apply offset from settings
+
                         Quaternion ho;
 
                         if (task.GetQuaternionValue("user_headrotation", out ho))
                         {
-                            viewerObject.transform.localRotation = ho;
+                            viewerObject.transform.localRotation = ho * SETTINGS.ViewerOrientationOffset;
+                        } else
+                        {
+                            viewerObject.transform.localRotation = SETTINGS.ViewerOrientationOffset;
                         }
 
                     }
@@ -659,7 +803,7 @@ namespace PresenceEngine
 
 
                     //MakeBrowserConstraint();
-                        
+
                     //fileBrowserConstraint = new UiConstraint();
 
                     //float width  =  Display.main.renderingWidth;
@@ -864,6 +1008,9 @@ namespace PresenceEngine
                     control.callback = "flow_echo";
                     serverInterface.addButton(control);
 
+                    control = new UiButton("flow05", menu, constraint);
+                    control.callback = "flow_guided";
+                    serverInterface.addButton(control);
 
                     // Callbacks for play, record and stop are different for different flows. These are the defaults.
 
@@ -959,17 +1106,17 @@ namespace PresenceEngine
 
                     userMessager.ShowTextMessage("Flow: Delay", 1);
 
-                    b= serverInterface.GetButton("playbackstart");
-                    b.callback="playdelay";
+                    b = serverInterface.GetButton("playbackstart");
+                    b.callback = "playdelay";
 
-                    b= serverInterface.GetButton("playbackstop");
-                    b.callback="stopplaydelay";
+                    b = serverInterface.GetButton("playbackstop");
+                    b.callback = "stopplaydelay";
 
-                    b= serverInterface.GetButton("recordstart");
-                    b.callback="recorddelay";
+                    b = serverInterface.GetButton("recordstart");
+                    b.callback = "recorddelay";
 
-                    b= serverInterface.GetButton("recordstop");
-                    b.callback="stoprecorddelay";
+                    b = serverInterface.GetButton("recordstop");
+                    b.callback = "stoprecorddelay";
 
 
                     done = true;
@@ -1378,9 +1525,9 @@ namespace PresenceEngine
                         viewCam.targetDisplay = userCam.targetDisplay;
                         userCam.targetDisplay = t;
 
-                      //  SETTINGS.ActiveCamera = t==1? viewCam:userCam;
+                        //  SETTINGS.ActiveCamera = t==1? viewCam:userCam;
 
-                        SETTINGS.ActiveCamera = t == 1 ?   userCam: viewCam;
+                        SETTINGS.ActiveCamera = t == 1 ? userCam : viewCam;
 
                         //if (viewCam.targetDisplay == 1)
                         //{
@@ -2185,10 +2332,10 @@ namespace PresenceEngine
                     if (Input.GetKey("p"))
                     {
                         if (SETTINGS.ManualPlayback)
-                        task.setCallBack("previousframe");
+                            task.setCallBack("previousframe");
 
                     }
-                    
+
 
                     if (Input.GetKey("n"))
                     {
@@ -2328,7 +2475,7 @@ namespace PresenceEngine
         }
 
         //void MakeBrowserConstraint(){
-                     
+
         //    //float width  =  Display.displays[0].renderingWidth;
         //    //Debug.Log("WIDTH: "+width);
 

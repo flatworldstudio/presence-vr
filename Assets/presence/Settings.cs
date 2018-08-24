@@ -44,7 +44,8 @@ namespace PresenceEngine
 
         public static DepthTransport MainDepthTransport;
 
-
+        public static Vector3 ViewerPositionOffset;
+        public static Quaternion ViewerOrientationOffset;
 
         public static float north = 0;
 

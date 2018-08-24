@@ -53,8 +53,11 @@ public class KinectGestures
 		Jump,
 		Squat,
 		Push,
-		Pull
-	}
+		Pull,
+        Centerseat,
+        Getup,
+        HandsFolded
+    }
 	
 	
 	public struct GestureData
@@ -92,9 +95,11 @@ public class KinectGestures
 	private const int shoulderCenterIndex = (int)KinectWrapper.NuiSkeletonPositionIndex.ShoulderCenter;
 	private const int leftHipIndex = (int)KinectWrapper.NuiSkeletonPositionIndex.HipLeft;
 	private const int rightHipIndex = (int)KinectWrapper.NuiSkeletonPositionIndex.HipRight;
-	
-	
-	private static void SetGestureJoint(ref GestureData gestureData, float timestamp, int joint, Vector3 jointPos)
+
+    private const int headIndex = (int)KinectWrapper.NuiSkeletonPositionIndex.Head;
+
+
+    private static void SetGestureJoint(ref GestureData gestureData, float timestamp, int joint, Vector3 jointPos)
 	{
 		gestureData.joint = joint;
 		gestureData.jointPos = jointPos;
@@ -235,8 +240,92 @@ public class KinectGestures
 		
 		switch(gestureData.gesture)
 		{
-			// check for RaiseRightHand
-			case Gestures.RaiseRightHand:
+
+
+            case Gestures.Centerseat:
+
+                switch (gestureData.state)
+                {
+                    case 0:  // gesture detection
+
+                        if (jointsTracked[headIndex] && jointsPos[headIndex].y<1.5f     )
+                        {
+                            SetGestureJoint(ref gestureData, timestamp, headIndex, jointsPos[headIndex]);
+                        }
+                        break;
+
+                    case 1:  // gesture complete
+
+                        bool isInPose = jointsTracked[headIndex] && jointsPos[headIndex].y < 1.5f;
+
+                        Vector3 jointPos = jointsPos[gestureData.joint];
+
+                        CheckPoseComplete(ref gestureData, timestamp, jointPos, isInPose, KinectWrapper.Constants.PoseCompleteDuration);
+
+                        break;
+                }
+
+                break;
+
+            case Gestures.Getup:
+
+                switch (gestureData.state)
+                {
+                    case 0:  // gesture detection
+
+                        if (jointsTracked[headIndex] && jointsPos[headIndex].y > 1.5f)
+                        {
+                            SetGestureJoint(ref gestureData, timestamp, headIndex, jointsPos[headIndex]);
+                        }
+                        break;
+
+                    case 1:  // gesture complete
+
+                        bool isInPose = jointsTracked[headIndex] && jointsPos[headIndex].y > 1.5f;
+
+                        Vector3 jointPos = jointsPos[gestureData.joint];
+
+                        CheckPoseComplete(ref gestureData, timestamp, jointPos, isInPose, KinectWrapper.Constants.PoseCompleteDuration);
+
+                        break;
+                }
+
+                break;
+
+            case Gestures.HandsFolded:
+
+                switch (gestureData.state)
+                {
+                    case 0:  // gesture detection
+
+                        if (jointsTracked[leftHandIndex] && jointsTracked[rightHandIndex] &&
+                            Vector3.Distance(jointsPos[leftHandIndex],jointsPos[rightHandIndex])<0.25f)
+                            
+                        {
+                            SetGestureJoint(ref gestureData, timestamp, headIndex, jointsPos[leftHandIndex]);
+                        }
+                        break;
+
+                    case 1:  // gesture complete
+
+                        bool isInPose = jointsTracked[leftHandIndex] && jointsTracked[rightHandIndex] &&
+                            Vector3.Distance(jointsPos[leftHandIndex], jointsPos[rightHandIndex]) < 0.25f;
+
+                        Vector3 jointPos = jointsPos[gestureData.joint];
+
+                        CheckPoseComplete(ref gestureData, timestamp, jointPos, isInPose, KinectWrapper.Constants.PoseCompleteDuration);
+
+                        break;
+                }
+
+                break;
+
+
+
+
+
+            // check for RaiseRightHand
+            case Gestures.RaiseRightHand:
 				switch(gestureData.state)
 				{
 					case 0:  // gesture detection
