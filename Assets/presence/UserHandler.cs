@@ -399,7 +399,13 @@ namespace PresenceEngine
 
                 // Flow messages
 
+                case "calibrateheadset":
 
+                    userMessager.ShowTextMessage("Calibrating", 1);
+
+
+                    done = true;
+                    break;
 
                 case "depthlive":
 

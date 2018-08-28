@@ -154,6 +154,13 @@ end
 togglemanualplayback
 end
 
+// Headset calibration
+
+#calibratenow
+isglobal
+calibrateheadset
+end
+
 // Flows - guided
 
 #flow_guided
