@@ -252,9 +252,14 @@ namespace PresenceEngine
             SetVisualiser(visualiser_1, 1);
 
             SetTranscoder(transcoder);
-            DepthTransport.TransCoder.SetBufferFile(IO.LoadFile(buffer));
 
-            Visualiser.SetTransform(position, scale, rotation);
+            if (buffer != "")
+            {
+                DepthTransport.TransCoder.SetBufferFile(IO.LoadFile(buffer));
+            }
+
+            SetVisualiseTransform(position, scale, rotation);
+            //     Visualiser.SetTransform(position, scale, rotation);
 
             //   Visualiser.SettingsFromTask(task, prefix);
 
@@ -271,7 +276,7 @@ namespace PresenceEngine
         }
 
 
-         void PushModeToTask(StoryTask task, string prefix)
+        void PushModeToTask(StoryTask task, string prefix)
         {
             int mode = (int)DEPTHMODE.OFF;
             string target = "";
@@ -289,7 +294,7 @@ namespace PresenceEngine
 
         }
 
-         void PullModeFromTask(StoryTask task, string prefix)
+        void PullModeFromTask(StoryTask task, string prefix)
         {
             int mode;
             task.GetIntValue(prefix + "_depthmode", out mode);
