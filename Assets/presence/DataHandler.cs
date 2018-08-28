@@ -1497,9 +1497,9 @@ namespace PresenceEngine
                             Log.Warning("Decode failed");
 
                         // put head orientation 
-
-                        task.SetQuaternionValue("user_headrotation",SETTINGS.HeadsetCorrection * headSet.transform.localRotation);
-                        UserDT.ActiveFrame.HeadOrientation = headSet.transform.rotation;
+                        UserDT.ActiveFrame.HeadOrientation = SETTINGS.HeadsetCorrection * headSet.transform.rotation;
+                        task.SetQuaternionValue("user_headrotation", UserDT.ActiveFrame.HeadOrientation);
+                     
                         //    int usercalibrated;
 
                         //  task.GetIntValue("usercalibrated", out usercalibrated);

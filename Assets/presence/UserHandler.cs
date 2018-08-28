@@ -19,7 +19,7 @@ namespace PresenceEngine
 
         public GameObject uxCanvas;
 
-        public GameObject overviewObject, viewerObject, projectionObject, headSet, setObject, handl, handr, body, Kinect, SetHandler, startPosition;
+        public GameObject overviewObject, viewerObject, viewerCamera, projectionObject, headSet, setObject, handl, handr, body, Kinect, SetHandler, startPosition;
         //	UxMapping overviewMap;
         float timer = 0;
 
@@ -680,7 +680,7 @@ namespace PresenceEngine
                     //    viewerObject.transform.parent.transform.position = ShowFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] + SETTINGS.ViewerPositionOffset;
 
                         viewerObject.transform.position = ShowFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] ;
-
+                        
                     }
 
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
@@ -694,8 +694,10 @@ namespace PresenceEngine
                         if (task.GetQuaternionValue("user_headrotation", out ho))
                         {
                         //    viewerObject.transform.localRotation = ho * SETTINGS.ViewerOrientationOffset;
-                            viewerObject.transform.localRotation = ho ;
-
+                           // viewerObject.transform.localRotation = ho ;
+                            viewerCamera.transform.localRotation = ho; 
+                            // We apply the value to the camera itself. What we got from the client is the cam with the calibration applied. 
+                          
                         }
                         //else
                         //{

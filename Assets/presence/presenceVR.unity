@@ -4943,6 +4943,7 @@ MonoBehaviour:
   uxCanvas: {fileID: 1059995036}
   overviewObject: {fileID: 1664362686}
   viewerObject: {fileID: 358258921}
+  viewerCamera: {fileID: 103973864}
   projectionObject: {fileID: 0}
   headSet: {fileID: 103973864}
   setObject: {fileID: 1348691418}
