@@ -31,7 +31,7 @@ namespace PresenceEngine
 
         public CalibrateOnMarker CalibrationScript;
 
-     //   public GestureDetection GestureDetection;
+        //   public GestureDetection GestureDetection;
 
         public GameObject NewFile;
         public UnityEngine.UI.InputField fileNameInput;
@@ -64,7 +64,7 @@ namespace PresenceEngine
             float width = 1280;
 
             SETTINGS.ViewerPositionOffset = Vector3.zero;
-            SETTINGS.ViewerOrientationOffset = Quaternion.Euler(0,0,0);
+            SETTINGS.ViewerOrientationOffset = Quaternion.Euler(0, 0, 0);
 
 
             fileBrowserConstraint.hardClamp = true;
@@ -187,7 +187,7 @@ namespace PresenceEngine
                 // -----------------------------------------------------------------------
                 // Gestures
 
-              
+
                 case "WaitforSeated":
 
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
@@ -197,7 +197,7 @@ namespace PresenceEngine
                         if (!task.GetStringValue("status", out status))
                         {
 
-                            GestureDetection.Instance.BeginDetect(task,KinectGestures.Gestures.Centerseat);
+                            GestureDetection.Instance.BeginDetect(task, KinectGestures.Gestures.Centerseat);
                             task.SetStringValue("status", "detecting");
 
                         }
@@ -215,7 +215,7 @@ namespace PresenceEngine
                             GestureDetection.Instance.EndDetect();
                             done = true;
                         }
-                        
+
                     }
 
                     break;
@@ -295,8 +295,8 @@ namespace PresenceEngine
 
                             GestureDetection.Instance.BeginDetect(task, KinectGestures.Gestures.Tpose);
 
-                       //     GestureTpose gestureSeated = GestureObject.AddComponent<GestureTpose>();
-                    //        gestureSeated.BeginDetect(task);
+                            //     GestureTpose gestureSeated = GestureObject.AddComponent<GestureTpose>();
+                            //        gestureSeated.BeginDetect(task);
                             //                            Davinci.BeginDetect(task);
                             task.SetStringValue("status", "detecting");
 
@@ -313,8 +313,8 @@ namespace PresenceEngine
                             userMessager.ShowTextMessage("Pose detected", 1);
                             //  GestureObject.GetComponent<GestureTpose>().EndDetect();
                             GestureDetection.Instance.EndDetect();
-                       //     GestureObject.GetComponent<GestureTpose>().EndDetect();
-                         //   Destroy(GestureObject.GetComponent<GestureTpose>());
+                            //     GestureObject.GetComponent<GestureTpose>().EndDetect();
+                            //   Destroy(GestureObject.GetComponent<GestureTpose>());
                             //   Davinci.EndDetect();
 
                             done = true;
@@ -356,7 +356,7 @@ namespace PresenceEngine
                     SETTINGS.ViewerOrientationOffset = Quaternion.Euler(90f, 180f, 0f);
                     SETTINGS.ViewerPositionOffset = new Vector3(0, 2, 0);
 
-                
+
                     done = true;
                     break;
 
@@ -399,13 +399,7 @@ namespace PresenceEngine
 
                 // Flow messages
 
-                case "calibrateheadset":
 
-                    userMessager.ShowTextMessage("Calibrating", 1);
-
-
-                    done = true;
-                    break;
 
                 case "depthlive":
 
@@ -578,7 +572,7 @@ namespace PresenceEngine
 #endif
 
 
-               
+
 
                 /*
             case "detectgesture":
@@ -663,7 +657,7 @@ namespace PresenceEngine
                     {
                         // apply user head position to camera on both server and client
                         // apply offset from settings
-                        viewerObject.transform.parent.transform.position = ShowFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head]+SETTINGS.ViewerPositionOffset;
+                        viewerObject.transform.parent.transform.position = ShowFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] + SETTINGS.ViewerPositionOffset;
 
                     }
 
@@ -678,7 +672,8 @@ namespace PresenceEngine
                         if (task.GetQuaternionValue("user_headrotation", out ho))
                         {
                             viewerObject.transform.localRotation = ho * SETTINGS.ViewerOrientationOffset;
-                        } else
+                        }
+                        else
                         {
                             viewerObject.transform.localRotation = SETTINGS.ViewerOrientationOffset;
                         }
@@ -1972,33 +1967,36 @@ namespace PresenceEngine
 
 
 
-                case "calibrate":
-
-                    // rotate the headset towards the kinect.
+                case "calibrateheadset":
 
 
-                    /*
-                    // kinect as at an angle of
 
-                    Vector3 kinectPosition = Kinect.transform.position - headSet.transform.position;
+                    userMessager.ShowTextMessage("Calibrating", 1);
 
-                    float kinectAtAngle = Mathf.Atan2(kinectPosition.x, kinectPosition.z) * Mathf.Rad2Deg;
 
-                    Debug.Log("kinect: " + kinectAtAngle);
 
-                    // headset is (locally) rotated at an angle of
+                    if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
+                    {
+                        
+                        // headset may have drifted. 
+                        // we set the root object to neutralise whatever the headsets yaw is
 
-                    Vector3 euler = headSet.transform.localRotation.eulerAngles;
+                        // rotate the headset towards the kinect.
+                               
 
-                    float headYaw = euler.y;
+                        // headset is (locally) rotated at an angle of
 
-                    Debug.Log("headYaw: " + headYaw);
+                        Vector3 euler = headSet.transform.localRotation.eulerAngles;
 
-                    // which leaves a delta of
+                        float headYaw = euler.y;
 
-                    viewerObject.transform.parent.transform.rotation = Quaternion.Euler(0, kinectAtAngle - headYaw, 0);
+                        Debug.Log("headYaw: " + headYaw);
 
-                    */
+                        // which leaves a delta of
+
+                        viewerObject.transform.parent.transform.rotation = Quaternion.Euler(0, 180 - headYaw, 0);
+
+                    }
 
 
 
