@@ -1479,7 +1479,7 @@ namespace PresenceEngine
                     {
 
                         GameObject set = GameObject.Find("SetHandler");
-                        GameObject viewer = GameObject.Find("viewerInterest");
+                        GameObject viewer = GameObject.Find("viewerObject");
                         GameObject kinectObject = GameObject.Find("Kinect");
 
                         //	c = GameObject.Find ("Compass");

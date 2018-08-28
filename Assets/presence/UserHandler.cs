@@ -63,8 +63,8 @@ namespace PresenceEngine
 
             float width = 1280;
 
-            SETTINGS.ViewerPositionOffset = Vector3.zero;
-            SETTINGS.ViewerOrientationOffset = Quaternion.Euler(0, 0, 0);
+            //SETTINGS.ViewerPositionOffset = Vector3.zero;
+            //SETTINGS.ViewerOrientationOffset = Quaternion.Euler(0, 0, 0);
 
 
             fileBrowserConstraint.hardClamp = true;
@@ -367,8 +367,11 @@ namespace PresenceEngine
 
                 case "ThirdpersonOn":
 
-                    SETTINGS.ViewerOrientationOffset = Quaternion.Euler(90f, 180f, 0f);
-                    SETTINGS.ViewerPositionOffset = new Vector3(0, 2, 0);
+                    viewerObject.transform.parent.transform.localRotation = SETTINGS.HeadsetCorrection * Quaternion.Euler(90f, 180f, 0f);
+                    viewerObject.transform.parent.transform.localPosition = new Vector3(0, 2, 0);
+
+                    //SETTINGS.ViewerOrientationOffset = Quaternion.Euler(90f, 180f, 0f);
+                    //SETTINGS.ViewerPositionOffset = new Vector3(0, 2, 0);
 
 
                     done = true;
@@ -376,8 +379,11 @@ namespace PresenceEngine
 
                 case "ThirdpersonOff":
 
-                    SETTINGS.ViewerOrientationOffset = Quaternion.identity;
-                    SETTINGS.ViewerPositionOffset = Vector3.zero;
+                    viewerObject.transform.parent.transform.localRotation = SETTINGS.HeadsetCorrection * Quaternion.identity;
+                    viewerObject.transform.parent.transform.localPosition = Vector3.zero;
+
+               //     SETTINGS.ViewerOrientationOffset = Quaternion.identity;
+                 //   SETTINGS.ViewerPositionOffset = Vector3.zero;
 
 
                     done = true;
@@ -671,7 +677,9 @@ namespace PresenceEngine
                     {
                         // apply user head position to camera on both server and client
                         // apply offset from settings
-                        viewerObject.transform.parent.transform.position = ShowFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] + SETTINGS.ViewerPositionOffset;
+                    //    viewerObject.transform.parent.transform.position = ShowFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] + SETTINGS.ViewerPositionOffset;
+
+                        viewerObject.transform.position = ShowFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] ;
 
                     }
 
@@ -685,16 +693,18 @@ namespace PresenceEngine
 
                         if (task.GetQuaternionValue("user_headrotation", out ho))
                         {
-                            viewerObject.transform.localRotation = ho * SETTINGS.ViewerOrientationOffset;
+                        //    viewerObject.transform.localRotation = ho * SETTINGS.ViewerOrientationOffset;
+                            viewerObject.transform.localRotation = ho ;
+
                         }
-                        else
-                        {
-                            viewerObject.transform.localRotation = SETTINGS.ViewerOrientationOffset;
-                        }
+                        //else
+                        //{
+                        //    viewerObject.transform.localRotation = SETTINGS.ViewerOrientationOffset;
+                        //}
 
                     }
 
-
+             
                     //UncompressedFrame ShowFrame = SETTINGS.user.DepthTransport.ActiveFrame;
 
                     //if (ShowFrame != null && ShowFrame.Joints != null && ShowFrame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.Head])
@@ -2008,7 +2018,10 @@ namespace PresenceEngine
 
                         // which leaves a delta of
 
-                        viewerObject.transform.parent.transform.rotation = Quaternion.Euler(0, 180 - headYaw, 0);
+                        viewerObject.transform.rotation = Quaternion.Euler(0, 180 - headYaw, 0);
+
+                        SETTINGS.HeadsetCorrection= Quaternion.Euler(0, 180 - headYaw, 0);
+
 
                     }
 

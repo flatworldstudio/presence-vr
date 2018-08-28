@@ -1498,7 +1498,7 @@ namespace PresenceEngine
 
                         // put head orientation 
 
-                        task.SetQuaternionValue("user_headrotation", headSet.transform.rotation);
+                        task.SetQuaternionValue("user_headrotation",SETTINGS.HeadsetCorrection * headSet.transform.localRotation);
                         UserDT.ActiveFrame.HeadOrientation = headSet.transform.rotation;
                         //    int usercalibrated;
 
@@ -1867,6 +1867,8 @@ namespace PresenceEngine
                 case "amvrclient":
 
                     SETTINGS.deviceMode = DEVICEMODE.VRCLIENT;
+                  
+
                     done = true;
 
                     break;

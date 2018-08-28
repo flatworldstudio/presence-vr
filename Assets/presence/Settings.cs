@@ -43,9 +43,10 @@ namespace PresenceEngine
         public static DEVICEMODE deviceMode;
 
         public static DepthTransport MainDepthTransport;
+        public static Quaternion HeadsetCorrection = Quaternion.identity;
 
-        public static Vector3 ViewerPositionOffset;
-        public static Quaternion ViewerOrientationOffset;
+     //   public static Vector3 ViewerPositionOffset;
+      //  public static Quaternion ViewerOrientationOffset;
 
         public static float north = 0;
 
