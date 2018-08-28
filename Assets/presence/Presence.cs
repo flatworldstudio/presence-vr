@@ -7,46 +7,71 @@ namespace PresenceEngine
 {
     public class Presence : MonoBehaviour
     {
-        iVisualiser Visualiser;
+        //  iVisualiser Visualiser;
+        iVisualiser[] Visualisers;
+
         //public iVisualiser Visualiser;
 
         public DepthTransport DepthTransport;
         public bool SoundPlayed = false;
 
-        static public Presence Create(GameObject parent)
+        public string Name;
+
+        static public Presence Create(GameObject parent, string name)
         {
 
             GameObject PresenceObject = new GameObject();
+            PresenceObject.name = name;
             Presence p = PresenceObject.AddComponent<Presence>();
-            
+            p.name = name;
+
             PresenceObject.transform.SetParent(parent.transform, false);
-            
+            p.Visualisers = new iVisualiser[2];
+
+            SETTINGS.Presences.Add(name, p);
+
+
             return p;
 
         }
 
         void Start()
         {
-            
+
         }
 
         void Update()
         {
-            
+
             if (DepthTransport != null && DepthTransport.Mode != DEPTHMODE.OFF)
             {
-                if (Visualiser != null && !Visualiser.IsInitialised())
-                    Visualiser.Initialise(this.gameObject);
 
-                if (DepthTransport != null && Visualiser != null && Visualiser.IsInitialised())
-                    Visualiser.Update(DepthTransport.ActiveFrame); // frame may or may not be different, it's up to the interface implementation to deal with that.
+                for (int i = 0; i < Visualisers.Length; i++)
+                {
+
+                    if (Visualisers[i] != null && !Visualisers[i].IsInitialised())
+                        Visualisers[i].Initialise(this.gameObject);
+
+                    if (DepthTransport != null && Visualisers[i] != null && Visualisers[i].IsInitialised())
+                        Visualisers[i].Update(DepthTransport.ActiveFrame); // frame may or may not be different, it's up to the interface implementation to deal with that.
+
+                }
+
+
             }
             else
             {
-                if (Visualiser != null)
-                    Visualiser.Deinitialise();
+                // If no depth data work from, remove all the visualisers.. (?)
+
+                for (int i = 0; i < Visualisers.Length; i++)
+                {
+                    if (Visualisers[i] != null)
+                        Visualisers[i].Deinitialise();
+
+                }
+
             }
-            
+
         }
 
         public void SetTranscoder(string name)
@@ -73,36 +98,94 @@ namespace PresenceEngine
 
         }
 
+        // Visualiser manipulation. Old methods just take the first visualiser. New methods allow for multiple.
+
+
+        private iVisualiser Visualiser
+        {
+            get
+            {
+                return Visualisers[0];
+            }
+            set
+            {
+                Visualisers[0] = value;
+            }
+
+        }
         public void SetVisualiser(string name)
         {
-            
-            switch (name)
+
+            SetVisualiser(name, 0);
+
+        }
+
+
+
+        public void SetVisualiser(string vis, int i)
+        {
+
+            if (Visualisers[i] != null)
+            {
+                // A visualiser is already set.
+
+                if (Visualisers[i].GetName() == vis)
+                {
+                    // No change, abort.
+                    return;
+
+                }
+                else
+                {
+                    Debug.Log("Deinitialising visualiser " + Visualisers[i].GetName());
+                    // Change, so deinitialise the current one.
+                    Visualisers[i].Deinitialise();
+                    Visualisers[i] = null;
+
+                }
+
+            }
+
+            switch (vis)
             {
                 case "ShowSkeleton":
-                    Visualiser = new ShowSkeleton();
-                    Visualiser.Initialise(this.gameObject);
+                    Visualisers[i] = new ShowSkeleton();
+                    Visualisers[i].Initialise(this.gameObject);
                     break;
                 case "PointCloud":
-                    Visualiser = new PointCloud();
-                    Visualiser.Initialise(this.gameObject);
+                    Visualisers[i] = new PointCloud();
+                    Visualisers[i].Initialise(this.gameObject);
                     break;
                 case "ShowMesh":
-                    Visualiser = new ShowMesh();
-                    Visualiser.Initialise(this.gameObject);
+                    Visualisers[i] = new ShowMesh();
+                    Visualisers[i].Initialise(this.gameObject);
                     break;
                 case "PointShaded":
-                    Visualiser = new PointShaded();
-                    Visualiser.Initialise(this.gameObject);
+                    Visualisers[i] = new PointShaded();
+                    Visualisers[i].Initialise(this.gameObject);
                     break;
 
+                case "":
+                    // Setting none, which is equivalent to just deinitialising the one that was there. We've already done that.
 
+                    break;
 
                 default:
                     Debug.LogError("Trying to set unkown visualiser.");
                     break;
             }
 
+
+
+
         }
+
+        public string GetVisualiser(int i)
+        {
+            return (Visualisers[i] != null ? Visualisers[i].GetName() : "");
+
+        }
+
 
         public string GetVisualiser()
         {
@@ -110,7 +193,9 @@ namespace PresenceEngine
 
         }
 
-          public Vector3 GetPosition()
+        // These just get values from the first visualiser - values assumed to be identical for all visualisers.
+
+        public Vector3 GetPosition()
         {
             return Visualiser != null ? Visualiser.GetPosition() : Vector3.zero;
         }
@@ -134,7 +219,8 @@ namespace PresenceEngine
         public void PushAllSettingToTask(StoryTask task, string prefix)
         {
 
-            task.SetStringValue(prefix + "_visualiser", GetVisualiser());
+            task.SetStringValue(prefix + "_visualiser_0", GetVisualiser(0));
+            task.SetStringValue(prefix + "_visualiser_1", GetVisualiser(1));
             task.SetStringValue(prefix + "_transcoder", GetTranscoder());
             task.SetVector3Value(prefix + "_position", GetPosition());
             task.SetVector3Value(prefix + "_scale", GetScale());
@@ -142,7 +228,7 @@ namespace PresenceEngine
             task.SetQuaternionValue(prefix + "_rotation", GetRotation());
             task.SetStringValue(prefix + "_buffer", GetBufferFileName());
 
-            //  Visualiser.SettingsToTask(task, prefix);
+            PushModeToTask(task, prefix);
             PushVisualiserSettingsToTask(task, prefix);
 
         }
@@ -150,18 +236,21 @@ namespace PresenceEngine
         public void PullAllSettingsFromTask(StoryTask task, string prefix)
         {
 
-            string visualiser, transcoder, buffer;
+            string visualiser_0, visualiser_1, transcoder, buffer;
             Vector3 position, scale;
             Quaternion rotation;
 
-            task.GetStringValue(prefix + "_visualiser", out visualiser);
+            task.GetStringValue(prefix + "_visualiser_0", out visualiser_0);
+            task.GetStringValue(prefix + "_visualiser_1", out visualiser_1);
             task.GetStringValue(prefix + "_transcoder", out transcoder);
             task.GetStringValue(prefix + "_buffer", out buffer);
             task.GetVector3Value(prefix + "_position", out position);
             task.GetVector3Value(prefix + "_scale", out scale);
             task.GetQuaternionValue(prefix + "_rotation", out rotation);
 
-            SetVisualiser(visualiser);
+            SetVisualiser(visualiser_0, 0);
+            SetVisualiser(visualiser_1, 1);
+
             SetTranscoder(transcoder);
             DepthTransport.TransCoder.SetBufferFile(IO.LoadFile(buffer));
 
@@ -169,6 +258,7 @@ namespace PresenceEngine
 
             //   Visualiser.SettingsFromTask(task, prefix);
 
+            PullModeFromTask(task, prefix);
             PullVisualiserSettingsFromTask(task, prefix);
 
 
@@ -181,7 +271,7 @@ namespace PresenceEngine
         }
 
 
-        public void PushModeToTask(StoryTask task, string prefix)
+         void PushModeToTask(StoryTask task, string prefix)
         {
             int mode = (int)DEPTHMODE.OFF;
             string target = "";
@@ -199,7 +289,7 @@ namespace PresenceEngine
 
         }
 
-        public void PullModeFromTask(StoryTask task, string prefix)
+         void PullModeFromTask(StoryTask task, string prefix)
         {
             int mode;
             task.GetIntValue(prefix + "_depthmode", out mode);
@@ -218,24 +308,33 @@ namespace PresenceEngine
 
         public void SetVisualiseTransform(Vector3 pos, Vector3 scale, Quaternion rot)
         {
+            // All visualisers same transform.
 
-            Visualiser.SetTransform(pos, scale, rot);
+            for (int i = 0; i < Visualisers.Length; i++)
+            {
+                if (Visualisers[i] != null)
+                    Visualiser.SetTransform(pos, scale, rot);
+            }
 
         }
 
-       
+
         public void PullVisualiserSettingsFromTask(StoryTask task, string prefix)
         {
-
-            Visualiser.SettingsFromTask(task, prefix);
-
+            for (int i = 0; i < Visualisers.Length; i++)
+            {
+                if (Visualisers[i] != null)
+                    Visualisers[i].SettingsFromTask(task, prefix + "_" + i);
+            }
         }
 
         public void PushVisualiserSettingsToTask(StoryTask task, string prefix)
         {
-
-            Visualiser.SettingsToTask(task, prefix);
-
+            for (int i = 0; i < Visualisers.Length; i++)
+            {
+                if (Visualisers[i] != null)
+                    Visualisers[i].SettingsToTask(task, prefix + "_" + i);
+            }
         }
 
 

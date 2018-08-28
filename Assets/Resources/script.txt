@@ -164,8 +164,6 @@ end
 pressedplay
 isglobal
 pause5
-//MaterialiseOn
-//DrawingOn
 GuideOpening
 pause5
 GuideSitdown
@@ -175,15 +173,16 @@ WaitforRaisedhands
 MaterialiseOn
 GuideObservehands
 pause5
-GuideDrawing
 DrawingOn
+GuideDrawing
 pause5
+DrawingOff
 GuideObservedrawing
 pause5
 GuideGetup
 WaitforGetup
-DrawingOff
 GuideThirdpersonintro
+DrawingRemove
 ThirdpersonOn
 GuideThirdperson
 pause5

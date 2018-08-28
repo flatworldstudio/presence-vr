@@ -35,21 +35,32 @@ namespace PresenceEngine
     public class ShowSkeleton : iVisualiser
     {
 
-        GameObject PresenceObject;
+        //    GameObject PresenceObject;
+        GameObject ParentObject;
         GameObject Head, Body, HandLeft, HandRight;
         ParticleCloud Cloud;
         bool __isInitialised = false;
         string _name = "ShowSkeleton";
         UncompressedFrame lastFrame;
+        bool IsDrawing = false;
 
         public void SettingsToTask(StoryEngine.StoryTask task, string prefix)
         {
+            task.SetIntValue(prefix + "_isdrawing", IsDrawing ? 1 : 0);
 
         }
         public void SettingsFromTask(StoryEngine.StoryTask task, string prefix)
         {
+            int v;
+
+            if (task.GetIntValue(prefix + "_isdrawing", out v))
+            {
+                IsDrawing = (v == 1);
+            }
+
 
         }
+
 
         public string GetName()
         {
@@ -60,51 +71,66 @@ namespace PresenceEngine
         {
             return __isInitialised;
         }
+
         public void Deinitialise()
         {
+            GameObject.Destroy(ParentObject);
 
-            foreach (Transform child in PresenceObject.transform)
-            {
-                GameObject.Destroy(child.gameObject);
-            }
+            //foreach (Transform child in PresenceObject.transform)
+            //{
+            //    GameObject.Destroy(child.gameObject);
+            //}
 
             __isInitialised = false;
         }
+
         public void Initialise(GameObject presenceObject)
         {
             // Parent object for any visualisation objects.
+            // First we add an object for ourselves.
 
-            PresenceObject = presenceObject;
+            if (__isInitialised)
+                Deinitialise();
 
-            foreach (Transform child in PresenceObject.transform)
-            {
-                GameObject.Destroy(child.gameObject);
-            }
+            //    PresenceObject = presenceObject;
+
+            ParentObject = new GameObject();
+            ParentObject.name = _name;
+            ParentObject.transform.SetParent(presenceObject.transform, false);
+
+            Debug.Log("Adding visualiser " + _name);
+
+
+
+            //foreach (Transform child in ParentObject.transform)
+            //{
+            //    GameObject.Destroy(child.gameObject);
+            //}
 
             GameObject n;
 
             if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
             {
                 n = DebugObject.getNullObject(0.25f, 0.25f, 0.5f);
-                n.transform.SetParent(PresenceObject.transform, false);
+                n.transform.SetParent(ParentObject.transform, false);
                 Head = n;
             }
 
             n = DebugObject.getNullObject(0.25f);
-            n.transform.SetParent(PresenceObject.transform, false);
+            n.transform.SetParent(ParentObject.transform, false);
             HandLeft = n;
 
             n = DebugObject.getNullObject(0.25f);
-            n.transform.SetParent(PresenceObject.transform, false);
+            n.transform.SetParent(ParentObject.transform, false);
             HandRight = n;
 
             n = DebugObject.getNullObject(0.5f);
-            n.transform.SetParent(PresenceObject.transform, false);
+            n.transform.SetParent(ParentObject.transform, false);
             Body = n;
 
 
             Cloud = new ParticleCloud(5000, "CloudDyn", false);
-            Cloud.CloudObject.transform.SetParent(PresenceObject.transform, false);
+            Cloud.CloudObject.transform.SetParent(ParentObject.transform, false);
 
             lastFrame = new UncompressedFrame();
 
@@ -116,11 +142,11 @@ namespace PresenceEngine
         public void SetTransform(Vector3 pos, Vector3 scale, Quaternion rot)
         {
 
-            if (PresenceObject != null)
+            if (ParentObject != null)
             {
-                PresenceObject.transform.localPosition = pos;
-                PresenceObject.transform.localScale = scale;
-                PresenceObject.transform.localRotation = rot;
+                ParentObject.transform.localPosition = pos;
+                ParentObject.transform.localScale = scale;
+                ParentObject.transform.localRotation = rot;
             }
         }
 
@@ -128,8 +154,8 @@ namespace PresenceEngine
         public Vector3 GetPosition()
         {
 
-            if (PresenceObject != null)
-                return PresenceObject.transform.localPosition;
+            if (ParentObject != null)
+                return ParentObject.transform.localPosition;
 
             return Vector3.zero;
         }
@@ -137,8 +163,8 @@ namespace PresenceEngine
         public Vector3 GetScale()
         {
 
-            if (PresenceObject != null)
-                return PresenceObject.transform.localScale;
+            if (ParentObject != null)
+                return ParentObject.transform.localScale;
 
             return Vector3.one;
         }
@@ -146,8 +172,8 @@ namespace PresenceEngine
         public Quaternion GetRotation()
         {
 
-            if (PresenceObject != null)
-                return PresenceObject.transform.localRotation;
+            if (ParentObject != null)
+                return ParentObject.transform.localRotation;
 
             return Quaternion.identity;
         }
@@ -189,7 +215,7 @@ namespace PresenceEngine
                 //Debug.Log(Frame.FrameNumber);
 
 
-                if (lastFrame != Frame)
+                if (lastFrame != Frame && IsDrawing)
 
                 {
 
@@ -231,6 +257,7 @@ namespace PresenceEngine
 
                     //  Debug.Log(Body.transform.position = Frame.Body);
                 }
+
                 lastFrame = Frame;
 
 
@@ -258,26 +285,33 @@ namespace PresenceEngine
     {
         string _name = "PointShaded";
 
-        GameObject PresenceObject;
+        GameObject ParentObject;
         GameObject Head, Body, HandLeft, HandRight;
         ParticleCloud Cloud;
         bool __isInitialised = false;
         UncompressedFrame lastFrame;
         GameObject PLight;
 
-        public float CloudVisible = 0;
+        bool CloudVisible = false;
 
         public void SettingsToTask(StoryEngine.StoryTask task, string prefix)
         {
-            task.SetFloatValue(prefix + "_cloudvisible", CloudVisible);
+            task.SetIntValue(prefix + "_cloudvisible", CloudVisible?1:0);
 
         }
         public void SettingsFromTask(StoryEngine.StoryTask task, string prefix)
         {
 
-            task.GetFloatValue(prefix + "_cloudvisible", out CloudVisible);
+            int v;
 
-            
+            if (        task.GetIntValue(prefix + "_cloudvisible", out v))
+            {
+
+                CloudVisible = (v == 1);
+
+            }
+
+
 
 
         }
@@ -297,10 +331,12 @@ namespace PresenceEngine
         public void Deinitialise()
         {
 
-            foreach (Transform child in PresenceObject.transform)
-            {
-                GameObject.Destroy(child.gameObject);
-            }
+            GameObject.Destroy(ParentObject);
+
+            //foreach (Transform child in PresenceObject.transform)
+            //{
+            //    GameObject.Destroy(child.gameObject);
+            //}
 
             __isInitialised = false;
         }
@@ -309,32 +345,43 @@ namespace PresenceEngine
         {
             // Parent object for any visualisation objects.
 
-            PresenceObject = presenceObject;
+            if (__isInitialised)
+                Deinitialise();
 
-            foreach (Transform child in PresenceObject.transform)
-            {
-                GameObject.Destroy(child.gameObject);
-            }
+            //  PresenceObject = presenceObject;
+
+            ParentObject = new GameObject();
+            ParentObject.name = _name;
+            ParentObject.transform.SetParent(presenceObject.transform, false);
+
+            Debug.Log("Adding visualiser " + _name);
+
+            //PresenceObject = presenceObject;
+
+            //foreach (Transform child in PresenceObject.transform)
+            //{
+            //    GameObject.Destroy(child.gameObject);
+            //}
 
             GameObject n;
 
             if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
             {
                 n = DebugObject.getNullObject(0.1f, 0.1f, 0.2f);
-                n.transform.SetParent(PresenceObject.transform, false);
+                n.transform.SetParent(ParentObject.transform, false);
                 Head = n;
             }
 
             n = DebugObject.getNullObject(0.1f);
-            n.transform.SetParent(PresenceObject.transform, false);
+            n.transform.SetParent(ParentObject.transform, false);
             HandLeft = n;
 
             n = DebugObject.getNullObject(0.1f);
-            n.transform.SetParent(PresenceObject.transform, false);
+            n.transform.SetParent(ParentObject.transform, false);
             HandRight = n;
 
             n = DebugObject.getNullObject(0.2f);
-            n.transform.SetParent(PresenceObject.transform, false);
+            n.transform.SetParent(ParentObject.transform, false);
             Body = n;
 
             PLight = new GameObject("PLight");
@@ -354,14 +401,14 @@ namespace PresenceEngine
 
             //PLight = new Light();
 
-            PLight.transform.SetParent(PresenceObject.transform, false);
+            PLight.transform.SetParent(ParentObject.transform, false);
             //pLight.transform.localPosition = Vector3.zero;
             //pLight.type = LightType.Point;
 
 
 
             Cloud = new ParticleCloud(20000, "Cloud", true);
-            Cloud.CloudObject.transform.SetParent(PresenceObject.transform, false);
+            Cloud.CloudObject.transform.SetParent(ParentObject.transform, false);
 
             lastFrame = new UncompressedFrame();
 
@@ -372,11 +419,11 @@ namespace PresenceEngine
         public void SetTransform(Vector3 pos, Vector3 scale, Quaternion rot)
         {
 
-            if (PresenceObject != null)
+            if (ParentObject != null)
             {
-                PresenceObject.transform.localPosition = pos;
-                PresenceObject.transform.localScale = scale;
-                PresenceObject.transform.localRotation = rot;
+                ParentObject.transform.localPosition = pos;
+                ParentObject.transform.localScale = scale;
+                ParentObject.transform.localRotation = rot;
             }
         }
 
@@ -384,8 +431,8 @@ namespace PresenceEngine
         public Vector3 GetPosition()
         {
 
-            if (PresenceObject != null)
-                return PresenceObject.transform.localPosition;
+            if (ParentObject != null)
+                return ParentObject.transform.localPosition;
 
             return Vector3.zero;
         }
@@ -394,8 +441,8 @@ namespace PresenceEngine
         public Vector3 GetScale()
         {
 
-            if (PresenceObject != null)
-                return PresenceObject.transform.localScale;
+            if (ParentObject != null)
+                return ParentObject.transform.localScale;
 
             return Vector3.one;
         }
@@ -403,8 +450,8 @@ namespace PresenceEngine
         public Quaternion GetRotation()
         {
 
-            if (PresenceObject != null)
-                return PresenceObject.transform.localRotation;
+            if (ParentObject != null)
+                return ParentObject.transform.localRotation;
 
             return Quaternion.identity;
         }
@@ -462,7 +509,7 @@ namespace PresenceEngine
 
                 Vector3 offset = new Vector3(0, Frame.SensorY, 0);
 
-                HandLeft.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft]+offset;
+                HandLeft.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] + offset;
                 HandRight.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] + offset;
 
                 Body.transform.localPosition = Frame.UserPosition + offset;
@@ -476,7 +523,7 @@ namespace PresenceEngine
 
                 // takes a kinect styled uint[] RawDepthMap
                 // and plots the points into a Particle Cloud, with scale corrected if the frame was downsampled.
-                
+
                 int ParticleIndex = 0;
 
                 int Width = Frame.Width;
@@ -504,7 +551,7 @@ namespace PresenceEngine
 
                             point = depthToWorld(x * Scale, y * Scale, userDepth);
                             point.x = -point.x;
-                            point.y = -point.y + Frame.SensorY; 
+                            point.y = -point.y + Frame.SensorY;
 
                             AllPoints[i] = point;
 
@@ -522,7 +569,7 @@ namespace PresenceEngine
 
                 factor = Mathf.Pow((1f - factor), 2f);
 
-           //     float size = 0.001f + factor * 0.005f;
+                //     float size = 0.001f + factor * 0.005f;
                 float size = 0.001f + factor * 0.0065f;
                 Cloud.SetPointSize(size);
 
@@ -580,13 +627,13 @@ namespace PresenceEngine
                             //Debug.DrawLine(point, point2, Color.grey);
                             //Debug.DrawLine(point2, point3, Color.grey);
                             //Debug.DrawLine(point3, point, Color.grey);
-                            
+
                             Vector3 V1 = point2 - point;
                             Vector3 v2 = point3 - point;
                             Vector3 normal = Vector3.Cross(V1, v2);
                             normal.Normalize();
-                            
-                  //         float angle = Vector3.Angle(V1, v2);
+
+                            //         float angle = Vector3.Angle(V1, v2);
 
                             float Cos = normal.x * light.x + normal.y * light.y + normal.z * light.z;
 
@@ -594,9 +641,9 @@ namespace PresenceEngine
 
                             if (Cos > 0)
                             {
-                               
+
                                 PointColour = (Color)ColorBase * (0.5f + 0.5f * Cos);
-                                
+
                             }
                             else
                             {
@@ -626,7 +673,7 @@ namespace PresenceEngine
 
                 }
 
-                Cloud.ApplyParticles(CloudVisible > 0 ? ParticleIndex : 0);
+                Cloud.ApplyParticles(CloudVisible  ? ParticleIndex : 0);
 
                 // Check if frame is new.
 
@@ -857,7 +904,7 @@ namespace PresenceEngine
 
                 Vector3 offset = new Vector3(0, Frame.SensorY, 0);
 
-                HandLeft.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft]+offset;
+                HandLeft.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] + offset;
                 HandRight.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] + offset;
 
                 Body.transform.localPosition = Frame.UserPosition + offset;
@@ -1180,7 +1227,7 @@ namespace PresenceEngine
 
                 Vector3 offset = new Vector3(0, Frame.SensorY, 0);
 
-                HandLeft.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft]+offset;
+                HandLeft.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] + offset;
                 HandRight.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] + offset;
 
                 Body.transform.localPosition = Frame.UserPosition + offset;
@@ -1193,7 +1240,7 @@ namespace PresenceEngine
                 }
 
                 // takes a kinect styled uint[] RawDepthMap
-                         
+
 
                 int Width = Frame.Width;
                 int Height = Frame.Height;

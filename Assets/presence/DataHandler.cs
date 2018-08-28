@@ -122,13 +122,17 @@ namespace PresenceEngine
 
                 case "createuser":
 
-                    if (!SETTINGS.Presences.TryGetValue("user", out SETTINGS.user))
+                    string username = "user";
+
+                    if (!SETTINGS.Presences.TryGetValue(username, out SETTINGS.user))
                     {
-                        SETTINGS.user = Presence.Create(presences);
-                        SETTINGS.Presences.Add("user", SETTINGS.user);
+                        SETTINGS.user = Presence.Create(presences, username);
+
+                        //    SETTINGS.Presences.Add(username, SETTINGS.user);
+
                     }
 
-                    SETTINGS.user.SetVisualiser(SETTINGS.DefaultVisualiser);
+                    SETTINGS.user.SetVisualiser(SETTINGS.DefaultVisualiser,0);
                     SETTINGS.user.SetTranscoder("SkeletonAndDepth");
                     SETTINGS.user.SetDepthSampling(4);
 
@@ -217,8 +221,196 @@ namespace PresenceEngine
 
                     break;
 
-
                 case "handlepresences":
+
+                    // Take care of progressing, over the network, of all other instances (not the user).
+
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                    {
+
+                        // Get current list from the task.
+
+                        string[] presenceNames;
+
+                        if (!task.GetStringArrayValue("presences", out presenceNames))
+                        {
+                            // push list of all presences
+                            task.SetStringArrayValue("presences", SETTINGS.Presences.Keys.ToArray());
+
+                        }
+
+                        // Now go over them and push all data.
+
+                        foreach (KeyValuePair<string, Presence> presence in SETTINGS.Presences)
+                        {
+                      
+                            presence.Value.PushAllSettingToTask(task, presence.Key);
+                            
+                            if (presence.Value.DepthTransport.Mode == DEPTHMODE.COPY)
+                            {
+                                // Copy frame reference.
+
+                                presence.Value.DepthTransport.ActiveFrame = presence.Value.DepthTransport.TargetPresence.DepthTransport.ActiveFrame;
+
+                            }
+
+                            if (presence.Value.DepthTransport.Mode == DEPTHMODE.PLAYBACK)
+                            {
+                                // Play back while in playback mode and playback successful else fall through.
+
+                                int status = presence.Value.DepthTransport.LoadFrameFromBuffer(presence.Value.DepthTransport.CurrentTime);
+
+                                switch (status)
+                                {
+                                    case -1:
+                                    case 0:
+
+                                        // we're before the start or in the buffer
+                                        
+                                        if (!SETTINGS.ManualPlayback)
+                                        {
+                                            presence.Value.DepthTransport.CurrentTime += Time.deltaTime;
+                                        }
+                                        
+                                        //Debug.Log("playing");
+                                        break;
+
+
+                                    case 1:
+                                        // wé're at the end
+                                        presence.Value.DepthTransport.CurrentTime = presence.Value.DepthTransport.TransCoder.GetBufferFile().StartTime;
+                                        //Debug.Log("loop");
+                                        break;
+
+                                    default:
+                                        // Error.
+                                        Debug.LogError("Buffer playback error.");
+                                        break;
+
+
+                                }
+
+                                // Push time.
+
+                                task.SetFloatValue(presence.Key + "_time", presence.Value.DepthTransport.CurrentTime);
+                                
+                                if (status == 0 && !presence.Value.SoundPlayed)
+                                {
+                                    presence.Value.SoundPlayed = true;
+                                    presenceSound.Play();
+                                }
+
+                                // Debug.
+
+                                if (presence.Key == "playbackpresence")
+                                {
+
+                                    task.SetStringValue("debug", "" + presence.Value.DepthTransport.CurrentTime);
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+
+                    if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
+                    {
+
+                        // Retrieve list.
+
+                        string[] taskPresenceNames;
+
+                        if (task.GetStringArrayValue("presences", out taskPresenceNames))
+                        {
+
+                            foreach (string presenceName in taskPresenceNames)
+                            {
+
+                                Presence presence;
+
+                                if (!SETTINGS.Presences.TryGetValue(presenceName, out presence))
+                                {
+
+                                    // Create instance and retrieve/apply settings.
+
+                                    presence = Presence.Create(presences, presenceName);
+
+                                    //    SETTINGS.Presences.Add(presenceName, presence);
+
+                                   
+                                    //presence.Visualiser.SettingsFromTask(task, presenceName);
+                                }
+
+                                presence.PullAllSettingsFromTask(task, presenceName);
+
+                                // Update depthmode 
+
+                              //  presence.PullModeFromTask(task, presenceName);
+
+                                if (presence.DepthTransport.Mode == DEPTHMODE.COPY)
+                                {
+                                    presence.DepthTransport.ActiveFrame = presence.DepthTransport.TargetPresence.DepthTransport.ActiveFrame;
+
+                                }
+
+                                float getTime;
+
+                                // We're displaying the point in time as indicated by the server.
+
+                                if (presence.DepthTransport.Mode == DEPTHMODE.PLAYBACK && task.GetFloatValue(presenceName + "_time", out getTime))
+
+                                {
+                                    presence.DepthTransport.CurrentTime = getTime;
+                                    int status = presence.DepthTransport.LoadFrameFromBuffer(getTime);
+
+
+                                    //if (status == 0 && !presence.SoundPlayed)
+                                    //{
+                                    //    presence.SoundPlayed = true;
+                                    //    presenceSound.Play();
+                                    //}
+
+                                }
+
+                            }
+
+                        }
+
+                        // Reversed: go over presences and destroy if they're no longer listed.
+
+                        string[] localPresenceNames = SETTINGS.Presences.Keys.ToArray();
+
+                        for (int i = localPresenceNames.Length - 1; i >= 0; i--)
+                        {
+
+                            if (Array.IndexOf(taskPresenceNames, localPresenceNames[i]) == -1)
+
+                            {
+
+
+                                // A presence exists locally that has no reference in the task (does not exist on server) so we kill it.
+
+                                Debug.Log("removing " + localPresenceNames[i]);
+
+                                Presence presence = SETTINGS.Presences[localPresenceNames[i]];
+
+                                Destroy(presence.gameObject);
+
+                                SETTINGS.Presences.Remove(localPresenceNames[i]);
+
+                            }
+
+                        }
+
+                    }
+
+                    break;
+
+                    /*
+                case "handlepresencesBAK":
 
                     // Take care of progressing, over the network, of all other instances (not the user).
 
@@ -238,9 +430,9 @@ namespace PresenceEngine
 
                             {
                                 presence.Value.PushAllSettingToTask(task, presence.Key);
-                              //  presence.Value.Visualiser.SettingsToTask(task, presence.Key); // just once, not animated
+                                //  presence.Value.Visualiser.SettingsToTask(task, presence.Key); // just once, not animated
 
-                             //   presence.Value.VisualiserSettingsToTask(task,presence.Key);
+                                //   presence.Value.VisualiserSettingsToTask(task,presence.Key);
 
                             }
 
@@ -335,8 +527,10 @@ namespace PresenceEngine
 
                                     // Create instance and retrieve/apply settings.
 
-                                    presence = Presence.Create(presences);
-                                    SETTINGS.Presences.Add(presenceName, presence);
+                                    presence = Presence.Create(presences, presenceName);
+
+                                    //    SETTINGS.Presences.Add(presenceName, presence);
+
                                     presence.PullAllSettingsFromTask(task, presenceName);
                                     //presence.Visualiser.SettingsFromTask(task, presenceName);
                                 }
@@ -400,6 +594,7 @@ namespace PresenceEngine
                     }
 
                     break;
+                    */
 
 
                 case "nextframe":
@@ -479,16 +674,12 @@ namespace PresenceEngine
                 case "playbackfile":
 
                     // Play back the checked out file.
-                    //   string name = IO.GetFilePath(checkedOut + c);
 
                     Debug.Log("Starting name " + IO.CheckedOutFile);
 
                     FileformatBase pbBuffer = IO.LoadFile(IO.CheckedOutFile);
 
                     Debug.Log("Starting name " + IO.CheckedOutFile);
-
-
-
 
                     if (pbBuffer != null)
                     {
@@ -501,37 +692,36 @@ namespace PresenceEngine
 
                             // Not a placeholder file so proceed.
 
-                            if (!SETTINGS.Presences.TryGetValue("playbackpresence", out fileplayback))
+                            string pn = "playbackpresence";
+
+                            if (!SETTINGS.Presences.TryGetValue(pn, out fileplayback))
                             {
 
                                 // No presence in scene so create it.
-                                fileplayback = Presence.Create(presences);
-                                SETTINGS.Presences.Add("playbackpresence", fileplayback);
+                                fileplayback = Presence.Create(presences, pn);
 
                             }
 
-                 
-                            fileplayback.SetVisualiser(SETTINGS.DefaultVisualiser);
+                            fileplayback.SetVisualiser(SETTINGS.DefaultVisualiser, 0);
+                            fileplayback.SetVisualiser("ShowSkeleton", 1);
 
                             fileplayback.SetTranscoder(pbBuffer.TransCoderName);
 
                             fileplayback.DepthTransport.TransCoder.SetBufferFile(pbBuffer);
                             fileplayback.DepthTransport.CurrentTime = fileplayback.DepthTransport.TransCoder.GetBufferFile().StartTime;
+                            fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
 
                             fileplayback.SetVisualiseTransform(Vector3.zero, Vector3.one, Quaternion.identity);
 
-                            fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
+                            // Roundabout way of setting setting on visualiser. This task will be removed.
+
+                            task.SetFloatValue("playbackpresence_0_cloudvisible", 1);
+                            //     task.SetFloatValue("playbackpresence_1_cloudvisible", 0);
+                            fileplayback.PullVisualiserSettingsFromTask(task, "playbackpresence");
 
                             Debug.Log("started buffer " + pbBuffer.Name);
 
-
-                            task.SetFloatValue("playbackpresence_cloudvisible", 1);
-                            fileplayback.PullVisualiserSettingsFromTask(task, "playbackpresence");
-
-
                         }
-
-
 
                     }
 
@@ -543,7 +733,6 @@ namespace PresenceEngine
 
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
-
 
                         foreach (KeyValuePair<string, Presence> presence in SETTINGS.Presences)
                         {
@@ -558,9 +747,7 @@ namespace PresenceEngine
                         SETTINGS.Presences.Clear();
                         SETTINGS.Presences.Add("user", SETTINGS.user);
 
-
                     }
-
 
                     done = true;
                     break;
@@ -584,8 +771,8 @@ namespace PresenceEngine
 
                             if (!SETTINGS.Presences.TryGetValue(mirrorPresence, out fileplayback))
                             {
-                                fileplayback = Presence.Create(presences);
-                                SETTINGS.Presences.Add(mirrorPresence, fileplayback);
+                                fileplayback = Presence.Create(presences, mirrorPresence);
+                                //      SETTINGS.Presences.Add(mirrorPresence, fileplayback);
                             }
 
                             fileplayback.SetVisualiser(SETTINGS.DefaultVisualiser);
@@ -645,13 +832,13 @@ namespace PresenceEngine
                                 {
                                     // Not a placeholder file so proceed.
 
-
-                                    if (!SETTINGS.Presences.TryGetValue("playbackpresence" + c, out fileplayback))
+                                    string pbn = "playbackpresence" + c;
+                                    if (!SETTINGS.Presences.TryGetValue(pbn, out fileplayback))
                                     {
 
                                         // No presence in scene so create it.
-                                        fileplayback = Presence.Create(presences);
-                                        SETTINGS.Presences.Add("playbackpresence" + c, fileplayback);
+                                        fileplayback = Presence.Create(presences, pbn);
+                                        //  SETTINGS.Presences.Add("playbackpresence" + c, fileplayback);
 
                                     }
 
@@ -714,12 +901,12 @@ namespace PresenceEngine
                                 //if (pbcBuf.EndTime > pbcBuf.StartTime)
                                 //{
                                 // Not a placeholder file so proceed.
-
-                                if (!SETTINGS.Presences.TryGetValue("playbackpresence" + c, out fileplayback))
+                                string dpn = "playbackpresence" + c;
+                                if (!SETTINGS.Presences.TryGetValue(dpn, out fileplayback))
                                 {
 
-                                    fileplayback = Presence.Create(presences);
-                                    SETTINGS.Presences.Add("playbackpresence" + c, fileplayback);
+                                    fileplayback = Presence.Create(presences, dpn);
+                                    //   SETTINGS.Presences.Add("playbackpresence" + c, fileplayback);
 
                                 }
 
@@ -1156,12 +1343,12 @@ namespace PresenceEngine
 
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
-                        task.SetFloatValue("user_cloudvisible", 1);
 
-                        SETTINGS.user.SetVisualiser("ShowSkeleton");
-                                                               
+                        SETTINGS.user.SetVisualiser("ShowSkeleton",1);
+              
+                        task.SetIntValue("user_1_isdrawing", 1);
+                        SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
 
-                       
                     }
 
                     done = true;
@@ -1173,12 +1360,23 @@ namespace PresenceEngine
 
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
-                        task.SetFloatValue("user_cloudvisible", 1);
+                       task.SetIntValue("user_1_isdrawing", 0);
+                        SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
+                        
+                    }
 
-                        SETTINGS.user.SetVisualiser("PointShaded");
+                    done = true;
+
+                    break;
+
+                case "DrawingRemove":
 
 
-
+                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+                    {
+                   
+                         SETTINGS.user.SetVisualiser("", 1);
+                        
                     }
 
                     done = true;
@@ -1186,13 +1384,13 @@ namespace PresenceEngine
                     break;
 
                 case "materialiseon":
-                    case"MaterialiseOn":
+                case "MaterialiseOn":
 
                     // Use visualiser's to and from task method to change setting.
 
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
-                        task.SetFloatValue("user_cloudvisible", 1);
+                        task.SetIntValue("user_0_cloudvisible", 1);
 
                         SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
 
@@ -1203,20 +1401,20 @@ namespace PresenceEngine
 
                     if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
                     {
-                        float v;
-                        if (task.GetFloatValue("user_cloudvisible", out v))
+                        int v;
+                        if (task.GetIntValue("user_0_cloudvisible", out v))
                         {
 
                             SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
 
                         }
 
-                 //       presenceSound.Play();
+                        //       presenceSound.Play();
 
                         done = true;
                     }
 
-                                        break;
+                    break;
 
                 case "materialiseoff":
 
@@ -1224,7 +1422,7 @@ namespace PresenceEngine
 
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
-                        task.SetFloatValue("user_cloudvisible", 0);
+                        task.SetIntValue("user_0_cloudvisible", 0);
 
                         SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
 
@@ -1233,8 +1431,8 @@ namespace PresenceEngine
 
                     if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
                     {
-                        float v;
-                        if (task.GetFloatValue("user_cloudvisible", out v))
+                        int v;
+                        if (task.GetIntValue("user_0_cloudvisible", out v))
                         {
 
                             SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
@@ -1660,6 +1858,7 @@ namespace PresenceEngine
                 case "amserver":
 
                     SETTINGS.deviceMode = DEVICEMODE.SERVER;
+
                     done = true;
 
                     break;
