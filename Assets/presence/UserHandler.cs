@@ -78,7 +78,7 @@ namespace PresenceEngine
             fileBrowserConstraint.springPositions[2] = new Vector2(width, 0); // offscreen
 
 
-            SETTINGS.ActiveCamera = overviewObject.GetComponentInChildren<Camera>();
+       //     SETTINGS.ActiveCamera = overviewObject.GetComponentInChildren<Camera>();
 
 
             //MakeBrowserConstraint();
@@ -184,6 +184,20 @@ namespace PresenceEngine
 
             switch (task.description)
             {
+                //
+
+                case "amvrclient":
+                    SETTINGS.ActiveCamera = viewerObject.GetComponentInChildren<Camera>();
+
+                    done = true;
+                    break;
+
+                case "amserver":
+                    SETTINGS.ActiveCamera = overviewObject.GetComponentInChildren<Camera>();
+
+                    done = true;
+                    break;
+
                 // -----------------------------------------------------------------------
                 // Gestures
 
