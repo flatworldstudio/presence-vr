@@ -170,6 +170,7 @@ end
 #playguided
 pressedplay
 isglobal
+start presencehandler
 pause5
 MaterialiseOn
 GuideOpening
@@ -230,6 +231,7 @@ pause5
 
 @playguided_stop
 pressedstop
+stop presencehandler
 pause5
 end
 
