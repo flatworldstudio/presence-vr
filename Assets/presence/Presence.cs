@@ -262,11 +262,11 @@ namespace PresenceEngine
             PullVisualiserSettingsFromTask(task, prefix);
 
 
-            Debug.Log(GetVisualiser());
-            Debug.Log(GetTranscoder());
-            Debug.Log(GetPosition().ToString());
-            Debug.Log(GetRotation().ToString());
-            Debug.Log(GetBufferFileName());
+            //Debug.Log(GetVisualiser());
+            //Debug.Log(GetTranscoder());
+            //Debug.Log(GetPosition().ToString());
+            //Debug.Log(GetRotation().ToString());
+            //Debug.Log(GetBufferFileName());
 
         }
 

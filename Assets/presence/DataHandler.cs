@@ -132,7 +132,7 @@ namespace PresenceEngine
 
                     }
 
-                    SETTINGS.user.SetVisualiser(SETTINGS.DefaultVisualiser,0);
+               //     SETTINGS.user.SetVisualiser(SETTINGS.DefaultVisualiser,0);
                     SETTINGS.user.SetTranscoder("SkeletonAndDepth");
                     SETTINGS.user.SetDepthSampling(4);
 
@@ -1390,6 +1390,7 @@ namespace PresenceEngine
 
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
+                        SETTINGS.user.SetVisualiser("PointShaded", 0);
                         task.SetIntValue("user_0_cloudvisible", 1);
 
                         SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
@@ -1399,20 +1400,20 @@ namespace PresenceEngine
                         done = true;
                     }
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
-                    {
-                        int v;
-                        if (task.GetIntValue("user_0_cloudvisible", out v))
-                        {
+                    //if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
+                    //{
+                    //    int v;
+                    //    if (task.GetIntValue("user_0_cloudvisible", out v))
+                    //    {
 
-                            SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
+                    //        SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
 
-                        }
+                    //    }
 
-                        //       presenceSound.Play();
+                    //    //       presenceSound.Play();
 
-                        done = true;
-                    }
+                    //    done = true;
+                    //}
 
                     break;
 
@@ -1423,7 +1424,7 @@ namespace PresenceEngine
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
                         task.SetIntValue("user_0_cloudvisible", 0);
-
+                     
                         SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
 
                         done = true;
