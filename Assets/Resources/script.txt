@@ -174,9 +174,6 @@ OffsetReset
 isglobal
 start presencehandler
 pause5
-OffsetThirdperson
-MaterialiseOn
-pause5
 GuideOpening
 pause5
 OffsetReset
@@ -203,6 +200,7 @@ pause5
 GuideThirdpersonexit
 pause5
 GuideReturntocenter
+WaitForCentered
 OffsetReset
 pause5
 GuideMirrorintro

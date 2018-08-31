@@ -9,7 +9,7 @@ using UnityEngine.Serialization;
 
 public class ConfineMent : MonoBehaviour
 {
-
+    public AudioSource signalSound;
     Collider[] colliders;
     public GameObject ColliderObject;
     public GameObject[] CornerPoints;
@@ -21,6 +21,10 @@ public class ConfineMent : MonoBehaviour
     Gradient g;
 
     private void Start()
+    {
+       
+    }
+    private void StartOLD()
     {
 
         Color32 Color01 = new Color32(137, 223, 255, 255);
@@ -237,10 +241,16 @@ public class ConfineMent : MonoBehaviour
 
 
 
-
-
-
     void OnTriggerEnter(Collider other)
+    {
+
+        signalSound.Play();
+
+    }
+
+
+
+    void OnTriggerEnterOLD(Collider other)
     {
 
         int barrier = System.Array.IndexOf(colliders, other);
@@ -265,7 +275,9 @@ public class ConfineMent : MonoBehaviour
         BuildBarrier(barrier, index,0f);
 
     }
-    private void OnTriggerStay(Collider other)
+
+
+    private void OnTriggerStayOLD(Collider other)
     {
 
        
@@ -298,7 +310,7 @@ public class ConfineMent : MonoBehaviour
     //    Gizmos.DrawSphere(closestPoint, 0.1f);
     //}
 
-    void OnTriggerExit(Collider other)
+    void OnTriggerExitOLD(Collider other)
     {
 
 
