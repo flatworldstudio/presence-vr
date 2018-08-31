@@ -18,10 +18,10 @@ namespace PresenceEngine
 
         public AudioSource VoiceOver;
 
-        public GameObject Set, KinectObject, ViewerRoot;
+        public GameObject Set, KinectObject, ViewerRoot,KinectGizmo;
 
 
-        public GameObject kinectManagerObject;
+    //    public GameObject kinectManagerObject;
 
         ParticleCloud[] clouds;
 
@@ -656,10 +656,11 @@ namespace PresenceEngine
 
 
 
-                    c = GameObject.Find("Kinect");
-                    g = DebugObject.getNullObject(2, 2, 1);
+                 //   c = GameObject.Find("Kinect");
 
-                    g.transform.SetParent(c.transform, false);
+                    g = DebugObject.getNullObject(1, 1, 1);
+
+                    g.transform.SetParent(KinectGizmo.transform, false);
 
                     done = true;
 
