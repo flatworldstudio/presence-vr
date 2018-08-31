@@ -373,7 +373,7 @@ namespace PresenceEngine
                     // viewercamera is vr headset. interest is user for position only. object is user for corrections and manipulations.
                 
 
-                    viewerOffset.transform.localRotation = SETTINGS.HeadsetCorrection * Quaternion.Euler(-90f, 0f, 0f);
+                    viewerOffset.transform.localRotation =  Quaternion.Euler(-90f, 0f, 0f)*SETTINGS.HeadsetCorrection ;
                     viewerOffset.transform.localPosition = new Vector3(0, 2, 0);
 
                     //SETTINGS.ViewerOrientationOffset = Quaternion.Euler(90f, 180f, 0f);
