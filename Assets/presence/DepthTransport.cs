@@ -418,7 +418,7 @@ namespace PresenceEngine
         }
 
 
-        public RovingValue DepthMin, DepthMax;
+        //public RovingValue DepthMin, DepthMax;
 
         //public void 
 

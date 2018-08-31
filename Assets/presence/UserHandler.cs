@@ -15,45 +15,23 @@ namespace PresenceEngine
         public UserController userController;
 
         UxInterface serverInterface;
-
         public GameObject uxCanvas;
-
         public GameObject viewerRoot, viewerOffset, viewerCamera;
-
-
         public GameObject overviewObject, projectionObject, headSet, setObject, handl, handr, body, Kinect, SetHandler, startPosition;
-        //float timer = 0;
-
-        //float heading, lastHeading, smoothOffset, northOffset;
-
         public AudioSource signalSound;
-
-        //public GameObject AutoCallibrateObject;
-
-        //public CalibrateOnMarker CalibrationScript;
-
-        //   public GestureDetection GestureDetection;
-
         public GameObject NewFile;
         public UnityEngine.UI.InputField fileNameInput;
-
-        //public DemoInputManager GoogleVRInputManager;
         public UserMessager userMessager;
-
-        //	public 
+        UiConstraint fileBrowserConstraint;
+        UxController uxController;
+        public Text filePath;
 
         string me = "Task handler: ";
 
-        UiConstraint fileBrowserConstraint;
-
-        UxController uxController;
-
-        public Text filePath;
 
         void Start()
         {
-
-
+            
             uxCanvas.SetActive(true);
 
             userController.addTaskHandler(TaskHandler);
@@ -74,11 +52,7 @@ namespace PresenceEngine
             fileBrowserConstraint.springPositions[1] = new Vector2(0, 0); // folders.
             fileBrowserConstraint.springPositions[2] = new Vector2(width, 0); // offscreen
 
-
-
         }
-
-
 
         public bool TaskHandler(StoryTask task)
         {
@@ -251,7 +225,7 @@ namespace PresenceEngine
 
 
                 // -----------------------------------------------------------------------
-                    // Manipulating pov
+                // Manipulating pov
 
                 case "OffsetThirdperson":
 
@@ -302,8 +276,8 @@ namespace PresenceEngine
                     break;
 
 
-                    // -----------------------------------------------------------------------
-                    // Flow messages & alerts.
+                // -----------------------------------------------------------------------
+                // Flow messages & alerts.
 
 
                 case "playsignal":
@@ -463,8 +437,8 @@ namespace PresenceEngine
 
 
 
-                    // -----------------------------------------------------------------------
-                    // Live
+                // -----------------------------------------------------------------------
+                // Live
 
                 case "userstream":
 
@@ -522,8 +496,8 @@ namespace PresenceEngine
 
                     break;
 
-                    // -----------------------------------------------------------------------
-                    // User interface scripts.
+                // -----------------------------------------------------------------------
+                // User interface scripts.
 
                 case "servercontrol":
 
@@ -825,7 +799,7 @@ namespace PresenceEngine
                     done = true;
                     break;
 
-                
+
 
                 case "setflow_solo":
 
@@ -866,7 +840,7 @@ namespace PresenceEngine
                     break;
 
 
-             
+
                 case "setflow_delay":
 
 
@@ -928,7 +902,7 @@ namespace PresenceEngine
                     done = true;
                     break;
 
-              
+
 
                 case "togglebrowser":
 
@@ -1042,7 +1016,7 @@ namespace PresenceEngine
 
                     break;
 
-             
+
 
                 case "toggleview":
 

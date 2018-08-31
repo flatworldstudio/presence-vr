@@ -37,8 +37,7 @@ public class GestureDetection : MonoBehaviour, KinectGestures.GestureListenerInt
 
         TaskRef = null;
         active = false;
-     //   userPresent = false;
-       // User = 0;
+
         Gesture = KinectGestures.Gestures.None;
     }
 

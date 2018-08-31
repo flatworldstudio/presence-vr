@@ -6,9 +6,6 @@ using UnityEngine.Events;
 
 public class UserMessager : MonoBehaviour {
 
-   
-   
-
   public  Text MessageText;
     float alpha=0;
     float deltaAlpha=0;
@@ -16,7 +13,6 @@ public class UserMessager : MonoBehaviour {
     UnityEvent OnFadeOut,OnFadeIn,OnTimeOut;
     string nextMessage;
     float timeOut,messageDuration;
-   // public Text UserMessageText;
 
 
 	// Use this for initialization

@@ -600,7 +600,7 @@ namespace PresenceEngine
                     if (SETTINGS.UserInConfinedArea)
                     {
 
-                        MainStageLight.Master = 2f;
+                        MainStageLight.Master = 1.5f;
 
                     }
                     else
