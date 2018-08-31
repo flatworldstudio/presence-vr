@@ -18,6 +18,13 @@ namespace PresenceEngine
 
         public AudioSource VoiceOver;
 
+        public GameObject Set, KinectObject, ViewerRoot;
+
+        //GameObject set = GameObject.Find("SetHandler");
+        //GameObject viewer = GameObject.Find("viewerObject");
+        //GameObject kinectObject = GameObject.Find("Kinect");
+
+
 
         //public GameObject cloud;
 
@@ -1478,31 +1485,23 @@ namespace PresenceEngine
                     if (SETTINGS.kinectIsOrigin)
                     {
 
-                        GameObject set = GameObject.Find("SetHandler");
-                        GameObject viewer = GameObject.Find("viewerObject");
-                        GameObject kinectObject = GameObject.Find("Kinect");
-
-                        //	c = GameObject.Find ("Compass");
-
+                        // Rotate entire set.
                         SETTINGS.north = -SETTINGS.kinectHeading;
+                        Set.transform.rotation = Quaternion.Euler(0, SETTINGS.north, 0);
 
-                        //	c.transform.rotation = Quaternion.Euler (0, PRESENCE.north, 0);
-
-                        set.transform.rotation = Quaternion.Euler(0, SETTINGS.north, 0);
-
+                        // Get center and offset the set. So that kinect is at origin.
                         p = SETTINGS.kinectCentreDistance * Vector3.forward;
+                        Set.transform.position = p;
 
-                        set.transform.position = p;
-                        //	c.transform.position = p;
 
-                        p.y = viewer.transform.position.y;
+                        // Position user at center of field, keeping height. (a default value of 1.8)
+                        p.y = ViewerRoot.transform.position.y;
+                        ViewerRoot.transform.position = p;
 
-                        viewer.transform.position = p;
-
+                        // Place kinect object at origin at the appropriate height.
                         p = Vector3.zero;
                         p.y = SETTINGS.SensorY;
-
-                        kinectObject.transform.position = p;
+                        KinectObject.transform.position = p;
 
                     }
                     else

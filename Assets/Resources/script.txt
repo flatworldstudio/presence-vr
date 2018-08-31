@@ -169,12 +169,16 @@ end
 
 #playguided
 pressedplay
+OffsetReset
 isglobal
 start presencehandler
 pause5
+OffsetThirdperson
 MaterialiseOn
+pause5
 GuideOpening
 pause5
+OffsetReset
 GuideSitdown
 WaitforSeated
 GuideBegin
@@ -192,13 +196,13 @@ GuideGetup
 WaitforGetup
 GuideThirdpersonintro
 DrawingRemove
-ThirdpersonOn
+OffsetThirdperson
 GuideThirdperson
 pause5
 GuideThirdpersonexit
 pause5
 GuideReturntocenter
-ThirdpersonOff
+OffsetReset
 pause5
 GuideMirrorintro
 pause5

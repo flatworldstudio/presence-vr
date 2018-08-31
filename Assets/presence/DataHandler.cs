@@ -1466,6 +1466,7 @@ namespace PresenceEngine
 
                         // Get latest value for headrotation (from client, via task) and add it to the frame (for recording).
                         task.GetQuaternionValue("user_headrotation", out UserDT.ActiveFrame.HeadOrientation);
+                        task.GetVector3Value("user_headposition", out UserDT.ActiveFrame.HeadPosition);
 
                         // Encode depth to task.
 
@@ -1496,9 +1497,11 @@ namespace PresenceEngine
                         if (!UserDT.Decode(task, "user"))
                             Log.Warning("Decode failed");
 
-                        // put head orientation 
+                        // put head orientation, include calibartion
                         UserDT.ActiveFrame.HeadOrientation = SETTINGS.HeadsetCorrection * headSet.transform.localRotation;
                         task.SetQuaternionValue("user_headrotation", UserDT.ActiveFrame.HeadOrientation);
+                        UserDT.ActiveFrame.HeadPosition = headSet.transform.localPosition;
+                        task.SetVector3Value("user_headposition", UserDT.ActiveFrame.HeadPosition);
                      
                         //    int usercalibrated;
 

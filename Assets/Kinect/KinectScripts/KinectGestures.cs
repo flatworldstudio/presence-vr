@@ -248,7 +248,7 @@ public class KinectGestures
                 {
                     case 0:  // gesture detection
 
-                        if (jointsTracked[headIndex] && jointsPos[headIndex].y<1.5f     )
+                        if (jointsTracked[headIndex] && jointsPos[headIndex].y<1.25f     )
                         {
                             SetGestureJoint(ref gestureData, timestamp, headIndex, jointsPos[headIndex]);
                         }
@@ -256,7 +256,7 @@ public class KinectGestures
 
                     case 1:  // gesture complete
 
-                        bool isInPose = jointsTracked[headIndex] && jointsPos[headIndex].y < 1.5f;
+                        bool isInPose = jointsTracked[headIndex] && jointsPos[headIndex].y < 1.25f;
 
                         Vector3 jointPos = jointsPos[gestureData.joint];
 
@@ -273,7 +273,7 @@ public class KinectGestures
                 {
                     case 0:  // gesture detection
 
-                        if (jointsTracked[headIndex] && jointsPos[headIndex].y > 1.5f)
+                        if (jointsTracked[headIndex] && jointsPos[headIndex].y > 1.25f)
                         {
                             SetGestureJoint(ref gestureData, timestamp, headIndex, jointsPos[headIndex]);
                         }
@@ -281,7 +281,7 @@ public class KinectGestures
 
                     case 1:  // gesture complete
 
-                        bool isInPose = jointsTracked[headIndex] && jointsPos[headIndex].y > 1.5f;
+                        bool isInPose = jointsTracked[headIndex] && jointsPos[headIndex].y > 1.25f;
 
                         Vector3 jointPos = jointsPos[gestureData.joint];
 

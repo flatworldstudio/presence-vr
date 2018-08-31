@@ -116,6 +116,7 @@ namespace PresenceEngine
         public bool[] Tracked;
         public ushort[] RawDepth;
         public Quaternion HeadOrientation;
+        public Vector3 HeadPosition;
         public float Time;
 
         public float SensorY;

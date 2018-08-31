@@ -50,7 +50,9 @@ namespace PresenceEngine
 
         public static float north = 0;
 
-        public static float SensorY = 1.5f;
+        public static float SensorY = 1.25f;
+      
+
 
         public static float kinectHeading = 45f;
 

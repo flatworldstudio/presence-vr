@@ -19,7 +19,10 @@ namespace PresenceEngine
 
         public GameObject uxCanvas;
 
-        public GameObject overviewObject, viewerObject, viewerCamera, projectionObject, headSet, setObject, handl, handr, body, Kinect, SetHandler, startPosition;
+        public GameObject viewerRoot, viewerOffset, viewerCamera;
+
+
+        public GameObject overviewObject,   projectionObject, headSet, setObject, handl, handr, body, Kinect, SetHandler, startPosition;
         //	UxMapping overviewMap;
         float timer = 0;
 
@@ -187,7 +190,7 @@ namespace PresenceEngine
                 //
 
                 case "amvrclient":
-                    SETTINGS.ActiveCamera = viewerObject.GetComponentInChildren<Camera>();
+                    SETTINGS.ActiveCamera = viewerOffset.GetComponentInChildren<Camera>();
 
                     done = true;
                     break;
@@ -365,10 +368,13 @@ namespace PresenceEngine
                 // -----------------------------------------------------------------------
 
 
-                case "ThirdpersonOn":
+                case "OffsetThirdperson":
 
-                    viewerObject.transform.parent.transform.localRotation = SETTINGS.HeadsetCorrection * Quaternion.Euler(90f, 180f, 0f);
-                    viewerObject.transform.parent.transform.localPosition = new Vector3(0, 2, 0);
+                    // viewercamera is vr headset. interest is user for position only. object is user for corrections and manipulations.
+                
+
+                    viewerOffset.transform.localRotation = SETTINGS.HeadsetCorrection * Quaternion.Euler(-90f, 0f, 0f);
+                    viewerOffset.transform.localPosition = new Vector3(0, 2, 0);
 
                     //SETTINGS.ViewerOrientationOffset = Quaternion.Euler(90f, 180f, 0f);
                     //SETTINGS.ViewerPositionOffset = new Vector3(0, 2, 0);
@@ -377,10 +383,10 @@ namespace PresenceEngine
                     done = true;
                     break;
 
-                case "ThirdpersonOff":
+                case "OffsetReset":
 
-                    viewerObject.transform.parent.transform.localRotation = SETTINGS.HeadsetCorrection * Quaternion.identity;
-                    viewerObject.transform.parent.transform.localPosition = Vector3.zero;
+                    viewerOffset.transform.localRotation = SETTINGS.HeadsetCorrection * Quaternion.identity;
+                    viewerOffset.transform.localPosition = Vector3.zero;
 
                //     SETTINGS.ViewerOrientationOffset = Quaternion.identity;
                  //   SETTINGS.ViewerPositionOffset = Vector3.zero;
@@ -660,7 +666,7 @@ namespace PresenceEngine
 
                 case "userstream":
 
-                    // Here we only apply user position from task.
+                    // Applying values to user objects. Data transfer done in data handler.
 
 
                     if (SETTINGS.user == null)
@@ -676,33 +682,37 @@ namespace PresenceEngine
                     if (ShowFrame != null && ShowFrame.Joints != null && ShowFrame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.Head])
                     {
                         // apply user head position to camera on both server and client
-                        // apply offset from settings
                     //    viewerObject.transform.parent.transform.position = ShowFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] + SETTINGS.ViewerPositionOffset;
 
-                        viewerObject.transform.position = ShowFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] ;
+                        viewerRoot.transform.position = ShowFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] ;
                         
                     }
 
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
 
-                        // apply user head rotation from device
-                        // apply offset from settings
-
+                        // apply user head rotation and local position from device. this has calibration applied.
+                        
                         Quaternion ho;
 
                         if (task.GetQuaternionValue("user_headrotation", out ho))
                         {
-                        //    viewerObject.transform.localRotation = ho * SETTINGS.ViewerOrientationOffset;
-                           // viewerObject.transform.localRotation = ho ;
+               
                             viewerCamera.transform.localRotation = ho; 
-                            // We apply the value to the camera itself. What we got from the client is the cam with the calibration applied. 
+                         
                           
                         }
-                        //else
-                        //{
-                        //    viewerObject.transform.localRotation = SETTINGS.ViewerOrientationOffset;
-                        //}
+
+                        Vector3 hp;
+
+                        if (task.GetVector3Value("user_headposition", out hp))
+                        {
+
+                            viewerCamera.transform.localPosition = hp;
+                            
+                        }
+
+
 
                     }
 
@@ -1381,7 +1391,7 @@ namespace PresenceEngine
 
                     viewInterface.defaultUxMap = uxMap;
 
-                    viewInterface.camera = new UxCamera(viewerObject);
+                    viewInterface.camera = new UxCamera(viewerOffset);
 
                     viewInterface.camera.control = CAMERACONTROL.VOID;
 
@@ -1452,7 +1462,7 @@ namespace PresenceEngine
 
                     viewInterface.defaultUxMap = uxMap;
 
-                    viewInterface.camera = new UxCamera(viewerObject);
+                    viewInterface.camera = new UxCamera(viewerOffset);
                     viewInterface.camera.control = CAMERACONTROL.TURN;
                     viewInterface.camera.constraint = new UiConstraint();
 
@@ -1545,7 +1555,7 @@ namespace PresenceEngine
 
 
                         Camera viewCam = overviewObject.GetComponentInChildren<Camera>();
-                        Camera userCam = viewerObject.GetComponentInChildren<Camera>();
+                        Camera userCam = viewerOffset.GetComponentInChildren<Camera>();
 
                         int t = viewCam.targetDisplay;
 
@@ -1686,7 +1696,7 @@ namespace PresenceEngine
 
                     newNullObject = DebugObject.getNullObject(1f, 1f, 1f);
                     newNullObject.name = "viewernull";
-                    newNullObject.transform.parent = viewerObject.transform;
+                    newNullObject.transform.parent = viewerOffset.transform;
                     newNullObject.transform.localPosition = Vector3.zero;
                     newNullObject.transform.localRotation = Quaternion.identity;
 
@@ -1930,7 +1940,7 @@ namespace PresenceEngine
 
                             // which leaves a delta of
 
-                            viewerObject.transform.parent.transform.rotation = Quaternion.Euler(0, kinectAtAngle - headYaw, 0);
+                            viewerOffset.transform.parent.transform.rotation = Quaternion.Euler(0, kinectAtAngle - headYaw, 0);
 
                             //AutoCallibrateObject.SetActive(true);
                             signalSound.Play();
@@ -1994,13 +2004,9 @@ namespace PresenceEngine
 
 
                 case "calibrateheadset":
-
-
-
+                    
                     userMessager.ShowTextMessage("Calibrating", 1);
-
-
-
+                    
                     if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
                     {
                         
@@ -2020,7 +2026,7 @@ namespace PresenceEngine
 
                         // which leaves a delta of
 
-                        viewerObject.transform.rotation = Quaternion.Euler(0, 180 - headYaw, 0);
+                        viewerOffset.transform.rotation = Quaternion.Euler(0, 180 - headYaw, 0);
 
                         SETTINGS.HeadsetCorrection= Quaternion.Euler(0, 180 - headYaw, 0);
 
@@ -2129,7 +2135,7 @@ namespace PresenceEngine
 
                             SETTINGS.vrHeadOffset = Mathf.SmoothDamp(SETTINGS.vrHeadOffset, newOffset, ref vel, 0.1f);
 
-                            viewerObject.transform.parent.transform.localRotation = Quaternion.Euler(0, SETTINGS.vrHeadOffset, 0);
+                            viewerOffset.transform.parent.transform.localRotation = Quaternion.Euler(0, SETTINGS.vrHeadOffset, 0);
 
                             task.SetFloatValue("viewerYawOffset", SETTINGS.vrHeadOffset);
 
@@ -2149,7 +2155,7 @@ namespace PresenceEngine
                         // put
 
 
-                        task.SetVector3Value("viewerPosition", viewerObject.transform.parent.transform.position);
+                        task.SetVector3Value("viewerPosition", viewerOffset.transform.parent.transform.position);
                         task.SetVector3Value("hlPosition", handl.transform.position);
                         task.SetVector3Value("hrPosition", handr.transform.position);
 
@@ -2312,7 +2318,7 @@ namespace PresenceEngine
                         if (task.GetVector3Value("viewerPosition", out viewerPositionV))
                         {
 
-                            viewerObject.transform.parent.transform.position = viewerPositionV;
+                            viewerOffset.transform.parent.transform.position = viewerPositionV;
 
                         }
 

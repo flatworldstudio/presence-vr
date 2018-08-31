@@ -147,6 +147,7 @@ public abstract class AbstractSerialThread
                     // reading/writing to the device. Log the detailed message
                     // to the console and notify the listener.
                     Debug.LogWarning("Exception: " + ioe.Message + " StackTrace: " + ioe.StackTrace);
+
                     if (enqueueStatusMessages)
                         inputQueue.Enqueue(SerialController.SERIAL_DEVICE_DISCONNECTED);
 
