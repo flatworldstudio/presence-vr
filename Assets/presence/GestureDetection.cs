@@ -57,8 +57,13 @@ public class GestureDetection : MonoBehaviour, KinectGestures.GestureListenerInt
     void Update()
     {
 
-
-
+        if (Input.GetKeyDown("d")){
+            
+            if (TaskRef != null)
+                TaskRef.SetStringValue("status", "detected");
+            
+        }
+          
     }
     void KinectGestures.GestureListenerInterface.UserDetected(uint userId, int userIndex)
     {

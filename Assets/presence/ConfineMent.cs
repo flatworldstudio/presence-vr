@@ -245,10 +245,15 @@ public class ConfineMent : MonoBehaviour
     {
 
         signalSound.Play();
-
+        SETTINGS.UserInConfinedArea=false;
     }
 
+    void OnTriggerExit(Collider other)
+    {
 
+        SETTINGS.UserInConfinedArea=true;
+
+    }
 
     void OnTriggerEnterOLD(Collider other)
     {
@@ -314,7 +319,7 @@ public class ConfineMent : MonoBehaviour
     {
 
 
-        GENERAL.UserInConfinedArea = true;
+        SETTINGS.UserInConfinedArea = true;
 
 
         int barrier = System.Array.IndexOf(colliders, other);
