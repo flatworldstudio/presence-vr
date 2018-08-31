@@ -1432,7 +1432,9 @@ namespace PresenceEngine
                     //	g.transform.SetParent (c.transform, false);
 
                     c = GameObject.Find("Kinect");
-                    g = DebugObject.getNullObject(0.25f, 0.25f, 0.5f);
+                    //g = DebugObject.getNullObject(0.25f, 0.25f, 0.5f);
+                    g = DebugObject.getNullObject(2,2,1);
+
                     g.transform.SetParent(c.transform, false);
 
                     done = true;

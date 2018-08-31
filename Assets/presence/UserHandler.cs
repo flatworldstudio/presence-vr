@@ -1435,7 +1435,7 @@ namespace PresenceEngine
 
                     viewInterface.defaultUxMap = uxMap;
 
-                    viewInterface.camera = new UxCamera(viewerObject);
+                    viewInterface.camera = new UxCamera(viewerOffset);
                     viewInterface.camera.control = CAMERACONTROL.GYRO;
                     viewInterface.camera.constraint = new UiConstraint();
 
@@ -1857,7 +1857,7 @@ namespace PresenceEngine
 
                         SETTINGS.mobileInitialHeading = Input.compass.magneticHeading;
 
-                        viewerObject.transform.parent.transform.localRotation = Quaternion.Euler(0, SETTINGS.mobileInitialHeading, 0);
+                        viewerOffset.transform.parent.transform.localRotation = Quaternion.Euler(0, SETTINGS.mobileInitialHeading, 0);
 
                         done = true;
 

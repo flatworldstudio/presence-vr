@@ -24,10 +24,6 @@ namespace PresenceEngine
 
         public static  string  DEFAULTFOLDER = "/_default";
 
-     //   public static int DEPTHSAMPLING =1;
-
-
-        //public static Presence[] Presences;
         public static Dictionary<string,Presence> Presences;
 
       public static  Presence user; // this is a convience shortcut, set to the "user" entry in the dictionary.
@@ -37,16 +33,14 @@ namespace PresenceEngine
         public static string DefaultVisualiser = "PointShaded";
         public static bool ManualPlayback;
 
-   //     public static Presence MainPresence;
-        // KINECT INFO
-        //	public static GameObject kinectObject;
+
         public static DEVICEMODE deviceMode;
 
         public static DepthTransport MainDepthTransport;
+
         public static Quaternion HeadsetCorrection = Quaternion.identity;
 
-     //   public static Vector3 ViewerPositionOffset;
-      //  public static Quaternion ViewerOrientationOffset;
+  
 
         public static float north = 0;
 
@@ -60,7 +54,7 @@ namespace PresenceEngine
         public static bool kinectIsOrigin = true;
 
 
-        //	public static DepthTransport pKinect;
+      
 
         public static float mobileInitialHeading = -1;
         public static float mobileInitialHeading1 = -1;

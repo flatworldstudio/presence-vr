@@ -1870,7 +1870,8 @@ namespace PresenceEngine
                 case "amvrclient":
 
                     SETTINGS.deviceMode = DEVICEMODE.VRCLIENT;
-                  
+
+           
 
                     done = true;
 

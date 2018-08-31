@@ -6,6 +6,7 @@ amvrclient
 start moodlight
 start serversearch
 alignset
+calibrateheadset
 addkinectnull
 createuser
 receivelivedepth
