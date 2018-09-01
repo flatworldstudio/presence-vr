@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿#if !UNITY_IOS && !UNITY_ANDROID
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using StoryEngine;
@@ -116,4 +118,4 @@ public class GestureDetection : MonoBehaviour, KinectGestures.GestureListenerInt
         return true;
     }
 }
-
+#endif

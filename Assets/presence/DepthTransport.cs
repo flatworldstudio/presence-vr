@@ -7,7 +7,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 //using NUnit.Framework.Constraints;
 using System.Net.NetworkInformation;
-using Amazon.CognitoIdentity.Model;
+//using Amazon.CognitoIdentity.Model;
 
 
 namespace PresenceEngine
@@ -139,8 +139,9 @@ namespace PresenceEngine
                         // Any instance can be 'live', which means it'll be working with live buffer data.
                         // On windows, the first instance to go live will assume control over the kinect.
 
-                        //    __mode = DEPTHMODE.LIVE;
-
+//    __mode = DEPTHMODE.LIVE;
+#if !UNITY_IOS && !UNITY_ANDROID 
+                        
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
                         // On server / windows we try to fire up the kinect.
@@ -172,6 +173,9 @@ namespace PresenceEngine
                             }
                         }
 #endif
+
+#endif
+
                         break;
 
                     case DEPTHMODE.PLAYBACK:
@@ -188,7 +192,7 @@ namespace PresenceEngine
                     case DEPTHMODE.OFF:
 
                         // __mode = DEPTHMODE.OFF;
-
+#if !UNITY_IOS && !UNITY_ANDROID
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
                         if (OwnsKinect==this && KinectManager.Instance.IsInitialized())
@@ -198,6 +202,7 @@ namespace PresenceEngine
                             Debug.Log(me + "Shutting down Kinectmanager.");
                         }
 
+#endif
 #endif
                         break;
 
@@ -220,13 +225,17 @@ namespace PresenceEngine
 
         public bool IsUserDetected()
         {
+
+#if !UNITY_IOS && !UNITY_ANDROID
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
             return (KinectManager.Instance.IsInitialized() ? KinectManager.Instance.IsUserDetected() : false);
 
-#else
-            return false;
+
 #endif
+#endif
+            return false;
+
             //      return (__mode == DEPTHMODE.LIVE || __mode == DEPTHMODE.RECORD) ? KinectManager.Instance.IsUserDetected() : false;
         }
 
@@ -252,6 +261,7 @@ namespace PresenceEngine
                     CurrentTime = ActiveFrame.Time;
 
                     ActiveFrame.SensorY=SETTINGS.SensorY;
+#if !UNITY_IOS && !UNITY_ANDROID
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
@@ -272,6 +282,7 @@ namespace PresenceEngine
 
 
 
+#endif
 #endif
                     // If we've fallen through we generate data for development purposes.
 
@@ -297,14 +308,14 @@ namespace PresenceEngine
                     ActiveFrame.UserPosition = new Vector3(hx, 0, hz);
                     ActiveFrame.UserTracked = true;
 
-                    ActiveFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] = new Vector3(hx, 0.5f, hz);
-                    ActiveFrame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] = true;
+                    ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head] = new Vector3(hx, 0.5f, hz);
+                    ActiveFrame.Tracked[(int)NuiSkeletonPositionIndex.Head] = true;
 
-                    ActiveFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] = new Vector3(hx - 0.5f, -0.25f, hz);
-                    ActiveFrame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] = true;
+                    ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.HandLeft] = new Vector3(hx - 0.5f, -0.25f, hz);
+                    ActiveFrame.Tracked[(int)NuiSkeletonPositionIndex.HandLeft] = true;
 
-                    ActiveFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] = new Vector3(hx + 0.5f, -0.25f, hz);
-                    ActiveFrame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] = true;
+                    ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.HandRight] = new Vector3(hx + 0.5f, -0.25f, hz);
+                    ActiveFrame.Tracked[(int)NuiSkeletonPositionIndex.HandRight] = true;
 
                     //ActiveFrame.Tracked = new bool[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
 
@@ -360,6 +371,7 @@ namespace PresenceEngine
         {
 
             // Retrieves skeleton data from kinect if possible. Works by reference, so data will only be changed if possible.
+#if !UNITY_IOS && !UNITY_ANDROID
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
@@ -413,7 +425,7 @@ namespace PresenceEngine
 
             }
 #endif
-
+#endif
 
         }
 
@@ -489,7 +501,7 @@ namespace PresenceEngine
         {
 
             // Get raw depth map, so depth plus user map in a ushort[]
-
+#if !UNITY_IOS && !UNITY_ANDROID
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 
 
@@ -527,7 +539,7 @@ namespace PresenceEngine
             }
 
 #endif
-
+#endif
             return new ushort[DEPTHMAPSIZE[DepthSampling]];
         }
 

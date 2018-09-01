@@ -15,7 +15,7 @@ namespace PresenceEngine
         public UserController userController;
 
         UxInterface serverInterface;
-        public GameObject uxCanvas;
+     
         public GameObject viewerRoot, viewerOffset, viewerCamera;
         public GameObject overviewObject, projectionObject, headSet, setObject, handl, handr, body, Kinect, SetHandler, startPosition;
         public AudioSource signalSound;
@@ -26,14 +26,19 @@ namespace PresenceEngine
         UxController uxController;
         public Text filePath;
 
+#if !UNITY_IOS && !UNITY_ANDROID
+        public GameObject uxCanvas;
+#endif
+
         string me = "Task handler: ";
 
 
         void Start()
         {
-            
-            uxCanvas.SetActive(true);
+#if !UNITY_IOS && !UNITY_ANDROID
 
+            uxCanvas.SetActive(true);
+#endif
             userController.addTaskHandler(TaskHandler);
 
             uxController = new UxController();
@@ -82,7 +87,8 @@ namespace PresenceEngine
                 // -----------------------------------------------------------------------
                 // Gestures
 
-
+#if !UNITY_IOS && !UNITY_ANDROID
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
                 case "WaitforSeated":
 
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
@@ -222,7 +228,8 @@ namespace PresenceEngine
 
 
                     break;
-
+#endif
+#endif
 
                 // -----------------------------------------------------------------------
                 // Manipulating pov
@@ -455,12 +462,12 @@ namespace PresenceEngine
 
                     UncompressedFrame ShowFrame = SETTINGS.user.DepthTransport.ActiveFrame;
 
-                    if (ShowFrame != null && ShowFrame.Joints != null && ShowFrame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.Head])
+                    if (ShowFrame != null && ShowFrame.Joints != null && ShowFrame.Tracked[(int)NuiSkeletonPositionIndex.Head])
                     {
                         // apply user head position to camera on both server and client
                         //    viewerObject.transform.parent.transform.position = ShowFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] + SETTINGS.ViewerPositionOffset;
 
-                        viewerRoot.transform.position = ShowFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head];
+                        viewerRoot.transform.position = ShowFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
 
                     }
 
@@ -563,6 +570,8 @@ namespace PresenceEngine
 
                     break;
 
+                    #if !UNITY_IOS && !UNITY_ANDROID
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
                 case "makeservercontrols":
 
 
@@ -681,6 +690,9 @@ namespace PresenceEngine
                     done = true;
 
                     break;
+
+#endif
+#endif
 
                 case "makefoldermenu":
 

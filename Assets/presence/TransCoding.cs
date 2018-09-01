@@ -62,7 +62,7 @@ namespace PresenceEngine
 
         public SkeletonAndDepthFrame()
         {
-            Points = new Point[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
+            Points = new Point[(int)NuiSkeletonPositionIndex.Count];
             Tracked = new bool[Points.Length];
         }
     }
@@ -78,7 +78,7 @@ namespace PresenceEngine
 
         public SkeletonOnlyFrame()
         {
-            Points = new Point[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
+            Points = new Point[(int)NuiSkeletonPositionIndex.Count];
             Tracked = new bool[Points.Length];
 
         }
@@ -124,8 +124,8 @@ namespace PresenceEngine
         public UncompressedFrame()
         {
 
-            Joints = new Vector3[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
-            Tracked = new bool[(int)KinectWrapper.NuiSkeletonPositionIndex.Count];
+            Joints = new Vector3[(int)NuiSkeletonPositionIndex.Count];
+            Tracked = new bool[(int)NuiSkeletonPositionIndex.Count];
             RawDepth = new ushort[160 * 120];
 
         }

@@ -198,15 +198,15 @@ namespace PresenceEngine
                 Vector3 offset = Vector3.zero;
                 // no offset. we're using kinect height which means that whatever height it was at, joints will be correct.
 
-                HandLeft.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] + offset;
-                HandRight.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] + offset;
+                HandLeft.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.HandLeft] + offset;
+                HandRight.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.HandRight] + offset;
 
                 Body.transform.localPosition = Frame.UserPosition + offset;
 
                 if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                 {
                     //  if (Frame.Tracked
-                    Head.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] + offset;
+                    Head.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.Head] + offset;
                     Head.transform.localRotation = Frame.HeadOrientation;
                 }
 
@@ -219,11 +219,11 @@ namespace PresenceEngine
 
                 {
 
-                    Vector3 last = lastFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] + offset;
-                    Vector3 current = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] + offset;
+                    Vector3 last = lastFrame.Joints[(int)NuiSkeletonPositionIndex.HandLeft] + offset;
+                    Vector3 current = Frame.Joints[(int)NuiSkeletonPositionIndex.HandLeft] + offset;
 
-                    if (lastFrame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] &&
-                        Frame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft])
+                    if (lastFrame.Tracked[(int)NuiSkeletonPositionIndex.HandLeft] &&
+                        Frame.Tracked[(int)NuiSkeletonPositionIndex.HandLeft])
                     {
 
                         for (float i = 0; i < 1; i += 0.25f)
@@ -235,11 +235,11 @@ namespace PresenceEngine
 
                     //HandLeftP = current;
 
-                    last = lastFrame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] + offset;
-                    current = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] + offset;
+                    last = lastFrame.Joints[(int)NuiSkeletonPositionIndex.HandRight] + offset;
+                    current = Frame.Joints[(int)NuiSkeletonPositionIndex.HandRight] + offset;
 
-                    if (lastFrame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] &&
-                        Frame.Tracked[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight])
+                    if (lastFrame.Tracked[(int)NuiSkeletonPositionIndex.HandRight] &&
+                        Frame.Tracked[(int)NuiSkeletonPositionIndex.HandRight])
                     {
                         for (float i = 0; i < 1; i += 0.25f)
                         {
@@ -509,15 +509,15 @@ namespace PresenceEngine
 
                 Vector3 offset = new Vector3(0, Frame.SensorY, 0);
 
-                HandLeft.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] + offset;
-                HandRight.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] + offset;
+                HandLeft.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.HandLeft] + offset;
+                HandRight.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.HandRight] + offset;
 
                 Body.transform.localPosition = Frame.UserPosition + offset;
                 PLight.transform.localPosition = new Vector3(Frame.UserPosition.x, 1, Frame.UserPosition.z);
 
                 if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                 {
-                    Head.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] + offset;
+                    Head.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.Head] + offset;
                     Head.transform.localRotation = Frame.HeadOrientation;
                 }
 
@@ -904,15 +904,15 @@ namespace PresenceEngine
 
                 Vector3 offset = new Vector3(0, Frame.SensorY, 0);
 
-                HandLeft.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] + offset;
-                HandRight.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] + offset;
+                HandLeft.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.HandLeft] + offset;
+                HandRight.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.HandRight] + offset;
 
                 Body.transform.localPosition = Frame.UserPosition + offset;
                 PLight.transform.localPosition = new Vector3(Frame.UserPosition.x, 1, Frame.UserPosition.z);
 
                 if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                 {
-                    Head.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] + offset;
+                    Head.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.Head] + offset;
                     Head.transform.localRotation = Frame.HeadOrientation;
                 }
 
@@ -1227,15 +1227,15 @@ namespace PresenceEngine
 
                 Vector3 offset = new Vector3(0, Frame.SensorY, 0);
 
-                HandLeft.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandLeft] + offset;
-                HandRight.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.HandRight] + offset;
+                HandLeft.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.HandLeft] + offset;
+                HandRight.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.HandRight] + offset;
 
                 Body.transform.localPosition = Frame.UserPosition + offset;
                 PLight.transform.localPosition = new Vector3(Frame.UserPosition.x, 1, Frame.UserPosition.z);
 
                 if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                 {
-                    Head.transform.localPosition = Frame.Joints[(int)KinectWrapper.NuiSkeletonPositionIndex.Head] + offset;
+                    Head.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.Head] + offset;
                     Head.transform.localRotation = Frame.HeadOrientation;
                 }
 
