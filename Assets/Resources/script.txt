@@ -1,7 +1,7 @@
 // CLIENT STORIES.
 
 #presenceclient
-debugon
+debugoff
 amvrclient
 start moodlight
 start serversearch

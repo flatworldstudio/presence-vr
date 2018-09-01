@@ -8,6 +8,9 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/presence/presenceServer.unity
     guid: c3662e7edde5b42be992b12888167267
-  - enabled: 1
-    path: Assets/presence/presenceVR.unity
+  - enabled: 0
+    path: Assets/presence/presenceCardboard.unity
     guid: 6399279709c3f429ba850dd7d4db5c58
+  - enabled: 1
+    path: Assets/presence/presenceGo.unity
+    guid: 1f421e8dd0a350a4a855f5472971439d

@@ -1,3 +1,5 @@
+#if !UNITY_IOS && !UNITY_ANDROID
+
 /**
  * Ardity (Serial Communication for Arduino + Unity)
  * Author: Daniel Wilches <dwilches@gmail.com>
@@ -39,3 +41,4 @@ public class SerialThreadLines : AbstractSerialThread
         return serialPort.ReadLine();
     }
 }
+#endif

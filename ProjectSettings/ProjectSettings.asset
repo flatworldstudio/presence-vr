@@ -166,7 +166,7 @@ PlayerSettings:
   buildNumber:
     iOS: 0
   AndroidBundleVersionCode: 1
-  AndroidMinSdkVersion: 16
+  AndroidMinSdkVersion: 21
   AndroidTargetSdkVersion: 0
   AndroidPreferredInstallLocation: 1
   aotOptions: 
@@ -273,6 +273,10 @@ PlayerSettings:
     m_Enabled: 0
     m_Devices:
     - OpenVR
+    - Oculus
+  - m_BuildTarget: Android
+    m_Enabled: 1
+    m_Devices:
     - Oculus
   m_BuildTargetEnableVuforiaSettings: []
   openGLRequireES31: 0
@@ -571,6 +575,7 @@ PlayerSettings:
   scriptingDefineSymbols:
     1: NETWORKED
     4: NETWORKED;IOS
+    7: NETWORKED
   platformArchitecture: {}
   scriptingBackend: {}
   incrementalIl2cppBuild: {}
