@@ -29,14 +29,75 @@ namespace PresenceEngine
     {
         public List<FrameBase> Frames;
 
+        public Dictionary<string, float> TimeStamps;
+
         public string TransCoderName, Name;
-        public float StartTime = 999, EndTime = -1;
+        //   public float StartTime = 999, EndTime = -1;
         public float[] Transform;
         public float SensorY;
 
         public FileformatBase()
         {
             Frames = new List<FrameBase>();
+            TimeStamps = new Dictionary<string, float>();
+        }
+        public float GetTimeStamp(string label)
+        {
+            if (TimeStamps.ContainsKey(label))
+                return TimeStamps[label];
+            else
+                return -1;
+            
+        }
+
+        public void SetTimeStamp (string label,float value)
+        {
+           
+                if (!TimeStamps.ContainsKey(label))
+                    TimeStamps.Add(label, value);
+                else
+                    TimeStamps[label] = value;
+            
+        }
+        
+        public float StartTime
+        {
+            get
+            {
+                if (TimeStamps.ContainsKey("StartTime"))
+                    return TimeStamps["StartTime"];
+                else
+                    return 9999999f; // for min/max use
+            }
+            set
+            {
+                SetTimeStamp("StartTime", value);
+            }
+        }
+
+        public float EndTime
+        {
+            get
+            {
+                if (TimeStamps.ContainsKey("EndTime"))
+                    return TimeStamps["EndTime"];
+                else
+                    return -9999999f;// for min/max use
+            }
+            set
+            {
+                SetTimeStamp("EndTime", value);
+            }
+        }
+
+        public void DumpTimeStamps()
+        {
+            foreach (KeyValuePair<string,float>pair in TimeStamps)
+            {
+                Debug.Log("Buffer file time stamp " + pair.Key + " " + pair.Value);
+            }
+
+
         }
 
     }
@@ -137,7 +198,7 @@ namespace PresenceEngine
             {
                 Joints[j] = Vector3.zero;
                 Tracked[j] = false;
-                }
+            }
 
         }
 
@@ -268,7 +329,7 @@ namespace PresenceEngine
             {
                 Name = name,
                 TransCoderName = _name,
-                SensorY=SETTINGS.SensorY
+                SensorY = SETTINGS.SensorY
             };
 
             Debug.Log("Created buffer file " + _bufferFile.Name);
@@ -423,7 +484,7 @@ namespace PresenceEngine
                     Uframe.UserPosition = storeFrame.UserPosition.ToVector3();
                     Uframe.Time = storeFrame.Time;
 
-                    Uframe.SensorY=_bufferFile.SensorY;
+                    Uframe.SensorY = _bufferFile.SensorY;
 
                     //  Uframe.FrameNumber = frameNumber;
 
@@ -478,7 +539,7 @@ namespace PresenceEngine
             {
                 Name = name,
                 TransCoderName = _name,
-                SensorY=SETTINGS.SensorY
+                SensorY = SETTINGS.SensorY
             };
 
             Debug.Log("Created buffer file " + _bufferFile.Name);
@@ -858,7 +919,7 @@ namespace PresenceEngine
 
                 int count = _bufferFile.Frames.Count - 2; // last frame is skipped.
                 int search = 0;
-                int timeOut = 1000;
+                int timeOut = 10*60*30;// 10 minutes at 30 fps worth of frames.
 
                 do
                 {
@@ -930,7 +991,7 @@ namespace PresenceEngine
 
                     Uframe.Time = storeFrame.Time;
 
-                    Uframe.SensorY=_bufferFile.SensorY;
+                    Uframe.SensorY = _bufferFile.SensorY;
 
                     DecodeDepth(Uframe, storeFrame.Data, storeFrame.DepthSampling, storeFrame.Min, storeFrame.Max);
 

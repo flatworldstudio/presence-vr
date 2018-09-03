@@ -21,9 +21,9 @@ namespace PresenceEngine
     {
         public static bool UserInConfinedArea = true;
 
-        public static int SessionDuration = 30;
-        public static string DEFAULTFILE = "/_default/_default.prs";
-        public static string DEFAULTFOLDER = "/_default";
+        public static int SessionDuration = 120;
+        public static string DEFAULTFILE = "/default/default.prs";
+        public static string DEFAULTFOLDER = "/default";
 
         public static Dictionary<string, Presence> Presences;
         public static Presence user; // this is a convience shortcut, set to the "user" entry in the dictionary.

@@ -511,7 +511,9 @@ namespace PresenceEngine
                 HandRight.SetActive(Frame.UserTracked);
                 PLight.SetActive(Frame.UserTracked);
 
-                Vector3 offset = new Vector3(0, Frame.SensorY, 0);
+             //   Vector3 offset = new Vector3(0, Frame.SensorY, 0);
+
+                Vector3 offset = Vector3.zero;
 
                 HandLeft.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.HandLeft] + offset;
                 HandRight.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.HandRight] + offset;
@@ -909,7 +911,8 @@ namespace PresenceEngine
                 HandRight.SetActive(Frame.UserTracked);
                 PLight.SetActive(Frame.UserTracked);
 
-                Vector3 offset = new Vector3(0, Frame.SensorY, 0);
+                //   Vector3 offset = new Vector3(0, Frame.SensorY, 0);
+                Vector3 offset = Vector3.zero;
 
                 HandLeft.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.HandLeft] + offset;
                 HandRight.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.HandRight] + offset;
@@ -1235,7 +1238,8 @@ namespace PresenceEngine
                 HandRight.SetActive(Frame.UserTracked);
                 PLight.SetActive(Frame.UserTracked);
 
-                Vector3 offset = new Vector3(0, Frame.SensorY, 0);
+                //  Vector3 offset = new Vector3(0, Frame.SensorY, 0);
+                Vector3 offset = Vector3.zero;
 
                 HandLeft.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.HandLeft] + offset;
                 HandRight.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.HandRight] + offset;

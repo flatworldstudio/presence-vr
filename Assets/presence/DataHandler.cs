@@ -39,7 +39,7 @@ namespace PresenceEngine
         int testSize = 10000;
         public DataController dataController;
         public GameObject headSet;
-
+        string dpn;
         string me = "Data handler: ";
 
         void Awake()
@@ -64,8 +64,9 @@ namespace PresenceEngine
 
 
             dataController.addTaskHandler(TaskHandler);
+            IO.SetDataPath();
 
-            IO.localStorageFolder = Application.persistentDataPath + "/data";
+
 
             SETTINGS.Presences = new Dictionary<string, Presence>();
 
@@ -106,8 +107,8 @@ namespace PresenceEngine
 #if SERVER
                 case "amserver":
 
-           //         SETTINGS.deviceMode = DEVICEMODE.SERVER;
-                 // Switched to using #if compiling.
+                    //         SETTINGS.deviceMode = DEVICEMODE.SERVER;
+                    // Switched to using #if compiling.
                     done = true;
 
                     break;
@@ -153,36 +154,36 @@ namespace PresenceEngine
                     // This task takes care of the actual current user only.
 
 #if SERVER
-                  
-
-                        Application.targetFrameRate = 30;
-                        QualitySettings.vSyncCount = 0;
-
-                        DepthTransport UserDT = SETTINGS.user.DepthTransport;
-
-                        // Retrieve new depth info.
-                        UserDT.GetNewFrame();
-
-                        // Get latest value for headrotation (from client, via task) and add it to the frame (for recording).
-                        task.GetQuaternionValue("user_headrotation", out UserDT.ActiveFrame.HeadOrientation);
-                        task.GetVector3Value("user_headposition", out UserDT.ActiveFrame.HeadPosition);
-
-                        // Encode depth to task.
-
-                        if (!UserDT.Encode(task, "user"))
-                            Log.Warning("Encode failed");
-
-                        task.SetStringValue("debug", "time: " + UserDT.CurrentTime);
-
-                        // user may move in or out of detection.
-
-                        //  task.SetIntValue("user_debugcontrol", UserDT.IsUserDetected() ? 1:0);
-                        //    SETTINGS.user.Visualiser.SetMode(task, "user");
-
-                        //task.SetIntValue("user_cloudcontrol", GENERAL.UserMaterialised ? 1 : 0);
 
 
-                    
+                    Application.targetFrameRate = 30;
+                    QualitySettings.vSyncCount = 0;
+
+                    DepthTransport UserDT = SETTINGS.user.DepthTransport;
+
+                    // Retrieve new depth info.
+                    UserDT.GetNewFrame();
+
+                    // Get latest value for headrotation (from client, via task) and add it to the frame (for recording).
+                    task.GetQuaternionValue("user_headrotation", out UserDT.ActiveFrame.HeadOrientation);
+                    task.GetVector3Value("user_headposition", out UserDT.ActiveFrame.HeadPosition);
+
+                    // Encode depth to task.
+
+                    if (!UserDT.Encode(task, "user"))
+                        Log.Warning("Encode failed");
+
+                    task.SetStringValue("debug", "time: " + UserDT.CurrentTime);
+
+                    // user may move in or out of detection.
+
+                    //  task.SetIntValue("user_debugcontrol", UserDT.IsUserDetected() ? 1:0);
+                    //    SETTINGS.user.Visualiser.SetMode(task, "user");
+
+                    //task.SetIntValue("user_cloudcontrol", GENERAL.UserMaterialised ? 1 : 0);
+
+
+
 #endif
 
 #if CLIENT
@@ -221,16 +222,16 @@ namespace PresenceEngine
 
                     // Use visualiser's to and from task method to change setting.
 
-                  
-                        SETTINGS.user.SetVisualiser("PointShaded", 0);
-                        task.SetIntValue("user_0_cloudvisible", 1);
 
-                        SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
+                    SETTINGS.user.SetVisualiser("PointShaded", 0);
+                    task.SetIntValue("user_0_cloudvisible", 1);
 
-                        presenceSound.Play();
+                    SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
 
-                        done = true;
-                    
+                    presenceSound.Play();
+
+                    done = true;
+
 
 
                     break;
@@ -240,13 +241,13 @@ namespace PresenceEngine
 
                     // Use visualiser's to and from task method to change setting.
 #if SERVER
-                   
-                        task.SetIntValue("user_0_cloudvisible", 0);
 
-                        SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
+                    task.SetIntValue("user_0_cloudvisible", 0);
 
-                        done = true;
-                    
+                    SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
+
+                    done = true;
+
 #endif
 
 #if CLIENT
@@ -272,94 +273,94 @@ namespace PresenceEngine
 
                     // Take care of progressing, over the network, of all other instances (not the user).
 #if SERVER
-                  
 
-                        // Get current list from the task.
 
-                        string[] presenceNames;
+                    // Get current list from the task.
 
-                        if (!task.GetStringArrayValue("presences", out presenceNames))
+                    string[] presenceNames;
+
+                    if (!task.GetStringArrayValue("presences", out presenceNames))
+                    {
+                        // push list of all presences
+                        task.SetStringArrayValue("presences", SETTINGS.Presences.Keys.ToArray());
+
+                    }
+
+                    // Now go over them and push all data.
+
+                    foreach (KeyValuePair<string, Presence> presence in SETTINGS.Presences)
+                    {
+
+                        presence.Value.PushAllSettingToTask(task, presence.Key);
+
+                        if (presence.Value.DepthTransport.Mode == DEPTHMODE.COPY)
                         {
-                            // push list of all presences
-                            task.SetStringArrayValue("presences", SETTINGS.Presences.Keys.ToArray());
+                            // Copy frame reference.
+
+                            presence.Value.DepthTransport.ActiveFrame = presence.Value.DepthTransport.TargetPresence.DepthTransport.ActiveFrame;
 
                         }
 
-                        // Now go over them and push all data.
-
-                        foreach (KeyValuePair<string, Presence> presence in SETTINGS.Presences)
+                        if (presence.Value.DepthTransport.Mode == DEPTHMODE.PLAYBACK)
                         {
+                            // Play back while in playback mode and playback successful else fall through.
 
-                            presence.Value.PushAllSettingToTask(task, presence.Key);
+                            int status = presence.Value.DepthTransport.LoadFrameFromBuffer(presence.Value.DepthTransport.CurrentTime);
 
-                            if (presence.Value.DepthTransport.Mode == DEPTHMODE.COPY)
+                            switch (status)
                             {
-                                // Copy frame reference.
+                                case -1:
+                                case 0:
 
-                                presence.Value.DepthTransport.ActiveFrame = presence.Value.DepthTransport.TargetPresence.DepthTransport.ActiveFrame;
+                                    // we're before the start or in the buffer
+
+                                    if (!SETTINGS.ManualPlayback)
+                                    {
+                                        presence.Value.DepthTransport.CurrentTime += Time.deltaTime;
+                                    }
+
+                                    //Debug.Log("playing");
+                                    break;
+
+
+                                case 1:
+                                    // wé're at the end
+                                    presence.Value.DepthTransport.CurrentTime = presence.Value.DepthTransport.TransCoder.GetBufferFile().StartTime;
+                                    //Debug.Log("loop");
+                                    break;
+
+                                default:
+                                    // Error.
+                                    Debug.LogError("Buffer playback error.");
+                                    break;
+
 
                             }
 
-                            if (presence.Value.DepthTransport.Mode == DEPTHMODE.PLAYBACK)
+                            // Push time.
+
+                            task.SetFloatValue(presence.Key + "_time", presence.Value.DepthTransport.CurrentTime);
+
+                            if (status == 0 && !presence.Value.SoundPlayed)
                             {
-                                // Play back while in playback mode and playback successful else fall through.
+                                presence.Value.SoundPlayed = true;
+                                presenceSound.Play();
+                            }
 
-                                int status = presence.Value.DepthTransport.LoadFrameFromBuffer(presence.Value.DepthTransport.CurrentTime);
+                            // Debug.
 
-                                switch (status)
-                                {
-                                    case -1:
-                                    case 0:
+                            if (presence.Key == "playbackpresence")
+                            {
 
-                                        // we're before the start or in the buffer
-
-                                        if (!SETTINGS.ManualPlayback)
-                                        {
-                                            presence.Value.DepthTransport.CurrentTime += Time.deltaTime;
-                                        }
-
-                                        //Debug.Log("playing");
-                                        break;
-
-
-                                    case 1:
-                                        // wé're at the end
-                                        presence.Value.DepthTransport.CurrentTime = presence.Value.DepthTransport.TransCoder.GetBufferFile().StartTime;
-                                        //Debug.Log("loop");
-                                        break;
-
-                                    default:
-                                        // Error.
-                                        Debug.LogError("Buffer playback error.");
-                                        break;
-
-
-                                }
-
-                                // Push time.
-
-                                task.SetFloatValue(presence.Key + "_time", presence.Value.DepthTransport.CurrentTime);
-
-                                if (status == 0 && !presence.Value.SoundPlayed)
-                                {
-                                    presence.Value.SoundPlayed = true;
-                                    presenceSound.Play();
-                                }
-
-                                // Debug.
-
-                                if (presence.Key == "playbackpresence")
-                                {
-
-                                    task.SetStringValue("debug", "" + presence.Value.DepthTransport.CurrentTime);
-
-                                }
+                                task.SetStringValue("debug", "" + presence.Value.DepthTransport.CurrentTime);
 
                             }
 
                         }
 
-                    
+                    }
+
+
 #endif
 
 #if CLIENT
@@ -459,22 +460,22 @@ namespace PresenceEngine
 #if SERVER
                 case "deletepresences":
 
-                    
 
-                        foreach (KeyValuePair<string, Presence> presence in SETTINGS.Presences)
+
+                    foreach (KeyValuePair<string, Presence> presence in SETTINGS.Presences)
+                    {
+                        if (presence.Key != "user")
                         {
-                            if (presence.Key != "user")
-                            {
 
-                                Destroy(presence.Value.gameObject);
+                            Destroy(presence.Value.gameObject);
 
-                            }
                         }
+                    }
 
-                        SETTINGS.Presences.Clear();
-                        SETTINGS.Presences.Add("user", SETTINGS.user);
+                    SETTINGS.Presences.Clear();
+                    SETTINGS.Presences.Add("user", SETTINGS.user);
 
-                    
+
 
                     done = true;
                     break;
@@ -581,7 +582,8 @@ namespace PresenceEngine
 
                     if (pbBuffer != null)
                     {
-                        
+                        pbBuffer.DumpTimeStamps();
+
                         if (pbBuffer.EndTime > pbBuffer.StartTime)
                         {
 
@@ -611,9 +613,11 @@ namespace PresenceEngine
                             fileplayback.SetVisualiseTransform(Vector3.zero, Vector3.one, Quaternion.identity);
 
                             // Roundabout way of setting setting on visualiser. This task will be removed.
+                            //  task.SetIntValue("user_0_cloudvisible", 1);
+                            task.SetIntValue("playbackpresence_0_cloudvisible", 1);
+                            task.SetIntValue("playbackpresence_1_cloudvisible", 1);
+                            task.SetIntValue("playbackpresence_1_isdrawing", 1);
 
-                            task.SetFloatValue("playbackpresence_0_cloudvisible", 1);
-                            //     task.SetFloatValue("playbackpresence_1_cloudvisible", 0);
                             fileplayback.PullVisualiserSettingsFromTask(task, "playbackpresence");
 
                             Debug.Log("started buffer " + pbBuffer.Name);
@@ -628,33 +632,33 @@ namespace PresenceEngine
 
                 case "stopplaybackfile":
 
-                   
 
-                        if (fileplayback != null)
-                            fileplayback.DepthTransport.Mode = DEPTHMODE.OFF;
 
-                    
+                    if (fileplayback != null)
+                        fileplayback.DepthTransport.Mode = DEPTHMODE.OFF;
+
+
                     done = true;
                     break;
 
 
                 case "stopallplayback":
 
-                    
 
-                        foreach (KeyValuePair<string, Presence> presence in SETTINGS.Presences)
+
+                    foreach (KeyValuePair<string, Presence> presence in SETTINGS.Presences)
+                    {
+                        if (presence.Key != "user")
                         {
-                            if (presence.Key != "user")
-                            {
 
-                                presence.Value.DepthTransport.Mode = DEPTHMODE.OFF;
-
-                            }
+                            presence.Value.DepthTransport.Mode = DEPTHMODE.OFF;
 
                         }
 
+                    }
 
-                    
+
+
                     done = true;
                     break;
 
@@ -664,46 +668,46 @@ namespace PresenceEngine
 
                     // Creates a mirror presence of the user if recording OR of the playback file if playing.
 
-                   
 
-                        Debug.Log("Starting mirror of " + IO.CheckedOutFile);
 
-                        FileformatBase pbcBuf = IO.LoadFile(IO.CheckedOutFile);
+                    Debug.Log("Starting mirror of " + IO.CheckedOutFile);
 
-                        if (pbcBuf != null)
+                    FileformatBase pbcBuf = IO.LoadFile(IO.CheckedOutFile);
+
+                    if (pbcBuf != null)
+                    {
+
+                        string mirrorPresence = "mirrorpresence";
+
+                        if (!SETTINGS.Presences.TryGetValue(mirrorPresence, out fileplayback))
                         {
-
-                            string mirrorPresence = "mirrorpresence";
-
-                            if (!SETTINGS.Presences.TryGetValue(mirrorPresence, out fileplayback))
-                            {
-                                fileplayback = Presence.Create(presences, mirrorPresence);
-                                //      SETTINGS.Presences.Add(mirrorPresence, fileplayback);
-                            }
-
-                            fileplayback.SetVisualiser(SETTINGS.DefaultVisualiser);
-                            fileplayback.SetTranscoder(pbcBuf.TransCoderName);
-                            fileplayback.DepthTransport.TransCoder.SetBufferFile(pbcBuf);
-                            fileplayback.DepthTransport.CurrentTime = 0;
-                            fileplayback.SetVisualiseTransform(new Vector3(0, 0, 1), new Vector3(1, 1, -1), Quaternion.identity);
-                            task.SetFloatValue(mirrorPresence + "_cloudvisible", 1);
-                            fileplayback.PullVisualiserSettingsFromTask(task, mirrorPresence);
-                            fileplayback.DepthTransport.Mode = DEPTHMODE.COPY;
-
-                            if (SETTINGS.user.DepthTransport.Mode == DEPTHMODE.RECORD)
-                            {
-                                fileplayback.DepthTransport.Target = "user";
-                            }
-                            else
-                            {
-                                fileplayback.DepthTransport.Target = "playbackpresence";
-                            }
-
-                            Debug.Log("started buffer " + pbcBuf.Name);
-
+                            fileplayback = Presence.Create(presences, mirrorPresence);
+                            //      SETTINGS.Presences.Add(mirrorPresence, fileplayback);
                         }
 
-                    
+                        fileplayback.SetVisualiser(SETTINGS.DefaultVisualiser);
+                        fileplayback.SetTranscoder(pbcBuf.TransCoderName);
+                        fileplayback.DepthTransport.TransCoder.SetBufferFile(pbcBuf);
+                        fileplayback.DepthTransport.CurrentTime = 0;
+                        fileplayback.SetVisualiseTransform(new Vector3(0, 0, 1), new Vector3(1, 1, -1), Quaternion.identity);
+                        task.SetFloatValue(mirrorPresence + "_cloudvisible", 1);
+                        fileplayback.PullVisualiserSettingsFromTask(task, mirrorPresence);
+                        fileplayback.DepthTransport.Mode = DEPTHMODE.COPY;
+
+                        if (SETTINGS.user.DepthTransport.Mode == DEPTHMODE.RECORD)
+                        {
+                            fileplayback.DepthTransport.Target = "user";
+                        }
+                        else
+                        {
+                            fileplayback.DepthTransport.Target = "playbackpresence";
+                        }
+
+                        Debug.Log("started buffer " + pbcBuf.Name);
+
+                    }
+
+
 
                     done = true;
 
@@ -714,69 +718,69 @@ namespace PresenceEngine
 
                     // Play back the previous n files if available.
 
-                 
-                        int checkedOut = IO.CheckedOutFileIndex();
 
-                        for (int c = 1; c < 3; c++)
+                    int checkedOut = IO.CheckedOutFileIndex();
+
+                    for (int c = 1; c < 3; c++)
+                    {
+
+
+                        string name = IO.GetFilePath(checkedOut + c);
+
+                        Debug.Log("starting name " + c + " " + name);
+
+                        pbcBuf = IO.LoadFile(IO.GetFilePath(checkedOut + c));
+
+                        if (pbcBuf != null)
                         {
 
 
-                            string name = IO.GetFilePath(checkedOut + c);
 
-                            Debug.Log("starting name " + c + " " + name);
-
-                             pbcBuf = IO.LoadFile(IO.GetFilePath(checkedOut + c));
-
-                            if (pbcBuf != null)
+                            if (pbcBuf.EndTime > pbcBuf.StartTime)
                             {
+                                // Not a placeholder file so proceed.
 
-
-
-                                if (pbcBuf.EndTime > pbcBuf.StartTime)
+                                string pbn = "playbackpresence" + c;
+                                if (!SETTINGS.Presences.TryGetValue(pbn, out fileplayback))
                                 {
-                                    // Not a placeholder file so proceed.
 
-                                    string pbn = "playbackpresence" + c;
-                                    if (!SETTINGS.Presences.TryGetValue(pbn, out fileplayback))
-                                    {
+                                    // No presence in scene so create it.
+                                    fileplayback = Presence.Create(presences, pbn);
+                                    //  SETTINGS.Presences.Add("playbackpresence" + c, fileplayback);
 
-                                        // No presence in scene so create it.
-                                        fileplayback = Presence.Create(presences, pbn);
-                                        //  SETTINGS.Presences.Add("playbackpresence" + c, fileplayback);
-
-                                    }
-
-                                    fileplayback.SetVisualiser(SETTINGS.DefaultVisualiser);
-                                    fileplayback.SetTranscoder(pbcBuf.TransCoderName);
-
-                                    fileplayback.DepthTransport.TransCoder.SetBufferFile(pbcBuf);
-
-                                    fileplayback.DepthTransport.CurrentTime = fileplayback.DepthTransport.TransCoder.GetBufferFile().StartTime - UnityEngine.Random.Range(0.5f, 3f);
-
-                                    fileplayback.SetVisualiseTransform(Vector3.zero, Vector3.one, Quaternion.identity);
-
-                                    fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
-
-                                    task.SetFloatValue("playbackpresence" + c + "_cloudvisible", 1);
-                                    fileplayback.PullVisualiserSettingsFromTask(task, "playbackpresence" + c);
-
-                                    Debug.Log("started buffer " + c + " " + pbcBuf.Name);
                                 }
 
+                                fileplayback.SetVisualiser(SETTINGS.DefaultVisualiser);
+                                fileplayback.SetTranscoder(pbcBuf.TransCoderName);
 
+                                fileplayback.DepthTransport.TransCoder.SetBufferFile(pbcBuf);
 
+                                fileplayback.DepthTransport.CurrentTime = fileplayback.DepthTransport.TransCoder.GetBufferFile().StartTime - UnityEngine.Random.Range(0.5f, 3f);
 
+                                fileplayback.SetVisualiseTransform(Vector3.zero, Vector3.one, Quaternion.identity);
 
+                                fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
 
+                                task.SetFloatValue("playbackpresence" + c + "_cloudvisible", 1);
+                                fileplayback.PullVisualiserSettingsFromTask(task, "playbackpresence" + c);
 
+                                Debug.Log("started buffer " + c + " " + pbcBuf.Name);
                             }
 
 
 
 
 
+
+
                         }
-                    
+
+
+
+
+
+                    }
+
 
                     done = true;
 
@@ -786,67 +790,177 @@ namespace PresenceEngine
 
                     // Plays back additional copies of the user or playback presence.
 
-                 
-                        //int checkedOut = IO.CheckedOutFileIndex();
 
-                        for (int c = 1; c < 3; c++)
+                    //int checkedOut = IO.CheckedOutFileIndex();
+
+                    for (int c = 1; c < 3; c++)
+                    {
+
+                        //string name = IO.GetFilePath(checkedOut + c);
+
+                        //Debug.Log("Generating name " + c);
+
+                        pbcBuf = IO.LoadFile(IO.CheckedOutFile);
+
+                        if (pbcBuf != null)
                         {
 
-                            //string name = IO.GetFilePath(checkedOut + c);
-
-                            //Debug.Log("Generating name " + c);
-
-                             pbcBuf = IO.LoadFile(IO.CheckedOutFile);
-
-                            if (pbcBuf != null)
+                            //if (pbcBuf.EndTime > pbcBuf.StartTime)
+                            //{
+                            // Not a placeholder file so proceed.
+                             dpn = "playbackpresence" + c;
+                            if (!SETTINGS.Presences.TryGetValue(dpn, out fileplayback))
                             {
 
-                                //if (pbcBuf.EndTime > pbcBuf.StartTime)
-                                //{
-                                // Not a placeholder file so proceed.
-                                string dpn = "playbackpresence" + c;
-                                if (!SETTINGS.Presences.TryGetValue(dpn, out fileplayback))
-                                {
-
-                                    fileplayback = Presence.Create(presences, dpn);
-                                    //   SETTINGS.Presences.Add("playbackpresence" + c, fileplayback);
-
-                                }
-
-                                fileplayback.SetVisualiser(SETTINGS.DefaultVisualiser);
-                                fileplayback.SetTranscoder(pbcBuf.TransCoderName);
-                                fileplayback.DepthTransport.TransCoder.SetBufferFile(pbcBuf);
-
-                                fileplayback.DepthTransport.CurrentTime = -0.5f * c;
-
-                                fileplayback.SetVisualiseTransform(new Vector3(0.5f * c, 0, 0), Vector3.one, Quaternion.identity);
-
-                                fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
-
-                                task.SetFloatValue("playbackpresence" + c + "_cloudvisible", 1);
-                                fileplayback.PullVisualiserSettingsFromTask(task, "playbackpresence" + c);
-
-                                Debug.Log("started buffer " + c + " " + pbcBuf.Name);
-
-
-                                //}
-
-
+                                fileplayback = Presence.Create(presences, dpn);
+                                //   SETTINGS.Presences.Add("playbackpresence" + c, fileplayback);
 
                             }
 
+                            fileplayback.SetVisualiser(SETTINGS.DefaultVisualiser);
+                            fileplayback.SetTranscoder(pbcBuf.TransCoderName);
+                            fileplayback.DepthTransport.TransCoder.SetBufferFile(pbcBuf);
 
+                            fileplayback.DepthTransport.CurrentTime = -0.5f * c;
+
+                            fileplayback.SetVisualiseTransform(new Vector3(0.5f * c, 0, 0), Vector3.one, Quaternion.identity);
+
+                            fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
+
+                            task.SetFloatValue("playbackpresence" + c + "_cloudvisible", 1);
+                            fileplayback.PullVisualiserSettingsFromTask(task, "playbackpresence" + c);
+
+                            Debug.Log("started buffer " + c + " " + pbcBuf.Name);
+
+
+                            //}
 
 
 
                         }
-                    
+
+
+
+
+
+                    }
+
 
                     done = true;
 
                     break;
 
-               
+                case "playbackdrawings":
+
+                    // Plays back the drawing section of a session, using the drawing visualiser.
+
+                    // pbcBuf = IO.LoadFile(IO.CheckedOutFile);
+                    float BeginDraw, EndDraw;
+
+                     dpn = "drawingpresence";
+
+                    if (!SETTINGS.Presences.TryGetValue(dpn, out fileplayback))
+                    {
+
+                        // Add presence once.
+
+                        int Current = IO.CheckedOutFileIndex();
+
+                        string FileName = IO.GetFilePath(Current + 1);
+
+                        pbcBuf = IO.LoadFile(FileName);
+
+                        Debug.Log("starting drawing " + FileName);
+                        
+
+
+                        if (pbcBuf != null)
+                        {
+                            pbcBuf.DumpTimeStamps();
+
+                             BeginDraw = pbcBuf.GetTimeStamp("TimeStamp_BeginDraw");
+
+                            if (BeginDraw != -1)
+                            {
+
+
+
+                                //if (!SETTINGS.Presences.TryGetValue(dpn, out fileplayback))
+                                //{
+
+                                    fileplayback = Presence.Create(presences, dpn);
+
+                              //  }
+
+                                fileplayback.SetVisualiser("ShowSkeleton");
+                                fileplayback.SetTranscoder(pbcBuf.TransCoderName);
+                                fileplayback.DepthTransport.TransCoder.SetBufferFile(pbcBuf);
+
+                                fileplayback.DepthTransport.CurrentTime = BeginDraw;
+
+
+                                // Create relative placement
+
+                                Vector3 UserPosition = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
+
+                            
+
+                                UserPosition.y = 0;
+
+
+                                fileplayback.SetVisualiseTransform(UserPosition+new Vector3(0, 0, -1), Vector3.one, Quaternion.Euler(0,180f,0));
+                                fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
+
+                                task.SetIntValue(dpn + "_0_cloudvisible", 1);
+                                task.SetIntValue(dpn + "_0_isdrawing", 1);
+                                fileplayback.PullVisualiserSettingsFromTask(task, dpn);
+
+                                Debug.Log("started drawing " + pbcBuf.Name);
+
+                            }
+
+
+                        }
+
+
+
+
+                    } else
+                    {
+
+                        // Check if presence is at end of drawing
+
+
+
+                        BeginDraw = fileplayback.DepthTransport.TransCoder.GetBufferFile().GetTimeStamp("TimeStamp_BeginDraw");
+                        EndDraw = fileplayback.DepthTransport.TransCoder.GetBufferFile().GetTimeStamp("TimeStamp_EndDraw");
+
+                        if (fileplayback.DepthTransport.CurrentTime > EndDraw || fileplayback.DepthTransport.CurrentTime < BeginDraw)
+                        {
+                            // Head outside of drawing timespan.
+                            task.SetIntValue(dpn + "_0_cloudvisible", 1);
+                            task.SetIntValue(dpn + "_0_isdrawing", 0);
+                            fileplayback.PullVisualiserSettingsFromTask(task, dpn);
+                            Debug.Log("Stopping drawing " + dpn);
+                        }
+
+
+
+                    }
+
+                    
+                    
+
+
+                //    done = true;
+
+                    break;
+
+
+
+
+
+
 
                 case "waitforallplaybacktoend":
 
@@ -854,19 +968,19 @@ namespace PresenceEngine
 
                     bool AllOff = true;
 
-                   
 
-                        foreach (KeyValuePair<string, Presence> presence in SETTINGS.Presences)
+
+                    foreach (KeyValuePair<string, Presence> presence in SETTINGS.Presences)
+                    {
+                        if (presence.Key != "user" && presence.Value.DepthTransport.Mode != DEPTHMODE.OFF)
                         {
-                            if (presence.Key != "user" && presence.Value.DepthTransport.Mode != DEPTHMODE.OFF)
-                            {
 
-                                AllOff = false;
+                            AllOff = false;
 
-                            }
                         }
+                    }
 
-                    
+
 
                     if (AllOff)
                         done = true;
@@ -880,25 +994,25 @@ namespace PresenceEngine
                 case "recordprepare":
 
 #if SERVER
-                 
-                        if (SETTINGS.user.DepthTransport != null && IO.CheckedOutFile != "")
-                        {
-                            Debug.Log("preparing record for " + IO.CheckedOutFile);
 
-                            SETTINGS.user.DepthTransport.TransCoder.CreateBufferFile(IO.CheckedOutFile);
+                    if (SETTINGS.user.DepthTransport != null && IO.CheckedOutFile != "")
+                    {
+                        Debug.Log("preparing record for " + IO.CheckedOutFile);
 
-                            task.SetStringValue("user_file", IO.CheckedOutFile);
+                        SETTINGS.user.DepthTransport.TransCoder.CreateBufferFile(IO.CheckedOutFile);
 
-                            done = true;
+                        task.SetStringValue("user_file", IO.CheckedOutFile);
 
-                        }
-                        else
-                        {
-                            Debug.LogWarning("Cannot prepare record");
-                            done = true;
-                        }
+                        done = true;
 
-                    
+                    }
+                    else
+                    {
+                        Log.Error("Cannot prepare record");
+                        done = true;
+                    }
+
+
 #endif
 
 #if CLIENT
@@ -926,32 +1040,76 @@ namespace PresenceEngine
 #endif
                     break;
 
+                case "TimeStampTest":
+
+                    float CurrentTime = SETTINGS.user.DepthTransport.CurrentTime;
+                    SETTINGS.user.DepthTransport.TransCoder.GetBufferFile().SetTimeStamp("test", CurrentTime);
+
+                    done = true;
+                    break;
+
+                case "TimeStamp_Begin":
+
+                    CurrentTime = SETTINGS.user.DepthTransport.CurrentTime;
+                    SETTINGS.user.DepthTransport.TransCoder.GetBufferFile().SetTimeStamp("TimeStamp_Begin", CurrentTime);
+
+                    done = true;
+                    break;
+
+                case "TimeStamp_BeginDraw":
+
+                    CurrentTime = SETTINGS.user.DepthTransport.CurrentTime;
+                    SETTINGS.user.DepthTransport.TransCoder.GetBufferFile().SetTimeStamp("TimeStamp_BeginDraw", CurrentTime);
+
+                    done = true;
+                    break;
+
+                case "TimeStamp_EndDraw":
+
+                    CurrentTime = SETTINGS.user.DepthTransport.CurrentTime;
+                    SETTINGS.user.DepthTransport.TransCoder.GetBufferFile().SetTimeStamp("TimeStamp_EndDraw", CurrentTime);
+
+                    done = true;
+                    break;
+
+
+
+
+
+
+
                 case "recordstart":
+                case "IsRecording":
 
 #if SERVER
-                 
-                        if (SETTINGS.user.DepthTransport != null && IO.CheckedOutFile != "")
+
+                    if (SETTINGS.user.DepthTransport != null && IO.CheckedOutFile != "")
+                    {
+                        if (!task.GetFloatValue("timeout", out TimeOut))
                         {
-                            if (!task.GetFloatValue("timeout", out TimeOut))
-                            {
-                                TimeOut = Time.time + SETTINGS.SessionDuration;
-                                task.SetFloatValue("timeout", TimeOut);
-                                SETTINGS.user.DepthTransport.Mode = DEPTHMODE.RECORD;
-
-                            }
-
-                            if (Time.time > TimeOut)
-                            {
-                                done = true;
-                            }
+                            TimeOut = Time.time + SETTINGS.SessionDuration;
+                            task.SetFloatValue("timeout", TimeOut);
+                            SETTINGS.user.DepthTransport.Mode = DEPTHMODE.RECORD;
 
                         }
-                        else
+
+                        if (Time.time > TimeOut)
                         {
+
                             done = true;
                         }
 
-                    
+
+                        task.SetStringValue("debug", "" + (TimeOut - Time.time));
+
+
+                    }
+                    else
+                    {
+                        done = true;
+                    }
+
+
 #endif
 
 #if CLIENT
@@ -961,12 +1119,14 @@ namespace PresenceEngine
 
                             SETTINGS.user.DepthTransport.Mode = DEPTHMODE.RECORD;
 
-                            done = true;
+                           done = true;
 
 
 
                         }
-                    
+
+                  
+
 #endif
                     break;
 

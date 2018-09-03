@@ -320,7 +320,7 @@ namespace PresenceEngine
 
                 case "pressedrecordstart":
 
-                    userMessager.ShowTextMessage("Begin recording", 0.5f);
+                    userMessager.ShowTextMessage("Starting recording session", 0.5f);
 
 #if SERVER
                     
@@ -348,7 +348,7 @@ namespace PresenceEngine
 
                 case "pressedplay":
 
-                    userMessager.ShowTextMessage("Begin playback", 0.5f);
+                    userMessager.ShowTextMessage("Starting playback session", 0.5f);
 
 #if SERVER
                    

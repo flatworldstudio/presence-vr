@@ -2211,7 +2211,7 @@ MonoBehaviour:
   MaxUserDistance: 0
   DetectClosestUser: 1
   IgnoreInferredJoints: 0
-  smoothing: 3
+  smoothing: 1
   UseBoneOrientationsFilter: 1
   UseClippedLegsFilter: 1
   UseBoneOrientationsConstraint: 1

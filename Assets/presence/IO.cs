@@ -46,8 +46,13 @@ namespace PresenceEngine
 
 
         static List<PFile> _filesInSelectedFolder;
+     public  static void SetDataPath ()
+        {
+           localStorageFolder = Application.persistentDataPath + "/data";
+            Debug.Log("IO data path: " + localStorageFolder);
 
-
+        }
+      
         // Public save/load methods.
 
         public static void SaveFileToSelected(FileformatBase presenceFile)
@@ -190,8 +195,10 @@ namespace PresenceEngine
 
             _selectedFolder = "/" + folderName;
 
-            if (!Directory.Exists(localStorageFolder + folderName))
-                Directory.CreateDirectory(localStorageFolder + folderName);
+          //  Debug.Log("IO " + localStorageFolder + folderName);
+
+            if (!Directory.Exists(localStorageFolder + _selectedFolder))
+                Directory.CreateDirectory(localStorageFolder + _selectedFolder);
 
             _filesInSelectedFolder = null;
 

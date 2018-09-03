@@ -175,28 +175,36 @@ end
 setflow_guided
 end
 
-#playguided
-pressedplay
+#recordguided
+pressedrecordstart
 OffsetReset
 isglobal
 start presencehandler
+waitforuser
 pause5
+start PlayDrawings
 GuideOpening
 pause5
 OffsetReset
+start recording
 GuideSitdown
 WaitforSeated
+TimeStamp_Begin
 GuideBegin
-WaitforRaisedhands
+//WaitforRaisedhands
 MaterialiseOn
 GuideObservehands
 pause5
+TimeStamp_BeginDraw
 DrawingOn
 GuideDrawing
 pause5
-DrawingOff
+start PlayDrawings
 GuideObservedrawing
 pause5
+TimeStamp_EndDraw
+DrawingOff
+stop PlayDrawings
 GuideGetup
 WaitforGetup
 GuideThirdpersonintro
@@ -238,10 +246,24 @@ GuideEndpresences
 pause5
 GuideEndsession
 pause5
+@recordguided_stop
+pressedrecordstop
+stop presencehandler
+stop recording
+recordstop
+makefilemenu
+pause5
+end
 
+#stoprecordguided
+tell recordguided recordguided_stop
+end
+
+#playguided
+pressedplay
+pause5
 @playguided_stop
 pressedstop
-stop presencehandler
 pause5
 end
 
@@ -249,14 +271,13 @@ end
 tell playguided playguided_stop
 end
 
-#recordguided
-pause5
-@recordguided_stop
-pause5
+#recording
+recordprepare
+IsRecording
 end
 
-#stoprecordguided
-tell recordguided_stop
+#PlayDrawings
+playbackdrawings
 end
 
 
@@ -273,10 +294,10 @@ isglobal
 materialiseoff
 recordprepare
 waitforuser
-autocalibrate
+//autocalibrate
 //moodon
-pause3
-waitforgesture
+pause5
+//waitforgesture
 materialiseon
 recordstart
 @recordsolo_stop
