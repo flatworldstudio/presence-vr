@@ -109,12 +109,14 @@ namespace PresenceEngine
 
             GameObject n;
 
+#if SERVER
             if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
             {
                 n = DebugObject.getNullObject(0.25f, 0.25f, 0.5f);
                 n.transform.SetParent(ParentObject.transform, false);
                 Head = n;
             }
+#endif
 
             n = DebugObject.getNullObject(0.25f);
             n.transform.SetParent(ParentObject.transform, false);
@@ -203,12 +205,14 @@ namespace PresenceEngine
 
                 Body.transform.localPosition = Frame.UserPosition + offset;
 
+#if SERVER
                 if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                 {
                     //  if (Frame.Tracked
                     Head.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.Head] + offset;
                     Head.transform.localRotation = Frame.HeadOrientation;
                 }
+#endif
 
                 // Check if frame is new.
 
@@ -365,12 +369,14 @@ namespace PresenceEngine
 
             GameObject n;
 
+#if SERVER
             if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
             {
                 n = DebugObject.getNullObject(0.1f, 0.1f, 0.2f);
                 n.transform.SetParent(ParentObject.transform, false);
                 Head = n;
             }
+#endif
 
             n = DebugObject.getNullObject(0.1f);
             n.transform.SetParent(ParentObject.transform, false);
@@ -498,9 +504,10 @@ namespace PresenceEngine
                     return;
                 }
 
+                #if SERVER
                 if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     Head.SetActive(Frame.UserTracked);
-
+#endif
 
                 Body.SetActive(Frame.UserTracked);
                 HandLeft.SetActive(Frame.UserTracked);
@@ -515,11 +522,13 @@ namespace PresenceEngine
                 Body.transform.localPosition = Frame.UserPosition + offset;
                 PLight.transform.localPosition = new Vector3(Frame.UserPosition.x, 1, Frame.UserPosition.z);
 
+                #if SERVER
                 if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                 {
                     Head.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.Head] + offset;
                     Head.transform.localRotation = Frame.HeadOrientation;
                 }
+#endif
 
                 // takes a kinect styled uint[] RawDepthMap
                 // and plots the points into a Particle Cloud, with scale corrected if the frame was downsampled.
@@ -760,12 +769,14 @@ namespace PresenceEngine
 
             GameObject n;
 
+            #if SERVER
             if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
             {
                 n = DebugObject.getNullObject(0.1f, 0.1f, 0.2f);
                 n.transform.SetParent(PresenceObject.transform, false);
                 Head = n;
             }
+#endif
 
             n = DebugObject.getNullObject(0.1f);
             n.transform.SetParent(PresenceObject.transform, false);
@@ -893,9 +904,10 @@ namespace PresenceEngine
                     return;
                 }
 
+                #if SERVER
                 if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     Head.SetActive(Frame.UserTracked);
-
+#endif
 
                 Body.SetActive(Frame.UserTracked);
                 HandLeft.SetActive(Frame.UserTracked);
@@ -910,11 +922,13 @@ namespace PresenceEngine
                 Body.transform.localPosition = Frame.UserPosition + offset;
                 PLight.transform.localPosition = new Vector3(Frame.UserPosition.x, 1, Frame.UserPosition.z);
 
+                #if SERVER
                 if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                 {
                     Head.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.Head] + offset;
                     Head.transform.localRotation = Frame.HeadOrientation;
                 }
+#endif
 
                 // takes a kinect styled uint[] RawDepthMap
                 // and plots the points into a Particle Cloud, with scale corrected if the frame was downsampled.
@@ -1076,12 +1090,14 @@ namespace PresenceEngine
 
             GameObject n;
 
+#if SERVER
             if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
             {
                 n = DebugObject.getNullObject(0.1f, 0.1f, 0.2f);
                 n.transform.SetParent(PresenceObject.transform, false);
                 Head = n;
             }
+#endif
 
             n = DebugObject.getNullObject(0.1f);
             n.transform.SetParent(PresenceObject.transform, false);
@@ -1216,9 +1232,10 @@ namespace PresenceEngine
                     return;
                 }
 
+#if SERVER
                 if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     Head.SetActive(Frame.UserTracked);
-
+#endif
 
                 Body.SetActive(Frame.UserTracked);
                 HandLeft.SetActive(Frame.UserTracked);
@@ -1233,11 +1250,13 @@ namespace PresenceEngine
                 Body.transform.localPosition = Frame.UserPosition + offset;
                 PLight.transform.localPosition = new Vector3(Frame.UserPosition.x, 1, Frame.UserPosition.z);
 
+#if SERVER
                 if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                 {
                     Head.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.Head] + offset;
                     Head.transform.localRotation = Frame.HeadOrientation;
                 }
+#endif
 
                 // takes a kinect styled uint[] RawDepthMap
 

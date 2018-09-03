@@ -5,9 +5,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
-//using NUnit.Framework.Constraints;
+
 using System.Net.NetworkInformation;
-//using Amazon.CognitoIdentity.Model;
+
 
 
 namespace PresenceEngine
@@ -139,10 +139,11 @@ namespace PresenceEngine
                         // Any instance can be 'live', which means it'll be working with live buffer data.
                         // On windows, the first instance to go live will assume control over the kinect.
 
-//    __mode = DEPTHMODE.LIVE;
-#if !UNITY_IOS && !UNITY_ANDROID 
-                        
-#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+                        //    __mode = DEPTHMODE.LIVE;
+
+#if SERVER && ( UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
+
+
 
                         // On server / windows we try to fire up the kinect.
                         // Making a coroutine would prevent blocking...?
@@ -172,7 +173,6 @@ namespace PresenceEngine
                                 }
                             }
                         }
-#endif
 
 #endif
 
@@ -192,8 +192,7 @@ namespace PresenceEngine
                     case DEPTHMODE.OFF:
 
                         // __mode = DEPTHMODE.OFF;
-#if !UNITY_IOS && !UNITY_ANDROID
-#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+#if SERVER && ( UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
 
                         if (OwnsKinect==this && KinectManager.Instance.IsInitialized())
                         {
@@ -202,7 +201,7 @@ namespace PresenceEngine
                             Debug.Log(me + "Shutting down Kinectmanager.");
                         }
 
-#endif
+
 #endif
                         break;
 
@@ -226,14 +225,13 @@ namespace PresenceEngine
         public bool IsUserDetected()
         {
 
-#if !UNITY_IOS && !UNITY_ANDROID
-#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+#if SERVER && ( UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
 
             return (KinectManager.Instance.IsInitialized() ? KinectManager.Instance.IsUserDetected() : false);
 
 
 #endif
-#endif
+
             return false;
 
             //      return (__mode == DEPTHMODE.LIVE || __mode == DEPTHMODE.RECORD) ? KinectManager.Instance.IsUserDetected() : false;
@@ -261,9 +259,8 @@ namespace PresenceEngine
                     CurrentTime = ActiveFrame.Time;
 
                     ActiveFrame.SensorY=SETTINGS.SensorY;
-#if !UNITY_IOS && !UNITY_ANDROID
 
-#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+#if SERVER && ( UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
 
                     if (OwnsKinect == this && KinectManager.Instance.IsInitialized())
                     {
@@ -272,8 +269,7 @@ namespace PresenceEngine
                         ActiveFrame.RawDepth = GetRawDepthMap();
 
                         getSkeleton(ref ActiveFrame);
-
-                       
+                                          
 
                         //ActiveFrame.FrameNumber = FrameNumber;
 
@@ -283,8 +279,8 @@ namespace PresenceEngine
 
 
 #endif
-#endif
-                    // If we've fallen through we generate data for development purposes.
+
+                    // If we've fallen through because we don't have a kinect to work with we generate data for development purposes.
 
 
                     //     FrameNumber++;
@@ -371,9 +367,7 @@ namespace PresenceEngine
         {
 
             // Retrieves skeleton data from kinect if possible. Works by reference, so data will only be changed if possible.
-#if !UNITY_IOS && !UNITY_ANDROID
-
-#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+#if SERVER && ( UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
 
 
             if (OwnsKinect == this && KinectManager.Instance.IsInitialized())
@@ -425,15 +419,12 @@ namespace PresenceEngine
 
             }
 #endif
-#endif
+
 
         }
 
 
-        //public RovingValue DepthMin, DepthMax;
-
-        //public void 
-
+   
         public void ApplyEdge(ushort[] depthMap, Texture2D texture, int min, int max)
         {
 
@@ -501,8 +492,7 @@ namespace PresenceEngine
         {
 
             // Get raw depth map, so depth plus user map in a ushort[]
-#if !UNITY_IOS && !UNITY_ANDROID
-#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+#if SERVER && ( UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
 
 
             if (KinectManager.Instance.IsInitialized())
@@ -539,7 +529,8 @@ namespace PresenceEngine
             }
 
 #endif
-#endif
+            // Fallen through, so no kinect to work with.
+
             return new ushort[DEPTHMAPSIZE[DepthSampling]];
         }
 

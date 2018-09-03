@@ -1,8 +1,9 @@
 // CLIENT STORIES.
 
 #presenceclient
-debugoff
+debugon
 amvrclient
+moodon
 start moodlight
 start serversearch
 alignset
@@ -10,7 +11,14 @@ calibrateheadset
 addkinectnull
 createuser
 receivelivedepth
+start simulate
 end
+
+#simulate
+createSimulateUX
+headsetSimulate
+end
+
 
 // Serversearch waits for server and launches #foundserver.
 

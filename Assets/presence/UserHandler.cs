@@ -14,8 +14,8 @@ namespace PresenceEngine
     {
         public UserController userController;
 
-        UxInterface serverInterface;
-     
+        UxInterface serverInterface,headsetInterface;
+
         public GameObject viewerRoot, viewerOffset, viewerCamera;
         public GameObject overviewObject, projectionObject, headSet, setObject, handl, handr, body, Kinect, SetHandler, startPosition;
         public AudioSource signalSound;
@@ -26,8 +26,10 @@ namespace PresenceEngine
         UxController uxController;
         public Text filePath;
 
-#if !UNITY_IOS && !UNITY_ANDROID
+#if SERVER
+        
         public GameObject uxCanvas;
+
 #endif
 
         string me = "Task handler: ";
@@ -319,22 +321,28 @@ namespace PresenceEngine
 
                     userMessager.ShowTextMessage("Begin recording", 0.5f);
 
+#if SERVER
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
                         serverInterface.HideButton("recordstart");
                         serverInterface.ShowButton("recordstop");
                     }
+#endif
+
                     done = true;
                     break;
 
                 case "pressedrecordstop":
 
                     userMessager.ShowTextMessage("Stop recording", 0.5f);
+
+#if SERVER
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
                         serverInterface.HideButton("recordstop");
                         serverInterface.ShowButton("recordstart");
                     }
+#endif
 
                     done = true;
                     break;
@@ -342,11 +350,14 @@ namespace PresenceEngine
                 case "pressedplay":
 
                     userMessager.ShowTextMessage("Begin playback", 0.5f);
+
+#if SERVER
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
                         serverInterface.HideButton("playbackstart");
                         serverInterface.ShowButton("playbackstop");
                     }
+#endif
 
                     done = true;
                     break;
@@ -354,11 +365,14 @@ namespace PresenceEngine
                 case "pressedstop":
 
                     userMessager.ShowTextMessage("Stop playback", 0.5f);
+
+#if SERVER
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
                         serverInterface.HideButton("playbackstop");
                         serverInterface.ShowButton("playbackstart");
                     }
+#endif
 
                     done = true;
                     break;
@@ -410,11 +424,10 @@ namespace PresenceEngine
 
 
 
-#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+#if SERVER
 
                 case "waitforuser":
-
-
+                
                     if (DepthTransport.OwnsKinect != null && DepthTransport.OwnsKinect.Mode == DEPTHMODE.LIVE)
                     {
 
@@ -471,6 +484,7 @@ namespace PresenceEngine
 
                     }
 
+#if SERVER
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
 
@@ -498,6 +512,7 @@ namespace PresenceEngine
 
 
                     }
+#endif
 
 
 
@@ -506,6 +521,74 @@ namespace PresenceEngine
                 // -----------------------------------------------------------------------
                 // User interface scripts.
 
+
+#if CLIENT && UNITY_EDITOR
+
+                // We run this in the editor only, to simulate headset movement.
+
+                case "createSimulateUX":
+
+                    Log.Message("Running in editor, simulating headset rotation.");
+
+                    headsetInterface = new UxInterface();
+
+                    UxMapping headsetMapping = new UxMapping();
+
+                    headsetMapping.ux_none += UxMethods.none;
+
+                    headsetMapping.ux_tap_2d += UxMethods.none;
+                    headsetMapping.ux_tap_3d += UxMethods.none;
+                    headsetMapping.ux_tap_none += UxMethods.tapNone;
+
+                    headsetMapping.ux_single_2d += UxMethods.none;
+                    headsetMapping.ux_single_3d += UxMethods.none;
+                    headsetMapping.ux_single_none += UxMethods.rotateCamera;
+
+                    headsetMapping.ux_double_2d += UxMethods.none;
+                   headsetMapping.ux_double_3d += UxMethods.none;
+
+                    headsetMapping.ux_double_none += UxMethods.panCamera;
+                    headsetMapping.ux_double_none += UxMethods.zoomCamera;
+
+                    headsetInterface.defaultUxMap = headsetMapping;
+
+                    headsetInterface.camera = new UxCamera(viewerCamera);
+                    headsetInterface.camera.control = CAMERACONTROL.TURN;
+
+                    headsetInterface.camera.constraint = new UiConstraint();
+                    headsetInterface.camera.constraint.pitchClamp = true;
+                    headsetInterface.camera.constraint.pitchClampMin = 5f;
+                    headsetInterface.camera.constraint.pitchClampMax = 85f;
+
+                    headsetInterface.canvasObject = null;
+      
+
+
+                    done = true;
+
+                    break;
+
+
+
+                case "headsetSimulate":
+
+               
+
+                        uxController.updateUx(headsetInterface);
+
+
+
+                    break;
+
+
+
+#endif
+
+
+
+
+
+#if SERVER
                 case "servercontrol":
 
                     UserCallBack serverCallback = uxController.updateUx(serverInterface);
@@ -570,8 +653,7 @@ namespace PresenceEngine
 
                     break;
 
-                    #if !UNITY_IOS && !UNITY_ANDROID
-#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+
                 case "makeservercontrols":
 
 
@@ -690,10 +772,7 @@ namespace PresenceEngine
                     done = true;
 
                     break;
-
-#endif
-#endif
-
+                
                 case "makefoldermenu":
 
                     if (serverInterface == null)
@@ -1056,6 +1135,8 @@ namespace PresenceEngine
 
                     break;
 
+#endif
+
                 case "createoverviewdebug":
 
                     GameObject newNullObject = DebugObject.getNullObject(0.1f, 0.1f, 0.2f);
@@ -1079,32 +1160,24 @@ namespace PresenceEngine
 
                     userMessager.ShowTextMessage("Calibrating", 1);
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
-                    {
+#if CLIENT
 
-                        // headset may have drifted. 
-                        // we set the root object to neutralise whatever the headsets yaw is
+                    // rotate the headset towards the kinect.
+                    // headset is (locally) rotated at an angle of
 
-                        // rotate the headset towards the kinect.
+                    Vector3 euler = headSet.transform.localRotation.eulerAngles;
+                    float headYaw = euler.y;
 
+               //     Debug.Log("headYaw: " + headYaw);
 
-                        // headset is (locally) rotated at an angle of
+                    Log.Message("Calibrating, yaw: " + headYaw);
 
-                        Vector3 euler = headSet.transform.localRotation.eulerAngles;
+                    // which leaves a delta of
 
-                        float headYaw = euler.y;
+                    viewerOffset.transform.rotation = Quaternion.Euler(0, 180 - headYaw, 0);
+                    SETTINGS.HeadsetCorrection = Quaternion.Euler(0, 180 - headYaw, 0);
 
-                        Debug.Log("headYaw: " + headYaw);
-
-                        // which leaves a delta of
-
-                        viewerOffset.transform.rotation = Quaternion.Euler(0, 180 - headYaw, 0);
-
-                        SETTINGS.HeadsetCorrection = Quaternion.Euler(0, 180 - headYaw, 0);
-
-
-
-                    }
+#endif
 
                     done = true;
 

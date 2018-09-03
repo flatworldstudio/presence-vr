@@ -33,14 +33,13 @@ namespace PresenceEngine
         public static string DefaultVisualiser = "PointShaded";
         public static bool ManualPlayback;
 
-        public static DEVICEMODE deviceMode;
+    //s    public static DEVICEMODE deviceMode;
 
-        //public static DepthTransport MainDepthTransport;
 
         public static Quaternion HeadsetCorrection = Quaternion.identity;
 
 
-        //public static float north = 0;
+
 
         public static float SensorY = 1.25f;
 
@@ -49,28 +48,6 @@ namespace PresenceEngine
         public static bool kinectIsOrigin = true;
 
 
-        //public static float mobileInitialHeading = -1;
-        //public static float mobileInitialHeading1 = -1;
-
-
-        //public static float vrHeadOffset = 0;
-
-        //public static bool isOverview = true;
-
-        //public static int frame;
-
-        //public static bool capturing;
-
-        //public static CloudSequence capture;
-        //public static int CaptureFrame;
-
-        //public static int captureLength = 2500;
-        //public static int echoOffset = 25;
-
-
-        //public static int FrameSize;
-        //public static Vector3[] PointCloud;
-        //public static float TimeStamp;
     }
 
 

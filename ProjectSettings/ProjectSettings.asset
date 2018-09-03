@@ -575,7 +575,7 @@ PlayerSettings:
   scriptingDefineSymbols:
     1: NETWORKED
     4: NETWORKED;IOS
-    7: NETWORKED
+    7: NETWORKED;CLIENT
   platformArchitecture: {}
   scriptingBackend: {}
   incrementalIl2cppBuild: {}

@@ -32,7 +32,6 @@ namespace PresenceEngine
         public RawImage kinectImage, previewImage;
         public Text FPS;
 
-
         Texture2D DepthTexture, PreviewTexture;
         int frame = 0;
 
@@ -43,8 +42,6 @@ namespace PresenceEngine
 
         string me = "Data handler: ";
 
-
-
         void Awake()
         {
 
@@ -52,8 +49,10 @@ namespace PresenceEngine
 
             Log.SetModuleLevel("AssitantDirector", LOGLEVEL.ERRORS);
             Log.SetModuleLevel("Director", LOGLEVEL.ERRORS);
-
-
+            Log.SetModuleLevel("DataController", LOGLEVEL.ERRORS);
+            Log.SetModuleLevel("DeusController", LOGLEVEL.ERRORS);
+            Log.SetModuleLevel("UserController", LOGLEVEL.ERRORS);
+            Log.SetModuleLevel("SetController", LOGLEVEL.ERRORS);
             // Custom modules.
 
 
@@ -63,14 +62,14 @@ namespace PresenceEngine
         void Start()
         {
 
-    
+
             dataController.addTaskHandler(TaskHandler);
 
             IO.localStorageFolder = Application.persistentDataPath + "/data";
 
             SETTINGS.Presences = new Dictionary<string, Presence>();
 
-           
+
 
 
         }
@@ -104,25 +103,27 @@ namespace PresenceEngine
                 // -----------------------------------------------------------------------
                 // Main roles.
 
-
+#if SERVER
                 case "amserver":
 
-                    SETTINGS.deviceMode = DEVICEMODE.SERVER;
-
+           //         SETTINGS.deviceMode = DEVICEMODE.SERVER;
+                 // Switched to using #if compiling.
                     done = true;
 
                     break;
+#endif
 
+#if CLIENT
                 case "amvrclient":
 
-                    SETTINGS.deviceMode = DEVICEMODE.VRCLIENT;
+            //        SETTINGS.deviceMode = DEVICEMODE.VRCLIENT;
 
-
+                    // Switched to using #if compiling.
 
                     done = true;
 
                     break;
-
+#endif
 
 
 
@@ -151,6 +152,7 @@ namespace PresenceEngine
 
                     // This task takes care of the actual current user only.
 
+#if SERVER
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
 
@@ -182,9 +184,11 @@ namespace PresenceEngine
 
 
                     }
+#endif
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
-                    {
+#if CLIENT
+
+                   
                         Application.targetFrameRate = 30;
                         QualitySettings.vSyncCount = 0;
 
@@ -206,12 +210,13 @@ namespace PresenceEngine
                         //  task.GetIntValue("usercalibrated", out usercalibrated);
                         //      SETTINGS.user.Visualiser.SetMode(task, "user");
                         //   GENERAL.UserCalibrated = (usercalibrated == 1);
-                    }
-
+                    
+#endif
 
                     break;
 
 
+#if SERVER
                 case "materialiseon":
                 case "MaterialiseOn":
 
@@ -231,11 +236,12 @@ namespace PresenceEngine
 
 
                     break;
+#endif
 
                 case "materialiseoff":
 
                     // Use visualiser's to and from task method to change setting.
-
+#if SERVER
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
                         task.SetIntValue("user_0_cloudvisible", 0);
@@ -244,9 +250,13 @@ namespace PresenceEngine
 
                         done = true;
                     }
+#endif
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
-                    {
+#if CLIENT
+
+                    // SHOULDN"T THIS BE HANDLED AUTOMATICALLY???
+
+                   
                         int v;
                         if (task.GetIntValue("user_0_cloudvisible", out v))
                         {
@@ -256,15 +266,15 @@ namespace PresenceEngine
                         }
 
 
-                        done = true;
-                    }
-
+                       done = true;
+                    
+#endif
                     break;
 
                 case "handlepresences":
 
                     // Take care of progressing, over the network, of all other instances (not the user).
-
+#if SERVER
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
 
@@ -354,10 +364,10 @@ namespace PresenceEngine
                         }
 
                     }
+#endif
 
-
-                    if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
-                    {
+#if CLIENT
+                    
 
                         // Retrieve list.
 
@@ -445,10 +455,12 @@ namespace PresenceEngine
 
                         }
 
-                    }
+                    
+#endif
 
                     break;
 
+#if SERVER
                 case "deletepresences":
 
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
@@ -471,7 +483,7 @@ namespace PresenceEngine
 
                     done = true;
                     break;
-
+#endif
 
 
                 // ----------------------------------------------------------------------------------------------------
@@ -509,9 +521,9 @@ namespace PresenceEngine
 
 
 
-                    // ----------------------------------------------------------------------------------------------------
-                    // User manipulations
-
+                // ----------------------------------------------------------------------------------------------------
+                // User manipulations
+#if SERVER
                 case "grabframe":
 
 
@@ -557,14 +569,14 @@ namespace PresenceEngine
                     done = true;
                     break;
 
+#endif
+                // ----------------------------------------------------------------------------------------------------
+                // Data capture and playback.
 
-                    // ----------------------------------------------------------------------------------------------------
-                    // Data capture and playback.
-
-               
+#if SERVER
                 case "playbackfile":
 
-                    // Play back the checked out file.
+                    // Play back the checked out file. SHOULDN"t THIS BE SERVER ONNLY??
 
                     Debug.Log("Starting name " + IO.CheckedOutFile);
 
@@ -872,13 +884,13 @@ namespace PresenceEngine
 
 
                     break;
+#endif
 
 
-              
 
                 case "recordprepare":
 
-
+#if SERVER
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
                         if (SETTINGS.user.DepthTransport != null && IO.CheckedOutFile != "")
@@ -899,9 +911,10 @@ namespace PresenceEngine
                         }
 
                     }
+#endif
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
-                    {
+#if CLIENT
+                    
                         if (SETTINGS.user.DepthTransport != null)
                         {
                             // Wait for filename then fall through
@@ -921,13 +934,13 @@ namespace PresenceEngine
                         {
                             done = true;
                         }
-                    }
-
+                    
+#endif
                     break;
 
                 case "recordstart":
 
-
+#if SERVER
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
                         if (SETTINGS.user.DepthTransport != null && IO.CheckedOutFile != "")
@@ -952,9 +965,10 @@ namespace PresenceEngine
                         }
 
                     }
+#endif
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
-                    {
+#if CLIENT
+                  
                         if (SETTINGS.user.DepthTransport != null)
                         {
 
@@ -965,8 +979,8 @@ namespace PresenceEngine
 
 
                         }
-                    }
-
+                    
+#endif
                     break;
 
                 case "recordstop":
@@ -991,11 +1005,11 @@ namespace PresenceEngine
 
 
 
-                    // ------------------------------------------------------------------------------------------------------------------------------
-              
+                // ------------------------------------------------------------------------------------------------------------------------------
 
-                    // Depth data manipulations.
-          
+
+                // Depth data manipulations.
+
 
                 case "receivelivedepth":
                     // For client.
@@ -1015,15 +1029,15 @@ namespace PresenceEngine
                     break;
 
                 case "depthoff":
-                    
+
                     SETTINGS.user.DepthTransport.Mode = DEPTHMODE.OFF;
 
                     done = true;
 
                     break;
 
-                  
-                    // ----------------------------------------------------------------------------------------------------
+
+                // ----------------------------------------------------------------------------------------------------
                 // NETWORKING
 
                 case "networkguion":
@@ -1034,7 +1048,7 @@ namespace PresenceEngine
 
                     break;
 
-
+#if CLIENT
                 case "startdiscover":
 
                     dataController.startBroadcastClient();
@@ -1045,6 +1059,8 @@ namespace PresenceEngine
                     done = true;
 
                     break;
+
+
 
                 case "listenforserver":
 
@@ -1085,7 +1101,8 @@ namespace PresenceEngine
                     }
 
                     break;
-
+#endif
+#if SERVER
                 case "listenforclients":
 
 
@@ -1149,7 +1166,9 @@ namespace PresenceEngine
                     //    led.SetActive(GENERAL.wasConnected);
 
                     break;
+#endif
 
+#if CLIENT
                 case "startclient":
 
                     Debug.Log(me + "Starting network client.");
@@ -1159,7 +1178,8 @@ namespace PresenceEngine
                     done = true;
 
                     break;
-
+#endif
+#if SERVER
                 case "startserver":
 
                     Debug.Log(me + "Starting network server");
@@ -1170,7 +1190,7 @@ namespace PresenceEngine
                     done = true;
 
                     break;
-
+#endif
 
                 case "isglobal":
 
@@ -1206,7 +1226,7 @@ namespace PresenceEngine
 
                     break;
 
-                
+
 
                 default:
 

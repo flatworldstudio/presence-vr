@@ -13,24 +13,18 @@ namespace PresenceEngine
 
     public class SetHandler : MonoBehaviour
     {
+
+#if SERVER && (UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
+
+        KinectManager kinectManager;
+#endif
+
+
         public GameObject PresenceObjectPrefab, presences;
         public SetController setController;
-
         public AudioSource VoiceOver;
-
-        public GameObject Set, KinectObject, ViewerRoot,KinectGizmo;
-
-
-    //    public GameObject kinectManagerObject;
-
+        public GameObject Set, KinectObject, ViewerRoot, KinectGizmo;
         ParticleCloud[] clouds;
-
-        //  #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-
-        //KinectManager kinectManager;
-
-        //  #endif
-
         public GameObject MoodParticles;
         public LightControl MainStageLight, MoodLight01, MoodLight02;
 
@@ -38,11 +32,10 @@ namespace PresenceEngine
         int width, height;
 
         public RawImage PreviewImage;
+        string me = "Set handler: ";
 
-        string me = "Task handler: ";
-
-        int interval = -1;
-        int interval2 = 0;
+        //int interval = -1;
+        //int interval2 = 0;
         Quaternion q;
         Vector3 p;
         GameObject c, g;
@@ -50,23 +43,22 @@ namespace PresenceEngine
         float serverFrameStamp, clientFrameStamp;
         float serverFrameRate, clientFrameRate;
 
+        //float targetFrameRate = 0.15f;
+        //float safeFrameRate = 0.1f;
 
-        float targetFrameRate = 0.15f;
-        float safeFrameRate = 0.1f;
-
-        int droppedFrames = 0;
-
+        //int droppedFrames = 0;
 
         void Start()
         {
 
             setController.addTaskHandler(TaskHandler);
 
-            //  #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+#if SERVER && (UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
 
-            //  kinectManager = kinectManagerObject.GetComponent<KinectManager> ();
+              kinectManager = kinectManagerObject.GetComponent<KinectManager> ();
 
-            //#endif
+#endif
+
         }
 
         int dataSize;
@@ -77,7 +69,7 @@ namespace PresenceEngine
         int particleIndex;
         int count;
         ParticleCloud cloud, mirror;
-        int frame = -1;
+  //      int frame = -1;
 
         public bool TaskHandler(StoryTask task)
         {
@@ -492,16 +484,17 @@ namespace PresenceEngine
                     break;
 
 
-                    // ----------------------------------------------------------------------------------------------------
-                    //  Visualisation effects.
+                // ----------------------------------------------------------------------------------------------------
+                //  Visualisation effects.
 
+#if SERVER
                 case "DrawingOn":
 
 
                     if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
                     {
 
-                        SETTINGS.user.SetVisualiser("ShowSkeleton",1);
+                        SETTINGS.user.SetVisualiser("ShowSkeleton", 1);
 
                         task.SetIntValue("user_1_isdrawing", 1);
                         SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
@@ -539,8 +532,9 @@ namespace PresenceEngine
                     done = true;
 
                     break;
+#endif
 
-              
+
                 // ------------------------------------------------------------------------------------------------------------------------
                 // Ambience scripts. 
 
@@ -549,10 +543,9 @@ namespace PresenceEngine
 
                     float MainPerlinStart, MainPerlin, MoodLight01PerlinStart, MoodLight02PerlinStart, MoodLight01Perlin, MoodLight02Perlin;
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER || (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT && !GENERAL.wasConnected))
-                    {
-
-                        // We are either the server or an unconnected vrclient so we take the lead.
+#if SERVER || CLIENT
+                   
+                        // Initiate values if not yet present. (When client connects to server, the server will force new values)
 
                         if (!task.GetFloatValue("mainperlinstart", out MainPerlinStart))
                             task.SetFloatValue("mainperlinstart", Random.Range(-100f, 100f));
@@ -571,13 +564,13 @@ namespace PresenceEngine
 
                         task.GetFloatValue("moodlight02perlin", out MoodLight02Perlin);
                         task.SetFloatValue("moodlight02perlin", MoodLight02Perlin += 0.05f);
+                    
 
+#endif
 
-                    }
-                    else
-                    {
+                    #if CLIENT
 
-                        // We are a connected vr client so we'll take the lead from the server.
+                        // We are a connected vr client so we'll load the values all the time, in case they change server side. (Ie on connection)
 
                         task.GetFloatValue("mainperlinstart", out MainPerlinStart);
                         task.GetFloatValue("mainperlin", out MainPerlin);
@@ -585,17 +578,16 @@ namespace PresenceEngine
                         task.GetFloatValue("moodlight01perlin", out MoodLight01Perlin);
                         task.GetFloatValue("moodlight02perlinstart", out MoodLight02PerlinStart);
                         task.GetFloatValue("moodlight02perlin", out MoodLight02Perlin);
-
-
-                    }
-
+                    
+#endif
+                    
                     // And now we apply those values.
 
                     MainStageLight.Variation = 1f * Mathf.PerlinNoise(MainPerlinStart + MainPerlin, 0);
                     MoodLight01.Variation = 1f * Mathf.PerlinNoise(MoodLight01PerlinStart + MoodLight01Perlin, 0);
                     MoodLight02.Variation = 1f * Mathf.PerlinNoise(MoodLight02PerlinStart + MoodLight02Perlin, 0);
 
-                    // We include confinement here.
+                    // Dim light if user leaves confined area.
 
                     if (SETTINGS.UserInConfinedArea)
                     {
@@ -627,7 +619,7 @@ namespace PresenceEngine
                     done = true;
                     break;
 
-
+#if SERVER
                 case "displaycheck":
 
                     Debug.Log(me + "displays connected: " + Display.displays.Length);
@@ -650,23 +642,16 @@ namespace PresenceEngine
                     done = true;
 
                     break;
-
+#endif
 
                 case "addkinectnull":
-
-
-
-                 //   c = GameObject.Find("Kinect");
-
-                    g = DebugObject.getNullObject(1, 1, 1);
-
+                    
+                                   g = DebugObject.getNullObject(1, 1, 1);
                     g.transform.SetParent(KinectGizmo.transform, false);
 
                     done = true;
 
                     break;
-
-
 
                 case "alignset":
 
