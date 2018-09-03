@@ -9,6 +9,7 @@
 /Assets/AssetStoreTools*
 sysinfo.txt
 *.pidb.meta
+ProjectSettings.asset
 
 # VS/Rider/MD/Consulo
 ExportedObj/
