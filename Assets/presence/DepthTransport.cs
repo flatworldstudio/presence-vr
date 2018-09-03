@@ -147,8 +147,7 @@ namespace PresenceEngine
 
                         // On server / windows we try to fire up the kinect.
                         // Making a coroutine would prevent blocking...?
-                        if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                        {
+                      
 
                             if (OwnsKinect == null)
                             {
@@ -172,7 +171,7 @@ namespace PresenceEngine
                                     }
                                 }
                             }
-                        }
+                        
 
 #endif
 

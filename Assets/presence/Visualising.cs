@@ -110,12 +110,11 @@ namespace PresenceEngine
             GameObject n;
 
 #if SERVER
-            if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-            {
+            
                 n = DebugObject.getNullObject(0.25f, 0.25f, 0.5f);
                 n.transform.SetParent(ParentObject.transform, false);
                 Head = n;
-            }
+            
 #endif
 
             n = DebugObject.getNullObject(0.25f);
@@ -206,12 +205,11 @@ namespace PresenceEngine
                 Body.transform.localPosition = Frame.UserPosition + offset;
 
 #if SERVER
-                if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                {
+               
                     //  if (Frame.Tracked
                     Head.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.Head] + offset;
                     Head.transform.localRotation = Frame.HeadOrientation;
-                }
+                
 #endif
 
                 // Check if frame is new.
@@ -370,12 +368,11 @@ namespace PresenceEngine
             GameObject n;
 
 #if SERVER
-            if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-            {
+           
                 n = DebugObject.getNullObject(0.1f, 0.1f, 0.2f);
                 n.transform.SetParent(ParentObject.transform, false);
                 Head = n;
-            }
+            
 #endif
 
             n = DebugObject.getNullObject(0.1f);
@@ -505,7 +502,7 @@ namespace PresenceEngine
                 }
 
                 #if SERVER
-                if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+              
                     Head.SetActive(Frame.UserTracked);
 #endif
 
@@ -523,11 +520,10 @@ namespace PresenceEngine
                 PLight.transform.localPosition = new Vector3(Frame.UserPosition.x, 1, Frame.UserPosition.z);
 
                 #if SERVER
-                if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                {
+               
                     Head.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.Head] + offset;
                     Head.transform.localRotation = Frame.HeadOrientation;
-                }
+                
 #endif
 
                 // takes a kinect styled uint[] RawDepthMap
@@ -770,12 +766,11 @@ namespace PresenceEngine
             GameObject n;
 
             #if SERVER
-            if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-            {
+          
                 n = DebugObject.getNullObject(0.1f, 0.1f, 0.2f);
                 n.transform.SetParent(PresenceObject.transform, false);
                 Head = n;
-            }
+            
 #endif
 
             n = DebugObject.getNullObject(0.1f);
@@ -905,7 +900,7 @@ namespace PresenceEngine
                 }
 
                 #if SERVER
-                if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+              
                     Head.SetActive(Frame.UserTracked);
 #endif
 
@@ -923,11 +918,10 @@ namespace PresenceEngine
                 PLight.transform.localPosition = new Vector3(Frame.UserPosition.x, 1, Frame.UserPosition.z);
 
                 #if SERVER
-                if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                {
+               
                     Head.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.Head] + offset;
                     Head.transform.localRotation = Frame.HeadOrientation;
-                }
+                
 #endif
 
                 // takes a kinect styled uint[] RawDepthMap
@@ -1091,12 +1085,11 @@ namespace PresenceEngine
             GameObject n;
 
 #if SERVER
-            if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-            {
+           
                 n = DebugObject.getNullObject(0.1f, 0.1f, 0.2f);
                 n.transform.SetParent(PresenceObject.transform, false);
                 Head = n;
-            }
+            
 #endif
 
             n = DebugObject.getNullObject(0.1f);
@@ -1233,7 +1226,7 @@ namespace PresenceEngine
                 }
 
 #if SERVER
-                if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
+              
                     Head.SetActive(Frame.UserTracked);
 #endif
 
@@ -1251,11 +1244,10 @@ namespace PresenceEngine
                 PLight.transform.localPosition = new Vector3(Frame.UserPosition.x, 1, Frame.UserPosition.z);
 
 #if SERVER
-                if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                {
+              
                     Head.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.Head] + offset;
                     Head.transform.localRotation = Frame.HeadOrientation;
-                }
+                
 #endif
 
                 // takes a kinect styled uint[] RawDepthMap

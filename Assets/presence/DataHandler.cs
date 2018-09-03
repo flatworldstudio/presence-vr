@@ -153,8 +153,7 @@ namespace PresenceEngine
                     // This task takes care of the actual current user only.
 
 #if SERVER
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
+                  
 
                         Application.targetFrameRate = 30;
                         QualitySettings.vSyncCount = 0;
@@ -183,7 +182,7 @@ namespace PresenceEngine
                         //task.SetIntValue("user_cloudcontrol", GENERAL.UserMaterialised ? 1 : 0);
 
 
-                    }
+                    
 #endif
 
 #if CLIENT
@@ -222,8 +221,7 @@ namespace PresenceEngine
 
                     // Use visualiser's to and from task method to change setting.
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
+                  
                         SETTINGS.user.SetVisualiser("PointShaded", 0);
                         task.SetIntValue("user_0_cloudvisible", 1);
 
@@ -232,7 +230,7 @@ namespace PresenceEngine
                         presenceSound.Play();
 
                         done = true;
-                    }
+                    
 
 
                     break;
@@ -242,14 +240,13 @@ namespace PresenceEngine
 
                     // Use visualiser's to and from task method to change setting.
 #if SERVER
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
+                   
                         task.SetIntValue("user_0_cloudvisible", 0);
 
                         SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
 
                         done = true;
-                    }
+                    
 #endif
 
 #if CLIENT
@@ -275,8 +272,7 @@ namespace PresenceEngine
 
                     // Take care of progressing, over the network, of all other instances (not the user).
 #if SERVER
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
+                  
 
                         // Get current list from the task.
 
@@ -363,7 +359,7 @@ namespace PresenceEngine
 
                         }
 
-                    }
+                    
 #endif
 
 #if CLIENT
@@ -463,8 +459,7 @@ namespace PresenceEngine
 #if SERVER
                 case "deletepresences":
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
+                    
 
                         foreach (KeyValuePair<string, Presence> presence in SETTINGS.Presences)
                         {
@@ -479,7 +474,7 @@ namespace PresenceEngine
                         SETTINGS.Presences.Clear();
                         SETTINGS.Presences.Add("user", SETTINGS.user);
 
-                    }
+                    
 
                     done = true;
                     break;
@@ -633,21 +628,19 @@ namespace PresenceEngine
 
                 case "stopplaybackfile":
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
+                   
 
                         if (fileplayback != null)
                             fileplayback.DepthTransport.Mode = DEPTHMODE.OFF;
 
-                    }
+                    
                     done = true;
                     break;
 
 
                 case "stopallplayback":
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
+                    
 
                         foreach (KeyValuePair<string, Presence> presence in SETTINGS.Presences)
                         {
@@ -661,7 +654,7 @@ namespace PresenceEngine
                         }
 
 
-                    }
+                    
                     done = true;
                     break;
 
@@ -671,8 +664,7 @@ namespace PresenceEngine
 
                     // Creates a mirror presence of the user if recording OR of the playback file if playing.
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
+                   
 
                         Debug.Log("Starting mirror of " + IO.CheckedOutFile);
 
@@ -711,7 +703,7 @@ namespace PresenceEngine
 
                         }
 
-                    }
+                    
 
                     done = true;
 
@@ -722,8 +714,7 @@ namespace PresenceEngine
 
                     // Play back the previous n files if available.
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
+                 
                         int checkedOut = IO.CheckedOutFileIndex();
 
                         for (int c = 1; c < 3; c++)
@@ -734,7 +725,7 @@ namespace PresenceEngine
 
                             Debug.Log("starting name " + c + " " + name);
 
-                            FileformatBase pbcBuf = IO.LoadFile(IO.GetFilePath(checkedOut + c));
+                             pbcBuf = IO.LoadFile(IO.GetFilePath(checkedOut + c));
 
                             if (pbcBuf != null)
                             {
@@ -785,7 +776,7 @@ namespace PresenceEngine
 
 
                         }
-                    }
+                    
 
                     done = true;
 
@@ -795,8 +786,7 @@ namespace PresenceEngine
 
                     // Plays back additional copies of the user or playback presence.
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
+                 
                         //int checkedOut = IO.CheckedOutFileIndex();
 
                         for (int c = 1; c < 3; c++)
@@ -806,7 +796,7 @@ namespace PresenceEngine
 
                             //Debug.Log("Generating name " + c);
 
-                            FileformatBase pbcBuf = IO.LoadFile(IO.CheckedOutFile);
+                             pbcBuf = IO.LoadFile(IO.CheckedOutFile);
 
                             if (pbcBuf != null)
                             {
@@ -850,7 +840,7 @@ namespace PresenceEngine
 
 
                         }
-                    }
+                    
 
                     done = true;
 
@@ -864,8 +854,7 @@ namespace PresenceEngine
 
                     bool AllOff = true;
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
+                   
 
                         foreach (KeyValuePair<string, Presence> presence in SETTINGS.Presences)
                         {
@@ -877,7 +866,7 @@ namespace PresenceEngine
                             }
                         }
 
-                    }
+                    
 
                     if (AllOff)
                         done = true;
@@ -891,8 +880,7 @@ namespace PresenceEngine
                 case "recordprepare":
 
 #if SERVER
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
+                 
                         if (SETTINGS.user.DepthTransport != null && IO.CheckedOutFile != "")
                         {
                             Debug.Log("preparing record for " + IO.CheckedOutFile);
@@ -910,7 +898,7 @@ namespace PresenceEngine
                             done = true;
                         }
 
-                    }
+                    
 #endif
 
 #if CLIENT
@@ -941,8 +929,7 @@ namespace PresenceEngine
                 case "recordstart":
 
 #if SERVER
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
+                 
                         if (SETTINGS.user.DepthTransport != null && IO.CheckedOutFile != "")
                         {
                             if (!task.GetFloatValue("timeout", out TimeOut))
@@ -964,7 +951,7 @@ namespace PresenceEngine
                             done = true;
                         }
 
-                    }
+                    
 #endif
 
 #if CLIENT
@@ -1226,6 +1213,13 @@ namespace PresenceEngine
 
                     break;
 
+                case "void":
+
+
+                    Log.Warning("Launching on void.");
+
+                    done = true;
+                    break;
 
 
                 default:

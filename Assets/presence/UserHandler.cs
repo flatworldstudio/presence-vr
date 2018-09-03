@@ -26,8 +26,10 @@ namespace PresenceEngine
         UxController uxController;
         public Text filePath;
 
+        string status;
+
 #if SERVER
-        
+
         public GameObject uxCanvas;
 
 #endif
@@ -89,13 +91,13 @@ namespace PresenceEngine
                 // -----------------------------------------------------------------------
                 // Gestures
 
-#if !UNITY_IOS && !UNITY_ANDROID
-#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+
+#if SERVER && (UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
+
                 case "WaitforSeated":
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
-                        string status;
+                   
+                       
 
                         if (!task.GetStringValue("status", out status))
                         {
@@ -114,15 +116,14 @@ namespace PresenceEngine
                             done = true;
                         }
 
-                    }
+                    
 
                     break;
 
                 case "WaitforGetup":
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
-                        string status;
+                 
+                      
 
                         if (!task.GetStringValue("status", out status))
                         {
@@ -141,15 +142,14 @@ namespace PresenceEngine
                             done = true;
                         }
 
-                    }
+                    
 
                     break;
 
                 case "WaitforRaisedhands":
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
-                        string status;
+                   
+                     
 
                         if (!task.GetStringValue("status", out status))
                         {
@@ -168,15 +168,15 @@ namespace PresenceEngine
                             done = true;
                         }
 
-                    }
+                    
 
                     break;
+#endif
 
                 case "waitforgesture":
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
-                        string status;
+#if SERVER && (UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
+                   
 
                         if (!task.GetStringValue("status", out status))
                         {
@@ -204,8 +204,10 @@ namespace PresenceEngine
                             done = true;
                         }
 
+#endif
 
-                    }
+#if CLIENT
+
 
                     if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
                     {
@@ -226,12 +228,11 @@ namespace PresenceEngine
 
                     }
 
-
+#endif
 
 
                     break;
-#endif
-#endif
+
 
                 // -----------------------------------------------------------------------
                 // Manipulating pov
@@ -322,11 +323,10 @@ namespace PresenceEngine
                     userMessager.ShowTextMessage("Begin recording", 0.5f);
 
 #if SERVER
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
+                    
                         serverInterface.HideButton("recordstart");
                         serverInterface.ShowButton("recordstop");
-                    }
+                    
 #endif
 
                     done = true;
@@ -337,11 +337,10 @@ namespace PresenceEngine
                     userMessager.ShowTextMessage("Stop recording", 0.5f);
 
 #if SERVER
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
+                    
                         serverInterface.HideButton("recordstop");
                         serverInterface.ShowButton("recordstart");
-                    }
+                    
 #endif
 
                     done = true;
@@ -352,11 +351,10 @@ namespace PresenceEngine
                     userMessager.ShowTextMessage("Begin playback", 0.5f);
 
 #if SERVER
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
+                   
                         serverInterface.HideButton("playbackstart");
                         serverInterface.ShowButton("playbackstop");
-                    }
+                    
 #endif
 
                     done = true;
@@ -367,11 +365,10 @@ namespace PresenceEngine
                     userMessager.ShowTextMessage("Stop playback", 0.5f);
 
 #if SERVER
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
+                   
                         serverInterface.HideButton("playbackstop");
                         serverInterface.ShowButton("playbackstart");
-                    }
+                    
 #endif
 
                     done = true;
@@ -485,8 +482,7 @@ namespace PresenceEngine
                     }
 
 #if SERVER
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
+                    
 
                         // apply user head rotation and local position from device. this has calibration applied.
 
@@ -511,7 +507,7 @@ namespace PresenceEngine
 
 
 
-                    }
+                    
 #endif
 
 
@@ -839,7 +835,7 @@ namespace PresenceEngine
 
                 case "makefilemenu":
 
-                    if (SETTINGS.deviceMode != DEVICEMODE.SERVER || serverInterface == null)
+                    if (serverInterface == null)
                     {
 
                         done = true;

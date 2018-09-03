@@ -10,6 +10,7 @@
 sysinfo.txt
 *.pidb.meta
 ProjectSettings.asset
+EditorBuildSettings.asset
 
 # VS/Rider/MD/Consulo
 ExportedObj/

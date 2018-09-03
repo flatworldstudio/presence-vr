@@ -16,7 +16,7 @@ namespace PresenceEngine
 
 #if SERVER && (UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
 
-        KinectManager kinectManager;
+  //      KinectManager kinectManager, kinectManagerObject;
 #endif
 
 
@@ -53,11 +53,13 @@ namespace PresenceEngine
 
             setController.addTaskHandler(TaskHandler);
 
+            /*
 #if SERVER && (UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
 
               kinectManager = kinectManagerObject.GetComponent<KinectManager> ();
 
 #endif
+*/
 
         }
 
@@ -491,15 +493,14 @@ namespace PresenceEngine
                 case "DrawingOn":
 
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
+                   
 
                         SETTINGS.user.SetVisualiser("ShowSkeleton", 1);
 
                         task.SetIntValue("user_1_isdrawing", 1);
                         SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
 
-                    }
+                    
 
                     done = true;
 
@@ -508,12 +509,11 @@ namespace PresenceEngine
                 case "DrawingOff":
 
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
+                    
                         task.SetIntValue("user_1_isdrawing", 0);
                         SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
 
-                    }
+                    
 
                     done = true;
 
@@ -522,12 +522,11 @@ namespace PresenceEngine
                 case "DrawingRemove":
 
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.SERVER)
-                    {
+                   
 
                         SETTINGS.user.SetVisualiser("", 1);
 
-                    }
+                    
 
                     done = true;
 
