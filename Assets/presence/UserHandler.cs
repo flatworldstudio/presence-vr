@@ -209,7 +209,7 @@ namespace PresenceEngine
 #if CLIENT
 
 
-                    if (SETTINGS.deviceMode == DEVICEMODE.VRCLIENT)
+    
                     {
 
 
