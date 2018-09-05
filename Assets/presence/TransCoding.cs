@@ -8,7 +8,10 @@ namespace PresenceEngine
     public interface iTransCoder
     {
 
-        void SetBufferFile(FileformatBase TargetFile);
+    //    void SetBufferFile(FileformatBase TargetFile);
+
+        void SetBufferFile(string TargetFile);
+
 
         FileformatBase GetBufferFile();
 
@@ -313,10 +316,18 @@ namespace PresenceEngine
             return _name;
         }
 
-        public void SetBufferFile(FileformatBase target)
+        public void SetBufferFile(string target)
         {
-            _bufferFile = target;
+
+            if (_bufferFile.Name==target)
+                return;
+            
+            _bufferFile= IO.LoadFile(target);
+
+           // _bufferFile = target;
         }
+
+
 
         public FileformatBase GetBufferFile()
         {
@@ -523,10 +534,22 @@ namespace PresenceEngine
             return _name;
         }
 
-        public void SetBufferFile(FileformatBase target)
+        //public void SetBufferFile(FileformatBase target)
+        //{
+        //    _bufferFile = target;
+        //}
+
+        public void SetBufferFile(string target)
         {
-            _bufferFile = target;
+
+            if (_bufferFile.Name==target)
+                return;
+
+            _bufferFile= IO.LoadFile(target);
+
+            // _bufferFile = target;
         }
+
 
         public FileformatBase GetBufferFile()
         {
@@ -899,9 +922,16 @@ namespace PresenceEngine
             storeFrame.Min = Min;
             storeFrame.Max = Max;
 
-            _bufferFile.Frames.Add(storeFrame);
-            _bufferFile.StartTime = Mathf.Min(_bufferFile.StartTime, storeFrame.Time);
-            _bufferFile.EndTime = Mathf.Max(_bufferFile.EndTime, storeFrame.Time);
+            if (_bufferFile != null)
+            {
+                _bufferFile.Frames.Add(storeFrame);
+                _bufferFile.StartTime = Mathf.Min(_bufferFile.StartTime, storeFrame.Time);
+                _bufferFile.EndTime = Mathf.Max(_bufferFile.EndTime, storeFrame.Time);
+            }
+            else
+            {
+                Debug.LogError("No buffer file to record into!");
+            }
 
         }
 
@@ -927,8 +957,8 @@ namespace PresenceEngine
             if (_bufferFile != null)
             {
 
-             //   Debug.Log("searching for " + time + " in "+ _bufferFile.Frames[0].Time+ " "+ _bufferFile.Frames[_bufferFile.Frames.Count - 1].Time);
-              //  Debug.Log("frames: " + _bufferFile.Frames.Count);
+                //   Debug.Log("searching for " + time + " in "+ _bufferFile.Frames[0].Time+ " "+ _bufferFile.Frames[_bufferFile.Frames.Count - 1].Time);
+                //  Debug.Log("frames: " + _bufferFile.Frames.Count);
 
                 time += 1f / 60f; // assuming 30 fps, we aim in the middle between frame times.
                 //Debug.Log("time  "+time);
@@ -936,19 +966,19 @@ namespace PresenceEngine
 
                 int FrameCount = _bufferFile.Frames.Count;
                 int search = 0;
-                int timeOut = 10*60*30; // 10 minutes at 30 fps worth of frames.
+                int timeOut = 10 * 60 * 30; // 10 minutes at 30 fps worth of frames.
 
-           //     string LOG = "";
+                //     string LOG = "";
 
                 do
                 {
-            //        LOG+=" "+(PlayHead);
+                    //        LOG+=" "+(PlayHead);
 
                     float delta0 = time - GetTime(PlayHead);
-             
+
                     float delta1 = time - GetTime(PlayHead + 1);
 
-            //        LOG += " " + delta0 + " " + delta1;
+                    //        LOG += " " + delta0 + " " + delta1;
 
                     //Debug.Log(""+delta0+" "+delta1);
 
@@ -966,19 +996,19 @@ namespace PresenceEngine
                     {
                         search = 0;// FOUND
                         result = 0;
-               //         Debug.LogWarning("found "+PlayHead);
+                        //         Debug.LogWarning("found "+PlayHead);
                     }
 
                     PlayHead += search;
 
-                  
+
 
                     timeOut--;
 
                     if (timeOut < 0)
                     {
                         Debug.LogWarning("search timeout ");
-            //            Debug.Log(LOG);
+                        //            Debug.Log(LOG);
                         return -2;
                     }
 
@@ -987,23 +1017,23 @@ namespace PresenceEngine
                         PlayHead = 0;
                         search = 0;
                         result = -1;
-                       
+
                     }
-                    if (PlayHead >= _bufferFile.Frames.Count-1)
+                    if (PlayHead >= _bufferFile.Frames.Count - 1)
                     {
                         PlayHead = _bufferFile.Frames.Count - 1;
                         search = 0;
                         result = 1;
-                     //   Debug.LogWarning("reached end");
+                        //   Debug.LogWarning("reached end");
                     }
 
 
                 } while (search != 0);
 
-            //    Debug.Log(LOG);
+                //    Debug.Log(LOG);
 
 
-                    if (PlayHead < _bufferFile.Frames.Count && PlayHead >= 0)
+                if (PlayHead < _bufferFile.Frames.Count && PlayHead >= 0)
                 {
                     // This should always be the case.
 
@@ -1025,7 +1055,7 @@ namespace PresenceEngine
 
                     DecodeDepth(Uframe, storeFrame.Data, storeFrame.DepthSampling, storeFrame.Min, storeFrame.Max);
 
-                   
+
                 }
                 else
                 {

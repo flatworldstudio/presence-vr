@@ -210,12 +210,17 @@ namespace PresenceEngine
                         if (!UserDT.Decode(task, "user"))
                             Log.Warning("Decode failed");
 
+
                         // put head orientation, include calibartion
+
                         UserDT.ActiveFrame.HeadOrientation = SETTINGS.HeadsetCorrection * headSet.transform.localRotation;
                         task.SetQuaternionValue("user_headrotation", UserDT.ActiveFrame.HeadOrientation);
                         UserDT.ActiveFrame.HeadPosition = headSet.transform.localPosition;
                         task.SetVector3Value("user_headposition", UserDT.ActiveFrame.HeadPosition);
 
+
+                   
+               
                         //    int usercalibrated;
 
                         //  task.GetIntValue("usercalibrated", out usercalibrated);
@@ -430,6 +435,7 @@ namespace PresenceEngine
                                     // Create instance and retrieve/apply settings.
 
                                     presence = Presence.Create(presences, presenceName);
+                                Debug.Log("Created an instance of " +presenceName);
 
                                     //    SETTINGS.Presences.Add(presenceName, presence);
 
@@ -486,7 +492,7 @@ namespace PresenceEngine
 
                                 // A presence exists locally that has no reference in the task (does not exist on server) so we kill it.
 
-                                Debug.Log("removing " + localPresenceNames[i]);
+                                Debug.Log("Removing instance of " + localPresenceNames[i]);
 
                                 Presence presence = SETTINGS.Presences[localPresenceNames[i]];
 
@@ -1678,7 +1684,8 @@ namespace PresenceEngine
 #endif
 
 #if CLIENT
-                    
+                    Debug.Log("preparing buffer" );
+                         
                         if (SETTINGS.user.DepthTransport != null)
                         {
                             // Wait for filename then fall through
@@ -1686,8 +1693,10 @@ namespace PresenceEngine
                             if (task.GetStringValue("user_file", out file))
                             {
                                 IO.SelectFile(file);
+
                                 SETTINGS.user.DepthTransport.TransCoder.CreateBufferFile(IO.CheckedOutFile);
 
+                            Debug.Log("created buffer" );
                                 done = true;
 
                             }

@@ -410,14 +410,17 @@ namespace PresenceEngine
 
 
         }
-
-       
+               
 
          static FileformatBase LoadFromFile(string filePath)
         {
 
             if (filePath == "")
                 return null;
+
+            if (!File.Exists(filePath))
+                return null;
+
 
             FileformatBase loaded;
 

@@ -28,6 +28,9 @@ namespace PresenceEngine
         float CircleStart,Circle2;
         string status;
 
+        public GameObject dummyCam;
+
+
 #if SERVER
 
         public GameObject uxCanvas;
@@ -737,6 +740,12 @@ namespace PresenceEngine
 
                     Log.Message("Running in editor, simulating headset rotation.");
 
+                    // Because UX targets camera parent, need to add a dummy so it targets our camera directly.
+
+                    //dummyCam.SetActive(true);
+                    //GameObject dummy = new GameObject("dummy" );
+                    //dummy.transform.parent= viewerCamera.transform;
+
                     headsetInterface = new UxInterface();
 
                     UxMapping headsetMapping = new UxMapping();
@@ -754,12 +763,11 @@ namespace PresenceEngine
                     headsetMapping.ux_double_2d += UxMethods.none;
                    headsetMapping.ux_double_3d += UxMethods.none;
 
-                    headsetMapping.ux_double_none += UxMethods.panCamera;
-                    headsetMapping.ux_double_none += UxMethods.zoomCamera;
+                    headsetMapping.ux_double_none += UxMethods.none;
 
                     headsetInterface.defaultUxMap = headsetMapping;
 
-                    headsetInterface.camera = new UxCamera(viewerCamera);
+                    headsetInterface.camera = new UxCamera(dummyCam);
                     headsetInterface.camera.control = CAMERACONTROL.TURN;
 
                     headsetInterface.camera.constraint = new UiConstraint();
@@ -783,7 +791,7 @@ namespace PresenceEngine
 
                         uxController.updateUx(headsetInterface);
 
-
+                 //   viewerCamera.transform.localPosition=Vector3.zero; // KILL ANY TRANSLATION
 
                     break;
 

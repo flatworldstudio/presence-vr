@@ -57,15 +57,21 @@ namespace PresenceEngine
         public void SetTranscoder(string name)
         {
 
-
+            if (TransCoder!=null && TransCoder.GetName()== name)
+                return;
+            
             switch (name)
             {
                 case "SkeletonOnly":
                     TransCoder = new SkeletonOnly();
+                    Debug.Log("New SkeletonOnly transcoder.");
+
                     break;
 
                 case "SkeletonAndDepth":
                     TransCoder = new SkeletonAndDepth();
+                    Debug.Log("New skeletondepth transcoder.");
+
                     break;
 
                 default:
