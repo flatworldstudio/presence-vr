@@ -323,7 +323,7 @@ namespace PresenceEngine
         public void SetBufferFileByName(string target)
         {
 
-            if (_bufferFile.Name==target)
+            if (_bufferFile!=null && _bufferFile.Name==target)
                 return;
             
             _bufferFile= IO.LoadFile(target);
@@ -420,6 +420,8 @@ namespace PresenceEngine
 
         }
 
+
+        /*
         //public bool PlayFrame(int frameNumber, out UncompressedFrame Uframe)
         public int PlayFrame(float time, out UncompressedFrame Uframe)
 
@@ -513,7 +515,146 @@ namespace PresenceEngine
 
 
         }
+        */
 
+        float GetTime(int frame)
+        {
+
+            if (frame < 0)
+                return -1f / 30f;
+
+            if (frame > _bufferFile.Frames.Count - 1)
+                return _bufferFile.Frames[_bufferFile.Frames.Count - 1].Time + 1f / 30f;
+
+            return _bufferFile.Frames[frame].Time;
+
+        }
+
+
+
+        public int PlayFrame(float time, out UncompressedFrame Uframe)
+        {
+
+            Uframe = new UncompressedFrame();
+            int result = -2;
+
+            if (_bufferFile != null)
+            {
+
+                //   Debug.Log("searching for " + time + " in "+ _bufferFile.Frames[0].Time+ " "+ _bufferFile.Frames[_bufferFile.Frames.Count - 1].Time);
+                //  Debug.Log("frames: " + _bufferFile.Frames.Count);
+
+                time += 1f / 60f; // assuming 30 fps, we aim in the middle between frame times.
+                //Debug.Log("time  "+time);
+                // Scan for index, using current head as starting point.
+
+                int FrameCount = _bufferFile.Frames.Count;
+                int search = 0;
+                int timeOut = 10 * 60 * 30; // 10 minutes at 30 fps worth of frames.
+
+                //     string LOG = "";
+
+                do
+                {
+                    //        LOG+=" "+(PlayHead);
+
+                    float delta0 = time - GetTime(PlayHead);
+
+                    float delta1 = time - GetTime(PlayHead + 1);
+
+                    //        LOG += " " + delta0 + " " + delta1;
+
+                    //Debug.Log(""+delta0+" "+delta1);
+
+                    if (delta0 < 0 && delta1 < 0)
+                    {
+                        search = -1;
+                        //Debug.Log("search backward ");
+                    }
+                    else if (delta0 > 0 && delta1 > 0)
+                    {
+                        search = 1;
+                        //Debug.Log("search forward ");
+                    }
+                    else
+                    {
+                        search = 0;// FOUND
+                        result = 0;
+                        //         Debug.LogWarning("found "+PlayHead);
+                    }
+
+                    PlayHead += search;
+
+
+
+                    timeOut--;
+
+                    if (timeOut < 0)
+                    {
+                        Debug.LogWarning("search timeout ");
+                        //            Debug.Log(LOG);
+                        return -2;
+                    }
+
+                    if (PlayHead <= 0)
+                    {
+                        PlayHead = 0;
+                        search = 0;
+                        result = -1;
+
+                    }
+                    if (PlayHead >= _bufferFile.Frames.Count - 1)
+                    {
+                        PlayHead = _bufferFile.Frames.Count - 1;
+                        search = 0;
+                        result = 1;
+                        //   Debug.LogWarning("reached end");
+                    }
+
+
+                } while (search != 0);
+
+                //    Debug.Log(LOG);
+
+
+                if (PlayHead < _bufferFile.Frames.Count && PlayHead >= 0)
+                {
+                    // This should always be the case.
+
+                    SkeletonOnlyFrame storeFrame = (SkeletonOnlyFrame)_bufferFile.Frames[PlayHead];
+
+                    for (int p = 0; p < Uframe.Joints.Length; p++)
+                    {
+                        Uframe.Joints[p] = storeFrame.Points[p].ToVector3();
+                        Uframe.Tracked[p] = storeFrame.Tracked[p];
+
+                    }
+
+                    Uframe.UserPosition = storeFrame.UserPosition.ToVector3();
+                    Uframe.UserTracked = storeFrame.UserTracked;
+
+                    Uframe.Time = storeFrame.Time;
+
+                    Uframe.SensorY = _bufferFile.SensorY;
+
+                 
+
+
+                }
+                else
+                {
+
+                    Debug.LogError("Found a frame but is out of range.");
+                }
+
+            }else{
+
+                Debug.LogWarning("Bufferfile is null. Can't read frame.");
+            }
+
+            return result;
+
+        }
 
     }
 
@@ -546,12 +687,11 @@ namespace PresenceEngine
         public void SetBufferFileByName(string target)
         {
 
-            if (_bufferFile==null || _bufferFile.Name==target)
+            if (_bufferFile!=null && _bufferFile.Name==target)
                 return;
 
             _bufferFile= IO.LoadFile(target);
 
-            // _bufferFile = target;
         }
 
 
@@ -1067,6 +1207,9 @@ namespace PresenceEngine
                     Debug.LogError("Found a frame but is out of range.");
                 }
 
+            }else{
+
+                Debug.LogWarning("Bufferfile is null. Can't read frame.");
             }
 
             return result;

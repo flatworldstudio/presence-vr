@@ -446,6 +446,9 @@ namespace PresenceEngine
 
                                 presence.PullAllSettingsFromTask(task, presenceName);
 
+                           
+
+
                                 // Update depthmode 
 
                                 //  presence.PullModeFromTask(task, presenceName);
@@ -463,8 +466,24 @@ namespace PresenceEngine
                                 if (presence.DepthTransport.Mode == DEPTHMODE.PLAYBACK && task.GetFloatValue(presenceName + "_time", out getTime))
 
                                 {
+
+
+                              
+
+
                                     presence.DepthTransport.CurrentTime = getTime;
                                     int status = presence.DepthTransport.LoadFrameFromBuffer(getTime);
+
+                                //if (Input.GetKey("d")){
+
+                                //    Debug.Log("presenceName: "+ getTime + " " +status);
+
+
+                                //    Debug.Log("buffer frames: "+presence.DepthTransport.TransCoder.GetBufferFile().Frames.Count);
+
+                                //    Debug.Log("buffer end: "+ presence.DepthTransport.TransCoder.GetBufferFile().EndTime);
+
+                                //}
 
 
                                     //if (status == 0 && !presence.SoundPlayed)

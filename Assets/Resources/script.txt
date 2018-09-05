@@ -183,9 +183,9 @@ isglobal
 start presencehandler
 waitforuser
 start recording
-MaterialiseOn
+//MaterialiseOn
 pause5
-goto mirrorscene
+//goto mirrorscene
 GuideOpening
 pause5
 OffsetReset

@@ -681,6 +681,7 @@ namespace PresenceEngine
                 }
 
                 Cloud.ApplyParticles(CloudVisible  ? ParticleIndex : 0);
+                //Cloud.ApplyParticles(ParticleIndex );
 
                 // Check if frame is new.
 
