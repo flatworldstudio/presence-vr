@@ -32,10 +32,7 @@ namespace PresenceEngine
 
     public static class IO
     {
-        //static string me = "IO: ";
 
-        //static string depthCaptureFile = "/savedDepthCaptures.pdc";
-        //public static int depthIndex = -1;
 
         public static string localStorageFolder = "";
 
@@ -46,20 +43,28 @@ namespace PresenceEngine
 
 
         static List<PFile> _filesInSelectedFolder;
-     public  static void SetDataPath ()
-        {
-           localStorageFolder = Application.persistentDataPath + "/data";
-            Debug.Log("IO data path: " + localStorageFolder);
 
+
+        public static void SetDataPath()
+        {
+            localStorageFolder = Application.persistentDataPath + "/data";
+            Debug.Log("IO data path: " + localStorageFolder);
+            Directory.CreateDirectory(localStorageFolder);
+            Debug.LogWarning("Creating directory: " + localStorageFolder);
         }
-      
+
         // Public save/load methods.
 
         public static void SaveFileToSelected(FileformatBase presenceFile)
         {
 
             BinaryFormatter bf = new BinaryFormatter();
-            FileStream file = File.Create(localStorageFolder + CheckedOutFile);
+
+            Directory.CreateDirectory(localStorageFolder + _selectedFolder);
+
+            Debug.LogWarning("Creating directory: " + localStorageFolder + _selectedFolder);
+
+            FileStream file = File.Create(localStorageFolder + _selectedFile);
 
             bf.Serialize(file, presenceFile);
             file.Close();
@@ -173,10 +178,11 @@ namespace PresenceEngine
 
             get
             {
-                if (_filesInSelectedFolder == null){
-                    _filesInSelectedFolder=GetFileList(_selectedFolder);
+                if (_filesInSelectedFolder == null)
+                {
+                    _filesInSelectedFolder = GetFileList(_selectedFolder);
                 }
-                    
+
                 return _filesInSelectedFolder;
             }
             set
@@ -195,7 +201,7 @@ namespace PresenceEngine
 
             _selectedFolder = "/" + folderName;
 
-          //  Debug.Log("IO " + localStorageFolder + folderName);
+            //  Debug.Log("IO " + localStorageFolder + folderName);
 
             if (!Directory.Exists(localStorageFolder + _selectedFolder))
                 Directory.CreateDirectory(localStorageFolder + _selectedFolder);
@@ -204,17 +210,17 @@ namespace PresenceEngine
 
         }
 
-        public static void SelectFile(string folderName, string fileName)
-        {
-            folderName = Strip(folderName);
-            fileName = Strip(fileName);
+        //public static void SelectFile(string folderName, string fileName)
+        //{
+        //    folderName = Strip(folderName);
+        //    fileName = Strip(fileName);
 
-            if (folderName == "" || fileName == "")
-                return;
+        //    if (folderName == "" || fileName == "")
+        //        return;
 
-            _selectedFile = "/" + folderName + "/" + fileName;
+        //    _selectedFile = "/" + folderName + "/" + fileName;
 
-        }
+        //}
 
         public static void SelectFile(string path)
         {
@@ -229,6 +235,7 @@ namespace PresenceEngine
             {
 
                 _selectedFile = "/" + parts[1] + "/" + parts[2];
+                _selectedFolder = "/" + parts[1];
 
             }
             else
@@ -244,7 +251,7 @@ namespace PresenceEngine
         {
 
             // Returns the index for the file that is currently selected.
-                
+
             for (int i = 0; i < FilesInSelectedFolder.Count; i++)
             {
                 if (FilesInSelectedFolder[i].Path == IO.CheckedOutFile)
@@ -258,7 +265,7 @@ namespace PresenceEngine
 
         public static string GetFilePath(int index)
         {
-          
+
             if (index < FilesInSelectedFolder.Count)
                 return FilesInSelectedFolder[index].Path;
 
@@ -311,12 +318,12 @@ namespace PresenceEngine
             return "";
 
         }
-              
 
-         static FileformatBase FindBufferFileInScene(string fileName)
+
+        static FileformatBase FindBufferFileInScene(string fileName)
         {
 
-          //  Debug.Log("Trying to find buffer " + fileName);
+            //  Debug.Log("Trying to find buffer " + fileName);
 
             foreach (KeyValuePair<string, Presence> entry in SETTINGS.Presences)
             {
@@ -338,19 +345,19 @@ namespace PresenceEngine
             }
 
 
-       //     Debug.Log("Didn't find buffer file in scene.");
+            //     Debug.Log("Didn't find buffer file in scene.");
 
             return null;
         }
 
-  
 
-         static List<PFile> GetFileList(string LocalFolder)
+
+        static List<PFile> GetFileList(string LocalFolder)
         {
-            
+
             LocalFolder = "/" + Strip(LocalFolder);
 
-       //     Debug.Log("listing files for " + LocalFolder);
+            //     Debug.Log("listing files for " + LocalFolder);
 
             if (!Directory.Exists(localStorageFolder))
                 Directory.CreateDirectory(localStorageFolder);
@@ -393,9 +400,9 @@ namespace PresenceEngine
         }
 
 
-       
 
-         static void SaveCheckedOutFileAsPlaceholder()
+
+        static void SaveCheckedOutFileAsPlaceholder()
         {
 
             BinaryFormatter bf = new BinaryFormatter();
@@ -410,9 +417,9 @@ namespace PresenceEngine
 
 
         }
-               
 
-         static FileformatBase LoadFromFile(string filePath)
+
+        static FileformatBase LoadFromFile(string filePath)
         {
 
             if (filePath == "")
@@ -429,7 +436,7 @@ namespace PresenceEngine
 
                 try
                 {
-                    Debug.Log("Loading buffer from file: "+filePath);
+                    Debug.Log("Loading buffer from file: " + filePath);
                     BinaryFormatter bf = new BinaryFormatter();
                     loaded = (FileformatBase)bf.Deserialize(fs);
                     fs.Close();
