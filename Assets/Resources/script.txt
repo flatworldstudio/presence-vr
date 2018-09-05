@@ -183,9 +183,9 @@ isglobal
 start presencehandler
 waitforuser
 start recording
-//MaterialiseOn
+MaterialiseOn
 pause5
-//goto mirrorscene
+goto drawingplayback
 GuideOpening
 pause5
 OffsetReset
@@ -201,6 +201,7 @@ pause5
 TimeStamp_BeginDraw
 DrawingOn
 GuideDrawing
+@drawingplayback
 pause5
 start PlayDrawings
 GuideObservedrawing
@@ -291,6 +292,7 @@ end
 stop RandomPresences
 stop presencehandler
 stop PlayDrawings
+stop Shatter
 end
 
 #Shatter

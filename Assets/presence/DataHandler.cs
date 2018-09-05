@@ -1011,7 +1011,17 @@ namespace PresenceEngine
                     }
 
                     int Current = IO.CheckedOutFileIndex();
-                    string FileName = IO.GetFilePath(Current + Index);
+                    int Retrieve = Current + Index;
+                    if (Retrieve > IO.FilesInSelectedFolder.Count)
+                    {
+                        // Loop through sessions.
+                        Index = 1;
+                        Retrieve = Current + Index;
+                    }
+
+                    string FileName = IO.GetFilePath(Retrieve);
+
+
                     FileBuffer = IO.LoadFile(FileName);
 
                     Debug.Log("attempting clone presence for " + FileName);
@@ -1523,6 +1533,7 @@ namespace PresenceEngine
                                 {
                                     // No file, just revert to empty.
                                     state = 0;
+                                    Debug.Log("no buffer found for " + FileName);
                                     break;
                                 }
 

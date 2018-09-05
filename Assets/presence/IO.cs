@@ -425,7 +425,7 @@ namespace PresenceEngine
             if (filePath == "")
                 return null;
 
-            if (!File.Exists(filePath))
+            if (!File.Exists(localStorageFolder + filePath))
                 return null;
 
 
