@@ -47,6 +47,7 @@ namespace PresenceEngine
         public void SettingsToTask(StoryEngine.StoryTask task, string prefix)
         {
             task.SetIntValue(prefix + "_isdrawing", IsDrawing ? 1 : 0);
+    
 
         }
         public void SettingsFromTask(StoryEngine.StoryTask task, string prefix)
