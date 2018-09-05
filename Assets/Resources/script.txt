@@ -279,8 +279,8 @@ WaitforSeated
 pressedrecordstop
 stop recording
 recordstop
-deletepresences
 MaterialiseOff
+deletepresences
 start cleanup
 GuideEndsession
 makefilemenu

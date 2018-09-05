@@ -269,11 +269,11 @@ namespace PresenceEngine
 
 #if CLIENT
 
-                    // SHOULDN"T THIS BE HANDLED AUTOMATICALLY??? not sure. just setting directly for now.
+                    // presencehandler should pick up on server change...
 
-                        task.SetIntValue("user_0_cloudvisible", 0);
+                  //      task.SetIntValue("user_0_cloudvisible", 0);
 
-                    SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
+                //    SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
                    
                         //int v;
                         //if (task.GetIntValue("user_0_cloudvisible", out v))
