@@ -1951,7 +1951,9 @@ namespace PresenceEngine
                     }
 
                     break;
+                    #endif
 
+                    #if CLIENT
                 case "monitorconnection":
 
                     if (!dataController.clientIsConnected())
@@ -1989,9 +1991,9 @@ namespace PresenceEngine
                     //    led.SetActive(GENERAL.wasConnected);
 
                     break;
-#endif
 
-#if CLIENT
+
+
                 case "startclient":
 
                     Debug.Log(me + "Starting network client.");
