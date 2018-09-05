@@ -15,7 +15,7 @@ namespace PresenceEngine
         public UserController userController;
 
         UxInterface serverInterface,headsetInterface;
-
+        public GameObject Circle;
         public GameObject viewerRoot, viewerOffset, viewerCamera;
         public GameObject overviewObject, projectionObject, headSet, setObject, handl, handr, body, Kinect, SetHandler, startPosition;
         public AudioSource signalSound;
@@ -25,7 +25,7 @@ namespace PresenceEngine
         UiConstraint fileBrowserConstraint;
         UxController uxController;
         public Text filePath;
-
+        float CircleStart,Circle2;
         string status;
 
 #if SERVER
@@ -35,6 +35,9 @@ namespace PresenceEngine
 #endif
 
         string me = "Task handler: ";
+
+
+
 
 
         void Start()
@@ -94,9 +97,217 @@ namespace PresenceEngine
 
 #if SERVER && (UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
 
-                case "WaitforSeated":
 
-                   
+
+                case "WaitForCircleStart":
+
+                    float timer;
+                    if (task.GetFloatValue("timer", out timer))
+                        task.SetFloatValue("timer", timer);//0
+
+                    // get position
+                    Vector3 p = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
+                    Vector2 p2d = new Vector2(p.x, p.z);
+                    //  Vector2 center2d = new Vector2(0, SETTINGS.kinectCentreDistance);
+                    Vector2 center2d = new Vector2(0, Circle.transform.position.z);
+
+                    float distance = Vector2.Distance(center2d, p2d);
+                    Vector2 rp = p2d - center2d;
+
+                    if (distance<4f && distance > 0.5f)
+                    {
+                        timer += Time.deltaTime;
+
+                        if (timer > 0.25f)
+                        {
+                            CircleStart = Mathf.Atan2(rp.y, rp.x);
+
+                            if (CircleStart < 0)
+                                CircleStart += Mathf.PI * 2f;
+
+                            Debug.Log("began circle at " + CircleStart*Mathf.Rad2Deg);
+                            userMessager.ShowTextMessage("Begin circle", 1);
+                            done = true;
+                        }
+
+                    }
+                    else
+                    {
+
+                    }
+
+                    task.SetFloatValue("timer", timer);
+                    
+                  
+                    break;
+
+
+                case "WaitForCircleOneThird":
+
+                  
+                    if (task.GetFloatValue("timer", out timer))
+                        task.SetFloatValue("timer", timer);//0
+
+                    // get position
+                     p = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
+                     p2d = new Vector2(p.x, p.z);
+               //      center2d = new Vector2(0, SETTINGS.kinectCentreDistance);
+                    center2d = new Vector2(0, Circle.transform.position.z);
+                    rp = p2d - center2d;
+                    float current = Mathf.Atan2(rp.y, rp.x);
+
+                    float a1 = CircleStart - 110*Mathf.Deg2Rad;
+                    float a2 = CircleStart + 110 * Mathf.Deg2Rad;
+                       
+
+                    if (!CheckSection(a1,a2, current))
+                    {
+                        timer += Time.deltaTime;
+                      //  Debug.Log("outside initial section");
+
+                        if (timer > 0.25f)
+                        {
+                            done = true;
+                            Circle2 = current;
+                            userMessager.ShowTextMessage("One third", 1);
+                         
+                        }
+
+                    }
+                    else
+                    {
+                    //    Debug.Log("still in in section");
+                        timer = 0;
+                    }
+
+                    task.SetFloatValue("timer", timer);
+
+
+                    break;
+
+                case "WaitForCircleTwoThird":
+
+
+                    if (task.GetFloatValue("timer", out timer))
+                        task.SetFloatValue("timer", timer);//0
+
+                    // get position
+                    p = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
+                    p2d = new Vector2(p.x, p.z);
+
+                    center2d = new Vector2(0,Circle.transform.position.z);
+              //      Debug.Log("Z circle " + center2d.y);
+
+
+                    rp = p2d - center2d;
+                     current = Mathf.Atan2(rp.y, rp.x);
+
+                     a1 = Circle2 - 110 * Mathf.Deg2Rad;
+                     a2 = Circle2 + 110 * Mathf.Deg2Rad;
+                    
+                    if (!CheckSection(a1, a2, current))
+                    {
+                        timer += Time.deltaTime;
+                    //    Debug.Log("outside  section");
+
+                        if (timer > 0.25f)
+                        {
+                            userMessager.ShowTextMessage("One third", 1);
+                            done = true;
+                        }
+
+                    }
+                    else
+                    {
+                   //     Debug.Log("still in in section");
+                        timer = 0;
+                    }
+
+                    task.SetFloatValue("timer", timer);
+
+
+                    break;
+
+                case "WaitForCircleThreeThird":
+
+
+                    if (task.GetFloatValue("timer", out timer))
+                        task.SetFloatValue("timer", timer);//0
+
+                    // get position
+                    p = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
+                    p2d = new Vector2(p.x, p.z);
+                   // center2d = new Vector2(0, SETTINGS.kinectCentreDistance);
+                    center2d = new Vector2(0, Circle.transform.position.z);
+                    rp = p2d - center2d;
+                    current = Mathf.Atan2(rp.y, rp.x);
+
+                    a1 = CircleStart - 15 * Mathf.Deg2Rad;
+                    a2 = CircleStart + 15 * Mathf.Deg2Rad;
+
+                    if (CheckSection(a1, a2, current))
+                    {
+                        timer += Time.deltaTime;
+                    //    Debug.Log("in initial section");
+
+                        if (timer > 0.25f)
+                        {
+                            done = true;
+                            userMessager.ShowTextMessage("Full", 1);
+                        }
+
+                    }
+                    else
+                    {
+                      //  Debug.Log("not in section");
+                        timer = 0;
+                    }
+
+                    task.SetFloatValue("timer", timer);
+
+
+                    break;
+
+
+
+                case "WaitForFacekinect":
+
+                    if (!GENERAL.wasConnected)
+                    {
+                        // No client, fall through as we won't be getting any head data.
+                        done = true;
+                    }
+
+                //    float timer;
+                    if (task.GetFloatValue("timer", out timer))
+                        task.SetFloatValue("timer", timer);//0
+
+                    //Vector3 up = SETTINGS.user.DepthTransport.ActiveFrame.Joints[NuiSkeletonPositionIndex.Head];
+
+                    Quaternion rot = SETTINGS.user.DepthTransport.ActiveFrame.HeadOrientation;
+                    float y = rot.eulerAngles.y;
+
+                    if (y > 150 || y < -150)
+                    {
+                        Debug.Log("facing ...");
+                        timer += Time.deltaTime;
+
+                        if (timer > 2)
+                        {
+                            done = true;
+                        }
+                    }
+                    else
+                    {
+                        timer = 0;
+                    }
+
+                    task.SetFloatValue("timer", timer);
+
+                    break;
+
+                case "WaitforSeated":
+                                      
                        
 
                         if (!task.GetStringValue("status", out status))
@@ -1181,7 +1392,6 @@ namespace PresenceEngine
 
 
 
-
                 default:
 
                     done = true;
@@ -1194,6 +1404,48 @@ namespace PresenceEngine
 
         }
 
+
+#if SERVER
+
+        bool CheckSection (float a1, float a2, float current)
+        {
+          //  Debug.Log(a1 * Mathf.Rad2Deg + " "+ current*Mathf.Rad2Deg+" " + a2 * Mathf.Rad2Deg);
+       
+
+            if (a1 < current && current < a2)
+                return true;
+
+            current += Mathf.PI * 2;
+
+        //    Debug.Log(a1 * Mathf.Rad2Deg + " " + current * Mathf.Rad2Deg + " " + a2 * Mathf.Rad2Deg);
+
+
+            if (a1 < current && current < a2)
+                return true;
+
+            return false;
+
+
+            //Vector2 v1 = new Vector2(Mathf.Cos(a1 ), Mathf.Sin(a1 ));
+            //Vector2 v2 = new Vector2(Mathf.Cos(a2 ), Mathf.Sin(a2 ));
+            //Vector2 vc = new Vector2(Mathf.Cos(current ), Mathf.Sin(current));
+
+            //float d1 = Vector2.Angle(v1, vc);
+            //float d2 = Vector2.Angle(v1, v2);
+
+            //if (d1 < d2)
+            //    return true;
+            //else
+            //    return false;
+
+
+
+        }
+
+
+
+
+#endif
 
         void Update()
         {

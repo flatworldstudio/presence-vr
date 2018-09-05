@@ -21,7 +21,8 @@ namespace PresenceEngine
     {
         public static bool UserInConfinedArea = true;
 
-        public static int SessionDuration = 120;
+        public static int SessionDuration = 10*60; // this is a time out, not fixed length or buffer size.
+
         public static string DEFAULTFILE = "/default/default.prs";
         public static string DEFAULTFOLDER = "/default";
 

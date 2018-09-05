@@ -134,6 +134,9 @@ namespace PresenceEngine
                     case DEPTHMODE.RECORD:
 
                         TimeStamp = Time.time;
+                    
+                        CurrentTime = 0;
+                        Debug.Log("timestamping " + TimeStamp);
 
 
                         // Any instance can be 'live', which means it'll be working with live buffer data.
@@ -141,15 +144,15 @@ namespace PresenceEngine
 
                         //    __mode = DEPTHMODE.LIVE;
 
-#if SERVER && ( UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
+#if SERVER && (UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
 
 
 
                         // On server / windows we try to fire up the kinect.
                         // Making a coroutine would prevent blocking...?
-                      
 
-                            if (OwnsKinect == null)
+
+                        if (OwnsKinect == null)
                             {
 
                                 if (!KinectManager.Instance.IsInitialized())
@@ -256,6 +259,7 @@ namespace PresenceEngine
                     ActiveFrame = new UncompressedFrame();
                     ActiveFrame.Time = Time.time - TimeStamp;
                     CurrentTime = ActiveFrame.Time;
+                 
 
                     ActiveFrame.SensorY=SETTINGS.SensorY;
 

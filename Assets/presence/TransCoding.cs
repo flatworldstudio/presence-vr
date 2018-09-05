@@ -47,19 +47,19 @@ namespace PresenceEngine
                 return TimeStamps[label];
             else
                 return -1;
-            
+
         }
 
-        public void SetTimeStamp (string label,float value)
+        public void SetTimeStamp(string label, float value)
         {
-           
-                if (!TimeStamps.ContainsKey(label))
-                    TimeStamps.Add(label, value);
-                else
-                    TimeStamps[label] = value;
-            
+
+            if (!TimeStamps.ContainsKey(label))
+                TimeStamps.Add(label, value);
+            else
+                TimeStamps[label] = value;
+
         }
-        
+
         public float StartTime
         {
             get
@@ -92,7 +92,7 @@ namespace PresenceEngine
 
         public void DumpTimeStamps()
         {
-            foreach (KeyValuePair<string,float>pair in TimeStamps)
+            foreach (KeyValuePair<string, float> pair in TimeStamps)
             {
                 Debug.Log("Buffer file time stamp " + pair.Key + " " + pair.Value);
             }
@@ -905,29 +905,50 @@ namespace PresenceEngine
 
         }
 
+        float GetTime(int frame)
+        {
+
+            if (frame < 0)
+                return -1f / 30f;
+
+            if (frame > _bufferFile.Frames.Count - 1)
+                return _bufferFile.Frames[_bufferFile.Frames.Count - 1].Time + 1f / 30f;
+
+            return _bufferFile.Frames[frame].Time;
+
+        }
+
         public int PlayFrame(float time, out UncompressedFrame Uframe)
         {
 
             Uframe = new UncompressedFrame();
+            int result = -2;
 
             if (_bufferFile != null)
             {
+
+             //   Debug.Log("searching for " + time + " in "+ _bufferFile.Frames[0].Time+ " "+ _bufferFile.Frames[_bufferFile.Frames.Count - 1].Time);
+              //  Debug.Log("frames: " + _bufferFile.Frames.Count);
 
                 time += 1f / 60f; // assuming 30 fps, we aim in the middle between frame times.
                 //Debug.Log("time  "+time);
                 // Scan for index, using current head as starting point.
 
-                int count = _bufferFile.Frames.Count - 2; // last frame is skipped.
+                int FrameCount = _bufferFile.Frames.Count;
                 int search = 0;
-                int timeOut = 10*60*30;// 10 minutes at 30 fps worth of frames.
+                int timeOut = 10*60*30; // 10 minutes at 30 fps worth of frames.
+
+           //     string LOG = "";
 
                 do
                 {
-                    float delta0 = time - _bufferFile.Frames[PlayHead].Time;
+            //        LOG+=" "+(PlayHead);
 
-                    //Debug.Log("Playhead "+PlayHead+" " +_bufferFile.Frames[PlayHead].Time);
+                    float delta0 = time - GetTime(PlayHead);
+             
+                    float delta1 = time - GetTime(PlayHead + 1);
 
-                    float delta1 = time - _bufferFile.Frames[PlayHead + 1].Time;
+            //        LOG += " " + delta0 + " " + delta1;
 
                     //Debug.Log(""+delta0+" "+delta1);
 
@@ -944,38 +965,47 @@ namespace PresenceEngine
                     else
                     {
                         search = 0;// FOUND
+                        result = 0;
+               //         Debug.LogWarning("found "+PlayHead);
                     }
 
                     PlayHead += search;
+
+                  
 
                     timeOut--;
 
                     if (timeOut < 0)
                     {
-                        Debug.LogWarning("search timeout");
+                        Debug.LogWarning("search timeout ");
+            //            Debug.Log(LOG);
                         return -2;
                     }
 
-                    if (PlayHead < 0)
+                    if (PlayHead <= 0)
                     {
                         PlayHead = 0;
-
-                        return -1;
+                        search = 0;
+                        result = -1;
+                       
                     }
-                    if (PlayHead >= count)
+                    if (PlayHead >= _bufferFile.Frames.Count-1)
                     {
-                        PlayHead = count;
-
-                        return 1;
+                        PlayHead = _bufferFile.Frames.Count - 1;
+                        search = 0;
+                        result = 1;
+                     //   Debug.LogWarning("reached end");
                     }
 
 
                 } while (search != 0);
 
-                if (PlayHead < _bufferFile.Frames.Count && PlayHead >= 0)
-                {
+            //    Debug.Log(LOG);
 
-                    //Debug.Log("playhead "+PlayHead);
+
+                    if (PlayHead < _bufferFile.Frames.Count && PlayHead >= 0)
+                {
+                    // This should always be the case.
 
                     SkeletonAndDepthFrame storeFrame = (SkeletonAndDepthFrame)_bufferFile.Frames[PlayHead];
 
@@ -995,12 +1025,17 @@ namespace PresenceEngine
 
                     DecodeDepth(Uframe, storeFrame.Data, storeFrame.DepthSampling, storeFrame.Min, storeFrame.Max);
 
-                    return 0;
+                   
+                }
+                else
+                {
+
+                    Debug.LogError("Found a frame but is out of range.");
                 }
 
             }
 
-            return -2;
+            return result;
 
         }
 

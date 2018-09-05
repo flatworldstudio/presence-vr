@@ -57,7 +57,7 @@ addkinectnull
 createuser
 moodon
 makeservercontrols
-setflow_solo
+setflow_guided
 setfiledefaults
 makefoldermenu
 makefilemenu
@@ -137,6 +137,7 @@ end
 
 #presencehandler
 isglobal
+@handler
 handlepresences
 end
 
@@ -181,30 +182,32 @@ OffsetReset
 isglobal
 start presencehandler
 waitforuser
+start recording
+//MaterialiseOn
 pause5
-start PlayDrawings
+//goto mirrorscene
 GuideOpening
 pause5
 OffsetReset
 start recording
 GuideSitdown
 WaitforSeated
-TimeStamp_Begin
 GuideBegin
-//WaitforRaisedhands
 MaterialiseOn
 GuideObservehands
 pause5
+// DRAWING SCENE
+@drawingscene
 TimeStamp_BeginDraw
 DrawingOn
 GuideDrawing
 pause5
 start PlayDrawings
 GuideObservedrawing
-pause5
+pause15
 TimeStamp_EndDraw
 DrawingOff
-stop PlayDrawings
+start EndDrawings
 GuideGetup
 WaitforGetup
 GuideThirdpersonintro
@@ -212,47 +215,90 @@ DrawingRemove
 OffsetThirdperson
 GuideThirdperson
 pause5
-GuideThirdpersonexit
+//GuideThirdpersonexit
 pause5
 GuideReturntocenter
-WaitForCentered
+WaitForFacekinect
 OffsetReset
 pause5
+// MIRROR SCENE
+@mirrorscene
 GuideMirrorintro
 pause5
+DelayOn
 GuideMirror
 pause5
+DelaySlow
 GuideSlowdown
 pause5
+DelayReverse
 GuideReverse
 pause5
+DelayStop
 GuideFreeze
 pause5
+deletepresences
+start Shatter
 GuideShatter
-pause5
+pause15
+stop Shatter
+deletepresences
+// CIRCLE SCENE
+@circlescene
+ShowCircle
 GuideCircleintro
-pause5
 GuideCircle
-pause5
+WaitForCircleStart
+TimeStamp_BeginCircle
+WaitForCircleOneThird
+AddCircleClone
 GuideCircleclone
-pause5
+WaitForCircleTwoThird
+AddCircleClone
+GuideCircleclone
+WaitForCircleThreeThird
+AddCircleClone
+TimeStamp_EndCircle
+HideCircle
 GuideCircleobserve
-pause5
+pause15
+endcirclescene
+// PRESENCE SCENE
+@presencescene
 GuideNotalone
+start RandomPresences
 pause5
 GuidePresences
-pause5
+pause15
 GuideEndpresences
 pause5
-GuideEndsession
-pause5
+stop RandomPresences
+WaitforSeated
 @recordguided_stop
 pressedrecordstop
-stop presencehandler
 stop recording
 recordstop
+deletepresences
+MaterialiseOff
+start cleanup
+GuideEndsession
 makefilemenu
-pause5
+end
+
+
+// Stop any storylines still running. Most should already be killed.
+#cleanup
+stop RandomPresences
+stop presencehandler
+stop PlayDrawings
+end
+
+#Shatter
+ShatterUser
+end
+
+#RandomPresences
+SpawnPresences
 end
 
 #stoprecordguided
@@ -276,8 +322,17 @@ recordprepare
 IsRecording
 end
 
+
+// Playback of drawing sequences. 
+
 #PlayDrawings
 playbackdrawings
+end
+
+#EndDrawings
+nonewdrawings
+pause15
+stop PlayDrawings
 end
 
 

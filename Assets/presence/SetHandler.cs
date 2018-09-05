@@ -27,7 +27,7 @@ namespace PresenceEngine
         ParticleCloud[] clouds;
         public GameObject MoodParticles;
         public LightControl MainStageLight, MoodLight01, MoodLight02;
-
+        public GameObject Circle;
         ushort[] depthMap;
         int width, height;
 
@@ -488,6 +488,23 @@ namespace PresenceEngine
 
                 // ----------------------------------------------------------------------------------------------------
                 //  Visualisation effects.
+
+                case "ShowCircle":
+
+                    Circle.SetActive(true);
+
+
+                    done = true;
+                    break;
+
+                case "HideCircle":
+
+                    Circle.SetActive(false);
+
+
+                    done = true;
+                    break;
+
 
 #if SERVER
                 case "DrawingOn":

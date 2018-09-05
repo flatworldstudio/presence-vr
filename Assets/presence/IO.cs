@@ -316,7 +316,7 @@ namespace PresenceEngine
          static FileformatBase FindBufferFileInScene(string fileName)
         {
 
-            Debug.Log("Trying to find buffer " + fileName);
+          //  Debug.Log("Trying to find buffer " + fileName);
 
             foreach (KeyValuePair<string, Presence> entry in SETTINGS.Presences)
             {
@@ -329,7 +329,7 @@ namespace PresenceEngine
 
                     if (bufferFile != null && bufferFile.Name == fileName)
                     {
-                        Debug.Log("found buffer file");
+                        Debug.Log("found buffer file in scene");
                         return bufferFile;
                     }
 
@@ -338,7 +338,7 @@ namespace PresenceEngine
             }
 
 
-            Debug.Log("Didn't find buffer file in scene.");
+       //     Debug.Log("Didn't find buffer file in scene.");
 
             return null;
         }
@@ -350,7 +350,7 @@ namespace PresenceEngine
             
             LocalFolder = "/" + Strip(LocalFolder);
 
-            Debug.Log("listing files for " + LocalFolder);
+       //     Debug.Log("listing files for " + LocalFolder);
 
             if (!Directory.Exists(localStorageFolder))
                 Directory.CreateDirectory(localStorageFolder);
@@ -381,8 +381,8 @@ namespace PresenceEngine
                     };
 
                     FileList.Add(pFile);
-                    Debug.Log("filename " + pFile.Name);
-                    Debug.Log("filesubpath " + pFile.Path);
+                    //Debug.Log("filename " + pFile.Name);
+                    //Debug.Log("filesubpath " + pFile.Path);
 
                 }
 

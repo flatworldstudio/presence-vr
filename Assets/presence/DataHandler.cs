@@ -11,6 +11,9 @@ using System;
 
 namespace PresenceEngine
 {
+    public delegate void TimeHandler(StoryTask task, string name, Presence presence, float time);
+
+
 
     public class DataHandler : MonoBehaviour
     {
@@ -39,8 +42,16 @@ namespace PresenceEngine
         int testSize = 10000;
         public DataController dataController;
         public GameObject headSet;
-        string dpn;
+
+        string PresenceName;
+        FileformatBase FileBuffer;
+
         string me = "Data handler: ";
+
+        public TimeHandler TimeHandler;
+
+
+      //  string dpn;
 
         void Awake()
         {
@@ -129,7 +140,7 @@ namespace PresenceEngine
 
 
                 // ----------------------------------------------------------------------------------------------------
-                // Presence data manipulations
+                // User data manipulations
 
                 case "createuser":
 
@@ -238,6 +249,7 @@ namespace PresenceEngine
 #endif
 
                 case "materialiseoff":
+                case "MaterialiseOff":
 
                     // Use visualiser's to and from task method to change setting.
 #if SERVER
@@ -269,6 +281,13 @@ namespace PresenceEngine
 #endif
                     break;
 
+
+
+                // ----------------------------------------------------------------------------------------------------
+                // Presence data manipulations
+
+
+
                 case "handlepresences":
 
                     // Take care of progressing, over the network, of all other instances (not the user).
@@ -286,75 +305,102 @@ namespace PresenceEngine
 
                     }
 
-                    // Now go over them and push all data.
+                    // Now go over them and push all data. Create a copy so we can manipulate the actual dictionary along the way.
 
-                    foreach (KeyValuePair<string, Presence> presence in SETTINGS.Presences)
+                    string[] keys = new string[SETTINGS.Presences.Keys.Count];
+                    SETTINGS.Presences.Keys.CopyTo(keys, 0);
+
+
+
+
+                    //    foreach (KeyValuePair<string, Presence> presence in SETTINGS.Presences)
+                    foreach (string key in keys)
                     {
+                        //  KeyValuePair<string, Presence> presence = new KeyValuePair<string, Presence>();
+                        Presence presence;
+                        SETTINGS.Presences.TryGetValue(key, out presence);
 
-                        presence.Value.PushAllSettingToTask(task, presence.Key);
+                        presence.PushAllSettingToTask(task, key);
 
-                        if (presence.Value.DepthTransport.Mode == DEPTHMODE.COPY)
+                        if (presence.DepthTransport.Mode == DEPTHMODE.COPY)
                         {
                             // Copy frame reference.
 
-                            presence.Value.DepthTransport.ActiveFrame = presence.Value.DepthTransport.TargetPresence.DepthTransport.ActiveFrame;
+                            presence.DepthTransport.ActiveFrame = presence.DepthTransport.TargetPresence.DepthTransport.ActiveFrame;
 
                         }
 
-                        if (presence.Value.DepthTransport.Mode == DEPTHMODE.PLAYBACK)
+
+                        if (presence.DepthTransport.Mode == DEPTHMODE.PLAYBACK)
                         {
                             // Play back while in playback mode and playback successful else fall through.
 
-                            int status = presence.Value.DepthTransport.LoadFrameFromBuffer(presence.Value.DepthTransport.CurrentTime);
+                            int status = presence.DepthTransport.LoadFrameFromBuffer(presence.DepthTransport.CurrentTime);
 
-                            switch (status)
-                            {
-                                case -1:
-                                case 0:
+                            // Try to retrieve a playback speed.
 
-                                    // we're before the start or in the buffer
+                            float speed;
+                            if (task.GetFloatValue(key + "_speed", out speed))
+                                //    {
+                                //        Debug.Log("speed " + speed);
+                                //    }
 
-                                    if (!SETTINGS.ManualPlayback)
-                                    {
-                                        presence.Value.DepthTransport.CurrentTime += Time.deltaTime;
-                                    }
+                                switch (status)
+                                {
+                                    case -1:
+                                    case 0:
 
-                                    //Debug.Log("playing");
-                                    break;
+                                        // we're before the start or in the buffer
 
+                                        if (!SETTINGS.ManualPlayback)
+                                        {
+                                            presence.DepthTransport.CurrentTime += speed * Time.deltaTime;
+                                        }
 
-                                case 1:
-                                    // wé're at the end
-                                    presence.Value.DepthTransport.CurrentTime = presence.Value.DepthTransport.TransCoder.GetBufferFile().StartTime;
-                                    //Debug.Log("loop");
-                                    break;
-
-                                default:
-                                    // Error.
-                                    Debug.LogError("Buffer playback error.");
-                                    break;
+                                        //Debug.Log("playing");
+                                        break;
 
 
-                            }
+                                    case 1:
+                                        // wé're at the end
+                                        //presence.Value.DepthTransport.CurrentTime = presence.Value.DepthTransport.TransCoder.GetBufferFile().StartTime;
+                                        if (!SETTINGS.ManualPlayback)
+                                        {
+                                            presence.DepthTransport.CurrentTime += speed * Time.deltaTime;
+                                        }
+                                        //   Debug.Log("loop");
+
+                                        break;
+
+                                    default:
+                                        // Error.
+                                        Debug.LogError("Buffer playback error.");
+                                        break;
+
+
+                                }
+
+                            // Call a delegate to handle any specific timings like looping.
+
+                            if (TimeHandler != null)
+                                TimeHandler(task, key, presence, presence.DepthTransport.CurrentTime);
+
 
                             // Push time.
 
-                            task.SetFloatValue(presence.Key + "_time", presence.Value.DepthTransport.CurrentTime);
+                            task.SetFloatValue(key + "_time", presence.DepthTransport.CurrentTime);
 
-                            if (status == 0 && !presence.Value.SoundPlayed)
+                            if (status == 0 && !presence.SoundPlayed)
                             {
-                                presence.Value.SoundPlayed = true;
+                                presence.SoundPlayed = true;
                                 presenceSound.Play();
                             }
 
                             // Debug.
 
-                            if (presence.Key == "playbackpresence")
-                            {
+                            task.SetStringValue("debug", "Presences: " + SETTINGS.Presences.Count);
 
-                                task.SetStringValue("debug", "" + presence.Value.DepthTransport.CurrentTime);
 
-                            }
 
                         }
 
@@ -479,6 +525,26 @@ namespace PresenceEngine
 
                     done = true;
                     break;
+
+                case "endcirclescene":
+
+                    TimeHandler = null;
+
+                    foreach (KeyValuePair<string, Presence> presence in SETTINGS.Presences)
+                    {
+                        if (presence.Key != "user")
+                        {
+
+                            Destroy(presence.Value.gameObject);
+
+                        }
+                    }
+
+                    SETTINGS.Presences.Clear();
+                    SETTINGS.Presences.Add("user", SETTINGS.user);
+
+                    done = true;
+                    break;
 #endif
 
 
@@ -516,9 +582,23 @@ namespace PresenceEngine
                     break;
 
 
+                case "pause15":
+
+                    if (!task.GetFloatValue("timeout", out TimeOut))
+                    {
+                        TimeOut = Time.time + 15;
+                        task.SetFloatValue("timeout", TimeOut);
+
+                    }
+
+                    if (Time.time > TimeOut)
+                        done = true;
+
+                    break;
+
 
                 // ----------------------------------------------------------------------------------------------------
-                // User manipulations
+                // Deus user manipulations
 #if SERVER
                 case "grabframe":
 
@@ -672,9 +752,9 @@ namespace PresenceEngine
 
                     Debug.Log("Starting mirror of " + IO.CheckedOutFile);
 
-                    FileformatBase pbcBuf = IO.LoadFile(IO.CheckedOutFile);
+                     FileBuffer = IO.LoadFile(IO.CheckedOutFile);
 
-                    if (pbcBuf != null)
+                    if (FileBuffer != null)
                     {
 
                         string mirrorPresence = "mirrorpresence";
@@ -686,8 +766,8 @@ namespace PresenceEngine
                         }
 
                         fileplayback.SetVisualiser(SETTINGS.DefaultVisualiser);
-                        fileplayback.SetTranscoder(pbcBuf.TransCoderName);
-                        fileplayback.DepthTransport.TransCoder.SetBufferFile(pbcBuf);
+                        fileplayback.SetTranscoder(FileBuffer.TransCoderName);
+                        fileplayback.DepthTransport.TransCoder.SetBufferFile(FileBuffer);
                         fileplayback.DepthTransport.CurrentTime = 0;
                         fileplayback.SetVisualiseTransform(new Vector3(0, 0, 1), new Vector3(1, 1, -1), Quaternion.identity);
                         task.SetFloatValue(mirrorPresence + "_cloudvisible", 1);
@@ -703,7 +783,7 @@ namespace PresenceEngine
                             fileplayback.DepthTransport.Target = "playbackpresence";
                         }
 
-                        Debug.Log("started buffer " + pbcBuf.Name);
+                        Debug.Log("started buffer " + FileBuffer.Name);
 
                     }
 
@@ -714,11 +794,47 @@ namespace PresenceEngine
                     break;
 
 
+                case "MirrorOn":
+
+                    // Creates a mirrored duplicate of the User Presence.
+
+                    Debug.Log("Starting mirror");
+
+                    string mp = "mirrorpresence";
+                    Presence target = SETTINGS.user;
+
+                    if (!SETTINGS.Presences.TryGetValue(mp, out fileplayback))
+                        fileplayback = Presence.Create(presences, mp);
+
+                    fileplayback.SetTranscoder(target.GetTranscoder());
+                    fileplayback.DepthTransport.Mode = DEPTHMODE.COPY;
+                    fileplayback.DepthTransport.Target = "user";
+
+                    fileplayback.SetVisualiser(SETTINGS.DefaultVisualiser);
+
+                    // We'll place it relative to the current user position.
+
+                    Vector3 place = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
+                    place.y = 0;
+                    place.x = 0;
+                    place.z = place.z * 2;// When we project, we get the distance from the kinect as well. May want to somehow incorporate this.
+                    place += new Vector3(0, 0, -1);
+                    fileplayback.SetVisualiseTransform(place, new Vector3(1, 1, -1), Quaternion.identity);
+
+                    // Show visualiser.
+
+                    task.SetIntValue(mp + "_0_cloudvisible", 1);
+                    fileplayback.PullVisualiserSettingsFromTask(task, mp);
+
+                    done = true;
+                    break;
+
                 case "playecho":
 
+                    // LEGACY
+
                     // Play back the previous n files if available.
-
-
+                    
                     int checkedOut = IO.CheckedOutFileIndex();
 
                     for (int c = 1; c < 3; c++)
@@ -729,14 +845,14 @@ namespace PresenceEngine
 
                         Debug.Log("starting name " + c + " " + name);
 
-                        pbcBuf = IO.LoadFile(IO.GetFilePath(checkedOut + c));
+                        FileBuffer = IO.LoadFile(IO.GetFilePath(checkedOut + c));
 
-                        if (pbcBuf != null)
+                        if (FileBuffer != null)
                         {
 
 
 
-                            if (pbcBuf.EndTime > pbcBuf.StartTime)
+                            if (FileBuffer.EndTime > FileBuffer.StartTime)
                             {
                                 // Not a placeholder file so proceed.
 
@@ -751,9 +867,9 @@ namespace PresenceEngine
                                 }
 
                                 fileplayback.SetVisualiser(SETTINGS.DefaultVisualiser);
-                                fileplayback.SetTranscoder(pbcBuf.TransCoderName);
+                                fileplayback.SetTranscoder(FileBuffer.TransCoderName);
 
-                                fileplayback.DepthTransport.TransCoder.SetBufferFile(pbcBuf);
+                                fileplayback.DepthTransport.TransCoder.SetBufferFile(FileBuffer);
 
                                 fileplayback.DepthTransport.CurrentTime = fileplayback.DepthTransport.TransCoder.GetBufferFile().StartTime - UnityEngine.Random.Range(0.5f, 3f);
 
@@ -764,7 +880,7 @@ namespace PresenceEngine
                                 task.SetFloatValue("playbackpresence" + c + "_cloudvisible", 1);
                                 fileplayback.PullVisualiserSettingsFromTask(task, "playbackpresence" + c);
 
-                                Debug.Log("started buffer " + c + " " + pbcBuf.Name);
+                                Debug.Log("started buffer " + c + " " + FileBuffer.Name);
                             }
 
 
@@ -786,6 +902,425 @@ namespace PresenceEngine
 
                     break;
 
+
+
+
+                case "AddCircleClone":
+
+                    // Plays back additional copies of the user presence.
+
+                    FileBuffer = IO.LoadFile(IO.CheckedOutFile);
+
+                    if (FileBuffer != null)
+                    {
+                        // We have a buffer file to play from.
+
+                        // Set buffer ref and a delegate to loop these clones. Remember to remove it afterwards.
+
+                        //   buffer = pbcBuf;
+                        TimeHandler = CircleLoop;
+
+                        // Find out what number of clones we're at.
+
+                        int clone = 0;
+                        Presence clonepresence;
+                        while (SETTINGS.Presences.TryGetValue("circlepresence" + clone, out clonepresence))
+                        {
+                            clone++;
+                        }
+
+                        PresenceName = "circlepresence" + clone;
+
+                        if (!SETTINGS.Presences.TryGetValue(PresenceName, out fileplayback))
+                            fileplayback = Presence.Create(presences, PresenceName);
+
+                        fileplayback.SetTranscoder(FileBuffer.TransCoderName);
+                        fileplayback.DepthTransport.TransCoder.SetBufferFile(FileBuffer);
+                        fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
+
+                        float time = FileBuffer.GetTimeStamp("TimeStamp_BeginCircle");
+
+                        fileplayback.DepthTransport.CurrentTime = time;
+                        Debug.Log("setting current time to " + time);
+
+                        fileplayback.SetVisualiser(SETTINGS.DefaultVisualiser);
+
+                        fileplayback.SetVisualiseTransform(Vector3.zero, Vector3.one, Quaternion.identity);
+
+                        // Show visualiser.
+
+                        task.SetIntValue(PresenceName + "_0_cloudvisible", 1);
+                        fileplayback.PullVisualiserSettingsFromTask(task, PresenceName);
+
+                        StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
+                        handler.SetFloatValue(PresenceName + "_speed", 1f);
+
+                        Debug.Log("started circle presence for " + FileBuffer.Name);
+
+                    }
+
+                    done = true;
+
+                    break;
+
+
+                case "SpawnPresences":
+
+                    // Generate bits of playback from previous sessions.
+                    
+                    if (SETTINGS.Presences.Count > 3)
+                        break;
+
+
+                    if (UnityEngine.Random.value > 1f / 60f)
+                        break;
+
+                    int Index;
+
+                    if (!task.GetIntValue("index", out Index))
+                    {
+                        Index = 1;
+                        task.SetIntValue("index", Index);
+                        TimeHandler = PresenceClone;
+                    }
+
+                    int Current = IO.CheckedOutFileIndex();
+                    string FileName = IO.GetFilePath(Current + Index);
+                    FileBuffer = IO.LoadFile(FileName);
+
+                    Debug.Log("attempting clone presence for " + FileName);
+
+                    if (FileBuffer != null)
+                    {
+                        // We have a buffer file to play from.
+                        FileBuffer.DumpTimeStamps();
+
+                        float begin = FileBuffer.GetTimeStamp("StartTime");
+                        float end = FileBuffer.GetTimeStamp("EndTime");
+                        float length = end - begin;
+
+                        if (begin != -1 && end != -1 && length > 15)
+                        {
+                            // It has a length we can work with.
+
+                            float inpoint = UnityEngine.Random.Range(0, end - 20.5f);
+                            float duration = UnityEngine.Random.Range(10, 20);
+                            float OutPoint = inpoint + duration;
+
+                            // Find out what number of clones we're at.
+
+                            int clone = 0;
+                            Presence clonepresence;
+                            while (SETTINGS.Presences.TryGetValue("presenceclone" + clone, out clonepresence))
+                            {
+                                clone++;
+                            }
+
+                            PresenceName = "presenceclone" + clone;
+
+                            if (!SETTINGS.Presences.TryGetValue(PresenceName, out fileplayback))
+                                fileplayback = Presence.Create(presences, PresenceName);
+
+                            fileplayback.SetTranscoder(FileBuffer.TransCoderName);
+                            fileplayback.DepthTransport.TransCoder.SetBufferFile(FileBuffer);
+                            fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
+                            fileplayback.DepthTransport.CurrentTime = inpoint;
+                            fileplayback.SetVisualiser(SETTINGS.DefaultVisualiser);
+
+                            // random location. taking into account the fact that we are positioning the projector, not the presence.
+
+                            Vector2 center2d = new Vector2(0, SETTINGS.kinectCentreDistance);
+                            float a = UnityEngine.Random.Range(0, Mathf.PI * 2);
+                            Vector2 v = new Vector2(Mathf.Sin(a), Mathf.Cos(a));
+                            float offset = -SETTINGS.kinectCentreDistance + UnityEngine.Random.Range(-2f, 2f);// first compensate the projection distance to center. then add random. so projecting towards the center from different angles, with some offset.
+                            Vector2 placement = center2d + v * offset;
+                            Quaternion rotation = Quaternion.Euler(0, a * Mathf.Rad2Deg, 0);
+
+                            // all presences should now 'face' the user.
+                       
+                            fileplayback.SetVisualiseTransform(new Vector3(placement.x, 0, placement.y), Vector3.one, rotation);
+
+                            // Show visualiser.
+
+                            task.SetIntValue(PresenceName + "_0_cloudvisible", 1);
+                            fileplayback.PullVisualiserSettingsFromTask(task, PresenceName);
+
+                            StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
+                            handler.SetFloatValue(PresenceName + "_speed", 1f);
+                            handler.SetFloatValue(PresenceName + "_outpoint", OutPoint);
+
+                            Debug.Log("started clone presence for " + FileBuffer.Name);
+                        }
+                    }
+
+                    Index++;
+                    task.SetIntValue("index", Index);
+                    
+                    //  done = true;
+
+                    break;
+
+                case "ShatterUser":
+
+                    // Generate bits of playback from current session
+                    
+                    if (SETTINGS.Presences.Count > 4)
+                        break;
+
+
+                    if (UnityEngine.Random.value > 1f / 60f)
+                        break;
+
+                    FileBuffer = IO.LoadFile(IO.CheckedOutFile);
+                    TimeHandler = ShatterHandler;
+
+
+                    if (FileBuffer != null)
+                    {
+                        // We have a buffer file to play from.
+
+                        FileBuffer.DumpTimeStamps();
+
+                        float begin = FileBuffer.GetTimeStamp("StartTime");
+                        float end = SETTINGS.user.DepthTransport.CurrentTime;
+                        float length = end - begin;
+
+                        if (begin != -1 && length > 15)
+                        {
+                            // It has a length we can work with.
+
+                            // Set random speed, and random in and out (taking speed sign into account)
+
+                            float speed = UnityEngine.Random.Range(1f, 3f);
+                            speed = UnityEngine.Random.value > 0.5f ? speed : -speed;
+                            float inpoint, duration, OutPoint;
+
+                            if (speed > 0)
+                            {
+
+                                inpoint = UnityEngine.Random.Range(0, end - 10.5f);
+                                duration = UnityEngine.Random.Range(5, 10);
+                                OutPoint = inpoint + duration;
+                            }
+                            else
+                            {
+                                inpoint = UnityEngine.Random.Range(10.5f, end);
+                                duration = UnityEngine.Random.Range(5, 10);
+                                OutPoint = inpoint - duration;
+
+                            }
+                            
+                            // Find out what number of clones we're at.
+
+                            int clone = 0;
+                            Presence clonepresence;
+                            while (SETTINGS.Presences.TryGetValue("shatterclone" + clone, out clonepresence))
+                            {
+                                clone++;
+                            }
+
+                            PresenceName = "shatterclone" + clone;
+
+                            if (!SETTINGS.Presences.TryGetValue(PresenceName, out fileplayback))
+                                fileplayback = Presence.Create(presences, PresenceName);
+
+                            fileplayback.SetTranscoder(FileBuffer.TransCoderName);
+                            fileplayback.DepthTransport.TransCoder.SetBufferFile(FileBuffer);
+                            fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
+
+                            fileplayback.DepthTransport.CurrentTime = inpoint;
+
+                            fileplayback.SetVisualiser(SETTINGS.DefaultVisualiser);
+
+                            // random location. taking into account the fact that we are positioning the projector, not the presence.
+
+                            Vector2 center2d = new Vector2(0, SETTINGS.kinectCentreDistance);
+
+                            float a = UnityEngine.Random.Range(0, Mathf.PI * 2);
+                            Vector2 v = new Vector2(Mathf.Sin(a), Mathf.Cos(a));
+                            float offset = -SETTINGS.kinectCentreDistance + UnityEngine.Random.Range(-2f, 2f);// first compensate the projection distance to center. then add random. so projecting towards the center from different angles, with some offset.
+
+                            Vector2 placement = center2d + v * offset;
+                            Quaternion rotation = Quaternion.Euler(0, a * Mathf.Rad2Deg, 0);
+
+                            fileplayback.SetVisualiseTransform(new Vector3(placement.x, 0, placement.y), Vector3.one, rotation);
+
+                            // Show visualiser.
+
+                            task.SetIntValue(PresenceName + "_0_cloudvisible", 1);
+                            fileplayback.PullVisualiserSettingsFromTask(task, PresenceName);
+
+                            StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
+                            handler.SetFloatValue(PresenceName + "_speed", speed);
+                            handler.SetFloatValue(PresenceName + "_outpoint", OutPoint);
+
+                            Debug.Log("started shatter presence for " + FileBuffer.Name);
+                        }
+                    }
+
+                    //  done = true;
+
+                    break;
+
+                //case "RemoveCircleClones":
+
+
+                //    foreach (KeyValuePair<string,Presence> presence in SETTINGS.Presences)
+                //    {
+                //        if (presence.Key.IndexOf("circlepresence") != -1)
+                //        {
+                //            SETTINGS.Presences.Remove(presence.Key);
+                //            Destroy(presence.Value.gameObject);
+
+                //        }
+
+
+
+                //    }
+
+
+                //    if (name.IndexOf("circlepresence") == -1)
+
+                //        done = true;
+                //    break;
+
+
+                case "DelayOn":
+
+                    // Plays back additional copies of the user presence.
+
+                    FileBuffer = IO.LoadFile(IO.CheckedOutFile);
+
+                    if (FileBuffer != null)
+                    {
+
+                        // We have a buffer file to play from.
+
+                        PresenceName = "delaypresence";
+
+                        if (!SETTINGS.Presences.TryGetValue(PresenceName, out fileplayback))
+                        {
+
+                            fileplayback = Presence.Create(presences, PresenceName);
+                            //   SETTINGS.Presences.Add("playbackpresence" + c, fileplayback);
+
+                        }
+
+
+
+                        fileplayback.SetTranscoder(FileBuffer.TransCoderName);
+                        fileplayback.DepthTransport.TransCoder.SetBufferFile(FileBuffer);
+                        fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
+
+                        fileplayback.DepthTransport.CurrentTime = SETTINGS.user.DepthTransport.CurrentTime; // we may be retrieve before stored.
+                        Debug.Log("setting current time to " + SETTINGS.user.DepthTransport.CurrentTime);
+
+
+                        fileplayback.SetVisualiser(SETTINGS.DefaultVisualiser);
+
+                        // We'll place it relative to the current user position.
+
+                        place = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
+                        place.y = 0;
+                        place.x = 0;
+                        place.z = place.z * 2;// When we project, we get the distance from the kinect as well. May want to somehow incorporate this.
+                        place += new Vector3(0, 0, -1);
+                        fileplayback.SetVisualiseTransform(place, new Vector3(1, 1, -1), Quaternion.identity);
+
+                        // Show visualiser.
+
+                        task.SetIntValue(PresenceName + "_0_cloudvisible", 1);
+                        fileplayback.PullVisualiserSettingsFromTask(task, PresenceName);
+
+
+                        StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
+                        handler.SetFloatValue(PresenceName + "_speed", 1f);
+
+
+                        Debug.Log("started delay " + FileBuffer.Name);
+
+
+                        //}
+
+
+
+                    }
+
+
+
+
+
+
+
+
+                    done = true;
+
+                    break;
+
+
+
+                case "DelaySlow":
+
+                     PresenceName = "delaypresence";
+
+                    Presence delayp;
+
+                    if (SETTINGS.Presences.TryGetValue(PresenceName, out delayp))
+                    {
+
+                        StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
+                        handler.SetFloatValue(PresenceName + "_speed", 0.5f);
+
+
+                    }
+
+
+                    done = true;
+
+
+                    break;
+
+                case "DelayStop":
+
+                    PresenceName = "delaypresence";
+
+
+                    if (SETTINGS.Presences.TryGetValue(PresenceName, out delayp))
+                    {
+
+                        StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
+                        handler.SetFloatValue(PresenceName + "_speed", 0f);
+
+
+                    }
+
+
+                    done = true;
+
+
+                    break;
+
+                case "DelayReverse":
+
+                    PresenceName = "delaypresence";
+
+                    if (SETTINGS.Presences.TryGetValue(PresenceName, out delayp))
+                    {
+
+                        StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
+                        handler.SetFloatValue(PresenceName + "_speed", -2f);
+
+
+                    }
+
+
+                    done = true;
+
+
+                    break;
+
+
+
                 case "playdelay":
 
                     // Plays back additional copies of the user or playback presence.
@@ -800,26 +1335,26 @@ namespace PresenceEngine
 
                         //Debug.Log("Generating name " + c);
 
-                        pbcBuf = IO.LoadFile(IO.CheckedOutFile);
+                        FileBuffer = IO.LoadFile(IO.CheckedOutFile);
 
-                        if (pbcBuf != null)
+                        if (FileBuffer != null)
                         {
 
                             //if (pbcBuf.EndTime > pbcBuf.StartTime)
                             //{
                             // Not a placeholder file so proceed.
-                             dpn = "playbackpresence" + c;
-                            if (!SETTINGS.Presences.TryGetValue(dpn, out fileplayback))
+                            PresenceName = "playbackpresence" + c;
+                            if (!SETTINGS.Presences.TryGetValue(PresenceName, out fileplayback))
                             {
 
-                                fileplayback = Presence.Create(presences, dpn);
+                                fileplayback = Presence.Create(presences, PresenceName);
                                 //   SETTINGS.Presences.Add("playbackpresence" + c, fileplayback);
 
                             }
 
                             fileplayback.SetVisualiser(SETTINGS.DefaultVisualiser);
-                            fileplayback.SetTranscoder(pbcBuf.TransCoderName);
-                            fileplayback.DepthTransport.TransCoder.SetBufferFile(pbcBuf);
+                            fileplayback.SetTranscoder(FileBuffer.TransCoderName);
+                            fileplayback.DepthTransport.TransCoder.SetBufferFile(FileBuffer);
 
                             fileplayback.DepthTransport.CurrentTime = -0.5f * c;
 
@@ -830,7 +1365,7 @@ namespace PresenceEngine
                             task.SetFloatValue("playbackpresence" + c + "_cloudvisible", 1);
                             fileplayback.PullVisualiserSettingsFromTask(task, "playbackpresence" + c);
 
-                            Debug.Log("started buffer " + c + " " + pbcBuf.Name);
+                            Debug.Log("started buffer " + c + " " + FileBuffer.Name);
 
 
                             //}
@@ -850,109 +1385,236 @@ namespace PresenceEngine
 
                     break;
 
+                case "nonewdrawings":
+
+                    // We're changing the task settings from here.
+                    Debug.Log("nonewdrawings  ");
+
+                    StoryTask drawtask = AssitantDirector.FindTaskByByLabel("PlayDrawings");// find task by label, should return the playbackdrawings task
+
+                    if (drawtask != null && drawtask.description == "playbackdrawings")
+                    {
+                        drawtask.SetIntValue("index", 1000); // no new instances, because file index will be out of range.
+
+                        for (int dp = 0; dp < 3; dp++)
+                        {
+                            PresenceName = "drawingpresence" + dp;
+                            int state = 0;
+
+                            if (drawtask.GetIntValue(PresenceName + "_state", out state) && state == 2)
+                            {
+                                if (SETTINGS.Presences.TryGetValue(PresenceName, out fileplayback))
+                                {
+
+                                    // stop drawing.
+
+                                    drawtask.SetIntValue(PresenceName + "_0_isdrawing", 0);
+                                    fileplayback.PullVisualiserSettingsFromTask(drawtask, PresenceName);
+                                    drawtask.SetFloatValue(PresenceName + "_timeout", Time.time);
+                                    drawtask.SetIntValue(PresenceName + "_state", 3);
+                                    Debug.Log("Stopping drawing " + PresenceName);
+
+                                }
+                            }
+
+                        }
+                    }
+                    else
+                    {
+                        Debug.Log("task not found correctly");
+                    }
+
+                    done = true;
+
+                    break;
+
                 case "playbackdrawings":
 
                     // Plays back the drawing section of a session, using the drawing visualiser.
 
-                    // pbcBuf = IO.LoadFile(IO.CheckedOutFile);
                     float BeginDraw, EndDraw;
+                    //  Index;
 
-                     dpn = "drawingpresence";
+                    if (!task.GetIntValue("index", out Index))
+                    {
+                        Index = 1;
+                        task.SetIntValue("index", Index);
+                    }
 
-                    if (!SETTINGS.Presences.TryGetValue(dpn, out fileplayback))
+                    Vector3[] Positions = new Vector3[]
+                       {
+                            new Vector3(0, 0,-1f),
+                            new Vector3(1f, 0,-0.25f),
+                            new Vector3(-2f, 0,0f)
+                       };
+
+                    // this can be simplified using the timing delegate to clean up on completion. so we can just generate presences and let them roam ?
+
+                    for (int dp = 0; dp < 3; dp++)
                     {
 
-                        // Add presence once.
-
-                        int Current = IO.CheckedOutFileIndex();
-
-                        string FileName = IO.GetFilePath(Current + 1);
-
-                        pbcBuf = IO.LoadFile(FileName);
-
-                        Debug.Log("starting drawing " + FileName);
-                        
+                        PresenceName = "drawingpresence" + dp;
 
 
-                        if (pbcBuf != null)
+
+                        int state;
+
+                        if (!task.GetIntValue(PresenceName + "_state", out state))
+                            task.SetIntValue(PresenceName + "_state", state); // 0
+
+
+                        switch (state)
                         {
-                            pbcBuf.DumpTimeStamps();
+                            case 0:
 
-                             BeginDraw = pbcBuf.GetTimeStamp("TimeStamp_BeginDraw");
+                                // Empty.
 
-                            if (BeginDraw != -1)
-                            {
+                                if (UnityEngine.Random.value < (1f / 60f))
+                                {
+                                    state = 1;
 
+                                }
 
+                                break;
 
-                                //if (!SETTINGS.Presences.TryGetValue(dpn, out fileplayback))
-                                //{
+                            case 1:
+                                // New.
 
-                                    fileplayback = Presence.Create(presences, dpn);
+                                if (SETTINGS.Presences.TryGetValue(PresenceName, out fileplayback))
+                                {
+                                    Debug.LogWarning("Presence already exits: " + PresenceName);
+                                    state = -1;
+                                    break;
+                                }
 
-                              //  }
+                                // Create presence.
+
+                                Current = IO.CheckedOutFileIndex();
+                                FileName = IO.GetFilePath(Current + Index);
+                                FileBuffer = IO.LoadFile(FileName);
+
+                                if (FileBuffer == null)
+                                {
+                                    // No file, just revert to empty.
+                                    state = 0;
+                                    break;
+                                }
+
+                                Debug.Log("Starting drawing presence " + FileName);
+
+                                FileBuffer.DumpTimeStamps();
+
+                                BeginDraw = FileBuffer.GetTimeStamp("TimeStamp_BeginDraw");
+
+                                if (BeginDraw == -1)
+                                {
+                                    Debug.LogWarning("No drawing timestamp for: " + FileBuffer.Name);
+                                    state = -1;
+                                    Index++;
+                                    break;
+
+                                }
+                                // Proceed if there is a value for begindraw
+
+                                fileplayback = Presence.Create(presences, PresenceName);
 
                                 fileplayback.SetVisualiser("ShowSkeleton");
-                                fileplayback.SetTranscoder(pbcBuf.TransCoderName);
-                                fileplayback.DepthTransport.TransCoder.SetBufferFile(pbcBuf);
+                                fileplayback.SetTranscoder(FileBuffer.TransCoderName);
+                                fileplayback.DepthTransport.TransCoder.SetBufferFile(FileBuffer);
 
                                 fileplayback.DepthTransport.CurrentTime = BeginDraw;
-
 
                                 // Create relative placement
 
                                 Vector3 UserPosition = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
-
-                            
-
                                 UserPosition.y = 0;
 
+                                float randomy = UnityEngine.Random.Range(-180f, 180f);
 
-                                fileplayback.SetVisualiseTransform(UserPosition+new Vector3(0, 0, -1), Vector3.one, Quaternion.Euler(0,180f,0));
+                                fileplayback.SetVisualiseTransform(UserPosition + Positions[dp], Vector3.one, Quaternion.Euler(0, randomy, 0));
                                 fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
 
-                                task.SetIntValue(dpn + "_0_cloudvisible", 1);
-                                task.SetIntValue(dpn + "_0_isdrawing", 1);
-                                fileplayback.PullVisualiserSettingsFromTask(task, dpn);
+                                task.SetIntValue(PresenceName + "_0_cloudvisible", 1);
+                                task.SetIntValue(PresenceName + "_0_isdrawing", 1);
+                                fileplayback.PullVisualiserSettingsFromTask(task, PresenceName);
 
-                                Debug.Log("started drawing " + pbcBuf.Name);
+                                StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
+                                handler.SetFloatValue(PresenceName + "_speed", 1f);
 
-                            }
+                                Debug.Log("started drawing " + FileBuffer.Name);
+
+                                Index++;
+
+                                state = 2;
+
+
+                                break;
+
+                            case 2:
+
+                                // Active
+                                // Check if presence is at end of drawing
+
+                                if (!SETTINGS.Presences.TryGetValue(PresenceName, out fileplayback))
+                                {
+                                    // Error, abort.
+                                    state = -1;
+                                    break;
+                                }
+
+                                BeginDraw = fileplayback.DepthTransport.TransCoder.GetBufferFile().GetTimeStamp("TimeStamp_BeginDraw");
+                                EndDraw = fileplayback.DepthTransport.TransCoder.GetBufferFile().GetTimeStamp("TimeStamp_EndDraw");
+
+                                if (fileplayback.DepthTransport.CurrentTime > EndDraw || fileplayback.DepthTransport.CurrentTime < BeginDraw)
+                                {
+                                    // Head outside of drawing timespan.
+                                    task.SetIntValue(PresenceName + "_0_cloudvisible", 1);
+                                    task.SetIntValue(PresenceName + "_0_isdrawing", 0);
+                                    fileplayback.PullVisualiserSettingsFromTask(task, PresenceName);
+                                    Debug.Log("Stopping drawing " + PresenceName);
+                                    task.SetFloatValue(PresenceName + "_timeout", Time.time);
+
+                                    Debug.Log("Stopping drawing " + fileplayback.DepthTransport.TransCoder.GetBufferFile().Name);
+
+                                    state = 3;
+                                }
+
+                                break;
+
+                            case 3:
+                                // We've stopped drawing. Wait for animation to play out before cleaning up.
+
+                                float to;
+                                task.GetFloatValue(PresenceName + "_timeout", out to);
+
+                                if (Time.time > to + 10f)
+                                {
+                                    state = -1;
+                                }
+
+                                break;
+
+
+
+                            case -1:
+                            default:
+
+                                // Something wrong or done, try to remove presence.
+                                if (SETTINGS.Presences.TryGetValue(PresenceName, out fileplayback))
+                                {
+                                    Destroy(fileplayback.gameObject);
+                                    SETTINGS.Presences.Remove(PresenceName);
+                                    Debug.Log("Removed presence " + PresenceName);
+                                }
+                                state = 0;
+                                break;
 
 
                         }
 
-
-
-
-                    } else
-                    {
-
-                        // Check if presence is at end of drawing
-
-
-
-                        BeginDraw = fileplayback.DepthTransport.TransCoder.GetBufferFile().GetTimeStamp("TimeStamp_BeginDraw");
-                        EndDraw = fileplayback.DepthTransport.TransCoder.GetBufferFile().GetTimeStamp("TimeStamp_EndDraw");
-
-                        if (fileplayback.DepthTransport.CurrentTime > EndDraw || fileplayback.DepthTransport.CurrentTime < BeginDraw)
-                        {
-                            // Head outside of drawing timespan.
-                            task.SetIntValue(dpn + "_0_cloudvisible", 1);
-                            task.SetIntValue(dpn + "_0_isdrawing", 0);
-                            fileplayback.PullVisualiserSettingsFromTask(task, dpn);
-                            Debug.Log("Stopping drawing " + dpn);
-                        }
-
-
-
+                        task.SetIntValue(PresenceName + "_state", state);
+                        task.SetIntValue("index", Index);
                     }
-
-                    
-                    
-
-
-                //    done = true;
 
                     break;
 
@@ -1048,13 +1710,13 @@ namespace PresenceEngine
                     done = true;
                     break;
 
-                case "TimeStamp_Begin":
+                //case "TimeStamp_Begin":
 
-                    CurrentTime = SETTINGS.user.DepthTransport.CurrentTime;
-                    SETTINGS.user.DepthTransport.TransCoder.GetBufferFile().SetTimeStamp("TimeStamp_Begin", CurrentTime);
+                //    CurrentTime = SETTINGS.user.DepthTransport.CurrentTime;
+                //    SETTINGS.user.DepthTransport.TransCoder.GetBufferFile().SetTimeStamp("TimeStamp_Begin", CurrentTime);
 
-                    done = true;
-                    break;
+                //    done = true;
+                //    break;
 
                 case "TimeStamp_BeginDraw":
 
@@ -1072,7 +1734,21 @@ namespace PresenceEngine
                     done = true;
                     break;
 
+                case "TimeStamp_BeginCircle":
 
+                    CurrentTime = SETTINGS.user.DepthTransport.CurrentTime;
+                    SETTINGS.user.DepthTransport.TransCoder.GetBufferFile().SetTimeStamp("TimeStamp_BeginCircle", CurrentTime);
+
+                    done = true;
+                    break;
+
+                case "TimeStamp_EndCircle":
+
+                    CurrentTime = SETTINGS.user.DepthTransport.CurrentTime;
+                    SETTINGS.user.DepthTransport.TransCoder.GetBufferFile().SetTimeStamp("TimeStamp_EndCircle", CurrentTime);
+
+                    done = true;
+                    break;
 
 
 
@@ -1423,6 +2099,96 @@ namespace PresenceEngine
 
         }
 
+        //   FileformatBase buffer;
+
+        void CircleLoop(StoryTask task, string name, Presence presence, float time)
+        {
+            // See if any of the clones has reached the end of the circle.
+            // buffer to be set manually for this delegate to work.
+
+            if (name.IndexOf("circlepresence") == -1)
+                return;
+
+            FileformatBase buffer = presence.DepthTransport.TransCoder.GetBufferFile();
+
+            if (buffer != null)
+            {
+                float EndTime = buffer.GetTimeStamp("TimeStamp_EndCircle");//-1 while not yet set.
+
+                if (EndTime != -1 && time >= EndTime)
+                {
+                    float Begin = buffer.GetTimeStamp("TimeStamp_BeginCircle");
+                    presence.DepthTransport.CurrentTime = Begin;
+                    Debug.Log("LOOPING CIRCLE CLONE " + name);
+                }
+
+
+            }
+
+
+        }
+
+        void PresenceClone(StoryTask task, string name, Presence presence, float time)
+        {
+            // See if any of the clones has reached their out point.
+
+            if (name.IndexOf("presenceclone") == -1)
+                return;
+
+            FileformatBase buffer = presence.DepthTransport.TransCoder.GetBufferFile();
+
+            if (buffer != null)
+            {
+                float EndTime = -1;
+                task.GetFloatValue(name + "_outpoint", out EndTime);
+
+                if (EndTime != -1 && time >= EndTime)
+                {
+
+                    Debug.Log("Killing clone" + name);
+                    Destroy(presence.gameObject);
+                    SETTINGS.Presences.Remove(name);
+
+                }
+
+
+            }
+
+
+        }
+
+        void ShatterHandler(StoryTask task, string name, Presence presence, float time)
+        {
+            // See if any of the clones has reached their out point.
+
+            if (name.IndexOf("shatterclone") == -1)
+                return;
+
+            FileformatBase buffer = presence.DepthTransport.TransCoder.GetBufferFile();
+
+            if (buffer != null)
+            {
+
+                float speed;
+                task.GetFloatValue(name + "_speed",out speed);
+                float EndTime;
+                task.GetFloatValue(name + "_outpoint", out EndTime);
+                
+
+                if (speed > 0 ? time >= EndTime : time <= EndTime)
+                {
+                    Debug.Log("Killing clone" + name);
+                    Destroy(presence.gameObject);
+                    SETTINGS.Presences.Remove(name);
+
+                }
+                           
+
+
+            }
+
+
+        }
 
         void SetNetworkIndicators()
         {
