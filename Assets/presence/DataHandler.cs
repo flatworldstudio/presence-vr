@@ -269,16 +269,19 @@ namespace PresenceEngine
 
 #if CLIENT
 
-                    // SHOULDN"T THIS BE HANDLED AUTOMATICALLY???
+                    // SHOULDN"T THIS BE HANDLED AUTOMATICALLY??? not sure. just setting directly for now.
 
+                        task.SetIntValue("user_0_cloudvisible", 0);
+
+                    SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
                    
-                        int v;
-                        if (task.GetIntValue("user_0_cloudvisible", out v))
-                        {
+                        //int v;
+                        //if (task.GetIntValue("user_0_cloudvisible", out v))
+                        //{
 
-                            SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
+                        //    SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
 
-                        }
+                        //}
 
 
                        done = true;

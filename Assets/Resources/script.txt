@@ -183,9 +183,9 @@ isglobal
 start presencehandler
 waitforuser
 start recording
-MaterialiseOn
+//MaterialiseOn
 pause5
-goto drawingplayback
+//goto drawingplayback
 GuideOpening
 pause5
 OffsetReset
