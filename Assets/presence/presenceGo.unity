@@ -361,7 +361,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: a60c183d9a8cd5e4ebc565d4890d1602, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -4585,6 +4585,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   userController: {fileID: 861919367}
+  Circle: {fileID: 0}
   viewerRoot: {fileID: 656684738}
   viewerOffset: {fileID: 358258921}
   viewerCamera: {fileID: 103973864}
@@ -5510,6 +5511,7 @@ MonoBehaviour:
   MainStageLight: {fileID: 1254554515}
   MoodLight01: {fileID: 1802044611}
   MoodLight02: {fileID: 591095847}
+  Circle: {fileID: 0}
   PreviewImage: {fileID: 0}
 --- !u!4 &1348691420
 Transform:
@@ -6228,7 +6230,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: a60c183d9a8cd5e4ebc565d4890d1602, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

@@ -42,9 +42,9 @@ namespace PresenceEngine
 
         void Start()
         {
-#if !UNITY_IOS && !UNITY_ANDROID
-
+            #if SERVER
             uxCanvas.SetActive(true);
+
 #endif
             userController.addTaskHandler(TaskHandler);
 
