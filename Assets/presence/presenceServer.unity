@@ -5234,6 +5234,7 @@ MonoBehaviour:
   fileNameInput: {fileID: 1907021508}
   userMessager: {fileID: 1059995041}
   filePath: {fileID: 310673524}
+  uxCanvas: {fileID: 1059995036}
 --- !u!4 &1012313925
 Transform:
   m_ObjectHideFlags: 0
