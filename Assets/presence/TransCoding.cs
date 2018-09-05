@@ -546,7 +546,7 @@ namespace PresenceEngine
         public void SetBufferFileByName(string target)
         {
 
-            if (_bufferFile.Name==target)
+            if (_bufferFile==null || _bufferFile.Name==target)
                 return;
 
             _bufferFile= IO.LoadFile(target);
