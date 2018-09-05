@@ -8,9 +8,9 @@ namespace PresenceEngine
     public interface iTransCoder
     {
 
-    //    void SetBufferFile(FileformatBase TargetFile);
+        void SetBufferFile(FileformatBase TargetFile);
 
-        void SetBufferFile(string TargetFile);
+        void SetBufferFileByName(string TargetFile);
 
 
         FileformatBase GetBufferFile();
@@ -315,8 +315,12 @@ namespace PresenceEngine
         {
             return _name;
         }
+        public void SetBufferFile(FileformatBase target)
+        {
+            _bufferFile = target;
+        }
 
-        public void SetBufferFile(string target)
+        public void SetBufferFileByName(string target)
         {
 
             if (_bufferFile.Name==target)
@@ -534,12 +538,12 @@ namespace PresenceEngine
             return _name;
         }
 
-        //public void SetBufferFile(FileformatBase target)
-        //{
-        //    _bufferFile = target;
-        //}
+        public void SetBufferFile(FileformatBase target)
+        {
+            _bufferFile = target;
+        }
 
-        public void SetBufferFile(string target)
+        public void SetBufferFileByName(string target)
         {
 
             if (_bufferFile.Name==target)

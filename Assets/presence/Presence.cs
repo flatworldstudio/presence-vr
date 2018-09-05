@@ -256,7 +256,7 @@ namespace PresenceEngine
             if (buffer != "")
             {
               //  DepthTransport.TransCoder.SetBufferFile(IO.LoadFile(buffer));
-                DepthTransport.TransCoder.SetBufferFile(buffer);
+                DepthTransport.TransCoder.SetBufferFileByName(buffer);
 
 
             }
