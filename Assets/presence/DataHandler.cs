@@ -51,7 +51,7 @@ namespace PresenceEngine
         public TimeHandler TimeHandler;
 
 
-      //  string dpn;
+        //  string dpn;
 
         void Awake()
         {
@@ -299,27 +299,30 @@ namespace PresenceEngine
 #if SERVER
 
 
-                    // Get current list from the task.
+                    //// Get current list from the task.
 
-                    string[] presenceNames;
+                    //string[] presenceNames;
 
-                    if (!task.GetStringArrayValue("presences", out presenceNames))
-                    {
-                        // push list of all presences
-                        task.SetStringArrayValue("presences", SETTINGS.Presences.Keys.ToArray());
+                    //if (!task.GetStringArrayValue("presences", out presenceNames))
+                    //{
+                    //    // push list of all presences
+                    //    task.SetStringArrayValue("presences", SETTINGS.Presences.Keys.ToArray());
 
-                    }
+                    //}
 
-                    // Now go over them and push all data. Create a copy so we can manipulate the actual dictionary along the way.
+                    //// Now go over them and push all data. Create a copy so we can manipulate the actual dictionary along the way.
 
-                    string[] keys = new string[SETTINGS.Presences.Keys.Count];
-                    SETTINGS.Presences.Keys.CopyTo(keys, 0);
+                    //string[] keys = new string[SETTINGS.Presences.Keys.Count];
+                    //SETTINGS.Presences.Keys.CopyTo(keys, 0);
+                    
+                    // push list of all presences
 
-
-
-
-                    //    foreach (KeyValuePair<string, Presence> presence in SETTINGS.Presences)
-                    foreach (string key in keys)
+                    string[] presenceKeys = SETTINGS.Presences.Keys.ToArray();
+                    task.SetStringArrayValue("presences", presenceKeys);
+                    
+                    // Now go over them and push all data. 
+                          
+                    foreach (string key in presenceKeys)
                     {
                         //  KeyValuePair<string, Presence> presence = new KeyValuePair<string, Presence>();
                         Presence presence;
@@ -330,12 +333,10 @@ namespace PresenceEngine
                         if (presence.DepthTransport.Mode == DEPTHMODE.COPY)
                         {
                             // Copy frame reference.
-
-                            presence.DepthTransport.ActiveFrame = presence.DepthTransport.TargetPresence.DepthTransport.ActiveFrame;
+                                                        presence.DepthTransport.ActiveFrame = presence.DepthTransport.TargetPresence.DepthTransport.ActiveFrame;
 
                         }
-
-
+                        
                         if (presence.DepthTransport.Mode == DEPTHMODE.PLAYBACK)
                         {
                             // Play back while in playback mode and playback successful else fall through.
@@ -758,7 +759,7 @@ namespace PresenceEngine
 
                     Debug.Log("Starting mirror of " + IO.CheckedOutFile);
 
-                     FileBuffer = IO.LoadFile(IO.CheckedOutFile);
+                    FileBuffer = IO.LoadFile(IO.CheckedOutFile);
 
                     if (FileBuffer != null)
                     {
@@ -840,7 +841,7 @@ namespace PresenceEngine
                     // LEGACY
 
                     // Play back the previous n files if available.
-                    
+
                     int checkedOut = IO.CheckedOutFileIndex();
 
                     for (int c = 1; c < 3; c++)
@@ -973,7 +974,7 @@ namespace PresenceEngine
                 case "SpawnPresences":
 
                     // Generate bits of playback from previous sessions.
-                    
+
                     if (SETTINGS.Presences.Count > 3)
                         break;
 
@@ -1043,7 +1044,7 @@ namespace PresenceEngine
                             Quaternion rotation = Quaternion.Euler(0, a * Mathf.Rad2Deg, 0);
 
                             // all presences should now 'face' the user.
-                       
+
                             fileplayback.SetVisualiseTransform(new Vector3(placement.x, 0, placement.y), Vector3.one, rotation);
 
                             // Show visualiser.
@@ -1061,7 +1062,7 @@ namespace PresenceEngine
 
                     Index++;
                     task.SetIntValue("index", Index);
-                    
+
                     //  done = true;
 
                     break;
@@ -1069,7 +1070,7 @@ namespace PresenceEngine
                 case "ShatterUser":
 
                     // Generate bits of playback from current session
-                    
+
                     if (SETTINGS.Presences.Count > 4)
                         break;
 
@@ -1115,7 +1116,7 @@ namespace PresenceEngine
                                 OutPoint = inpoint - duration;
 
                             }
-                            
+
                             // Find out what number of clones we're at.
 
                             int clone = 0;
@@ -1267,7 +1268,7 @@ namespace PresenceEngine
 
                 case "DelaySlow":
 
-                     PresenceName = "delaypresence";
+                    PresenceName = "delaypresence";
 
                     Presence delayp;
 
@@ -1960,9 +1961,9 @@ namespace PresenceEngine
                     }
 
                     break;
-                    #endif
+#endif
 
-                    #if CLIENT
+#if CLIENT
                 case "monitorconnection":
 
                     if (!dataController.clientIsConnected())
@@ -2181,10 +2182,10 @@ namespace PresenceEngine
             {
 
                 float speed;
-                task.GetFloatValue(name + "_speed",out speed);
+                task.GetFloatValue(name + "_speed", out speed);
                 float EndTime;
                 task.GetFloatValue(name + "_outpoint", out EndTime);
-                
+
 
                 if (speed > 0 ? time >= EndTime : time <= EndTime)
                 {
@@ -2193,7 +2194,7 @@ namespace PresenceEngine
                     SETTINGS.Presences.Remove(name);
 
                 }
-                           
+
 
 
             }
