@@ -369,11 +369,10 @@ tell recordsolo recordsolo_stop
 end
 
 #playsolo
+start presencehandler
 pressedplay
 playbackfile
-start presencehandler
 waitforallplaybacktoend
-pause5
 @playsolo_stop
 deletepresences
 pressedstop

@@ -689,6 +689,8 @@ namespace PresenceEngine
 
                     Debug.Log("Starting name " + IO.CheckedOutFile);
 
+                    TimeHandler = PlaybackStop;
+
                     if (pbBuffer != null)
                     {
                         pbBuffer.DumpTimeStamps();
@@ -697,6 +699,8 @@ namespace PresenceEngine
                         {
 
                             Debug.Log("Start time: " + pbBuffer.StartTime + " End time: " + pbBuffer.EndTime);
+
+                            float OutPoint = pbBuffer.EndTime;
 
                             // Not a placeholder file so proceed.
 
@@ -730,7 +734,8 @@ namespace PresenceEngine
                             fileplayback.PullVisualiserSettingsFromTask(task, "playbackpresence");
 
                   StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
-                        handler.SetFloatValue(PresenceName + "_speed", 1f);
+                        handler.SetFloatValue(pn + "_speed", 1f);
+                            handler.SetFloatValue(pn + "_outpoint", OutPoint);
 
                             Debug.Log("started buffer " + pbBuffer.Name);
 
@@ -2168,6 +2173,35 @@ namespace PresenceEngine
                     float Begin = buffer.GetTimeStamp("TimeStamp_BeginCircle");
                     presence.DepthTransport.CurrentTime = Begin;
                     Debug.Log("LOOPING CIRCLE CLONE " + name);
+                }
+
+
+            }
+
+
+        }
+
+        void PlaybackStop(StoryTask task, string name, Presence presence, float time)
+        {
+            // See if any of the clones has reached their out point.
+
+            if (name.IndexOf("playbackpresence") == -1)
+                return;
+
+            FileformatBase buffer = presence.DepthTransport.TransCoder.GetBufferFile();
+
+            if (buffer != null)
+            {
+                float EndTime = -1;
+                task.GetFloatValue(name + "_outpoint", out EndTime);
+
+                if (EndTime != -1 && time >= EndTime)
+                {
+
+                    Debug.Log("Killing playback" + name);
+                    Destroy(presence.gameObject);
+                    SETTINGS.Presences.Remove(name);
+
                 }
 
 
