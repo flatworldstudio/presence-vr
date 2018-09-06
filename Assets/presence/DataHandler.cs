@@ -76,12 +76,12 @@ namespace PresenceEngine
 
             dataController.addTaskHandler(TaskHandler);
             IO.SetDataPath();
-
+            IO.DataListToConsole();
 
 
             SETTINGS.Presences = new Dictionary<string, Presence>();
 
-
+        //    IO.Test();
 
 
         }
@@ -728,6 +728,9 @@ namespace PresenceEngine
                             task.SetIntValue("playbackpresence_1_isdrawing", 1);
 
                             fileplayback.PullVisualiserSettingsFromTask(task, "playbackpresence");
+
+                  StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
+                        handler.SetFloatValue(PresenceName + "_speed", 1f);
 
                             Debug.Log("started buffer " + pbBuffer.Name);
 

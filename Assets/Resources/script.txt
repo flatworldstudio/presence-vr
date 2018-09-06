@@ -377,6 +377,7 @@ pause5
 @playsolo_stop
 deletepresences
 pressedstop
+stop presencehandler
 end
 
 #stopplaysolo

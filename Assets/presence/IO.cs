@@ -29,7 +29,7 @@ namespace PresenceEngine
 
 
     }
-
+  
     public static class IO
     {
 
@@ -49,10 +49,67 @@ namespace PresenceEngine
         {
             localStorageFolder = Application.persistentDataPath + "/data";
             Debug.Log("IO data path: " + localStorageFolder);
+            if (Directory.Exists(localStorageFolder))
+            {
+                Debug.LogWarning("local storage path exists.");
+            }
             Directory.CreateDirectory(localStorageFolder);
             Debug.LogWarning("Creating directory: " + localStorageFolder);
+
+            if (Directory.Exists(localStorageFolder))
+            {
+                Debug.LogWarning("local storage was created (again).");
+            }
         }
 
+        /*
+        public static void Test()
+        {
+            if (Directory.Exists(localStorageFolder + "/test"))
+            {
+                Debug.LogWarning("Test folder exists.");
+
+            }
+
+                Directory.CreateDirectory(localStorageFolder + "/test");
+            Debug.LogWarning("Creating test directory: " + localStorageFolder + "/test");
+
+
+            BinaryFormatter bf = new BinaryFormatter();
+
+            FileStream file = File.Create(localStorageFolder + "test.prs");
+
+            bf.Serialize(file, new FileformatBase());
+
+            file.Close();
+
+            if (File.Exists(localStorageFolder + "test.prs"))
+            {
+                Debug.LogWarning("test file exists");
+            }
+
+        }
+        */
+
+            public static void DataListToConsole()
+        {
+
+            Debug.Log("Listing local storage contents: ");
+            string[] FolderPaths = Directory.GetDirectories(localStorageFolder);
+
+            foreach (string folder in FolderPaths)
+            {
+                Debug.Log("Folder: "+ folder);
+                string[] FilePaths = Directory.GetFiles(folder);
+                foreach (string file in FilePaths)
+                {
+
+                    Debug.Log(file);
+                }
+            }
+
+
+        }
         // Public save/load methods.
 
         public static void SaveFileToSelected(FileformatBase presenceFile)
@@ -62,12 +119,14 @@ namespace PresenceEngine
 
             Directory.CreateDirectory(localStorageFolder + _selectedFolder);
 
-            Debug.LogWarning("Creating directory: " + localStorageFolder + _selectedFolder);
+            Debug.Log("Creating directory: " + localStorageFolder + _selectedFolder);
 
             FileStream file = File.Create(localStorageFolder + _selectedFile);
 
             bf.Serialize(file, presenceFile);
             file.Close();
+
+            Debug.Log("Saving file: " + localStorageFolder + _selectedFile);
 
             _filesInSelectedFolder = null;
 
