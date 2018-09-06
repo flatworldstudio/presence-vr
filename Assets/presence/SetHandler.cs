@@ -16,7 +16,7 @@ namespace PresenceEngine
 
 #if SERVER && (UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
 
-  //      KinectManager kinectManager, kinectManagerObject;
+        //      KinectManager kinectManager, kinectManagerObject;
 #endif
 
 
@@ -71,7 +71,7 @@ namespace PresenceEngine
         int particleIndex;
         int count;
         ParticleCloud cloud, mirror;
-  //      int frame = -1;
+        //      int frame = -1;
 
         public bool TaskHandler(StoryTask task)
         {
@@ -88,400 +88,231 @@ namespace PresenceEngine
                 case "GuideOpening":
 
                     if (PlayVoiceOver("GuideOpening", task))
+                        task.SetStringValue("debug", "" + VoiceOver.time);
+                    else
                     {
-                        if (VoiceOver.isPlaying)
-                        {
-                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
-                        }
-                        else
-                        {
-                            done = true;
-                        }
+                    //    Debug.LogWarning("VO TASK KILLED");
+                        done = true;
                     }
+                      
 
                     break;
 
                 case "GuideSitdown":
 
                     if (PlayVoiceOver("GuideSitdown", task))
-                    {
-                        if (VoiceOver.isPlaying)
-                        {
-                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
-                        }
-                        else
-                        {
-                            done = true;
-                        }
-                    }
+                        task.SetStringValue("debug", "" + VoiceOver.time);
+                    else
+                        done = true;
 
                     break;
 
                 case "GuideBegin":
 
                     if (PlayVoiceOver("GuideBegin", task))
-                    {
-                        if (VoiceOver.isPlaying)
-                        {
-                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
-                        }
-                        else
-                        {
-                            done = true;
-                        }
-                    }
+                        task.SetStringValue("debug", "" + VoiceOver.time);
+                    else
+                        done = true;
 
                     break;
 
                 case "GuideObservehands":
 
                     if (PlayVoiceOver("GuideObservehands", task))
-                    {
-                        if (VoiceOver.isPlaying)
-                        {
-                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
-                        }
-                        else
-                        {
-                            done = true;
-                        }
-                    }
+                        task.SetStringValue("debug", "" + VoiceOver.time);
+                    else
+                        done = true;
 
                     break;
 
                 case "GuideDrawing":
 
                     if (PlayVoiceOver("GuideDrawing", task))
-                    {
-                        if (VoiceOver.isPlaying)
-                        {
-                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
-                        }
-                        else
-                        {
-                            done = true;
-                        }
-                    }
+                        task.SetStringValue("debug", "" + VoiceOver.time);
+                    else
+                        done = true;
 
                     break;
 
                 case "GuideObservedrawing":
 
                     if (PlayVoiceOver("GuideObservedrawing", task))
-                    {
-                        if (VoiceOver.isPlaying)
-                        {
-                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
-                        }
-                        else
-                        {
-                            done = true;
-                        }
-                    }
+                        task.SetStringValue("debug", "" + VoiceOver.time);
+                    else
+                        done = true;
 
                     break;
 
                 case "GuideGetup":
 
                     if (PlayVoiceOver("GuideGetup", task))
-                    {
-                        if (VoiceOver.isPlaying)
-                        {
-                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
-                        }
-                        else
-                        {
-                            done = true;
-                        }
-                    }
+                        task.SetStringValue("debug", "" + VoiceOver.time);
+                    else
+                        done = true;
 
                     break;
 
                 case "GuideThirdpersonintro":
 
                     if (PlayVoiceOver("GuideThirdpersonintro", task))
-                    {
-                        if (VoiceOver.isPlaying)
-                        {
-                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
-                        }
-                        else
-                        {
-                            done = true;
-                        }
-                    }
+                        task.SetStringValue("debug", "" + VoiceOver.time);
+                    else
+                        done = true;
 
                     break;
 
                 case "GuideThirdperson":
 
                     if (PlayVoiceOver("GuideThirdperson", task))
-                    {
-                        if (VoiceOver.isPlaying)
-                        {
-                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
-                        }
-                        else
-                        {
-                            done = true;
-                        }
-                    }
+                        task.SetStringValue("debug", "" + VoiceOver.time);
+                    else
+                        done = true;
 
                     break;
 
                 case "GuideThirdpersonexit":
 
                     if (PlayVoiceOver("GuideThirdpersonexit", task))
-                    {
-                        if (VoiceOver.isPlaying)
-                        {
-                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
-                        }
-                        else
-                        {
-                            done = true;
-                        }
-                    }
+                        task.SetStringValue("debug", "" + VoiceOver.time);
+                    else
+                        done = true;
 
                     break;
 
                 case "GuideReturntocenter":
 
                     if (PlayVoiceOver("GuideReturntocenter", task))
-                    {
-                        if (VoiceOver.isPlaying)
-                        {
-                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
-                        }
-                        else
-                        {
-                            done = true;
-                        }
-                    }
+                        task.SetStringValue("debug", "" + VoiceOver.time);
+                    else
+                        done = true;
 
                     break;
 
                 case "GuideMirrorintro":
 
                     if (PlayVoiceOver("GuideMirrorintro", task))
-                    {
-                        if (VoiceOver.isPlaying)
-                        {
-                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
-                        }
-                        else
-                        {
-                            done = true;
-                        }
-                    }
+                        task.SetStringValue("debug", "" + VoiceOver.time);
+                    else
+                        done = true;
 
                     break;
 
                 case "GuideMirror":
 
                     if (PlayVoiceOver("GuideMirror", task))
-                    {
-                        if (VoiceOver.isPlaying)
-                        {
-                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
-                        }
-                        else
-                        {
-                            done = true;
-                        }
-                    }
+                        task.SetStringValue("debug", "" + VoiceOver.time);
+                    else
+                        done = true;
 
                     break;
 
                 case "GuideSlowdown":
 
                     if (PlayVoiceOver("GuideSlowdown", task))
-                    {
-                        if (VoiceOver.isPlaying)
-                        {
-                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
-                        }
-                        else
-                        {
-                            done = true;
-                        }
-                    }
+                        task.SetStringValue("debug", "" + VoiceOver.time);
+                    else
+                        done = true;
 
                     break;
 
                 case "GuideReverse":
 
                     if (PlayVoiceOver("GuideReverse", task))
-                    {
-                        if (VoiceOver.isPlaying)
-                        {
-                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
-                        }
-                        else
-                        {
-                            done = true;
-                        }
-                    }
+                        task.SetStringValue("debug", "" + VoiceOver.time);
+                    else
+                        done = true;
 
                     break;
 
                 case "GuideFreeze":
 
                     if (PlayVoiceOver("GuideFreeze", task))
-                    {
-                        if (VoiceOver.isPlaying)
-                        {
-                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
-                        }
-                        else
-                        {
-                            done = true;
-                        }
-                    }
+                        task.SetStringValue("debug", "" + VoiceOver.time);
+                    else
+                        done = true;
 
                     break;
 
                 case "GuideShatter":
 
                     if (PlayVoiceOver("GuideShatter", task))
-                    {
-                        if (VoiceOver.isPlaying)
-                        {
-                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
-                        }
-                        else
-                        {
-                            done = true;
-                        }
-                    }
+                        task.SetStringValue("debug", "" + VoiceOver.time);
+                    else
+                        done = true;
 
                     break;
 
                 case "GuideCircleintro":
 
                     if (PlayVoiceOver("GuideCircleintro", task))
-                    {
-                        if (VoiceOver.isPlaying)
-                        {
-                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
-                        }
-                        else
-                        {
-                            done = true;
-                        }
-                    }
+                        task.SetStringValue("debug", "" + VoiceOver.time);
+                    else
+                        done = true;
 
                     break;
 
                 case "GuideCircle":
 
                     if (PlayVoiceOver("GuideCircle", task))
-                    {
-                        if (VoiceOver.isPlaying)
-                        {
-                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
-                        }
-                        else
-                        {
-                            done = true;
-                        }
-                    }
+                        task.SetStringValue("debug", "" + VoiceOver.time);
+                    else
+                        done = true;
 
                     break;
 
                 case "GuideCircleclone":
 
                     if (PlayVoiceOver("GuideCircleclone", task))
-                    {
-                        if (VoiceOver.isPlaying)
-                        {
-                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
-                        }
-                        else
-                        {
-                            done = true;
-                        }
-                    }
+                        task.SetStringValue("debug", "" + VoiceOver.time);
+                    else
+                        done = true;
 
                     break;
 
                 case "GuideCircleobserve":
 
                     if (PlayVoiceOver("GuideCircleobserve", task))
-                    {
-                        if (VoiceOver.isPlaying)
-                        {
-                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
-                        }
-                        else
-                        {
-                            done = true;
-                        }
-                    }
+                        task.SetStringValue("debug", "" + VoiceOver.time);
+                    else
+                        done = true;
 
                     break;
 
                 case "GuideNotalone":
 
                     if (PlayVoiceOver("GuideNotalone", task))
-                    {
-                        if (VoiceOver.isPlaying)
-                        {
-                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
-                        }
-                        else
-                        {
-                            done = true;
-                        }
-                    }
+                        task.SetStringValue("debug", "" + VoiceOver.time);
+                    else
+                        done = true;
 
                     break;
 
                 case "GuidePresences":
 
                     if (PlayVoiceOver("GuidePresences", task))
-                    {
-                        if (VoiceOver.isPlaying)
-                        {
-                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
-                        }
-                        else
-                        {
-                            done = true;
-                        }
-                    }
+                        task.SetStringValue("debug", "" + VoiceOver.time);
+                    else
+                        done = true;
 
                     break;
 
                 case "GuideEndpresences":
 
                     if (PlayVoiceOver("GuideEndpresences", task))
-                    {
-                        if (VoiceOver.isPlaying)
-                        {
-                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
-                        }
-                        else
-                        {
-                            done = true;
-                        }
-                    }
+                        task.SetStringValue("debug", "" + VoiceOver.time);
+                    else
+                        done = true;
 
                     break;
 
                 case "GuideEndsession":
 
                     if (PlayVoiceOver("GuideEndsession", task))
-                    {
-                        if (VoiceOver.isPlaying)
-                        {
-                            task.SetStringValue("debug", "" + VoiceOver.time + VoiceOver.isPlaying);
-                        }
-                        else
-                        {
-                            done = true;
-                        }
-                    }
+                        task.SetStringValue("debug", "" + VoiceOver.time);
+                    else
+                        done = true;
+
+                   
 
                     break;
 
@@ -510,14 +341,14 @@ namespace PresenceEngine
                 case "DrawingOn":
 
 
-                   
 
-                        SETTINGS.user.SetVisualiser("ShowSkeleton", 1);
 
-                        task.SetIntValue("user_1_isdrawing", 1);
-                        SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
+                    SETTINGS.user.SetVisualiser("ShowSkeleton", 1);
 
-                    
+                    task.SetIntValue("user_1_isdrawing", 1);
+                    SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
+
+
 
                     done = true;
 
@@ -526,11 +357,11 @@ namespace PresenceEngine
                 case "DrawingOff":
 
 
-                    
-                        task.SetIntValue("user_1_isdrawing", 0);
-                        SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
 
-                    
+                    task.SetIntValue("user_1_isdrawing", 0);
+                    SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
+
+
 
                     done = true;
 
@@ -539,11 +370,11 @@ namespace PresenceEngine
                 case "DrawingRemove":
 
 
-                   
 
-                        SETTINGS.user.SetVisualiser("", 1);
 
-                    
+                    SETTINGS.user.SetVisualiser("", 1);
+
+
 
                     done = true;
 
@@ -560,31 +391,31 @@ namespace PresenceEngine
                     float MainPerlinStart, MainPerlin, MoodLight01PerlinStart, MoodLight02PerlinStart, MoodLight01Perlin, MoodLight02Perlin;
 
 #if SERVER || CLIENT
-                   
-                        // Initiate values if not yet present. (When client connects to server, the server will force new values)
 
-                        if (!task.GetFloatValue("mainperlinstart", out MainPerlinStart))
-                            task.SetFloatValue("mainperlinstart", Random.Range(-100f, 100f));
+                    // Initiate values if not yet present. (When client connects to server, the server will force new values)
 
-                        task.GetFloatValue("mainperlin", out MainPerlin);
-                        task.SetFloatValue("mainperlin", MainPerlin += 0.05f);
+                    if (!task.GetFloatValue("mainperlinstart", out MainPerlinStart))
+                        task.SetFloatValue("mainperlinstart", Random.Range(-100f, 100f));
 
-                        if (!task.GetFloatValue("moodlight01perlinstart", out MoodLight01PerlinStart))
-                            task.SetFloatValue("moodlight01perlinstart", Random.Range(-100f, 100f));
+                    task.GetFloatValue("mainperlin", out MainPerlin);
+                    task.SetFloatValue("mainperlin", MainPerlin += 0.05f);
 
-                        task.GetFloatValue("moodlight01perlin", out MoodLight01Perlin);
-                        task.SetFloatValue("moodlight01perlin", MoodLight01Perlin += 0.05f);
+                    if (!task.GetFloatValue("moodlight01perlinstart", out MoodLight01PerlinStart))
+                        task.SetFloatValue("moodlight01perlinstart", Random.Range(-100f, 100f));
 
-                        if (!task.GetFloatValue("moodlight02perlinstart", out MoodLight02PerlinStart))
-                            task.SetFloatValue("moodlight02perlinstart", Random.Range(-100f, 100f));
+                    task.GetFloatValue("moodlight01perlin", out MoodLight01Perlin);
+                    task.SetFloatValue("moodlight01perlin", MoodLight01Perlin += 0.05f);
 
-                        task.GetFloatValue("moodlight02perlin", out MoodLight02Perlin);
-                        task.SetFloatValue("moodlight02perlin", MoodLight02Perlin += 0.05f);
-                    
+                    if (!task.GetFloatValue("moodlight02perlinstart", out MoodLight02PerlinStart))
+                        task.SetFloatValue("moodlight02perlinstart", Random.Range(-100f, 100f));
+
+                    task.GetFloatValue("moodlight02perlin", out MoodLight02Perlin);
+                    task.SetFloatValue("moodlight02perlin", MoodLight02Perlin += 0.05f);
+
 
 #endif
 
-                    #if CLIENT
+#if CLIENT
 
                         // We are a connected vr client so we'll load the values all the time, in case they change server side. (Ie on connection)
 
@@ -596,7 +427,7 @@ namespace PresenceEngine
                         task.GetFloatValue("moodlight02perlin", out MoodLight02Perlin);
                     
 #endif
-                    
+
                     // And now we apply those values.
 
                     MainStageLight.Variation = 1f * Mathf.PerlinNoise(MainPerlinStart + MainPerlin, 0);
@@ -661,8 +492,8 @@ namespace PresenceEngine
 #endif
 
                 case "addkinectnull":
-                    
-                                   g = DebugObject.getNullObject(1, 1, 1);
+
+                    g = DebugObject.getNullObject(1, 1, 1);
                     g.transform.SetParent(KinectGizmo.transform, false);
 
                     done = true;
@@ -801,27 +632,44 @@ namespace PresenceEngine
 
         //}
 
+        string CurrentClip = "";
+
+
         bool PlayVoiceOver(string clipName, StoryTask taskRef)
         {
+            // returns true if the specified clip is playing
+            // returns false if the specified clip is done or the clip was changed
 
             string vostatus;
 
             if (!taskRef.GetStringValue("vo", out vostatus))
+                vostatus = "start";
+
+
+            switch (vostatus)
             {
-                taskRef.SetStringValue("vo", clipName);
-                AudioClip clip = (AudioClip)Resources.Load("audio/" + clipName);
+                case "start":
 
-                VoiceOver.clip = clip;
-                VoiceOver.Play();
+                    taskRef.SetStringValue("vo", clipName);
+                    AudioClip clip = (AudioClip)Resources.Load("audio/" + clipName);
 
-                return false;
+                    VoiceOver.clip = clip;
+                    VoiceOver.Play();
+                    CurrentClip = clipName;
+
+                    return true;
+                //break;
+
+                default:
+
+                    if (VoiceOver.isPlaying && vostatus == CurrentClip)
+                        return true;
+                    else
+                        return false;
 
             }
-            else
-            {
-                return true;
 
-            }
+
 
         }
 
