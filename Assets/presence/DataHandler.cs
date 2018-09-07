@@ -80,7 +80,7 @@ namespace PresenceEngine
 			// Engine modules.
 
             Logger.SetLogLevel("AD", LOGLEVEL.NORMAL);
-            Logger.SetLogLevel("Director", LOGLEVEL.WARNINGS);
+            Logger.SetLogLevel("Director", LOGLEVEL.NORMAL);
             Logger.SetLogLevel("DataController", LOGLEVEL.WARNINGS);
             Logger.SetLogLevel("DeusController", LOGLEVEL.WARNINGS);
             Logger.SetLogLevel("UserController", LOGLEVEL.WARNINGS);
