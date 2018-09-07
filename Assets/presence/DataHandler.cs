@@ -205,7 +205,7 @@ namespace PresenceEngine
                     // Encode depth to task.
 
                     if (!UserDT.Encode(task, "user"))
-                        Log.Warning("Encode failed");
+                        Warning("Encode failed");
 
                     task.SetStringValue("debug", "time: " + UserDT.CurrentTime);
 
@@ -386,7 +386,7 @@ namespace PresenceEngine
 
                                         if (!SETTINGS.ManualPlayback)
                                         {
-                                            presence.DepthTransport.CurrentTi = speed * Time.deltaTime;
+                                            presence.DepthTransport.CurrentTime+= speed * Time.deltaTime;
                                         }
 
                                         //Log("playing");
@@ -398,7 +398,7 @@ namespace PresenceEngine
                                         //presence.Value.DepthTransport.CurrentTime = presence.Value.DepthTransport.TransCoder.GetBufferFile().StartTime;
                                         if (!SETTINGS.ManualPlayback)
                                         {
-                                            presence.DepthTransport.CurrentTi = speed * Time.deltaTime;
+                                            presence.DepthTransport.CurrentTime+= speed * Time.deltaTime;
                                         }
                                         //   Log("loop");
 
@@ -406,7 +406,7 @@ namespace PresenceEngine
 
                                     default:
                                         // Error.
-                                        LogError("Buffer playback error.");
+                                        Error("Buffer playback error.");
                                         break;
 
 
@@ -670,7 +670,7 @@ namespace PresenceEngine
 
                     if (SETTINGS.Presences.TryGetValue("playbackpresence", out pbp))
                     {
-                        pbp.DepthTransport.CurrentTi = 1 / 60f;
+                        pbp.DepthTransport.CurrentTime+= 1 / 60f;
 
                     }
 
@@ -721,7 +721,7 @@ namespace PresenceEngine
                         if (pbBuffer.EndTime > pbBuffer.StartTime)
                         {
 
-                            Log("Start time: " + pbBuffer.StartTi  " End time: " + pbBuffer.EndTime);
+                            Log("Start time: " + pbBuffer.StartTime+  " End time: " + pbBuffer.EndTime);
 
                             float OutPoint = pbBuffer.EndTime;
 
@@ -1009,11 +1009,11 @@ namespace PresenceEngine
 
                         // Show visualiser.
 
-                        task.SetIntValue(PresenceNa  "_0_cloudvisible", 1);
+                        task.SetIntValue(PresenceName+ "_0_cloudvisible", 1);
                         fileplayback.PullVisualiserSettingsFromTask(task, PresenceName);
 
                         StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
-                        handler.SetFloatValue(PresenceNa  "_speed", 1f);
+                        handler.SetFloatValue(PresenceName + "_speed", 1f);
 
                         Log("started circle presence for " + FileBuffer.Name);
 
@@ -1112,12 +1112,12 @@ namespace PresenceEngine
 
                             // Show visualiser.
 
-                            task.SetIntValue(PresenceNa  "_0_cloudvisible", 1);
+                            task.SetIntValue(PresenceName + "_0_cloudvisible", 1);
                             fileplayback.PullVisualiserSettingsFromTask(task, PresenceName);
 
                             StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
-                            handler.SetFloatValue(PresenceNa  "_speed", 1f);
-                            handler.SetFloatValue(PresenceNa  "_outpoint", OutPoint);
+                            handler.SetFloatValue(PresenceName + "_speed", 1f);
+                            handler.SetFloatValue(PresenceName + "_outpoint", OutPoint);
 
                             Log("started clone presence for " + FileBuffer.Name);
                         }
@@ -1217,12 +1217,12 @@ namespace PresenceEngine
 
                             // Show visualiser.
 
-                            task.SetIntValue(PresenceNa  "_0_cloudvisible", 1);
+                            task.SetIntValue(PresenceName + "_0_cloudvisible", 1);
                             fileplayback.PullVisualiserSettingsFromTask(task, PresenceName);
 
                             StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
-                            handler.SetFloatValue(PresenceNa  "_speed", speed);
-                            handler.SetFloatValue(PresenceNa  "_outpoint", OutPoint);
+                            handler.SetFloatValue(PresenceName + "_speed", speed);
+                            handler.SetFloatValue(PresenceName + "_outpoint", OutPoint);
 
                             Log("started shatter presence for " + FileBuffer.Name);
                         }
@@ -1299,12 +1299,12 @@ namespace PresenceEngine
 
                         // Show visualiser.
 
-                        task.SetIntValue(PresenceNa  "_0_cloudvisible", 1);
+                        task.SetIntValue(PresenceName + "_0_cloudvisible", 1);
                         fileplayback.PullVisualiserSettingsFromTask(task, PresenceName);
 
 
                         StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
-                        handler.SetFloatValue(PresenceNa  "_speed", 1f);
+                        handler.SetFloatValue(PresenceName + "_speed", 1f);
 
 
                         Log("started delay " + FileBuffer.Name);
@@ -1339,7 +1339,7 @@ namespace PresenceEngine
                     {
 
                         StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
-                        handler.SetFloatValue(PresenceNa  "_speed", 0.5f);
+                        handler.SetFloatValue(PresenceName + "_speed", 0.5f);
 
 
                     }
@@ -1359,7 +1359,7 @@ namespace PresenceEngine
                     {
 
                         StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
-                        handler.SetFloatValue(PresenceNa  "_speed", 0f);
+                        handler.SetFloatValue(PresenceName + "_speed", 0f);
 
 
                     }
@@ -1378,7 +1378,7 @@ namespace PresenceEngine
                     {
 
                         StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
-                        handler.SetFloatValue(PresenceNa  "_speed", -2f);
+                        handler.SetFloatValue(PresenceName + "_speed", -2f);
 
 
                     }
@@ -1471,17 +1471,17 @@ namespace PresenceEngine
                             PresenceName = "drawingpresence" + dp;
                             int state = 0;
 
-                            if (drawtask.GetIntValue(PresenceNa  "_state", out state) && state == 2)
+                            if (drawtask.GetIntValue(PresenceName + "_state", out state) && state == 2)
                             {
                                 if (SETTINGS.Presences.TryGetValue(PresenceName, out fileplayback))
                                 {
 
                                     // stop drawing.
 
-                                    drawtask.SetIntValue(PresenceNa  "_0_isdrawing", 0);
+                                    drawtask.SetIntValue(PresenceName + "_0_isdrawing", 0);
                                     fileplayback.PullVisualiserSettingsFromTask(drawtask, PresenceName);
-                                    drawtask.SetFloatValue(PresenceNa  "_timeout", Time.time);
-                                    drawtask.SetIntValue(PresenceNa  "_state", 3);
+                                    drawtask.SetFloatValue(PresenceName + "_timeout", Time.time);
+                                    drawtask.SetIntValue(PresenceName + "_state", 3);
                                     Log("Stopping drawing " + PresenceName);
 
                                 }
@@ -1529,8 +1529,8 @@ namespace PresenceEngine
 
                         int state;
 
-                        if (!task.GetIntValue(PresenceNa  "_state", out state))
-                            task.SetIntValue(PresenceNa  "_state", state); // 0
+                        if (!task.GetIntValue(PresenceName + "_state", out state))
+                            task.SetIntValue(PresenceName + "_state", state); // 0
 
 
                         switch (state)
@@ -1552,7 +1552,7 @@ namespace PresenceEngine
 
                                 if (SETTINGS.Presences.TryGetValue(PresenceName, out fileplayback))
                                 {
-                                    LogWarning("Presence already exits: " + PresenceName);
+                                    Warning("Presence already exits: " + PresenceName);
                                     state = -1;
                                     break;
                                 }
@@ -1579,7 +1579,7 @@ namespace PresenceEngine
 
                                 if (BeginDraw == -1)
                                 {
-                                    LogWarning("No drawing timestamp for: " + FileBuffer.Name);
+                                    Warning("No drawing timestamp for: " + FileBuffer.Name);
                                     state = -1;
                                     Index++;
                                     break;
@@ -1605,12 +1605,12 @@ namespace PresenceEngine
                                 fileplayback.SetVisualiseTransform(UserPosition + Positions[dp], Vector3.one, Quaternion.Euler(0, randomy, 0));
                                 fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
 
-                                task.SetIntValue(PresenceNa  "_0_cloudvisible", 1);
-                                task.SetIntValue(PresenceNa  "_0_isdrawing", 1);
+                                task.SetIntValue(PresenceName+  "_0_cloudvisible", 1);
+                                task.SetIntValue(PresenceName + "_0_isdrawing", 1);
                                 fileplayback.PullVisualiserSettingsFromTask(task, PresenceName);
 
                                 StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
-                                handler.SetFloatValue(PresenceNa  "_speed", 1f);
+                                handler.SetFloatValue(PresenceName + "_speed", 1f);
 
                                 Log("started drawing " + FileBuffer.Name);
 
@@ -1639,11 +1639,11 @@ namespace PresenceEngine
                                 if (fileplayback.DepthTransport.CurrentTime > EndDraw || fileplayback.DepthTransport.CurrentTime < BeginDraw)
                                 {
                                     // Head outside of drawing timespan.
-                                    task.SetIntValue(PresenceNa  "_0_cloudvisible", 1);
-                                    task.SetIntValue(PresenceNa  "_0_isdrawing", 0);
+                                    task.SetIntValue(PresenceName + "_0_cloudvisible", 1);
+                                    task.SetIntValue(PresenceName + "_0_isdrawing", 0);
                                     fileplayback.PullVisualiserSettingsFromTask(task, PresenceName);
                                     Log("Stopping drawing " + PresenceName);
-                                    task.SetFloatValue(PresenceNa  "_timeout", Time.time);
+                                    task.SetFloatValue(PresenceName + "_timeout", Time.time);
 
                                     Log("Stopping drawing " + fileplayback.DepthTransport.TransCoder.GetBufferFile().Name);
 
@@ -1656,7 +1656,7 @@ namespace PresenceEngine
                                 // We've stopped drawing. Wait for animation to play out before cleaning up.
 
                                 float to;
-                                task.GetFloatValue(PresenceNa  "_timeout", out to);
+                                task.GetFloatValue(PresenceName + "_timeout", out to);
 
                                 if (Time.time > to + 10f)
                                 {
@@ -1683,7 +1683,7 @@ namespace PresenceEngine
 
                         }
 
-                        task.SetIntValue(PresenceNa  "_state", state);
+                        task.SetIntValue(PresenceName + "_state", state);
                         task.SetIntValue("index", Index);
                     }
 
@@ -1741,7 +1741,7 @@ namespace PresenceEngine
                     }
                     else
                     {
-                        Log.Error("Cannot prepare record");
+                        Error("Cannot prepare record");
                         done = true;
                     }
 
@@ -1837,7 +1837,7 @@ namespace PresenceEngine
                     {
                         if (!task.GetFloatValue("timeout", out TimeOut))
                         {
-                            TimeOut = Time.ti  SETTINGS.SessionDuration;
+                            TimeOut = Time.time + SETTINGS.SessionDuration;
                             task.SetFloatValue("timeout", TimeOut);
                             SETTINGS.user.DepthTransport.Mode = DEPTHMODE.RECORD;
 
