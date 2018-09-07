@@ -6,6 +6,8 @@ using StoryEngine;
 //using GoogleVR.Demos;
 //using NUnit.Framework.Constraints;
 //using Microsoft.Win32.SafeHandles;
+using Logger = StoryEngine.Logger;
+
 
 namespace PresenceEngine
 {
@@ -30,6 +32,8 @@ namespace PresenceEngine
 
         public GameObject dummyCam;
 
+        string ID="UserHandler";
+
 
 #if SERVER
 
@@ -37,9 +41,26 @@ namespace PresenceEngine
 
 #endif
 
-        string me = "Task handler: ";
+     //   string me = "Task handler: ";
 
+        // Copy these into every class for easy debugging. This way we don't have to pass an ID. Stack-based ID doesn't work across platforms.
 
+        void Log(string message)
+        {
+            Logger.Output(message, ID, LOGLEVEL.NORMAL);
+        }
+        void Warning(string message)
+        {
+            Logger.Output(message, ID, LOGLEVEL.WARNINGS);
+        }
+        void Error(string message)
+        {
+            Logger.Output(message, ID, LOGLEVEL.ERRORS);
+        }
+        void Verbose(string message)
+        {
+            Logger.Output(message, ID, LOGLEVEL.VERBOSE);
+        }
 
 
 
@@ -738,7 +759,7 @@ namespace PresenceEngine
 
                 case "createSimulateUX":
 
-                    Log.Message("Running in editor, simulating headset rotation.");
+					 Log("Running in editor, simulating headset rotation.");
 
                     // Because UX targets camera parent, need to add a dummy so it targets our camera directly.
 
@@ -1383,9 +1404,9 @@ namespace PresenceEngine
                     Vector3 euler = headSet.transform.localRotation.eulerAngles;
                     float headYaw = euler.y;
 
-               //     Debug.Log("headYaw: " + headYaw);
+					//     Debug.Log("headYaw: " + headYaw);
 
-                    Log.Message("Calibrating, yaw: " + headYaw);
+					 Log("Calibrating, yaw: " + headYaw);
 
                     // which leaves a delta of
 

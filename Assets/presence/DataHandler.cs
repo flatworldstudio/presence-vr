@@ -9,6 +9,8 @@ using StoryEngine;
 using System;
 //using UnityEditorInternal;
 
+using Logger = StoryEngine.Logger;
+
 namespace PresenceEngine
 {
     public delegate void TimeHandler(StoryTask task, string name, Presence presence, float time);
@@ -46,26 +48,48 @@ namespace PresenceEngine
         string PresenceName;
         FileformatBase FileBuffer;
 
-        string me = "Data handler: ";
+        string ID = "Data handler";
 
         public TimeHandler TimeHandler;
 
 
         //  string dpn;
 
+        // Copy these into every class for easy debugging. This way we don't have to pass an ID. Stack-based ID doesn't work across platforms.
+
+        void Log(string message)
+        {
+            Logger.Output(message, ID, LOGLEVEL.NORMAL);
+        }
+        void Warning(string message)
+        {
+            Logger.Output(message, ID, LOGLEVEL.WARNINGS);
+        }
+        void Error(string message)
+        {
+            Logger.Output(message, ID, LOGLEVEL.ERRORS);
+        }
+        void Verbose(string message)
+        {
+            Logger.Output(message, ID, LOGLEVEL.VERBOSE);
+        }
+
         void Awake()
         {
 
-            // Engine modules.
+			// Engine modules.
 
-            Log.SetModuleLevel("AssitantDirector", LOGLEVEL.ERRORS);
-            Log.SetModuleLevel("Director", LOGLEVEL.ERRORS);
-            Log.SetModuleLevel("DataController", LOGLEVEL.ERRORS);
-            Log.SetModuleLevel("DeusController", LOGLEVEL.ERRORS);
-            Log.SetModuleLevel("UserController", LOGLEVEL.ERRORS);
-            Log.SetModuleLevel("SetController", LOGLEVEL.ERRORS);
+            Logger.SetLogLevel("AD", LOGLEVEL.WARNINGS);
+            Logger.SetLogLevel("Director", LOGLEVEL.WARNINGS);
+            Logger.SetLogLevel("DataController", LOGLEVEL.WARNINGS);
+            Logger.SetLogLevel("DeusController", LOGLEVEL.WARNINGS);
+            Logger.SetLogLevel("UserController", LOGLEVEL.WARNINGS);
+            Logger.SetLogLevel("SetController", LOGLEVEL.WARNINGS);
+
             // Custom modules.
 
+            Logger.SetLogLevel("IO", LOGLEVEL.VERBOSE);
+            Logger.SetLogLevel("Data handler", LOGLEVEL.VERBOSE);
 
         }
 
@@ -80,8 +104,7 @@ namespace PresenceEngine
 
 
             SETTINGS.Presences = new Dictionary<string, Presence>();
-
-        //    IO.Test();
+                
 
 
         }
@@ -208,7 +231,7 @@ namespace PresenceEngine
                         // Decode depth from task
 
                         if (!UserDT.Decode(task, "user"))
-                            Log.Warning("Decode failed");
+						Warning("Decode failed");
 
 
                         // put head orientation, include calibartion
@@ -351,7 +374,7 @@ namespace PresenceEngine
                             float speed;
                             if (task.GetFloatValue(key + "_speed", out speed))
                                 //    {
-                                //        Debug.Log("speed " + speed);
+                                //        Log("speed " + speed);
                                 //    }
 
                                 switch (status)
@@ -363,10 +386,10 @@ namespace PresenceEngine
 
                                         if (!SETTINGS.ManualPlayback)
                                         {
-                                            presence.DepthTransport.CurrentTime += speed * Time.deltaTime;
+                                            presence.DepthTransport.CurrentTi = speed * Time.deltaTime;
                                         }
 
-                                        //Debug.Log("playing");
+                                        //Log("playing");
                                         break;
 
 
@@ -375,15 +398,15 @@ namespace PresenceEngine
                                         //presence.Value.DepthTransport.CurrentTime = presence.Value.DepthTransport.TransCoder.GetBufferFile().StartTime;
                                         if (!SETTINGS.ManualPlayback)
                                         {
-                                            presence.DepthTransport.CurrentTime += speed * Time.deltaTime;
+                                            presence.DepthTransport.CurrentTi = speed * Time.deltaTime;
                                         }
-                                        //   Debug.Log("loop");
+                                        //   Log("loop");
 
                                         break;
 
                                     default:
                                         // Error.
-                                        Debug.LogError("Buffer playback error.");
+                                        LogError("Buffer playback error.");
                                         break;
 
 
@@ -439,7 +462,7 @@ namespace PresenceEngine
                                     // Create instance and retrieve/apply settings.
 
                                     presence = Presence.Create(presences, presenceName);
-                                Debug.Log("Created an instance of " +presenceName);
+                                Log("Created an instance of " +presenceName);
 
                                     //    SETTINGS.Presences.Add(presenceName, presence);
 
@@ -466,7 +489,7 @@ namespace PresenceEngine
 
                                 // We're displaying the point in time as indicated by the server.
 
-                                if (presence.DepthTransport.Mode == DEPTHMODE.PLAYBACK && task.GetFloatValue(presenceName + "_time", out getTime))
+                                if (presence.DepthTransport.Mode == DEPTHMODE.PLAYBACK && task.GetFloatValue(presenceName+  "_time", out getTime))
 
                                 {
 
@@ -479,12 +502,12 @@ namespace PresenceEngine
 
                                 //if (Input.GetKey("d")){
 
-                                //    Debug.Log("presenceName: "+ getTime + " " +status);
+                                //    Log("presenceName: "+ getTi  " " +status);
 
 
-                                //    Debug.Log("buffer frames: "+presence.DepthTransport.TransCoder.GetBufferFile().Frames.Count);
+                                //    Log("buffer frames: "+presence.DepthTransport.TransCoder.GetBufferFile().Frames.Count);
 
-                                //    Debug.Log("buffer end: "+ presence.DepthTransport.TransCoder.GetBufferFile().EndTime);
+                                //    Log("buffer end: "+ presence.DepthTransport.TransCoder.GetBufferFile().EndTime);
 
                                 //}
 
@@ -515,7 +538,7 @@ namespace PresenceEngine
 
                                 // A presence exists locally that has no reference in the task (does not exist on server) so we kill it.
 
-                                Debug.Log("Removing instance of " + localPresenceNames[i]);
+                                Log("Removing instance of " + localPresenceNames[i]);
 
                                 Presence presence = SETTINGS.Presences[localPresenceNames[i]];
 
@@ -586,7 +609,7 @@ namespace PresenceEngine
 
                     if (!task.GetFloatValue("timeout", out TimeOut))
                     {
-                        TimeOut = Time.time + 3;
+                        TimeOut = Time.time+  3;
                         task.SetFloatValue("timeout", TimeOut);
 
                     }
@@ -600,7 +623,7 @@ namespace PresenceEngine
 
                     if (!task.GetFloatValue("timeout", out TimeOut))
                     {
-                        TimeOut = Time.time + 5;
+                        TimeOut = Time.time+  5;
                         task.SetFloatValue("timeout", TimeOut);
 
                     }
@@ -615,7 +638,7 @@ namespace PresenceEngine
 
                     if (!task.GetFloatValue("timeout", out TimeOut))
                     {
-                        TimeOut = Time.time + 15;
+                        TimeOut = Time.time+  15;
                         task.SetFloatValue("timeout", TimeOut);
 
                     }
@@ -632,7 +655,7 @@ namespace PresenceEngine
                 case "grabframe":
 
 
-                    Debug.Log("grabbing frame");
+                    Log("grabbing frame");
                     GrabFrame();
 
 
@@ -647,7 +670,7 @@ namespace PresenceEngine
 
                     if (SETTINGS.Presences.TryGetValue("playbackpresence", out pbp))
                     {
-                        pbp.DepthTransport.CurrentTime += 1 / 60f;
+                        pbp.DepthTransport.CurrentTi = 1 / 60f;
 
                     }
 
@@ -683,11 +706,11 @@ namespace PresenceEngine
 
                     // Play back the checked out file. SHOULDN"t THIS BE SERVER ONNLY??
 
-                    Debug.Log("Starting name " + IO.CheckedOutFile);
+                    Log("Starting name " + IO.CheckedOutFile);
 
                     FileformatBase pbBuffer = IO.LoadFile(IO.CheckedOutFile);
 
-                    Debug.Log("Starting name " + IO.CheckedOutFile);
+                    Log("Starting name " + IO.CheckedOutFile);
 
                     TimeHandler = PlaybackStop;
 
@@ -698,7 +721,7 @@ namespace PresenceEngine
                         if (pbBuffer.EndTime > pbBuffer.StartTime)
                         {
 
-                            Debug.Log("Start time: " + pbBuffer.StartTime + " End time: " + pbBuffer.EndTime);
+                            Log("Start time: " + pbBuffer.StartTi  " End time: " + pbBuffer.EndTime);
 
                             float OutPoint = pbBuffer.EndTime;
 
@@ -737,7 +760,7 @@ namespace PresenceEngine
                         handler.SetFloatValue(pn + "_speed", 1f);
                             handler.SetFloatValue(pn + "_outpoint", OutPoint);
 
-                            Debug.Log("started buffer " + pbBuffer.Name);
+                            Log("started buffer " + pbBuffer.Name);
 
                         }
 
@@ -787,7 +810,7 @@ namespace PresenceEngine
 
 
 
-                    Debug.Log("Starting mirror of " + IO.CheckedOutFile);
+                    Log("Starting mirror of " + IO.CheckedOutFile);
 
                     FileBuffer = IO.LoadFile(IO.CheckedOutFile);
 
@@ -820,7 +843,7 @@ namespace PresenceEngine
                             fileplayback.DepthTransport.Target = "playbackpresence";
                         }
 
-                        Debug.Log("started buffer " + FileBuffer.Name);
+                        Log("started buffer " + FileBuffer.Name);
 
                     }
 
@@ -835,7 +858,7 @@ namespace PresenceEngine
 
                     // Creates a mirrored duplicate of the User Presence.
 
-                    Debug.Log("Starting mirror");
+                    Log("Starting mirror");
 
                     string mp = "mirrorpresence";
                     Presence target = SETTINGS.user;
@@ -880,7 +903,7 @@ namespace PresenceEngine
 
                         string name = IO.GetFilePath(checkedOut + c);
 
-                        Debug.Log("starting name " + c + " " + name);
+                        Log("starting name " + c + " " + name);
 
                         FileBuffer = IO.LoadFile(IO.GetFilePath(checkedOut + c));
 
@@ -917,7 +940,7 @@ namespace PresenceEngine
                                 task.SetFloatValue("playbackpresence" + c + "_cloudvisible", 1);
                                 fileplayback.PullVisualiserSettingsFromTask(task, "playbackpresence" + c);
 
-                                Debug.Log("started buffer " + c + " " + FileBuffer.Name);
+                                Log("started buffer " + c + " " + FileBuffer.Name);
                             }
 
 
@@ -978,7 +1001,7 @@ namespace PresenceEngine
                         float time = FileBuffer.GetTimeStamp("TimeStamp_BeginCircle");
 
                         fileplayback.DepthTransport.CurrentTime = time;
-                        Debug.Log("setting current time to " + time);
+                        Log("setting current time to " + time);
 
                         fileplayback.SetVisualiser(SETTINGS.DefaultVisualiser);
 
@@ -986,13 +1009,13 @@ namespace PresenceEngine
 
                         // Show visualiser.
 
-                        task.SetIntValue(PresenceName + "_0_cloudvisible", 1);
+                        task.SetIntValue(PresenceNa  "_0_cloudvisible", 1);
                         fileplayback.PullVisualiserSettingsFromTask(task, PresenceName);
 
                         StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
-                        handler.SetFloatValue(PresenceName + "_speed", 1f);
+                        handler.SetFloatValue(PresenceNa  "_speed", 1f);
 
-                        Debug.Log("started circle presence for " + FileBuffer.Name);
+                        Log("started circle presence for " + FileBuffer.Name);
 
                     }
 
@@ -1035,7 +1058,7 @@ namespace PresenceEngine
 
                     FileBuffer = IO.LoadFile(FileName);
 
-                    Debug.Log("attempting clone presence for " + FileName);
+                    Log("attempting clone presence for " + FileName);
 
                     if (FileBuffer != null)
                     {
@@ -1089,14 +1112,14 @@ namespace PresenceEngine
 
                             // Show visualiser.
 
-                            task.SetIntValue(PresenceName + "_0_cloudvisible", 1);
+                            task.SetIntValue(PresenceNa  "_0_cloudvisible", 1);
                             fileplayback.PullVisualiserSettingsFromTask(task, PresenceName);
 
                             StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
-                            handler.SetFloatValue(PresenceName + "_speed", 1f);
-                            handler.SetFloatValue(PresenceName + "_outpoint", OutPoint);
+                            handler.SetFloatValue(PresenceNa  "_speed", 1f);
+                            handler.SetFloatValue(PresenceNa  "_outpoint", OutPoint);
 
-                            Debug.Log("started clone presence for " + FileBuffer.Name);
+                            Log("started clone presence for " + FileBuffer.Name);
                         }
                     }
 
@@ -1194,14 +1217,14 @@ namespace PresenceEngine
 
                             // Show visualiser.
 
-                            task.SetIntValue(PresenceName + "_0_cloudvisible", 1);
+                            task.SetIntValue(PresenceNa  "_0_cloudvisible", 1);
                             fileplayback.PullVisualiserSettingsFromTask(task, PresenceName);
 
                             StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
-                            handler.SetFloatValue(PresenceName + "_speed", speed);
-                            handler.SetFloatValue(PresenceName + "_outpoint", OutPoint);
+                            handler.SetFloatValue(PresenceNa  "_speed", speed);
+                            handler.SetFloatValue(PresenceNa  "_outpoint", OutPoint);
 
-                            Debug.Log("started shatter presence for " + FileBuffer.Name);
+                            Log("started shatter presence for " + FileBuffer.Name);
                         }
                     }
 
@@ -1260,7 +1283,7 @@ namespace PresenceEngine
                         fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
 
                         fileplayback.DepthTransport.CurrentTime = SETTINGS.user.DepthTransport.CurrentTime; // we may be retrieve before stored.
-                        Debug.Log("setting current time to " + SETTINGS.user.DepthTransport.CurrentTime);
+                        Log("setting current time to " + SETTINGS.user.DepthTransport.CurrentTime);
 
 
                         fileplayback.SetVisualiser(SETTINGS.DefaultVisualiser);
@@ -1276,15 +1299,15 @@ namespace PresenceEngine
 
                         // Show visualiser.
 
-                        task.SetIntValue(PresenceName + "_0_cloudvisible", 1);
+                        task.SetIntValue(PresenceNa  "_0_cloudvisible", 1);
                         fileplayback.PullVisualiserSettingsFromTask(task, PresenceName);
 
 
                         StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
-                        handler.SetFloatValue(PresenceName + "_speed", 1f);
+                        handler.SetFloatValue(PresenceNa  "_speed", 1f);
 
 
-                        Debug.Log("started delay " + FileBuffer.Name);
+                        Log("started delay " + FileBuffer.Name);
 
 
                         //}
@@ -1316,7 +1339,7 @@ namespace PresenceEngine
                     {
 
                         StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
-                        handler.SetFloatValue(PresenceName + "_speed", 0.5f);
+                        handler.SetFloatValue(PresenceNa  "_speed", 0.5f);
 
 
                     }
@@ -1336,7 +1359,7 @@ namespace PresenceEngine
                     {
 
                         StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
-                        handler.SetFloatValue(PresenceName + "_speed", 0f);
+                        handler.SetFloatValue(PresenceNa  "_speed", 0f);
 
 
                     }
@@ -1355,7 +1378,7 @@ namespace PresenceEngine
                     {
 
                         StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
-                        handler.SetFloatValue(PresenceName + "_speed", -2f);
+                        handler.SetFloatValue(PresenceNa  "_speed", -2f);
 
 
                     }
@@ -1380,7 +1403,7 @@ namespace PresenceEngine
 
                         //string name = IO.GetFilePath(checkedOut + c);
 
-                        //Debug.Log("Generating name " + c);
+                        //Log("Generating name " + c);
 
                         FileBuffer = IO.LoadFile(IO.CheckedOutFile);
 
@@ -1412,7 +1435,7 @@ namespace PresenceEngine
                             task.SetFloatValue("playbackpresence" + c + "_cloudvisible", 1);
                             fileplayback.PullVisualiserSettingsFromTask(task, "playbackpresence" + c);
 
-                            Debug.Log("started buffer " + c + " " + FileBuffer.Name);
+                            Log("started buffer " + c + " " + FileBuffer.Name);
 
 
                             //}
@@ -1435,7 +1458,7 @@ namespace PresenceEngine
                 case "nonewdrawings":
 
                     // We're changing the task settings from here.
-                    Debug.Log("nonewdrawings  ");
+                    Log("nonewdrawings  ");
 
                     StoryTask drawtask = AssitantDirector.FindTaskByByLabel("PlayDrawings");// find task by label, should return the playbackdrawings task
 
@@ -1448,18 +1471,18 @@ namespace PresenceEngine
                             PresenceName = "drawingpresence" + dp;
                             int state = 0;
 
-                            if (drawtask.GetIntValue(PresenceName + "_state", out state) && state == 2)
+                            if (drawtask.GetIntValue(PresenceNa  "_state", out state) && state == 2)
                             {
                                 if (SETTINGS.Presences.TryGetValue(PresenceName, out fileplayback))
                                 {
 
                                     // stop drawing.
 
-                                    drawtask.SetIntValue(PresenceName + "_0_isdrawing", 0);
+                                    drawtask.SetIntValue(PresenceNa  "_0_isdrawing", 0);
                                     fileplayback.PullVisualiserSettingsFromTask(drawtask, PresenceName);
-                                    drawtask.SetFloatValue(PresenceName + "_timeout", Time.time);
-                                    drawtask.SetIntValue(PresenceName + "_state", 3);
-                                    Debug.Log("Stopping drawing " + PresenceName);
+                                    drawtask.SetFloatValue(PresenceNa  "_timeout", Time.time);
+                                    drawtask.SetIntValue(PresenceNa  "_state", 3);
+                                    Log("Stopping drawing " + PresenceName);
 
                                 }
                             }
@@ -1468,7 +1491,7 @@ namespace PresenceEngine
                     }
                     else
                     {
-                        Debug.Log("task not found correctly");
+                        Log("task not found correctly");
                     }
 
                     done = true;
@@ -1506,8 +1529,8 @@ namespace PresenceEngine
 
                         int state;
 
-                        if (!task.GetIntValue(PresenceName + "_state", out state))
-                            task.SetIntValue(PresenceName + "_state", state); // 0
+                        if (!task.GetIntValue(PresenceNa  "_state", out state))
+                            task.SetIntValue(PresenceNa  "_state", state); // 0
 
 
                         switch (state)
@@ -1529,7 +1552,7 @@ namespace PresenceEngine
 
                                 if (SETTINGS.Presences.TryGetValue(PresenceName, out fileplayback))
                                 {
-                                    Debug.LogWarning("Presence already exits: " + PresenceName);
+                                    LogWarning("Presence already exits: " + PresenceName);
                                     state = -1;
                                     break;
                                 }
@@ -1544,11 +1567,11 @@ namespace PresenceEngine
                                 {
                                     // No file, just revert to empty.
                                     state = 0;
-                                    Debug.Log("no buffer found for " + FileName);
+                                    Log("no buffer found for " + FileName);
                                     break;
                                 }
 
-                                Debug.Log("Starting drawing presence " + FileName);
+                                Log("Starting drawing presence " + FileName);
 
                                 FileBuffer.DumpTimeStamps();
 
@@ -1556,7 +1579,7 @@ namespace PresenceEngine
 
                                 if (BeginDraw == -1)
                                 {
-                                    Debug.LogWarning("No drawing timestamp for: " + FileBuffer.Name);
+                                    LogWarning("No drawing timestamp for: " + FileBuffer.Name);
                                     state = -1;
                                     Index++;
                                     break;
@@ -1582,14 +1605,14 @@ namespace PresenceEngine
                                 fileplayback.SetVisualiseTransform(UserPosition + Positions[dp], Vector3.one, Quaternion.Euler(0, randomy, 0));
                                 fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
 
-                                task.SetIntValue(PresenceName + "_0_cloudvisible", 1);
-                                task.SetIntValue(PresenceName + "_0_isdrawing", 1);
+                                task.SetIntValue(PresenceNa  "_0_cloudvisible", 1);
+                                task.SetIntValue(PresenceNa  "_0_isdrawing", 1);
                                 fileplayback.PullVisualiserSettingsFromTask(task, PresenceName);
 
                                 StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
-                                handler.SetFloatValue(PresenceName + "_speed", 1f);
+                                handler.SetFloatValue(PresenceNa  "_speed", 1f);
 
-                                Debug.Log("started drawing " + FileBuffer.Name);
+                                Log("started drawing " + FileBuffer.Name);
 
                                 Index++;
 
@@ -1616,13 +1639,13 @@ namespace PresenceEngine
                                 if (fileplayback.DepthTransport.CurrentTime > EndDraw || fileplayback.DepthTransport.CurrentTime < BeginDraw)
                                 {
                                     // Head outside of drawing timespan.
-                                    task.SetIntValue(PresenceName + "_0_cloudvisible", 1);
-                                    task.SetIntValue(PresenceName + "_0_isdrawing", 0);
+                                    task.SetIntValue(PresenceNa  "_0_cloudvisible", 1);
+                                    task.SetIntValue(PresenceNa  "_0_isdrawing", 0);
                                     fileplayback.PullVisualiserSettingsFromTask(task, PresenceName);
-                                    Debug.Log("Stopping drawing " + PresenceName);
-                                    task.SetFloatValue(PresenceName + "_timeout", Time.time);
+                                    Log("Stopping drawing " + PresenceName);
+                                    task.SetFloatValue(PresenceNa  "_timeout", Time.time);
 
-                                    Debug.Log("Stopping drawing " + fileplayback.DepthTransport.TransCoder.GetBufferFile().Name);
+                                    Log("Stopping drawing " + fileplayback.DepthTransport.TransCoder.GetBufferFile().Name);
 
                                     state = 3;
                                 }
@@ -1633,7 +1656,7 @@ namespace PresenceEngine
                                 // We've stopped drawing. Wait for animation to play out before cleaning up.
 
                                 float to;
-                                task.GetFloatValue(PresenceName + "_timeout", out to);
+                                task.GetFloatValue(PresenceNa  "_timeout", out to);
 
                                 if (Time.time > to + 10f)
                                 {
@@ -1652,7 +1675,7 @@ namespace PresenceEngine
                                 {
                                     Destroy(fileplayback.gameObject);
                                     SETTINGS.Presences.Remove(PresenceName);
-                                    Debug.Log("Removed presence " + PresenceName);
+                                    Log("Removed presence " + PresenceName);
                                 }
                                 state = 0;
                                 break;
@@ -1660,7 +1683,7 @@ namespace PresenceEngine
 
                         }
 
-                        task.SetIntValue(PresenceName + "_state", state);
+                        task.SetIntValue(PresenceNa  "_state", state);
                         task.SetIntValue("index", Index);
                     }
 
@@ -1707,7 +1730,7 @@ namespace PresenceEngine
 
                     if (SETTINGS.user.DepthTransport != null && IO.CheckedOutFile != "")
                     {
-                        Debug.Log("preparing record for " + IO.CheckedOutFile);
+                        Log("preparing record for " + IO.CheckedOutFile);
 
                         SETTINGS.user.DepthTransport.TransCoder.CreateBufferFile(IO.CheckedOutFile);
 
@@ -1726,7 +1749,7 @@ namespace PresenceEngine
 #endif
 
 #if CLIENT
-                    Debug.Log("preparing buffer" );
+                    Log("preparing buffer" );
                          
                         if (SETTINGS.user.DepthTransport != null)
                         {
@@ -1738,7 +1761,7 @@ namespace PresenceEngine
 
                                 SETTINGS.user.DepthTransport.TransCoder.CreateBufferFile(IO.CheckedOutFile);
 
-                            Debug.Log("created buffer" );
+                            Log("created buffer" );
                                 done = true;
 
                             }
@@ -1814,7 +1837,7 @@ namespace PresenceEngine
                     {
                         if (!task.GetFloatValue("timeout", out TimeOut))
                         {
-                            TimeOut = Time.time + SETTINGS.SessionDuration;
+                            TimeOut = Time.ti  SETTINGS.SessionDuration;
                             task.SetFloatValue("timeout", TimeOut);
                             SETTINGS.user.DepthTransport.Mode = DEPTHMODE.RECORD;
 
@@ -1865,7 +1888,7 @@ namespace PresenceEngine
                     {
                         SETTINGS.user.DepthTransport.Mode = DEPTHMODE.LIVE;
 
-                        Debug.Log("Stopped recording. Logged frames " + SETTINGS.user.DepthTransport.TransCoder.GetBufferFile().Frames.Count);
+                        Log("Stopped recording. Logged frames " + SETTINGS.user.DepthTransport.TransCoder.GetBufferFile().Frames.Count);
 
 
                         FileformatBase BufferFile = SETTINGS.user.DepthTransport.TransCoder.GetBufferFile();
@@ -1944,7 +1967,7 @@ namespace PresenceEngine
                         if (dataController.foundServer())
                         {
 
-                            Debug.Log(me + "Found broadcast server");
+                            Log(  "Found broadcast server");
 
                             // Store network server address.
 
@@ -1995,7 +2018,7 @@ namespace PresenceEngine
                     if (newClient != -1)
                     {
 
-                        Debug.Log(me + "New client on connection " + newClient);
+                        Log(  "New client on connection " + newClient);
 
                         task.setCallBack("newclient");
 
@@ -2047,7 +2070,7 @@ namespace PresenceEngine
 
                 case "startclient":
 
-                    Debug.Log(me + "Starting network client.");
+                    Log(  "Starting network client.");
 
                     dataController.startNetworkClient(GENERAL.networkServer);
 
@@ -2058,7 +2081,7 @@ namespace PresenceEngine
 #if SERVER
                 case "startserver":
 
-                    Debug.Log(me + "Starting network server");
+                    Log(  "Starting network server");
 
                     dataController.startBroadcastServer();
                     dataController.startNetworkServer();
@@ -2105,7 +2128,7 @@ namespace PresenceEngine
                 case "void":
 
 
-                    Log.Warning("Launching on void.");
+					Warning("Launching on void.");
 
                     done = true;
                     break;
@@ -2172,7 +2195,7 @@ namespace PresenceEngine
                 {
                     float Begin = buffer.GetTimeStamp("TimeStamp_BeginCircle");
                     presence.DepthTransport.CurrentTime = Begin;
-                    Debug.Log("LOOPING CIRCLE CLONE " + name);
+                    Log("LOOPING CIRCLE CLONE " + name);
                 }
 
 
@@ -2193,12 +2216,12 @@ namespace PresenceEngine
             if (buffer != null)
             {
                 float EndTime = -1;
-                task.GetFloatValue(name + "_outpoint", out EndTime);
+                task.GetFloatValue(name+  "_outpoint", out EndTime);
 
                 if (EndTime != -1 && time >= EndTime)
                 {
 
-                    Debug.Log("Killing playback" + name);
+                    Log("Killing playback" + name);
                     Destroy(presence.gameObject);
                     SETTINGS.Presences.Remove(name);
 
@@ -2222,12 +2245,12 @@ namespace PresenceEngine
             if (buffer != null)
             {
                 float EndTime = -1;
-                task.GetFloatValue(name + "_outpoint", out EndTime);
+                task.GetFloatValue(name+  "_outpoint", out EndTime);
 
                 if (EndTime != -1 && time >= EndTime)
                 {
 
-                    Debug.Log("Killing clone" + name);
+                    Log("Killing clone" + name);
                     Destroy(presence.gameObject);
                     SETTINGS.Presences.Remove(name);
 
@@ -2252,14 +2275,14 @@ namespace PresenceEngine
             {
 
                 float speed;
-                task.GetFloatValue(name + "_speed", out speed);
+                task.GetFloatValue(name+  "_speed", out speed);
                 float EndTime;
-                task.GetFloatValue(name + "_outpoint", out EndTime);
+                task.GetFloatValue(name+  "_outpoint", out EndTime);
 
 
                 if (speed > 0 ? time >= EndTime : time <= EndTime)
                 {
-                    Debug.Log("Killing clone" + name);
+                    Log("Killing clone" + name);
                     Destroy(presence.gameObject);
                     SETTINGS.Presences.Remove(name);
 
