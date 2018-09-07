@@ -79,7 +79,7 @@ namespace PresenceEngine
 
 			// Engine modules.
 
-            Logger.SetLogLevel("AD", LOGLEVEL.WARNINGS);
+            Logger.SetLogLevel("AD", LOGLEVEL.NORMAL);
             Logger.SetLogLevel("Director", LOGLEVEL.WARNINGS);
             Logger.SetLogLevel("DataController", LOGLEVEL.WARNINGS);
             Logger.SetLogLevel("DeusController", LOGLEVEL.WARNINGS);
@@ -601,8 +601,8 @@ namespace PresenceEngine
 
 
                 // ----------------------------------------------------------------------------------------------------
-                // Pauses
-
+                // Pauses, only run on server
+                    # if SERVER
                 case "pause3":
 
                     float TimeOut;
@@ -648,7 +648,7 @@ namespace PresenceEngine
 
                     break;
 
-
+                    #endif
                 // ----------------------------------------------------------------------------------------------------
                 // Deus user manipulations
 #if SERVER

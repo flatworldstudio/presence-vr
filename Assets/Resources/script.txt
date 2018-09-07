@@ -280,6 +280,7 @@ pressedrecordstop
 stop recording
 recordstop
 MaterialiseOff
+pause5
 deletepresences
 start cleanup
 GuideEndsession
