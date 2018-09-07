@@ -207,7 +207,7 @@ namespace PresenceEngine
                     if (!UserDT.Encode(task, "user"))
                         Warning("Encode failed");
 
-                    task.SetStringValue("debug", "time: " + UserDT.CurrentTime);
+                   // task.SetStringValue("debug", "time: " + UserDT.CurrentTime);
 
                     // user may move in or out of detection.
 
