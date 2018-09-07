@@ -688,18 +688,24 @@ namespace PresenceEngine
         {
             // returns true if the specified clip is playing
             // returns false if the specified clip is done or the clip was changed
+#if SERVER
+            string id = "server";
+#endif
+#if CLIENT
+
+            string id="client";
+#endif
 
             string vostatus;
 
-            if (!taskRef.GetStringValue("vo", out vostatus))
+            if (!taskRef.GetStringValue(id, out vostatus))
                 vostatus = "start";
-
-
+            
             switch (vostatus)
             {
                 case "start":
 
-                    taskRef.SetStringValue("vo", clipName);
+                    taskRef.SetStringValue(id, clipName);
                     AudioClip clip = (AudioClip)Resources.Load("audio/" + clipName);
 
                     VoiceOver.clip = clip;
