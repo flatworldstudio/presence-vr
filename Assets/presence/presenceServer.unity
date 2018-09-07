@@ -4588,7 +4588,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: f1de4e67910a3493e9ba31c4745c9bfc, type: 3}
+  m_audioClip: {fileID: 8300000, guid: c633f81db640cef458bd1616167974cb, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -5237,7 +5237,6 @@ MonoBehaviour:
   userMessager: {fileID: 1059995041}
   filePath: {fileID: 310673524}
   dummyCam: {fileID: 0}
-  uxCanvas: {fileID: 1059995036}
 --- !u!4 &1012313925
 Transform:
   m_ObjectHideFlags: 0
