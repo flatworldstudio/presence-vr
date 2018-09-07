@@ -1850,7 +1850,7 @@ namespace PresenceEngine
                         }
 
 
-                        task.SetStringValue("debug", "" + (TimeOut - Time.time));
+              //          task.SetStringValue("debug", "" + (TimeOut - Time.time));
 
 
                     }
