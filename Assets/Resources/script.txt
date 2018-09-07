@@ -280,21 +280,17 @@ pressedrecordstop
 stop recording
 recordstop
 MaterialiseOff
-pause5
 deletepresences
-start cleanup
+pause5
+stop RandomPresences
+stop PlayDrawings
+stop Shatter
+stop presencehandler
 GuideEndsession
 makefilemenu
 end
 
 
-// Stop any storylines still running. Most should already be killed.
-#cleanup
-stop RandomPresences
-stop presencehandler
-stop PlayDrawings
-stop Shatter
-end
 
 #Shatter
 ShatterUser
@@ -320,6 +316,8 @@ end
 tell playguided playguided_stop
 end
 
+
+// IsRecording stays active so it can time out the session if need be.
 #recording
 recordprepare
 IsRecording
