@@ -212,8 +212,17 @@ namespace PresenceEngine
 
 
                     break;
-
                 case "loadfileasync":
+
+                    if (LoadFileAsync(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile, task))
+                    {
+                        done = true;
+                    }
+
+                    break;
+
+
+                case "loadfileasyncfullcode":
 
                     // Server & client. If a client reacts, wait for it. So stopping client while saving will pause flow...
 
@@ -2479,6 +2488,118 @@ namespace PresenceEngine
         }
 
         //
+        bool LoadFileAsync(string fileName, StoryTask task)
+        {
+
+            // Server & client. If a client reacts, wait for it. So stopping client while saving will pause flow...
+
+#if SERVER
+          string  prefix = "server";
+            string myState;
+
+            if (!task.GetStringValue(prefix + "State", out myState))
+            {
+                task.SetStringValue(prefix + "State", "begin");
+                IO.Instance.LoadManual(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile, task, prefix);
+                task.SetStringValue("file", SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
+                // If there's a client we'll flag that ourselves.
+
+                if (GENERAL.wasConnected)
+                {
+                    task.SetStringValue("clientState", "notstarted");
+                }
+                else
+                {
+                    task.SetStringValue("clientState", "noclient");
+                }
+            }
+
+#endif
+#if CLIENT
+                 string   prefix = "client";
+                    string loadFile;
+
+                    if (task.GetStringValue(prefix + "State", out myState) && task.GetStringValue("file", out loadFile))
+                    {
+                        // we have values for file and state.
+
+                        if (myState == "notstarted")
+                        {
+                            task.SetStringValue(prefix + "State", "begin");
+
+                            SETTINGS.SelectedFile = IO.Instance.FileFromPath(loadFile);
+                            SETTINGS.SelectedFolder = IO.Instance.FolderFromPath(loadFile);
+
+                            IO.Instance.LoadManual(loadFile, task, prefix);
+
+                        }
+
+                    }
+
+
+
+
+
+
+#endif
+
+            // Kick of the async saving process.
+
+            // Wait for results
+            string serverState, clientState;
+
+            task.GetStringValue("serverState", out serverState);
+            task.GetStringValue("clientState", out clientState);
+
+
+         bool   Alldone = true;
+          string  DebugString = "";
+
+            switch (serverState)
+            {
+
+
+                case "done":
+
+                    break;
+
+                case "begin":
+
+                default:
+
+                    // in progress
+                    DebugString += "s: " + serverState;
+                    Alldone = false;
+                    break;
+
+            }
+
+            switch (clientState)
+            {
+
+                case "done":
+                case "noclient":
+
+                    break;
+
+                case "begin":
+
+                default:
+
+                    // in progress
+                    DebugString += " c: " + serverState;
+                    Alldone = false;
+                    break;
+
+            }
+
+#if SERVER
+            task.SetStringValue("debug", DebugString);
+#endif
+
+            return Alldone;
+        }
+//
 
         string[] _list;
         string _folder;

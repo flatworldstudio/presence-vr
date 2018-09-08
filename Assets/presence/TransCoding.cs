@@ -847,6 +847,7 @@ namespace PresenceEngine
             return true;
         }
 
+        float lastTime = -1;
 
         public bool Decode(out UncompressedFrame Uframe, StoryEngine.StoryTask task, string prefix, bool recording = false)
         {
