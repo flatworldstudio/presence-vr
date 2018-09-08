@@ -365,21 +365,20 @@ namespace PresenceEngine
         public bool Decode(StoryEngine.StoryTask task, string prefix)
         {
 
-            // catch frames with same time, which may happen if we haven't received a new frame...
-
             float TaskTime;
             task.GetFloatValue(prefix + "_time", out TaskTime);
 
             if (ActiveFrame.Time == TaskTime)
             {
-                Debug.LogWarning("decoding same frame, will cause duplicates in recording");
-
+                // This is the same frame, don't decode it again, and don't record it again.
+                return true;
             }
 
             if (__mode == DEPTHMODE.LIVE || __mode == DEPTHMODE.RECORD)
                 return TransCoder.Decode(out ActiveFrame, task, prefix, __mode == DEPTHMODE.RECORD);
 
-            Debug.Log("mode not live or record");
+            //Debug.Log("mode not live or record");
+
             return false;
         }
 
