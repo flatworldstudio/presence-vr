@@ -136,9 +136,7 @@ namespace PresenceEngine
                 case "storefileasync":
 
                     // Server & client. If a client reacts, wait for it. So stopping client while saving will pause flow...
-
-
-
+                    
 #if SERVER
                     string prefix = "server";
 #endif
@@ -167,6 +165,84 @@ namespace PresenceEngine
 
                     bool Alldone = true;
                     string DebugString = "";
+
+                    switch (serverState)
+                    {
+
+
+                        case "done":
+
+                            break;
+
+                        case "begin":
+
+                        default:
+
+                            // in progress
+                            DebugString += "s: " + serverState;
+                            Alldone = false;
+                            break;
+
+                    }
+
+                    switch (clientState)
+                    {
+
+                        case "done":
+                        case "noclient":
+
+                            break;
+
+                        case "begin":
+
+                        default:
+
+                            // in progress
+                            DebugString += " c: " + serverState;
+                            Alldone = false;
+                            break;
+
+                    }
+
+                    task.SetStringValue("debug", DebugString);
+
+                    if (Alldone)
+                        done = true;
+
+
+
+                    break;
+
+                case "loadfileasync":
+
+                    // Server & client. If a client reacts, wait for it. So stopping client while saving will pause flow...
+
+#if SERVER
+                     prefix = "server";
+#endif
+#if CLIENT
+                    string prefix = "client";
+#endif
+
+                    // Kick of the async saving process.
+                                   
+
+                    if (!task.GetStringValue(prefix + "State", out myState))
+                    {
+                        task.SetStringValue(prefix + "State", "begin");
+                        IO.Instance.LoadManual(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile, task);
+
+                    }
+
+                    // Wait for results
+
+                  
+                    task.GetStringValue("serverState", out serverState);
+                    if (!task.GetStringValue("clientState", out clientState))
+                        clientState = "noclient";
+
+                     Alldone = true;
+                     DebugString = "";
 
                     switch (serverState)
                     {
@@ -847,7 +923,7 @@ namespace PresenceEngine
 
                     Log("Starting name " + SETTINGS.SelectedFile);
 
-                    FileformatBase pbBuffer = IO.Instance.LoadFile(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
+                    FileformatBase pbBuffer = IO.Instance.GetFromCache(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
 
                     //      Log("Starting name " + IO.CheckedOutFile);
 

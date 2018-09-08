@@ -825,6 +825,17 @@ namespace PresenceEngine
         */
 
         // LOAD SAVE
+        public FileformatBase GetFromCache(string filePath)
+        {
+
+            filePath = RebuildPath(filePath);
+
+            FileformatBase Buffered = FindInCache(RebuildPath(filePath));
+                   
+
+            return Buffered;
+
+        }
 
 
         public FileformatBase LoadFile(string filePath)
@@ -839,7 +850,7 @@ namespace PresenceEngine
 
 
 
-                Buffered = LoadFromFile(RebuildPath(filePath) + SETTINGS.Ext);  // returns null and logs error on fail.
+              //  Buffered = LoadFromFile(RebuildPath(filePath) + SETTINGS.Ext);  // returns null and logs error on fail.
 
 
 

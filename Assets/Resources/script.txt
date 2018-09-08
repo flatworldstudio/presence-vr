@@ -367,6 +367,7 @@ materialiseoff
 storefileasync
 stop presencehandler
 makefilemenu
+pause3
 end
 
 #stoprecordsolo
@@ -376,7 +377,7 @@ end
 #playsolo
 start presencehandler
 pressedplay
-loadselectedfile
+loadfileasync
 playbackfile
 waitforallplaybacktoend
 @playsolo_stop
