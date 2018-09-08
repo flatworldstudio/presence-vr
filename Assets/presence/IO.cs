@@ -133,7 +133,22 @@ namespace PresenceEngine
 
             }
 
-            return "/" + parts[0];
+            return parts[0];
+
+
+        }
+
+        public string FileFromPath(string path)
+        {
+            string[] parts = Split(path);
+
+            if (parts.Length != 2)
+            {
+                Warning("Path depth not 2, invalid path.");
+                return "";
+            }
+
+            return "/" + parts[1];
 
 
         }
@@ -231,7 +246,7 @@ namespace PresenceEngine
         public void SaveManual(FileformatBase presenceFile, string path, StoryTask taskRef)
         {
 
-            Directory.CreateDirectory(localStorageFolder + FolderFromPath(path));
+            Directory.CreateDirectory(localStorageFolder + "/" + FolderFromPath(path));
 
             path = RebuildPath(path);
 
@@ -446,10 +461,10 @@ namespace PresenceEngine
 
                     if (f % 8 == 0)
                     {
-                        taskRef.SetStringValue("debug", "Loading: " + (frameCount-f));
+                        taskRef.SetStringValue("debug", "Loading: " + (frameCount - f));
                         yield return null;
                     }
-                      
+
 
                 }
 
@@ -486,7 +501,7 @@ namespace PresenceEngine
         public void LoadManual(string path, StoryTask taskRef)
         {
             path = RebuildPath(path);
-                   
+
 
             FileformatBase Buffered = FindInCache(RebuildPath(path));
 
@@ -497,20 +512,20 @@ namespace PresenceEngine
             }
             else
             {
-                
+
 
                 if (!busy)
                 {
                     Log("loading async from disk");
                     StartCoroutine(LoadManualAsync(path, taskRef));
                 }
-                 
+
 
 
             }
 
 
-           
+
 
 
 
@@ -522,7 +537,7 @@ namespace PresenceEngine
 
             BinaryFormatter bf = new BinaryFormatter();
 
-            Directory.CreateDirectory(localStorageFolder + FolderFromPath(path));
+            Directory.CreateDirectory(localStorageFolder + "/" + FolderFromPath(path));
 
             //     Debug.Log("Creating directory: " + localStorageFolder + _selectedFolder);
 
@@ -586,20 +601,16 @@ namespace PresenceEngine
             folder = FolderFromPath(folder);
 
 
-            //   LocalFolder = "/" + Strip(LocalFolder);
-
             //     Debug.Log("listing files for " + LocalFolder);
 
-            //if (!Directory.Exists(localStorageFolder))
-            //    Directory.CreateDirectory(localStorageFolder);
 
-            if (!Directory.Exists(localStorageFolder + folder))
+            if (!Directory.Exists(localStorageFolder + "/" + folder))
                 return new string[0];
 
 
             // Get files and sort last modified first.
 
-            List<FileInfo> sortedFiles = new DirectoryInfo(localStorageFolder + folder).GetFiles().OrderByDescending(f => f.LastWriteTime).ToList();
+            List<FileInfo> sortedFiles = new DirectoryInfo(localStorageFolder + "/" + folder).GetFiles().OrderByDescending(f => f.LastWriteTime).ToList();
 
             // Go over them and keep the .prs files.
 
@@ -611,17 +622,7 @@ namespace PresenceEngine
                 if (fi.Extension == ".prs")
                 {
 
-                    //PFile pFile = new PFile
-
-                    //{
-                    //    Path = folder + "/" + fi.Name,
-                    //    Name = fi.Name
-
-                    //};
-
                     FileList.Add(StripExtention(fi.Name));
-                    //Debug.Log("filename " + pFile.Name);
-                    //Debug.Log("filesubpath " + pFile.Path);
 
                 }
 

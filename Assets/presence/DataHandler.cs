@@ -1867,13 +1867,13 @@ namespace PresenceEngine
 
                     if (SETTINGS.user.DepthTransport != null && SETTINGS.SelectedFolder != "" && SETTINGS.SelectedFile != "")
                     {
-                        string path = SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile;
+                        string path = "/"+SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile;
                         Log("preparing record for " + path);
 
 
                         SETTINGS.user.DepthTransport.TransCoder.CreateBufferFile(path);
 
-                        task.SetStringValue("user_file", path);
+                        task.SetStringValue("user_path", path);
 
                         done = true;
 
@@ -1893,12 +1893,15 @@ namespace PresenceEngine
                         if (SETTINGS.user.DepthTransport != null)
                         {
                             // Wait for filename then fall through
-                            string file;
-                            if (task.GetStringValue("user_file", out file))
+                            string filePath;
+                            if (task.GetStringValue("user_path", out filePath))
                             {
-                                IO.Instance.SelectFile(file);
+                       //         IO.Instance.SelectFile(file);
+                       //     SETTINGS.SelectedFile = IO.Instance.FileFromPath(file);
 
-                                SETTINGS.user.DepthTransport.TransCoder.CreateBufferFile(IO.Instance.CheckedOutFile);
+                      //      string path = SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile;
+
+                            SETTINGS.user.DepthTransport.TransCoder.CreateBufferFile(filePath);
 
                             Log("created buffer" );
                                 done = true;
