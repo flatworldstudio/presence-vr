@@ -407,6 +407,9 @@ namespace PresenceEngine
 
         IEnumerator LoadManualAsync(string fileName, StoryTask taskRef,string prefix)
         {
+
+            Log("Loading " + fileName + " on " + prefix);
+
             busy = true;
             FileformatBase loaded = null;
 

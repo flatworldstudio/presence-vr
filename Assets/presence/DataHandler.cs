@@ -282,7 +282,9 @@ namespace PresenceEngine
 
                     }
 
+                    #if SERVER
                     task.SetStringValue("debug", DebugString);
+                    #endif
 
                     if (Alldone)
                         done = true;
