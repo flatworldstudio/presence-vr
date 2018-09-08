@@ -136,7 +136,7 @@ namespace PresenceEngine
                 case "storefileasync":
 
                     // Server & client. If a client reacts, wait for it. So stopping client while saving will pause flow...
-                    
+
 #if SERVER
                     string prefix = "server";
 #endif
@@ -218,52 +218,71 @@ namespace PresenceEngine
                     // Server & client. If a client reacts, wait for it. So stopping client while saving will pause flow...
 
 #if SERVER
-                     prefix = "server";
+                    prefix = "server";
 
                     if (!task.GetStringValue(prefix + "State", out myState))
                     {
                         task.SetStringValue(prefix + "State", "begin");
-                        IO.Instance.LoadManual(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile, task,prefix);
-                    task.SetStringValue("file",SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
+                        IO.Instance.LoadManual(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile, task, prefix);
+                        task.SetStringValue("file", SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
 
                     }
-                  
+
+                    // If there's a client we'll flag that ourselves.
+
+                    if (GENERAL.wasConnected)
+                    {
+                        task.SetStringValue("clientState", "notstarted");
+                    }
+                    else
+                    {
+                        task.SetStringValue("clientState", "noclient");
+                    }
+
 
 #endif
 #if CLIENT
                      prefix = "client";
                     string loadFile;
 
-                    if ( task.GetStringValue("file", out loadFile) && !task.GetStringValue(prefix + "State", out myState))
-                    {
-                        // value for file, but no value for state, so start loading.
+                    if (task.GetStringValue(prefix + "State", out myState)&& task.GetStringValue("file", out loadFile){
+                    // we have values for file and state.
 
-                        task.SetStringValue(prefix + "State", "begin");
+                    if (myState=="notstarted"){
+                     task.SetStringValue(prefix + "State", "begin");
 
                         SETTINGS.SelectedFile = IO.Instance.FileFromPath(loadFile);
                         SETTINGS.SelectedFolder = IO.Instance.FolderFromPath(loadFile);
 
                         IO.Instance.LoadManual(loadFile, task,prefix);
-                    //    task.SetStringValue("file",SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
+
 
                     }
+
+
+                    }
+
+
+                    }
+
+                    
 
 #endif
 
                     // Kick of the async saving process.
-                                   
+
 
 
 
                     // Wait for results
 
-                  
-                    task.GetStringValue("serverState", out serverState);
-                    if (!task.GetStringValue("clientState", out clientState))
-                        clientState = "noclient";
 
-                     Alldone = true;
-                     DebugString = "";
+                    task.GetStringValue("serverState", out serverState);
+                    task.GetStringValue("clientState", out clientState);
+                     
+
+                    Alldone = true;
+                    DebugString = "";
 
                     switch (serverState)
                     {
@@ -303,9 +322,9 @@ namespace PresenceEngine
 
                     }
 
-                    #if SERVER
+#if SERVER
                     task.SetStringValue("debug", DebugString);
-                    #endif
+#endif
 
                     if (Alldone)
                         done = true;
@@ -317,37 +336,37 @@ namespace PresenceEngine
 
                 //case "loadselectedfile":
 
-                    //string loadingState;
+                //string loadingState;
 
-                    //if (!task.GetStringValue("loadingState", out loadingState))
-                    //    task.SetStringValue("loadingState", "starting");
+                //if (!task.GetStringValue("loadingState", out loadingState))
+                //    task.SetStringValue("loadingState", "starting");
 
-                    //switch (loadingState)
-                    //{
-                    //    case "starting":
-                    //        task.SetStringValue("loadingState", "inprogress");
-                    //        IO.Instance.LoadManual(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile, task);
+                //switch (loadingState)
+                //{
+                //    case "starting":
+                //        task.SetStringValue("loadingState", "inprogress");
+                //        IO.Instance.LoadManual(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile, task);
 
-                    //        break;
+                //        break;
 
-                    //    case "done":
-                    //        done = true;
-                    //        Log("loading completed");
-                    //        //  FileformatBase loaded = IO.Instance.fileref;
-
-
-                    //        break;
-                    //    default:
-                    //        break;
-
-                    //}
+                //    case "done":
+                //        done = true;
+                //        Log("loading completed");
+                //        //  FileformatBase loaded = IO.Instance.fileref;
 
 
+                //        break;
+                //    default:
+                //        break;
+
+                //}
 
 
 
 
-                    //break;
+
+
+                //break;
 
                 // -----------------------------------------------------------------------
                 // Main roles.
