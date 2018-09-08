@@ -1904,7 +1904,7 @@ namespace PresenceEngine
 
                             SETTINGS.user.DepthTransport.TransCoder.CreateBufferFile(filePath);
 
-                            Log("created buffer" );
+                            Log("created buffer "+filePath );
                                 done = true;
 
                             }
