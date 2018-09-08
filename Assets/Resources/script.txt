@@ -350,13 +350,15 @@ end
 setflow_solo
 end
 
+// note. calling recordprepare to create empty buffer. presencehandler will otherwise first try to load from disk.
+
 #recordsolo
 pressedrecordstart
 isglobal
-start presencehandler
+recordprepare
 waitforuser
 materialiseon
-recordprepare
+start presencehandler
 IsRecording
 @recordsolo_stop
 pressedrecordstop
