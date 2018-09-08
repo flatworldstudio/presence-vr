@@ -10,7 +10,7 @@ alignset
 calibrateheadset
 addkinectnull
 createuser
-receivelivedepth
+//receivelivedepth
 start simulate
 end
 
@@ -125,6 +125,7 @@ end
 // Startpresence starts the kinect (if possible) and begins streaming user info 
 
 #startpresence
+isglobal
 depthlive
 start userstreaming
 end
@@ -133,6 +134,7 @@ end
 // Stoppresence stops the kinect if needed and stops userstreaming.
 
 #stoppresence
+isglobal
 depthoff
 stop startpresence
 stop userstreaming
