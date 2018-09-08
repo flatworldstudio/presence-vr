@@ -128,6 +128,7 @@ end
 isglobal
 depthlive
 start userstreaming
+pause3
 end
 
 
@@ -138,6 +139,7 @@ isglobal
 depthoff
 stop startpresence
 stop userstreaming
+pause3
 end
 
 // Presencehandler handles presence playback and mirrors everything to the client.
