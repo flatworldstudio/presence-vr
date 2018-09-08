@@ -2518,6 +2518,7 @@ namespace PresenceEngine
 #if CLIENT
                  string   prefix = "client";
                     string loadFile;
+            string myState;
 
                     if (task.GetStringValue(prefix + "State", out myState) && task.GetStringValue("file", out loadFile))
                     {
