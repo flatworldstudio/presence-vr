@@ -283,7 +283,9 @@ WaitforSeated
 @recordguided_stop
 pressedrecordstop
 stop recording
-recordstop
+//recordstop
+recordoff
+storefileasync
 MaterialiseOff
 deletepresences
 pause5
@@ -351,10 +353,10 @@ end
 #recordsolo
 pressedrecordstart
 isglobal
-recordprepare
 waitforuser
 materialiseon
-recordstart
+recordprepare
+IsRecording
 @recordsolo_stop
 pressedrecordstop
 recordoff
