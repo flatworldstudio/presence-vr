@@ -227,13 +227,17 @@ namespace PresenceEngine
                     task.SetStringValue("file",SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
 
                     }
+                  
 
 #endif
 #if CLIENT
                      prefix = "client";
                     string loadFile;
-                    if (task.GetStringValue("file", out loadFile))
+
+                    if ( task.GetStringValue("file", out loadFile) && !task.GetStringValue(prefix + "State", out myState))
                     {
+                        // value for file, but no value for state, so start loading.
+
                         task.SetStringValue(prefix + "State", "begin");
 
                         SETTINGS.SelectedFile = IO.Instance.FileFromPath(loadFile);
