@@ -243,7 +243,7 @@ namespace PresenceEngine
 
 
         // Public save/load methods.
-        public void SaveManual(FileformatBase presenceFile, string path, StoryTask taskRef)
+        public void SaveManual(FileformatBase presenceFile, string path, StoryTask taskRef,string prefix)
         {
 
             Directory.CreateDirectory(localStorageFolder + "/" + FolderFromPath(path));
@@ -252,15 +252,16 @@ namespace PresenceEngine
 
             if (!busy)
             {
-                StartCoroutine(SaveManualAsync(presenceFile, path, taskRef));
+                StartCoroutine(SaveManualAsync(presenceFile, path, taskRef,prefix));
             }
 
 
 
         }
-        IEnumerator SaveManualAsync(FileformatBase file, string fileName, StoryTask taskRef)
+        IEnumerator SaveManualAsync(FileformatBase file, string fileName, StoryTask taskRef,string prefix)
         {
-            Log("saving a file");
+            Log("Saving " + fileName + " on " + prefix);
+
             busy = true;
 
             // Store a ref to the frames.
@@ -323,13 +324,13 @@ namespace PresenceEngine
 
                 if (f % 8 == 0)
                 {
-                    taskRef.SetStringValue("debug", "saving: " + (FrameCount - f));
+                    taskRef.SetStringValue(prefix+"State", "" + (FrameCount - f));
                     yield return null;
                 }
 
             }
 
-            Verbose("saving, closing file");
+            Verbose("Closing file");
             fs.Close();
 
             // Put the frames back.
@@ -337,7 +338,7 @@ namespace PresenceEngine
 
             AddToCache(file, fileName);
 
-            taskRef.SetStringValue("savingstate", "done");
+            taskRef.SetStringValue(prefix + "State", "done");
             busy = false;
 
             yield return null;
@@ -938,7 +939,9 @@ namespace PresenceEngine
 
                     //DEBUG += " " + n;
                     Log("" + n);
+
                     taskRef.SetStringValue("debug", "Remaining: " + bytesToRead);
+
                     yield return null;
                 }
                 //     Debug.Log(DEBUG);

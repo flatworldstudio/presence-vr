@@ -363,8 +363,8 @@ IsRecording
 @recordsolo_stop
 pressedrecordstop
 recordoff
-storefileasync
 materialiseoff
+storefileasync
 stop presencehandler
 makefilemenu
 end

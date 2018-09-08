@@ -130,47 +130,86 @@ namespace PresenceEngine
 
             switch (task.description)
             {
-                 
-                 //       IO.Instance.SaveFile(BufferFile, SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
+
+                //       IO.Instance.SaveFile(BufferFile, SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
 
                 case "storefileasync":
 
-                    string savingState;
-
-                    if (!task.GetStringValue("savingstate", out savingState))
-                        task.SetStringValue("savingstate", "starting");
+                    // Server & client. If a client reacts, wait for it. So stopping client while saving will pause flow...
 
 
-                    switch (savingState)
+
+#if SERVER
+                    string prefix = "server";
+#endif
+#if CLIENT
+                    string prefix = "client";
+#endif
+
+                    // Kick of the async saving process.
+
+                    string myState;
+
+                    if (!task.GetStringValue(prefix + "State", out myState))
                     {
-                        case "starting":
-                            task.SetStringValue("savingstate", "inprogress");
+                        task.SetStringValue(prefix + "State", "begin");
+                        FileformatBase BufferFile = SETTINGS.user.DepthTransport.TransCoder.GetBufferFile();
+                        IO.Instance.SaveManual(BufferFile, SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile, task, prefix);
 
-                            //FileformatBase fi = new FileformatBase();
-                            //fi.Name = "Hello world";
-                            //fi.TransCoderName = "Skeleton";
-                            //fi.SetTimeStamp("hello", 100);
+                    }
 
-                            //SkeletonOnlyFrame frame = new SkeletonOnlyFrame();
-                            //frame.Points[0] = new Point(Vector3.one);
+                    // Wait for results
 
-                            //fi.Frames.Add(frame);
+                    string serverState, clientState;
+                    task.GetStringValue("serverState", out serverState);
+                    if (!task.GetStringValue("clientState", out clientState))
+                        clientState = "noclient";
 
-                            //fi.Frames.Add(frame);
+                    bool Alldone = true;
+                    string DebugString = "";
 
-                            //fi.Frames.Add(frame);
-                            FileformatBase BufferFile = SETTINGS.user.DepthTransport.TransCoder.GetBufferFile();
+                    switch (serverState)
+                    {
 
-                            IO.Instance.SaveManual(BufferFile, SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile, task);
 
-                            break;
                         case "done":
-                            done = true;
+
                             break;
+
+                        case "begin":
+
                         default:
+
+                            // in progress
+                            DebugString += "s: " + serverState;
+                            Alldone = false;
                             break;
 
                     }
+
+                    switch (clientState)
+                    {
+
+                        case "done":
+                        case "noclient":
+
+                            break;
+
+                        case "begin":
+
+                        default:
+
+                            // in progress
+                            DebugString += " c: " + serverState;
+                            Alldone = false;
+                            break;
+
+                    }
+
+                    task.SetStringValue("debug", DebugString);
+
+                    if (Alldone)
+                        done = true;
 
 
 
@@ -195,9 +234,9 @@ namespace PresenceEngine
                         case "done":
                             done = true;
                             Log("loading completed");
-                          //  FileformatBase loaded = IO.Instance.fileref;
-                          
-                            
+                            //  FileformatBase loaded = IO.Instance.fileref;
+
+
                             break;
                         default:
                             break;
@@ -205,9 +244,9 @@ namespace PresenceEngine
                     }
 
 
-                 
 
-                   
+
+
 
                     break;
 
@@ -838,7 +877,7 @@ namespace PresenceEngine
                             }
 
                             fileplayback.SetVisualiser(SETTINGS.DefaultVisualiser, 0);
-                        //    fileplayback.SetVisualiser("ShowSkeleton", 1);
+                            //    fileplayback.SetVisualiser("ShowSkeleton", 1);
 
                             fileplayback.SetTranscoder(pbBuffer.TransCoderName);
 
@@ -852,7 +891,7 @@ namespace PresenceEngine
                             //  task.SetIntValue("user_0_cloudvisible", 1);
                             task.SetIntValue("playbackpresence_0_cloudvisible", 1);
                             task.SetIntValue("playbackpresence_1_cloudvisible", 1);
-                      //      task.SetIntValue("playbackpresence_1_isdrawing", 1);
+                            //      task.SetIntValue("playbackpresence_1_isdrawing", 1);
 
                             fileplayback.PullVisualiserSettingsFromTask(task, "playbackpresence");
 
@@ -1867,7 +1906,7 @@ namespace PresenceEngine
 
                     if (SETTINGS.user.DepthTransport != null && SETTINGS.SelectedFolder != "" && SETTINGS.SelectedFile != "")
                     {
-                        string path =SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile;
+                        string path = SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile;
                         Log("preparing record for " + path);
 
 
@@ -2055,8 +2094,8 @@ namespace PresenceEngine
                         Log("Stopped recording. Logged frames " + SETTINGS.user.DepthTransport.TransCoder.GetBufferFile().Frames.Count);
 
 
-                     //   FileformatBase BufferFile = SETTINGS.user.DepthTransport.TransCoder.GetBufferFile();
-                 //       IO.Instance.SaveFile(BufferFile, SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
+                        //   FileformatBase BufferFile = SETTINGS.user.DepthTransport.TransCoder.GetBufferFile();
+                        //       IO.Instance.SaveFile(BufferFile, SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
 
                     }
 
