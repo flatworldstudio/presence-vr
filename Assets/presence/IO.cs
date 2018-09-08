@@ -405,7 +405,7 @@ namespace PresenceEngine
         */
         public FileformatBase fileref;
 
-        IEnumerator LoadManualAsync(string fileName, StoryTask taskRef)
+        IEnumerator LoadManualAsync(string fileName, StoryTask taskRef,string prefix)
         {
             busy = true;
             FileformatBase loaded = null;
@@ -462,7 +462,7 @@ namespace PresenceEngine
 
                     if (f % 8 == 0)
                     {
-                        taskRef.SetStringValue("debug", "Loading: " + (frameCount - f));
+                        taskRef.SetStringValue(prefix+"State", "" + (frameCount - f));
                         yield return null;
                     }
 
@@ -487,9 +487,9 @@ namespace PresenceEngine
 
 
             if (loaded == null)
-                taskRef.SetStringValue("loadingState", "failed");
+                taskRef.SetStringValue(prefix+"State", "failed");
             else
-                taskRef.SetStringValue("loadingState", "done");
+                taskRef.SetStringValue(prefix+"State", "done");
 
             busy = false;
 
@@ -499,7 +499,7 @@ namespace PresenceEngine
 
         }
 
-        public void LoadManual(string path, StoryTask taskRef)
+        public void LoadManual(string path, StoryTask taskRef,string prefix)
         {
             path = RebuildPath(path);
 
@@ -508,7 +508,7 @@ namespace PresenceEngine
 
             if (Buffered != null)
             {
-                taskRef.SetStringValue("loadingState", "done");
+                taskRef.SetStringValue(prefix+"State", "done");
 
             }
             else
@@ -518,7 +518,7 @@ namespace PresenceEngine
                 if (!busy)
                 {
                     Log("loading async from disk");
-                    StartCoroutine(LoadManualAsync(path, taskRef));
+                    StartCoroutine(LoadManualAsync(path, taskRef,prefix));
                 }
 
 

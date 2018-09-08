@@ -221,7 +221,7 @@ namespace PresenceEngine
                      prefix = "server";
 #endif
 #if CLIENT
-                    string prefix = "client";
+                     prefix = "client";
 #endif
 
                     // Kick of the async saving process.
@@ -230,7 +230,7 @@ namespace PresenceEngine
                     if (!task.GetStringValue(prefix + "State", out myState))
                     {
                         task.SetStringValue(prefix + "State", "begin");
-                        IO.Instance.LoadManual(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile, task);
+                        IO.Instance.LoadManual(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile, task,prefix);
 
                     }
 
@@ -292,39 +292,39 @@ namespace PresenceEngine
                     break;
 
 
-                case "loadselectedfile":
+                //case "loadselectedfile":
 
-                    string loadingState;
+                    //string loadingState;
 
-                    if (!task.GetStringValue("loadingState", out loadingState))
-                        task.SetStringValue("loadingState", "starting");
+                    //if (!task.GetStringValue("loadingState", out loadingState))
+                    //    task.SetStringValue("loadingState", "starting");
 
-                    switch (loadingState)
-                    {
-                        case "starting":
-                            task.SetStringValue("loadingState", "inprogress");
-                            IO.Instance.LoadManual(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile, task);
+                    //switch (loadingState)
+                    //{
+                    //    case "starting":
+                    //        task.SetStringValue("loadingState", "inprogress");
+                    //        IO.Instance.LoadManual(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile, task);
 
-                            break;
+                    //        break;
 
-                        case "done":
-                            done = true;
-                            Log("loading completed");
-                            //  FileformatBase loaded = IO.Instance.fileref;
-
-
-                            break;
-                        default:
-                            break;
-
-                    }
+                    //    case "done":
+                    //        done = true;
+                    //        Log("loading completed");
+                    //        //  FileformatBase loaded = IO.Instance.fileref;
 
 
+                    //        break;
+                    //    default:
+                    //        break;
+
+                    //}
 
 
 
 
-                    break;
+
+
+                    //break;
 
                 // -----------------------------------------------------------------------
                 // Main roles.
