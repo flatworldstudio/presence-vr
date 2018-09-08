@@ -367,6 +367,7 @@ namespace PresenceEngine
             if (__mode == DEPTHMODE.LIVE || __mode == DEPTHMODE.RECORD)
                 return TransCoder.Decode(out ActiveFrame, task, prefix, __mode == DEPTHMODE.RECORD);
 
+            Debug.Log("mode not live or record");
             return false;
         }
 

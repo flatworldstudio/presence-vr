@@ -1043,8 +1043,11 @@ namespace PresenceEngine
 
             if (r == null)
                 Log("Not found in cache " + fileName);
-            else
+            else{
                 Log("Found in cache " + fileName);
+                r.DumpTimeStamps();
+            }
+                
 
             return r;
 

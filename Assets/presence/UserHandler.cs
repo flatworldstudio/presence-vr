@@ -538,18 +538,22 @@ namespace PresenceEngine
                 case "depthlive":
 
                     userMessager.ShowTextMessage("Streaming depth", 1);
+                    #if SERVER
                     serverInterface.HideButton("startpresence");
                     serverInterface.ShowButton("stoppresence");
+                    #endif
 
                     done = true;
+
                     break;
 
                 case "depthoff":
 
                     userMessager.ShowTextMessage("Streaming depth off", 1);
+                    #if SERVER
                     serverInterface.HideButton("stoppresence");
                     serverInterface.ShowButton("startpresence");
-
+                    #endif
                     done = true;
                     break;
 
