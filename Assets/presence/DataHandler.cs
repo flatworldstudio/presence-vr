@@ -225,19 +225,19 @@ namespace PresenceEngine
                         task.SetStringValue(prefix + "State", "begin");
                         IO.Instance.LoadManual(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile, task, prefix);
                         task.SetStringValue("file", SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
+                        // If there's a client we'll flag that ourselves.
 
+                        if (GENERAL.wasConnected)
+                        {
+                            task.SetStringValue("clientState", "notstarted");
+                        }
+                        else
+                        {
+                            task.SetStringValue("clientState", "noclient");
+                        }
                     }
 
-                    // If there's a client we'll flag that ourselves.
-
-                    if (GENERAL.wasConnected)
-                    {
-                        task.SetStringValue("clientState", "notstarted");
-                    }
-                    else
-                    {
-                        task.SetStringValue("clientState", "noclient");
-                    }
+            
 
 
 #endif
