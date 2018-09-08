@@ -353,6 +353,7 @@ end
 #recordsolo
 pressedrecordstart
 isglobal
+start presencehandler
 waitforuser
 materialiseon
 recordprepare
@@ -362,6 +363,7 @@ pressedrecordstop
 recordoff
 storefileasync
 materialiseoff
+stop presencehandler
 makefilemenu
 end
 

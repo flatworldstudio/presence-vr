@@ -1897,7 +1897,8 @@ namespace PresenceEngine
                             if (task.GetStringValue("user_path", out filePath))
                             {
                        //         IO.Instance.SelectFile(file);
-                       //     SETTINGS.SelectedFile = IO.Instance.FileFromPath(file);
+                           SETTINGS.SelectedFile = IO.Instance.FileFromPath(filePath);
+                        SETTINGS.SelectedFolder = IO.Instance.FolderFromPath(filePath);
 
                       //      string path = SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile;
 
