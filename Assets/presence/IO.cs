@@ -269,7 +269,7 @@ namespace PresenceEngine
 
             file.Frames = new List<FrameBase>();// clear out the main file for serialisation.
 
-            FileStream fs = File.Create(localStorageFolder + fileName + ".prc");
+            FileStream fs = File.Create(localStorageFolder + fileName + SETTINGS.Ext);
             BinaryFormatter bf = new BinaryFormatter();
 
             MemoryStream ContentSize = new MemoryStream();
@@ -409,7 +409,7 @@ namespace PresenceEngine
             busy = true;
             FileformatBase loaded = null;
 
-            using (FileStream rf = File.Open(localStorageFolder + fileName + ".prc", FileMode.Open))
+            using (FileStream rf = File.Open(localStorageFolder + fileName + SETTINGS.Ext, FileMode.Open))
             {
                 BinaryFormatter bf = new BinaryFormatter();
 
@@ -541,7 +541,7 @@ namespace PresenceEngine
 
             //     Debug.Log("Creating directory: " + localStorageFolder + _selectedFolder);
 
-            FileStream file = File.Create(localStorageFolder + RebuildPath(path) + ".prs");
+            FileStream file = File.Create(localStorageFolder + RebuildPath(path) + SETTINGS.Ext);
 
             bf.Serialize(file, presenceFile);
 
@@ -619,7 +619,7 @@ namespace PresenceEngine
             foreach (FileInfo fi in sortedFiles)
             {
 
-                if (fi.Extension == ".prs")
+                if (fi.Extension == SETTINGS.Ext)
                 {
 
                     FileList.Add(StripExtention(fi.Name));
@@ -838,7 +838,7 @@ namespace PresenceEngine
 
 
 
-                Buffered = LoadFromFile(RebuildPath(filePath) + ".prs");  // returns null and logs error on fail.
+                Buffered = LoadFromFile(RebuildPath(filePath) + SETTINGS.Ext);  // returns null and logs error on fail.
 
 
 
@@ -879,9 +879,9 @@ namespace PresenceEngine
                 // try loading it from disk
                 Log("try loading from disk");
 
-                //if (!File.Exists(localStorageFolder + filePath+".prs"))
+                //if (!File.Exists(localStorageFolder + filePath+SETTINGS.Ext))
                 //{
-                //    Log("File not found " + localStorageFolder + AsyncFilePath + ".prs");
+                //    Log("File not found " + localStorageFolder + AsyncFilePath + SETTINGS.Ext);
                 //    taskRef.SetStringValue("loadingstate", "failed");
                 //    return;
                 //}
@@ -908,7 +908,7 @@ namespace PresenceEngine
 
             FileformatBase loaded = null;
 
-            using (FileStream fs = File.Open(localStorageFolder + filePath + ".prs", FileMode.Open))
+            using (FileStream fs = File.Open(localStorageFolder + filePath + SETTINGS.Ext, FileMode.Open))
             {
 
                 //
@@ -1086,13 +1086,13 @@ namespace PresenceEngine
             if (filePath == "")
                 return null;
 
-            if (!File.Exists(localStorageFolder + filePath + ".prs"))
+            if (!File.Exists(localStorageFolder + filePath + SETTINGS.Ext))
                 return null;
 
 
             FileformatBase loaded;
 
-            using (FileStream fs = File.Open(localStorageFolder + filePath + ".prs", FileMode.Open))
+            using (FileStream fs = File.Open(localStorageFolder + filePath + SETTINGS.Ext, FileMode.Open))
             {
 
                 try
