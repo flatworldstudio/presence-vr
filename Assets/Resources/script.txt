@@ -375,8 +375,9 @@ tell recordsolo recordsolo_stop
 end
 
 #playsolo
-start presencehandler
 pressedplay
+isglobal
+start presencehandler
 loadfileasync
 playbackfile
 waitforallplaybacktoend
