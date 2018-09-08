@@ -5,62 +5,177 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System;
 using System.Linq;
-//using NUnit.Framework;
+using StoryEngine;
+using Logger = StoryEngine.Logger;
 
 namespace PresenceEngine
 {
 
-    public struct PFile
+    //public struct PFile
+    //{
+
+    //    public string Name; // name only
+    //    public string Folder;
+
+    //    public string Path; // subpath from localstorage using forward slashes.
+
+
+
+    //}
+
+
+    //public struct PFolder
+    //{
+
+    //    public string Name;
+    //    public string Path; // subpath from localstorage using forward slashes.
+
+
+    //}
+
+    public class IO : MonoBehaviour
     {
+        string ID = "IO";
 
-        public string Name; // name only
+        string localStorageFolder = "";
+        Dictionary<string, FileformatBase> PresenceCache;
+        public static IO Instance;
 
-        public string Path; // subpath from localstorage using forward slashes.
+        bool busy = false;
+        //string AsyncFilePath;
+        //StoryTask AsyncTaskRef;
+        //string _selectedFolderName = ""; // "/subpath"
+        // string _selectedFileName = ""; // "/subpath/name"
 
+        //  string _selected = "";
 
-    }
+        //    static List<PFile> _filesInSelectedFolder;
 
+        // Copy these into every class for easy debugging. This way we don't have to pass an ID. Stack-based ID doesn't work across platforms.
 
-    public struct PFolder
-    {
-
-        public string Name;
-        public string Path; // subpath from localstorage using forward slashes.
-
-
-    }
-  
-    public static class IO
-    {
-
-
-        public static string localStorageFolder = "";
-
-        // Reference to currently visible folder
-
-        static string _selectedFolder = ""; // "/subpath"
-        static string _selectedFile = ""; // "/subpath/name"
-
-
-        static List<PFile> _filesInSelectedFolder;
-
-
-        public static void SetDataPath()
+        void Log(string message)
         {
+            Logger.Output(message, ID, LOGLEVEL.NORMAL);
+        }
+        void Warning(string message)
+        {
+            Logger.Output(message, ID, LOGLEVEL.WARNINGS);
+        }
+        void Error(string message)
+        {
+            Logger.Output(message, ID, LOGLEVEL.ERRORS);
+        }
+        void Verbose(string message)
+        {
+            Logger.Output(message, ID, LOGLEVEL.VERBOSE);
+        }
+
+        private void Start()
+        {
+            SetLocalStorage();
+            ListStorageContents();
+            Instance = this;
+            PresenceCache = new Dictionary<string, FileformatBase>();
+        }
+
+        private void Update()
+        {
+
+        }
+
+        void SetLocalStorage()
+        {
+
+
             localStorageFolder = Application.persistentDataPath + "/data";
-            Debug.Log("IO data path: " + localStorageFolder);
-            if (Directory.Exists(localStorageFolder))
+
+            Log("Data path: " + localStorageFolder);
+
+            if (!Directory.Exists(localStorageFolder))
             {
-                Debug.LogWarning("local storage path exists.");
+                Warning("Data path doesn't exist, creating it.");
+                Directory.CreateDirectory(localStorageFolder);
             }
-            Directory.CreateDirectory(localStorageFolder);
-            Debug.LogWarning("Creating directory: " + localStorageFolder);
+
+            // Double checking.
 
             if (Directory.Exists(localStorageFolder))
             {
-                Debug.LogWarning("local storage was created (again).");
+                Warning("Data path created successfully.");
             }
+
+
         }
+
+        public string RebuildPath(string path)
+        {
+            string[] parts = Split(path);
+
+            if (parts.Length != 2)
+            {
+                Error("Path depth not 2.");
+                return "";
+            }
+
+            return "/" + parts[0] + "/" + parts[1];
+
+
+
+        }
+
+        public string FolderFromPath(string path)
+        {
+            string[] parts = Split(path);
+
+            if (parts.Length > 2)
+            {
+                Warning("Path depth exceeds 2, just returning first item as folder.");
+
+            }
+
+            return "/" + parts[0];
+
+
+        }
+
+        /*
+        public string SelectedFolder
+        {
+
+            get
+            {
+                string[] parts = Split(_selected);
+
+                if (parts.Length > 2)
+                    Error("Path depth exceeds 2");
+
+                return parts[0];
+
+                //  return _selectedFolder;
+            }
+            set
+            {
+                Debug.LogWarning("Can't set BrowseFolder directly, use SetBrowseFolder methods.");
+            }
+
+
+        }
+
+        public static string CheckedOutFile
+        {
+
+            get
+            {
+                return _selectedFile;
+            }
+            set
+            {
+                Debug.LogWarning("Can't set CheckedOutFile directly, use SetCheckedoutFile methods.");
+            }
+
+        }
+        */
+
 
         /*
         public static void Test()
@@ -91,147 +206,441 @@ namespace PresenceEngine
         }
         */
 
-            public static void DataListToConsole()
+        public void ListStorageContents()
         {
 
-            Debug.Log("Listing local storage contents: ");
+            Log("Listing local storage contents: ");
+
             string[] FolderPaths = Directory.GetDirectories(localStorageFolder);
 
             foreach (string folder in FolderPaths)
             {
-                Debug.Log("Folder: "+ folder);
+                Log("Folder: " + folder);
                 string[] FilePaths = Directory.GetFiles(folder);
                 foreach (string file in FilePaths)
                 {
-
-                    Debug.Log(file);
+                    Log(file);
                 }
             }
 
 
         }
-        // Public save/load methods.
 
-        public static void SaveFileToSelected(FileformatBase presenceFile)
+
+        // Public save/load methods.
+        public void SaveManual(FileformatBase presenceFile, string path, StoryTask taskRef)
+        {
+
+            Directory.CreateDirectory(localStorageFolder + FolderFromPath(path));
+
+            path = RebuildPath(path);
+
+            if (!busy)
+            {
+                StartCoroutine(SaveManualAsync(presenceFile, path, taskRef));
+            }
+
+
+
+        }
+        IEnumerator SaveManualAsync(FileformatBase file, string fileName, StoryTask taskRef)
+        {
+            Log("saving a file");
+            busy = true;
+
+            // Store a ref to the frames.
+            List<FrameBase> frames = file.Frames;
+            Log("number of frames " + frames.Count);
+
+            file.Frames = new List<FrameBase>();// clear out the main file for serialisation.
+
+            FileStream fs = File.Create(localStorageFolder + fileName + ".prc");
+            BinaryFormatter bf = new BinaryFormatter();
+
+            MemoryStream ContentSize = new MemoryStream();
+            MemoryStream Content = new MemoryStream();
+
+            // serialise content
+            bf.Serialize(Content, file);
+            Verbose("main file serialised  " + Content.Length);
+
+            // serialise length of content
+            bf.Serialize(ContentSize, Content.Length);
+            Verbose("mainfile length integer " + ContentSize.Length);
+
+            ContentSize.WriteTo(fs);
+            Content.WriteTo(fs);
+
+            // Now iterate over frames
+            ContentSize = new MemoryStream();
+
+            long FrameCount = frames.Count;
+
+            // serialise number of frames of content
+            bf.Serialize(ContentSize, FrameCount);
+            Verbose("framecount integer " + ContentSize.Length);
+            ContentSize.WriteTo(fs);
+
+
+            int f = 0;
+            while (f < FrameCount)
+            {
+                FrameBase frame = frames[f];
+
+                Verbose("serialising frame " + f);
+
+                // serialise frame
+
+                Content = new MemoryStream();
+                bf.Serialize(Content, frame);
+                Verbose("frame serialised  " + Content.Length);
+
+                // serialise frame size
+
+                ContentSize = new MemoryStream();
+                bf.Serialize(ContentSize, Content.Length);
+                Verbose("frame length integer " + ContentSize.Length);
+
+                ContentSize.WriteTo(fs);
+                Content.WriteTo(fs);
+
+                f++;
+
+                if (f % 8 == 0)
+                {
+                    taskRef.SetStringValue("debug", "saving: " + (FrameCount - f));
+                    yield return null;
+                }
+
+            }
+
+            Verbose("saving, closing file");
+            fs.Close();
+
+            // Put the frames back.
+            file.Frames = frames;
+
+            AddToCache(file, fileName);
+
+            taskRef.SetStringValue("savingstate", "done");
+            busy = false;
+
+            yield return null;
+        }
+
+        void AddToCache(FileformatBase file, string fileName)
+        {
+            Log("Adding to cache: " + fileName);
+
+            FileformatBase entry;
+            if (PresenceCache.TryGetValue(fileName, out entry))
+            {
+                PresenceCache[fileName] = file;
+            }
+            else
+            {
+                PresenceCache.Add(fileName, file);
+            }
+
+
+        }
+        /*
+        IEnumerator SaveManualAsync (FileInfo file, string fileName)
+        {
+            Log("saving a file");
+
+
+            //     Directory.CreateDirectory(localStorageFolder +"test");
+
+            FileStream fs = File.Create(fileName);
+
+            // First some basics.
+            BinaryFormatter bf = new BinaryFormatter();
+            MemoryStream info = new MemoryStream();
+            MemoryStream content = new MemoryStream();
+
+
+            bf.Serialize(content, "something can be serialized here");
+
+
+            Log("content length " + content.Length);
+
+            bf.Serialize(info, content.Length);
+
+            Log("info length " + info.Length);
+
+            info.WriteTo(fs);
+            content.WriteTo(fs);
+
+            //  bf.Serialize(fs, "something");
+
+            // bf.Serialize(fs, "something else");
+
+
+            //     byte[] buffer = new byte[1024];
+
+            //    fs.Write(buffer, 0, 1024);
+
+            fs.Close();
+          
+
+            yield return null;
+        }
+        */
+        public FileformatBase fileref;
+
+        IEnumerator LoadManualAsync(string fileName, StoryTask taskRef)
+        {
+            busy = true;
+            FileformatBase loaded = null;
+
+            using (FileStream rf = File.Open(localStorageFolder + fileName + ".prc", FileMode.Open))
+            {
+                BinaryFormatter bf = new BinaryFormatter();
+
+                //   byte[] bytes = new byte[rf.Length];
+
+                byte[] infoBuffer = new byte[58];
+                rf.Read(infoBuffer, 0, 58);
+                MemoryStream info = new MemoryStream(infoBuffer);
+                System.Int64 contentLength = (System.Int64)bf.Deserialize(info);
+                Verbose("content length " + contentLength);
+
+                byte[] contentBuffer = new byte[contentLength];
+                rf.Read(contentBuffer, 0, (int)contentLength);
+                MemoryStream content = new MemoryStream(contentBuffer);
+                FileformatBase file = (FileformatBase)bf.Deserialize(content);
+
+                Verbose("content " + file.Name + " " + file.TransCoderName);
+
+                infoBuffer = new byte[58];
+                rf.Read(infoBuffer, 0, 58);
+                info = new MemoryStream(infoBuffer);
+                System.Int64 frameCount = (System.Int64)bf.Deserialize(info);
+                Verbose("frame counnt " + frameCount);
+
+                file.Frames = new List<FrameBase>(); // should already be there
+
+                int f = 0;
+                while (f < frameCount)
+                {
+
+                    Verbose("deserialising frame " + f);
+
+                    infoBuffer = new byte[58];
+                    rf.Read(infoBuffer, 0, 58);
+                    info = new MemoryStream(infoBuffer);
+                    contentLength = (System.Int64)bf.Deserialize(info);
+                    Verbose("frame length " + contentLength);
+
+                    contentBuffer = new byte[contentLength];
+                    rf.Read(contentBuffer, 0, (int)contentLength);
+                    content = new MemoryStream(contentBuffer);
+                    FrameBase frame = (FrameBase)bf.Deserialize(content);
+
+
+
+                    file.Frames.Add(frame);
+
+                    f++;
+
+                    if (f % 8 == 0)
+                    {
+                        taskRef.SetStringValue("debug", "Loading: " + (frameCount-f));
+                        yield return null;
+                    }
+                      
+
+                }
+
+                AddToCache(file, fileName);
+                //   PresenceCache.Add(fileName, file);
+                Verbose("cache size " + PresenceCache.Keys.ToArray().Length);
+                // Log("filename " + fileName);
+
+                loaded = file;
+                fileref = file;
+
+
+
+                rf.Close();
+            }
+            //     Directory.CreateDirectory(localStorageFolder +"test");
+            //     FileStream file = File.Create(localStorageFolder + "test.tst");
+
+
+
+            if (loaded == null)
+                taskRef.SetStringValue("loadingState", "failed");
+            else
+                taskRef.SetStringValue("loadingState", "done");
+
+            busy = false;
+
+            yield return null;
+
+
+
+        }
+
+        public void LoadManual(string path, StoryTask taskRef)
+        {
+            path = RebuildPath(path);
+                   
+
+            FileformatBase Buffered = FindInCache(RebuildPath(path));
+
+            if (Buffered != null)
+            {
+                taskRef.SetStringValue("loadingState", "done");
+
+            }
+            else
+            {
+                
+
+                if (!busy)
+                {
+                    Log("loading async from disk");
+                    StartCoroutine(LoadManualAsync(path, taskRef));
+                }
+                 
+
+
+            }
+
+
+           
+
+
+
+        }
+
+
+        public void SaveFile(FileformatBase presenceFile, string path)
         {
 
             BinaryFormatter bf = new BinaryFormatter();
 
-            Directory.CreateDirectory(localStorageFolder + _selectedFolder);
+            Directory.CreateDirectory(localStorageFolder + FolderFromPath(path));
 
-            Debug.Log("Creating directory: " + localStorageFolder + _selectedFolder);
+            //     Debug.Log("Creating directory: " + localStorageFolder + _selectedFolder);
 
-            FileStream file = File.Create(localStorageFolder + _selectedFile);
+            FileStream file = File.Create(localStorageFolder + RebuildPath(path) + ".prs");
 
             bf.Serialize(file, presenceFile);
+
             file.Close();
 
-            Debug.Log("Saving file: " + localStorageFolder + _selectedFile);
+            Debug.Log("Saving file: " + localStorageFolder + RebuildPath(path));
 
-            _filesInSelectedFolder = null;
-
-        }
-
-        public static FileformatBase LoadFile(string filePath)
-        {
-
-            FileformatBase Buffered = FindBufferFileInScene(filePath);
-
-            if (Buffered == null)
-            {
-                // try loading it from disk
-
-                Buffered = IO.LoadFromFile(filePath);  // returns null and logs error on fail.
-
-                if (Buffered == null)
-                {
-
-                    // create it
-                    //Debug.Log("CREATING FILE " + filePath);
-
-                    //Buffered = new FileformatBase();
-
-                }
-
-
-            }
-
-            return Buffered;
+            //     _filesInSelectedFolder = null;
 
         }
-
 
 
 
 
         // Public browsing methods.
 
-        public static PFolder[] GetLocalFolders()
+        public string[] GetFolders()
         {
 
-            if (!Directory.Exists(localStorageFolder))
-                Directory.CreateDirectory(localStorageFolder);
+            //if (!Directory.Exists(localStorageFolder)
+            //    Directory.CreateDirectory(localStorageFolder);
 
             string[] FolderPaths = Directory.GetDirectories(localStorageFolder);
 
-            PFolder[] FolderList = new PFolder[FolderPaths.Length];
+            string[] FolderList = new string[FolderPaths.Length];
 
             for (int i = 0; i < FolderPaths.Length; i++)
             {
                 string subFolder = FolderPaths[i];
 
+                string[] parts = Split(subFolder);
 
-                char[] delimiter = new char[] { '/', '\\' };
-                string[] name = subFolder.Split(delimiter);
+                //   PFolder f = new PFolder();
 
-                PFolder f = new PFolder();
 
-                f.Name = name[name.Length - 1];
-                f.Path = "/" + f.Name;
+                string Name = parts[parts.Length - 1];
+                //    f.Path = "/" + f.Name;
 
-                FolderList[i] = f;
+                FolderList[i] = Name;
 
-                Debug.Log("folder: " + f.Name);
-                Debug.Log("folderpath: " + f.Path);
+                Debug.Log("folder: " + Name);
+                //   Debug.Log("folderpath: " + f.Path);
 
             }
 
-            _filesInSelectedFolder = null;
+            //  _filesInSelectedFolder = null;
 
             return FolderList;
 
 
         }
 
-        public static string SelectedFolder
+
+        public string[] GetFiles(string folder)
         {
 
-            get
+            folder = FolderFromPath(folder);
+
+
+            //   LocalFolder = "/" + Strip(LocalFolder);
+
+            //     Debug.Log("listing files for " + LocalFolder);
+
+            //if (!Directory.Exists(localStorageFolder))
+            //    Directory.CreateDirectory(localStorageFolder);
+
+            if (!Directory.Exists(localStorageFolder + folder))
+                return new string[0];
+
+
+            // Get files and sort last modified first.
+
+            List<FileInfo> sortedFiles = new DirectoryInfo(localStorageFolder + folder).GetFiles().OrderByDescending(f => f.LastWriteTime).ToList();
+
+            // Go over them and keep the .prs files.
+
+            List<string> FileList = new List<string>();
+
+            foreach (FileInfo fi in sortedFiles)
             {
-                return _selectedFolder;
+
+                if (fi.Extension == ".prs")
+                {
+
+                    //PFile pFile = new PFile
+
+                    //{
+                    //    Path = folder + "/" + fi.Name,
+                    //    Name = fi.Name
+
+                    //};
+
+                    FileList.Add(StripExtention(fi.Name));
+                    //Debug.Log("filename " + pFile.Name);
+                    //Debug.Log("filesubpath " + pFile.Path);
+
+                }
+
             }
-            set
-            {
-                Debug.LogWarning("Can't set BrowseFolder directly, use SetBrowseFolder methods.");
-            }
+
+            return FileList.ToArray();
+
+        }
+
+        string StripExtention(string file)
+        {
+            char[] delimiter = { '.' };
+
+            return file.Split(delimiter)[0];
 
 
         }
 
-        public static string CheckedOutFile
-        {
-
-            get
-            {
-                return _selectedFile;
-            }
-            set
-            {
-                Debug.LogWarning("Can't set CheckedOutFile directly, use SetCheckedoutFile methods.");
-            }
-
-        }
-
+        /*
         public static List<PFile> FilesInSelectedFolder
         {
 
@@ -250,7 +659,8 @@ namespace PresenceEngine
             }
 
         }
-
+        */
+        /*
         public static void SelectFolder(string folderName)
         {
             folderName = Strip(folderName);
@@ -268,7 +678,7 @@ namespace PresenceEngine
             _filesInSelectedFolder = null;
 
         }
-
+        */
         //public static void SelectFile(string folderName, string fileName)
         //{
         //    folderName = Strip(folderName);
@@ -280,7 +690,7 @@ namespace PresenceEngine
         //    _selectedFile = "/" + folderName + "/" + fileName;
 
         //}
-
+        /*
         public static void SelectFile(string path)
         {
 
@@ -305,55 +715,88 @@ namespace PresenceEngine
 
 
         }
+        */
 
-        public static int CheckedOutFileIndex()
+        //public int FileIndex(string fileName, string folderName)
+        //{
+
+        //    // Returns the index for the file that is currently selected.
+
+        //    for (int i = 0; i < FilesInSelectedFolder.Count; i++)
+        //    {
+        //        if (FilesInSelectedFolder[i].Path == IO.CheckedOutFile)
+        //            return i;
+        //    }
+
+        //    return 0;
+
+        //}
+
+
+        //public static string GetFilePath(int index)
+        //{
+
+        //    if (index < FilesInSelectedFolder.Count)
+        //        return FilesInSelectedFolder[index].Path;
+
+        //    return "";
+        //}
+
+        public void MakeNewFile(string path)
         {
+            Log("Make file " + path);
 
-            // Returns the index for the file that is currently selected.
+            FileformatBase placeholder = new FileformatBase();
 
-            for (int i = 0; i < FilesInSelectedFolder.Count; i++)
-            {
-                if (FilesInSelectedFolder[i].Path == IO.CheckedOutFile)
-                    return i;
-            }
 
-            return 0;
+            SaveFile(placeholder, RebuildPath(path));
+
+            //   SelectFile(path);
+            //   SaveCheckedOutFileAsPlaceholder();
+            //   _filesInSelectedFolder = null;
 
         }
 
-
-        public static string GetFilePath(int index)
-        {
-
-            if (index < FilesInSelectedFolder.Count)
-                return FilesInSelectedFolder[index].Path;
-
-            return "";
-        }
-
-        public static void MakeNewFile(string path)
-        {
-
-            SelectFile(path);
-            SaveCheckedOutFileAsPlaceholder();
-            _filesInSelectedFolder = null;
-
-        }
-
-        public static void MakeNewFolder(string path)
+        public void MakeNewFolder(string name)
         {
 
 
-            Directory.CreateDirectory(localStorageFolder + path);
+            Directory.CreateDirectory(localStorageFolder + "/" + name);
 
-            SelectFolder(path);
-            _filesInSelectedFolder = null;
+            //SelectFolder(path);
+            //_filesInSelectedFolder = null;
         }
 
 
 
         // Internal methods.
 
+        string[] Split(string name)
+        {
+            // Remove all slashes to prevent PC/MAC mixups.
+            // Returns an array of all non-zero strings.
+
+            char[] delimiter = { '\\', '/' };
+            string[] split = name.Split(delimiter);
+            List<string> parts = new List<string>();
+
+            for (int p = 0; p < split.Length; p++)
+            {
+
+                if (split[p].Length > 0)
+                {
+                    parts.Add(split[p]);
+
+                }
+
+            }
+
+            return parts.ToArray();
+
+
+        }
+
+        /*
         static string Strip(string name)
         {
             // Remove all slashes to prevent PC/MAC mixups.
@@ -377,9 +820,169 @@ namespace PresenceEngine
             return "";
 
         }
+        */
+
+        // LOAD SAVE
 
 
-        static FileformatBase FindBufferFileInScene(string fileName)
+        public FileformatBase LoadFile(string filePath)
+        {
+
+            filePath = RebuildPath(filePath);
+
+            FileformatBase Buffered = FindInCache(RebuildPath(filePath));
+
+            if (Buffered == null)
+            {
+
+
+
+                Buffered = LoadFromFile(RebuildPath(filePath) + ".prs");  // returns null and logs error on fail.
+
+
+
+                if (Buffered != null)
+                {
+                    PresenceCache.Add(filePath, Buffered);
+
+                    Log("Added to cache: " + filePath);
+
+                    //Buffered = new FileformatBase();
+
+                }
+
+
+            }
+
+            return Buffered;
+
+        }
+
+        public void LoadFileAsync(string filePath, StoryTask taskRef)
+        {
+
+            if (filePath == "")
+            {
+                taskRef.SetStringValue("loadingstate", "failed");
+                return;
+            }
+
+            filePath = RebuildPath(filePath);
+            //    AsyncFilePath =
+            //    AsyncTaskRef = taskRef;
+
+            FileformatBase Buffered = FindInCache(filePath);
+
+            if (Buffered == null)
+            {
+                // try loading it from disk
+                Log("try loading from disk");
+
+                //if (!File.Exists(localStorageFolder + filePath+".prs"))
+                //{
+                //    Log("File not found " + localStorageFolder + AsyncFilePath + ".prs");
+                //    taskRef.SetStringValue("loadingstate", "failed");
+                //    return;
+                //}
+
+
+                if (!busy)
+                {
+
+                    StartCoroutine(Load(filePath, taskRef));
+                }
+
+
+
+
+            }
+
+
+
+        }
+
+        IEnumerator Load(string filePath, StoryTask taskRef)
+        {
+            busy = true;
+
+            FileformatBase loaded = null;
+
+            using (FileStream fs = File.Open(localStorageFolder + filePath + ".prs", FileMode.Open))
+            {
+
+                //
+                Debug.Log("Loading buffer from file: " + filePath);
+
+                byte[] bytes = new byte[fs.Length];
+
+                int bytesToRead = (int)fs.Length;
+                int bytesRead = 0;
+                //    string DEBUG = "";
+                int MaxBuffer = 1024 * 1024;
+
+
+                while (bytesToRead > 0)
+                {
+
+                    int n = fs.Read(bytes, bytesRead, Mathf.Min(bytesToRead, MaxBuffer));
+
+                    if (n == 0)
+                        break;
+
+                    // loaded = (FileformatBase)bf.Deserialize(stream);
+
+
+                    bytesToRead -= n;
+                    bytesRead += n;
+
+                    //DEBUG += " " + n;
+                    Log("" + n);
+                    taskRef.SetStringValue("debug", "Remaining: " + bytesToRead);
+                    yield return null;
+                }
+                //     Debug.Log(DEBUG);
+
+                Log("loading done");
+
+                fs.Close();
+
+
+
+                //   fs.Read
+
+                Stream stream = new MemoryStream(bytes);
+                BinaryFormatter bf = new BinaryFormatter();
+
+
+                loaded = (FileformatBase)bf.Deserialize(stream);
+                PresenceCache.Add(filePath, loaded);
+
+
+                // }
+                //catch (Exception e)
+                //{
+
+                //    Debug.LogError(e);
+
+
+                //}
+
+            }
+            //  return;
+
+            if (loaded == null)
+                taskRef.SetStringValue("loadingstate", "failed");
+            else
+                taskRef.SetStringValue("loadingstate", "done");
+
+            busy = false;
+            yield return null;
+
+        }
+
+
+
+        FileformatBase FindBufferFileInScene(string fileName)
         {
 
             //  Debug.Log("Trying to find buffer " + fileName);
@@ -411,55 +1014,32 @@ namespace PresenceEngine
 
 
 
-        static List<PFile> GetFileList(string LocalFolder)
+
+        FileformatBase FindInCache(string fileName)
         {
 
-            LocalFolder = "/" + Strip(LocalFolder);
 
-            //     Debug.Log("listing files for " + LocalFolder);
 
-            if (!Directory.Exists(localStorageFolder))
-                Directory.CreateDirectory(localStorageFolder);
+            FileformatBase r;
+            PresenceCache.TryGetValue(fileName, out r);
 
-            if (!Directory.Exists(localStorageFolder + LocalFolder))
-                return new List<PFile>();
+            if (r == null)
+                Log("Not found in cache " + fileName);
+            else
+                Log("Found in cache " + fileName);
 
-            // Get files and sort last modified first.
+            return r;
 
-            List<FileInfo> sortedFiles = new DirectoryInfo(localStorageFolder + LocalFolder).GetFiles().OrderByDescending(f => f.LastWriteTime).ToList();
 
-            // Go over them and keep the .prs files.
+            //     Debug.Log("Didn't find buffer file in scene.");
 
-            List<PFile> FileList = new List<PFile>();
-
-            foreach (FileInfo fi in sortedFiles)
-            {
-
-                if (fi.Extension == ".prs")
-                {
-
-                    PFile pFile = new PFile
-
-                    {
-                        Path = LocalFolder + "/" + fi.Name,
-                        Name = fi.Name
-
-                    };
-
-                    FileList.Add(pFile);
-                    //Debug.Log("filename " + pFile.Name);
-                    //Debug.Log("filesubpath " + pFile.Path);
-
-                }
-
-            }
-
-            return FileList;
-
+            //            return null;
         }
 
 
 
+
+        /*
 
         static void SaveCheckedOutFileAsPlaceholder()
         {
@@ -476,9 +1056,99 @@ namespace PresenceEngine
 
 
         }
+        */
 
 
-        static FileformatBase LoadFromFile(string filePath)
+
+        // FileformatBase LoadAsync(string filePath)
+        //{
+
+        //    if (filePath == "")
+        //        return null;
+
+        //    if (!File.Exists(localStorageFolder + filePath))
+        //        return null;
+
+
+        //    StartCoroutine("Load");
+
+
+        //    return null;
+
+
+        //}
+
+
+        FileformatBase LoadAsyncTest(string filePath)
+        {
+
+            if (filePath == "")
+                return null;
+
+            if (!File.Exists(localStorageFolder + filePath + ".prs"))
+                return null;
+
+
+            FileformatBase loaded;
+
+            using (FileStream fs = File.Open(localStorageFolder + filePath + ".prs", FileMode.Open))
+            {
+
+                try
+                {
+                    Debug.Log("Loading buffer from file: " + filePath);
+
+                    byte[] bytes = new byte[fs.Length];
+
+                    int bytesToRead = (int)fs.Length;
+                    int bytesRead = 0;
+                    string DEBUG = "";
+                    int MaxBuffer = 16 * 1024;
+
+                    while (bytesToRead > 0)
+                    {
+
+                        int n = fs.Read(bytes, bytesRead, Mathf.Min(bytesToRead, MaxBuffer));
+
+                        if (n == 0)
+                            break;
+
+                        bytesToRead -= n;
+                        bytesRead += n;
+
+                        DEBUG += " " + n;
+
+                    }
+                    Debug.Log(DEBUG);
+
+                    fs.Close();
+
+                    Stream stream = new MemoryStream(bytes);
+
+                    //   fs.Read
+
+
+                    BinaryFormatter bf = new BinaryFormatter();
+                    loaded = (FileformatBase)bf.Deserialize(stream);
+                    //  loaded = (FileformatBase)bf.Deserialize(fs);
+
+
+                }
+                catch (Exception e)
+                {
+
+                    Debug.LogError(e);
+                    return null;
+
+                }
+
+            }
+
+            return loaded;
+
+        }
+
+        FileformatBase LoadFromFile(string filePath)
         {
 
             if (filePath == "")

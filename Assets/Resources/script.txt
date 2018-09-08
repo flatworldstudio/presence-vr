@@ -47,9 +47,14 @@ end
 
 // SERVER STORIES.
 
+
+
 #presenceserver
 debugon
 amserver
+//writefile
+//readfile
+//end
 start server
 displaycheck
 alignset
@@ -346,19 +351,14 @@ end
 #recordsolo
 pressedrecordstart
 isglobal
-//moodoff
-materialiseoff
 recordprepare
 waitforuser
-//autocalibrate
-//moodon
-pause5
-//waitforgesture
 materialiseon
 recordstart
 @recordsolo_stop
 pressedrecordstop
-recordstop
+recordoff
+storefileasync
 materialiseoff
 makefilemenu
 end
@@ -370,6 +370,7 @@ end
 #playsolo
 start presencehandler
 pressedplay
+loadselectedfile
 playbackfile
 waitforallplaybacktoend
 @playsolo_stop

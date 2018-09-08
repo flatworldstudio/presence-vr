@@ -26,16 +26,92 @@ namespace PresenceEngine
         int PlayFrame(float Time, out UncompressedFrame Uframe);
 
     }
+    [System.Serializable]
+    public class TestFile
+    {
+              public List<FrameBase> Frames;
+        public Dictionary<string, float> TimeStamps;
+        public string TransCoderName, Name;
+        public float[] Transform;
+        public float SensorY;
+
+        public TestFile()
+        {
+            Frames = new List<FrameBase>();
+            TimeStamps = new Dictionary<string, float>();
+            Transform = new float[0];
+
+        }
+
+        public float GetTimeStamp(string label)
+        {
+            if (TimeStamps.ContainsKey(label))
+                return TimeStamps[label];
+            else
+                return -1;
+
+        }
+
+        public void SetTimeStamp(string label, float value)
+        {
+
+            if (!TimeStamps.ContainsKey(label))
+                TimeStamps.Add(label, value);
+            else
+                TimeStamps[label] = value;
+
+        }
+
+        public float StartTime
+        {
+            get
+            {
+                if (TimeStamps.ContainsKey("StartTime"))
+                    return TimeStamps["StartTime"];
+                else
+                    return 9999999f; // for min/max use
+            }
+            set
+            {
+                SetTimeStamp("StartTime", value);
+            }
+        }
+
+        public float EndTime
+        {
+            get
+            {
+                if (TimeStamps.ContainsKey("EndTime"))
+                    return TimeStamps["EndTime"];
+                else
+                    return -9999999f;// for min/max use
+            }
+            set
+            {
+                SetTimeStamp("EndTime", value);
+            }
+        }
+
+        public void DumpTimeStamps()
+        {
+            foreach (KeyValuePair<string, float> pair in TimeStamps)
+            {
+                Debug.Log("Buffer file time stamp " + pair.Key + " " + pair.Value);
+            }
+
+
+        }
+
+    }
 
     [System.Serializable]
     public class FileformatBase
     {
         public List<FrameBase> Frames;
-
+        
         public Dictionary<string, float> TimeStamps;
 
         public string TransCoderName, Name;
-        //   public float StartTime = 999, EndTime = -1;
         public float[] Transform;
         public float SensorY;
 
@@ -323,12 +399,12 @@ namespace PresenceEngine
         public void SetBufferFileByName(string target)
         {
 
-            if (_bufferFile!=null && _bufferFile.Name==target)
+            if (_bufferFile != null && _bufferFile.Name == target)
                 return;
-            
-            _bufferFile= IO.LoadFile(target);
 
-           // _bufferFile = target;
+            _bufferFile = IO.Instance.LoadFile(target);
+
+            // _bufferFile = target;
         }
 
 
@@ -637,7 +713,7 @@ namespace PresenceEngine
 
                     Uframe.SensorY = _bufferFile.SensorY;
 
-                 
+
 
 
                 }
@@ -647,7 +723,9 @@ namespace PresenceEngine
                     Debug.LogError("Found a frame but is out of range.");
                 }
 
-            }else{
+            }
+            else
+            {
 
                 Debug.LogWarning("Bufferfile is null. Can't read frame.");
             }
@@ -687,10 +765,10 @@ namespace PresenceEngine
         public void SetBufferFileByName(string target)
         {
 
-            if (_bufferFile!=null && _bufferFile.Name==target)
+            if (_bufferFile != null && _bufferFile.Name == target)
                 return;
 
-            _bufferFile= IO.LoadFile(target);
+            _bufferFile = IO.Instance.LoadFile(target);
 
         }
 
@@ -1207,7 +1285,9 @@ namespace PresenceEngine
                     Debug.LogError("Found a frame but is out of range.");
                 }
 
-            }else{
+            }
+            else
+            {
 
                 Debug.LogWarning("Bufferfile is null. Can't read frame.");
             }

@@ -19,6 +19,7 @@ namespace PresenceEngine
 
     public class DataHandler : MonoBehaviour
     {
+        //  public IO IO;
         public Camera CaptureCamera;
 
         public GameObject presences;
@@ -52,6 +53,8 @@ namespace PresenceEngine
 
         public TimeHandler TimeHandler;
 
+        //string SelectedFile;
+        //string SelectedFolder;
 
         //  string dpn;
 
@@ -77,10 +80,10 @@ namespace PresenceEngine
         void Awake()
         {
 
-			// Engine modules.
+            // Engine modules.
 
-            Logger.SetLogLevel("AD", LOGLEVEL.NORMAL);
-            Logger.SetLogLevel("Director", LOGLEVEL.NORMAL);
+            Logger.SetLogLevel("AD", LOGLEVEL.WARNINGS);
+            Logger.SetLogLevel("Director", LOGLEVEL.WARNINGS);
             Logger.SetLogLevel("DataController", LOGLEVEL.WARNINGS);
             Logger.SetLogLevel("DeusController", LOGLEVEL.WARNINGS);
             Logger.SetLogLevel("UserController", LOGLEVEL.WARNINGS);
@@ -88,7 +91,7 @@ namespace PresenceEngine
 
             // Custom modules.
 
-            Logger.SetLogLevel("IO", LOGLEVEL.VERBOSE);
+            Logger.SetLogLevel("IO", LOGLEVEL.NORMAL);
             Logger.SetLogLevel("Data handler", LOGLEVEL.VERBOSE);
 
         }
@@ -96,16 +99,9 @@ namespace PresenceEngine
 
         void Start()
         {
-
-
             dataController.addTaskHandler(TaskHandler);
-            IO.SetDataPath();
-            IO.DataListToConsole();
-
 
             SETTINGS.Presences = new Dictionary<string, Presence>();
-                
-
 
         }
 
@@ -134,6 +130,86 @@ namespace PresenceEngine
 
             switch (task.description)
             {
+                 
+                 //       IO.Instance.SaveFile(BufferFile, SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
+
+                case "storefileasync":
+
+                    string savingState;
+
+                    if (!task.GetStringValue("savingstate", out savingState))
+                        task.SetStringValue("savingstate", "starting");
+
+
+                    switch (savingState)
+                    {
+                        case "starting":
+                            task.SetStringValue("savingstate", "inprogress");
+
+                            //FileformatBase fi = new FileformatBase();
+                            //fi.Name = "Hello world";
+                            //fi.TransCoderName = "Skeleton";
+                            //fi.SetTimeStamp("hello", 100);
+
+                            //SkeletonOnlyFrame frame = new SkeletonOnlyFrame();
+                            //frame.Points[0] = new Point(Vector3.one);
+
+                            //fi.Frames.Add(frame);
+
+                            //fi.Frames.Add(frame);
+
+                            //fi.Frames.Add(frame);
+                            FileformatBase BufferFile = SETTINGS.user.DepthTransport.TransCoder.GetBufferFile();
+
+                            IO.Instance.SaveManual(BufferFile, SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile, task);
+
+                            break;
+                        case "done":
+                            done = true;
+                            break;
+                        default:
+                            break;
+
+                    }
+
+
+
+                    break;
+
+
+                case "loadselectedfile":
+
+                    string loadingState;
+
+                    if (!task.GetStringValue("loadingState", out loadingState))
+                        task.SetStringValue("loadingState", "starting");
+
+                    switch (loadingState)
+                    {
+                        case "starting":
+                            task.SetStringValue("loadingState", "inprogress");
+                            IO.Instance.LoadManual(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile, task);
+
+                            break;
+
+                        case "done":
+                            done = true;
+                            Log("loading completed");
+                          //  FileformatBase loaded = IO.Instance.fileref;
+                          
+                            
+                            break;
+                        default:
+                            break;
+
+                    }
+
+
+                 
+
+                   
+
+                    break;
 
                 // -----------------------------------------------------------------------
                 // Main roles.
@@ -207,7 +283,7 @@ namespace PresenceEngine
                     if (!UserDT.Encode(task, "user"))
                         Warning("Encode failed");
 
-                   // task.SetStringValue("debug", "time: " + UserDT.CurrentTime);
+                    // task.SetStringValue("debug", "time: " + UserDT.CurrentTime);
 
                     // user may move in or out of detection.
 
@@ -340,14 +416,14 @@ namespace PresenceEngine
 
                     //string[] keys = new string[SETTINGS.Presences.Keys.Count];
                     //SETTINGS.Presences.Keys.CopyTo(keys, 0);
-                    
+
                     // push list of all presences
 
                     string[] presenceKeys = SETTINGS.Presences.Keys.ToArray();
                     task.SetStringArrayValue("presences", presenceKeys);
-                    
+
                     // Now go over them and push all data. 
-                          
+
                     foreach (string key in presenceKeys)
                     {
                         //  KeyValuePair<string, Presence> presence = new KeyValuePair<string, Presence>();
@@ -359,10 +435,10 @@ namespace PresenceEngine
                         if (presence.DepthTransport.Mode == DEPTHMODE.COPY)
                         {
                             // Copy frame reference.
-                                                        presence.DepthTransport.ActiveFrame = presence.DepthTransport.TargetPresence.DepthTransport.ActiveFrame;
+                            presence.DepthTransport.ActiveFrame = presence.DepthTransport.TargetPresence.DepthTransport.ActiveFrame;
 
                         }
-                        
+
                         if (presence.DepthTransport.Mode == DEPTHMODE.PLAYBACK)
                         {
                             // Play back while in playback mode and playback successful else fall through.
@@ -386,7 +462,7 @@ namespace PresenceEngine
 
                                         if (!SETTINGS.ManualPlayback)
                                         {
-                                            presence.DepthTransport.CurrentTime+= speed * Time.deltaTime;
+                                            presence.DepthTransport.CurrentTime += speed * Time.deltaTime;
                                         }
 
                                         //Log("playing");
@@ -398,7 +474,7 @@ namespace PresenceEngine
                                         //presence.Value.DepthTransport.CurrentTime = presence.Value.DepthTransport.TransCoder.GetBufferFile().StartTime;
                                         if (!SETTINGS.ManualPlayback)
                                         {
-                                            presence.DepthTransport.CurrentTime+= speed * Time.deltaTime;
+                                            presence.DepthTransport.CurrentTime += speed * Time.deltaTime;
                                         }
                                         //   Log("loop");
 
@@ -602,14 +678,14 @@ namespace PresenceEngine
 
                 // ----------------------------------------------------------------------------------------------------
                 // Pauses, only run on server
-                    # if SERVER
+#if SERVER
                 case "pause3":
 
                     float TimeOut;
 
                     if (!task.GetFloatValue("timeout", out TimeOut))
                     {
-                        TimeOut = Time.time+  3;
+                        TimeOut = Time.time + 3;
                         task.SetFloatValue("timeout", TimeOut);
 
                     }
@@ -623,7 +699,7 @@ namespace PresenceEngine
 
                     if (!task.GetFloatValue("timeout", out TimeOut))
                     {
-                        TimeOut = Time.time+  5;
+                        TimeOut = Time.time + 5;
                         task.SetFloatValue("timeout", TimeOut);
 
                     }
@@ -638,7 +714,7 @@ namespace PresenceEngine
 
                     if (!task.GetFloatValue("timeout", out TimeOut))
                     {
-                        TimeOut = Time.time+  15;
+                        TimeOut = Time.time + 15;
                         task.SetFloatValue("timeout", TimeOut);
 
                     }
@@ -648,7 +724,7 @@ namespace PresenceEngine
 
                     break;
 
-                    #endif
+#endif
                 // ----------------------------------------------------------------------------------------------------
                 // Deus user manipulations
 #if SERVER
@@ -670,7 +746,7 @@ namespace PresenceEngine
 
                     if (SETTINGS.Presences.TryGetValue("playbackpresence", out pbp))
                     {
-                        pbp.DepthTransport.CurrentTime+= 1 / 60f;
+                        pbp.DepthTransport.CurrentTime += 1 / 60f;
 
                     }
 
@@ -702,15 +778,39 @@ namespace PresenceEngine
                 // Data capture and playback.
 
 #if SERVER
+
+                //case "loadselectedfile":
+
+                //    //    IO.Instance.LoadFile(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
+                //    Log("Loading file name " + SETTINGS.SelectedFile);
+
+                //    IO.Instance.LoadFileAsync(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile, task);
+
+                //    // string loadingState;
+
+                //    if (task.GetStringValue("loadingstate", out loadingState))
+                //    {
+                //        if (loadingState == "done")
+                //            Log("loading completed");
+                //        else
+                //            Log("loading failed");
+                //        done = true;
+                //    }
+
+
+
+
+                //    break;
+
                 case "playbackfile":
 
                     // Play back the checked out file. SHOULDN"t THIS BE SERVER ONNLY??
 
-                    Log("Starting name " + IO.CheckedOutFile);
+                    Log("Starting name " + SETTINGS.SelectedFile);
 
-                    FileformatBase pbBuffer = IO.LoadFile(IO.CheckedOutFile);
+                    FileformatBase pbBuffer = IO.Instance.LoadFile(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
 
-                    Log("Starting name " + IO.CheckedOutFile);
+                    //      Log("Starting name " + IO.CheckedOutFile);
 
                     TimeHandler = PlaybackStop;
 
@@ -721,7 +821,7 @@ namespace PresenceEngine
                         if (pbBuffer.EndTime > pbBuffer.StartTime)
                         {
 
-                            Log("Start time: " + pbBuffer.StartTime+  " End time: " + pbBuffer.EndTime);
+                            Log("Start time: " + pbBuffer.StartTime + " End time: " + pbBuffer.EndTime);
 
                             float OutPoint = pbBuffer.EndTime;
 
@@ -738,12 +838,12 @@ namespace PresenceEngine
                             }
 
                             fileplayback.SetVisualiser(SETTINGS.DefaultVisualiser, 0);
-                            fileplayback.SetVisualiser("ShowSkeleton", 1);
+                        //    fileplayback.SetVisualiser("ShowSkeleton", 1);
 
                             fileplayback.SetTranscoder(pbBuffer.TransCoderName);
 
                             fileplayback.DepthTransport.TransCoder.SetBufferFile(pbBuffer);
-                            fileplayback.DepthTransport.CurrentTime = fileplayback.DepthTransport.TransCoder.GetBufferFile().StartTime;
+                            fileplayback.DepthTransport.CurrentTime = pbBuffer.StartTime;
                             fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
 
                             fileplayback.SetVisualiseTransform(Vector3.zero, Vector3.one, Quaternion.identity);
@@ -752,12 +852,12 @@ namespace PresenceEngine
                             //  task.SetIntValue("user_0_cloudvisible", 1);
                             task.SetIntValue("playbackpresence_0_cloudvisible", 1);
                             task.SetIntValue("playbackpresence_1_cloudvisible", 1);
-                            task.SetIntValue("playbackpresence_1_isdrawing", 1);
+                      //      task.SetIntValue("playbackpresence_1_isdrawing", 1);
 
                             fileplayback.PullVisualiserSettingsFromTask(task, "playbackpresence");
 
-                  StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
-                        handler.SetFloatValue(pn + "_speed", 1f);
+                            StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
+                            handler.SetFloatValue(pn + "_speed", 1f);
                             handler.SetFloatValue(pn + "_outpoint", OutPoint);
 
                             Log("started buffer " + pbBuffer.Name);
@@ -810,9 +910,9 @@ namespace PresenceEngine
 
 
 
-                    Log("Starting mirror of " + IO.CheckedOutFile);
+                    Log("Starting mirror of " + SETTINGS.SelectedFile);
 
-                    FileBuffer = IO.LoadFile(IO.CheckedOutFile);
+                    FileBuffer = IO.Instance.LoadFile(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
 
                     if (FileBuffer != null)
                     {
@@ -895,17 +995,20 @@ namespace PresenceEngine
 
                     // Play back the previous n files if available.
 
-                    int checkedOut = IO.CheckedOutFileIndex();
+                    string[] Files = FileList(SETTINGS.SelectedFolder);
+
+                    int Selected = Array.IndexOf(Files, SETTINGS.SelectedFile);
 
                     for (int c = 1; c < 3; c++)
                     {
 
 
-                        string name = IO.GetFilePath(checkedOut + c);
+                        string name = (Selected + c) < Files.Length ? Files[Selected + c] : "";
 
                         Log("starting name " + c + " " + name);
 
-                        FileBuffer = IO.LoadFile(IO.GetFilePath(checkedOut + c));
+                        FileBuffer = IO.Instance.LoadFile(SETTINGS.SelectedFolder + "/" + name);
+
 
                         if (FileBuffer != null)
                         {
@@ -969,7 +1072,10 @@ namespace PresenceEngine
 
                     // Plays back additional copies of the user presence.
 
-                    FileBuffer = IO.LoadFile(IO.CheckedOutFile);
+                    //FileBuffer = IO.Instance.LoadFile(IO.Instance.CheckedOutFile);
+
+                    FileBuffer = SETTINGS.user.DepthTransport.TransCoder.GetBufferFile();
+
 
                     if (FileBuffer != null)
                     {
@@ -1009,7 +1115,7 @@ namespace PresenceEngine
 
                         // Show visualiser.
 
-                        task.SetIntValue(PresenceName+ "_0_cloudvisible", 1);
+                        task.SetIntValue(PresenceName + "_0_cloudvisible", 1);
                         fileplayback.PullVisualiserSettingsFromTask(task, PresenceName);
 
                         StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
@@ -1044,19 +1150,29 @@ namespace PresenceEngine
                         TimeHandler = PresenceClone;
                     }
 
-                    int Current = IO.CheckedOutFileIndex();
+
+
+                    Files = FileList(SETTINGS.SelectedFolder);
+
+                    int Current = Array.IndexOf(Files, SETTINGS.SelectedFile);
+
+
+
+
+                    //  int Current = IO.Instance.CheckedOutFileIndex();
                     int Retrieve = Current + Index;
-                    if (Retrieve > IO.FilesInSelectedFolder.Count)
+
+                    if (Retrieve >= Files.Length)
                     {
                         // Loop through sessions.
                         Index = 1;
                         Retrieve = Current + Index;
                     }
 
-                    string FileName = IO.GetFilePath(Retrieve);
+                    string FileName = Files[Retrieve];
 
 
-                    FileBuffer = IO.LoadFile(FileName);
+                    FileBuffer = IO.Instance.LoadFile(FileName);
 
                     Log("attempting clone presence for " + FileName);
 
@@ -1141,7 +1257,9 @@ namespace PresenceEngine
                     if (UnityEngine.Random.value > 1f / 60f)
                         break;
 
-                    FileBuffer = IO.LoadFile(IO.CheckedOutFile);
+                    //FileBuffer = IO.Instance.LoadFile(IO.Instance.CheckedOutFile);
+                    FileBuffer = SETTINGS.user.DepthTransport.TransCoder.GetBufferFile();
+
                     TimeHandler = ShatterHandler;
 
 
@@ -1259,7 +1377,8 @@ namespace PresenceEngine
 
                     // Plays back additional copies of the user presence.
 
-                    FileBuffer = IO.LoadFile(IO.CheckedOutFile);
+                    //FileBuffer = IO.Instance.LoadFile(IO.Instance.CheckedOutFile);
+                    FileBuffer = SETTINGS.user.DepthTransport.TransCoder.GetBufferFile();
 
                     if (FileBuffer != null)
                     {
@@ -1396,16 +1515,18 @@ namespace PresenceEngine
                     // Plays back additional copies of the user or playback presence.
 
 
-                    //int checkedOut = IO.CheckedOutFileIndex();
+                    //int checkedOut = IO.Instance.CheckedOutFileIndex();
 
                     for (int c = 1; c < 3; c++)
                     {
 
-                        //string name = IO.GetFilePath(checkedOut + c);
+                        //string name = IO.Instance.GetFilePath(checkedOut + c);
 
                         //Log("Generating name " + c);
 
-                        FileBuffer = IO.LoadFile(IO.CheckedOutFile);
+                        //    FileBuffer = IO.Instance.LoadFile(IO.Instance.CheckedOutFile);
+                        FileBuffer = SETTINGS.user.DepthTransport.TransCoder.GetBufferFile();
+
 
                         if (FileBuffer != null)
                         {
@@ -1558,10 +1679,26 @@ namespace PresenceEngine
                                 }
 
                                 // Create presence.
+                                Files = FileList(SETTINGS.SelectedFolder);
 
-                                Current = IO.CheckedOutFileIndex();
-                                FileName = IO.GetFilePath(Current + Index);
-                                FileBuffer = IO.LoadFile(FileName);
+                                Current = Array.IndexOf(Files, SETTINGS.SelectedFile);
+
+                                Retrieve = Current + Index;
+
+                                if (Retrieve >= Files.Length)
+                                {
+                                    // Loop through sessions.
+                                    Index = 1;
+                                    break;
+                                }
+
+
+
+                                //   Current = IO.Instance.CheckedOutFileIndex();
+
+                                FileName = Files[Retrieve];
+
+                                FileBuffer = IO.Instance.LoadFile(SETTINGS.SelectedFolder + "/" + FileName);
 
                                 if (FileBuffer == null)
                                 {
@@ -1605,7 +1742,7 @@ namespace PresenceEngine
                                 fileplayback.SetVisualiseTransform(UserPosition + Positions[dp], Vector3.one, Quaternion.Euler(0, randomy, 0));
                                 fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
 
-                                task.SetIntValue(PresenceName+  "_0_cloudvisible", 1);
+                                task.SetIntValue(PresenceName + "_0_cloudvisible", 1);
                                 task.SetIntValue(PresenceName + "_0_isdrawing", 1);
                                 fileplayback.PullVisualiserSettingsFromTask(task, PresenceName);
 
@@ -1728,13 +1865,15 @@ namespace PresenceEngine
 
 #if SERVER
 
-                    if (SETTINGS.user.DepthTransport != null && IO.CheckedOutFile != "")
+                    if (SETTINGS.user.DepthTransport != null && SETTINGS.SelectedFolder != "" && SETTINGS.SelectedFile != "")
                     {
-                        Log("preparing record for " + IO.CheckedOutFile);
+                        string path = SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile;
+                        Log("preparing record for " + path);
 
-                        SETTINGS.user.DepthTransport.TransCoder.CreateBufferFile(IO.CheckedOutFile);
 
-                        task.SetStringValue("user_file", IO.CheckedOutFile);
+                        SETTINGS.user.DepthTransport.TransCoder.CreateBufferFile(path);
+
+                        task.SetStringValue("user_file", path);
 
                         done = true;
 
@@ -1757,9 +1896,9 @@ namespace PresenceEngine
                             string file;
                             if (task.GetStringValue("user_file", out file))
                             {
-                                IO.SelectFile(file);
+                                IO.Instance.SelectFile(file);
 
-                                SETTINGS.user.DepthTransport.TransCoder.CreateBufferFile(IO.CheckedOutFile);
+                                SETTINGS.user.DepthTransport.TransCoder.CreateBufferFile(IO.Instance.CheckedOutFile);
 
                             Log("created buffer" );
                                 done = true;
@@ -1833,7 +1972,8 @@ namespace PresenceEngine
 
 #if SERVER
 
-                    if (SETTINGS.user.DepthTransport != null && IO.CheckedOutFile != "")
+                    //     if (SETTINGS.user.DepthTransport != null && IO.Instance.CheckedOutFile != "")
+                    if (SETTINGS.user.DepthTransport != null && SETTINGS.SelectedFolder != "" && SETTINGS.SelectedFile != "")
                     {
                         if (!task.GetFloatValue("timeout", out TimeOut))
                         {
@@ -1850,7 +1990,7 @@ namespace PresenceEngine
                         }
 
 
-              //          task.SetStringValue("debug", "" + (TimeOut - Time.time));
+                        //          task.SetStringValue("debug", "" + (TimeOut - Time.time));
 
 
                     }
@@ -1892,7 +2032,27 @@ namespace PresenceEngine
 
 
                         FileformatBase BufferFile = SETTINGS.user.DepthTransport.TransCoder.GetBufferFile();
-                        IO.SaveFileToSelected(BufferFile);
+                        IO.Instance.SaveFile(BufferFile, SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
+
+                    }
+
+
+                    done = true;
+                    break;
+
+                case "recordoff":
+
+                    // Same for server and client.
+
+                    if (SETTINGS.user.DepthTransport.Mode == DEPTHMODE.RECORD)
+                    {
+                        SETTINGS.user.DepthTransport.Mode = DEPTHMODE.LIVE;
+
+                        Log("Stopped recording. Logged frames " + SETTINGS.user.DepthTransport.TransCoder.GetBufferFile().Frames.Count);
+
+
+                     //   FileformatBase BufferFile = SETTINGS.user.DepthTransport.TransCoder.GetBufferFile();
+                 //       IO.Instance.SaveFile(BufferFile, SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
 
                     }
 
@@ -2018,7 +2178,7 @@ namespace PresenceEngine
                     if (newClient != -1)
                     {
 
-                        Log(  "New client on connection " + newClient);
+                        Log("New client on connection " + newClient);
 
                         task.setCallBack("newclient");
 
@@ -2081,7 +2241,7 @@ namespace PresenceEngine
 #if SERVER
                 case "startserver":
 
-                    Log(  "Starting network server");
+                    Log("Starting network server");
 
                     dataController.startBroadcastServer();
                     dataController.startNetworkServer();
@@ -2124,11 +2284,21 @@ namespace PresenceEngine
                     done = true;
 
                     break;
+                case "makenewfolder":
+
+                case "makenewfile":
+                case "setfiledefaults":
+                    {
+                        ClearFileList();
+
+                        done = true;
+                        break;
+                    }
 
                 case "void":
 
 
-					Warning("Launching on void.");
+                    Warning("Launching on void.");
 
                     done = true;
                     break;
@@ -2145,6 +2315,30 @@ namespace PresenceEngine
 
             return done;
 
+        }
+
+        //
+
+        string[] _list;
+        string _folder;
+
+        // Don't want to query the disk every frame, so we keep a cache. 
+        // Need to make sure the cache gets flushed when needed, which is in effect when a file is added. Changing folders it notices.
+
+        string[] FileList(string folder)
+        {
+            if (folder != _folder)
+            {
+                _folder = folder;
+                _list = IO.Instance.GetFiles(folder);
+            }
+            return _list;
+        }
+
+        void ClearFileList()
+        {
+            _list = new string[0];
+            _folder = "";
         }
 
 
@@ -2216,7 +2410,7 @@ namespace PresenceEngine
             if (buffer != null)
             {
                 float EndTime = -1;
-                task.GetFloatValue(name+  "_outpoint", out EndTime);
+                task.GetFloatValue(name + "_outpoint", out EndTime);
 
                 if (EndTime != -1 && time >= EndTime)
                 {
@@ -2245,7 +2439,7 @@ namespace PresenceEngine
             if (buffer != null)
             {
                 float EndTime = -1;
-                task.GetFloatValue(name+  "_outpoint", out EndTime);
+                task.GetFloatValue(name + "_outpoint", out EndTime);
 
                 if (EndTime != -1 && time >= EndTime)
                 {
@@ -2275,9 +2469,9 @@ namespace PresenceEngine
             {
 
                 float speed;
-                task.GetFloatValue(name+  "_speed", out speed);
+                task.GetFloatValue(name + "_speed", out speed);
                 float EndTime;
-                task.GetFloatValue(name+  "_outpoint", out EndTime);
+                task.GetFloatValue(name + "_outpoint", out EndTime);
 
 
                 if (speed > 0 ? time >= EndTime : time <= EndTime)

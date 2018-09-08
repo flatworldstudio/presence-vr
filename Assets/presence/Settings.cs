@@ -19,12 +19,14 @@ namespace PresenceEngine
 
     public static class SETTINGS
     {
+
+        public static string SelectedFolder, SelectedFile;
         public static bool UserInConfinedArea = true;
 
         public static int SessionDuration = 10*60; // this is a time out, not fixed length or buffer size.
 
-        public static string DEFAULTFILE = "/default/default.prs";
-        public static string DEFAULTFOLDER = "/default";
+   //     public static string DEFAULTFILE = "/default/default.prs";
+  //      public static string DEFAULTFOLDER = "/default";
 
         public static Dictionary<string, Presence> Presences;
         public static Presence user; // this is a convience shortcut, set to the "user" entry in the dictionary.

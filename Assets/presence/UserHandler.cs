@@ -15,7 +15,7 @@ namespace PresenceEngine
     public class UserHandler : MonoBehaviour
     {
         public UserController userController;
-
+     //   public IO IO;
         UxInterface serverInterface,headsetInterface;
         public GameObject Circle;
         public GameObject viewerRoot, viewerOffset, viewerCamera;
@@ -31,6 +31,7 @@ namespace PresenceEngine
         string status;
 
         public GameObject dummyCam;
+        string BrowseFolder;
 
         string ID="UserHandler";
 
@@ -851,7 +852,9 @@ namespace PresenceEngine
 
                     }
 
-                    filePath.text = IO.CheckedOutFile;
+                    //   filePath.text = IO.Instance.CheckedOutFile;
+
+                    filePath.text = "/" + SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile;
 
                     break;
 
@@ -1021,10 +1024,12 @@ namespace PresenceEngine
                     GameObject FolderMenu = GameObject.Find("Folders");
 
 
-                    PFolder[] folders = IO.GetLocalFolders();
+                //    PFolder[] folders = IO.Instance.GetLocalFolders();
+
+                    string[] folders = IO.Instance.GetFolders();
 
                     //    if (folders.Length > 0)
-                    //      IO.CheckedOutFolder = folders[0].LocalPath;
+                    //      IO.Instance.CheckedOutFolder = folders[0].LocalPath;
 
                     for (int i = 0; i < 18; i++)
                     {
@@ -1039,7 +1044,7 @@ namespace PresenceEngine
                         if (i < folders.Length)
                         {
 
-                            icon.GetComponentInChildren<UnityEngine.UI.Text>().text = folders[i].Name;
+                            icon.GetComponentInChildren<UnityEngine.UI.Text>().text = folders[i];
                             icon.transform.localScale = Vector3.one;
 
                         }
@@ -1063,12 +1068,15 @@ namespace PresenceEngine
 
                 case "setfiledefaults":
 
+                    SETTINGS.SelectedFolder = "default";
+                    SETTINGS.SelectedFile = "default";
+                    BrowseFolder = SETTINGS.SelectedFolder;
 
-                    IO.SelectFile(SETTINGS.DEFAULTFILE);
-                    IO.SelectFolder(SETTINGS.DEFAULTFOLDER);
+                    //IO.Instance.SelectFile(SETTINGS.DEFAULTFILE);
+                    //IO.Instance.SelectFolder(SETTINGS.DEFAULTFOLDER);
 
-                    //Debug.Log(IO.CheckedOutFile);
-                    //Debug.Log(IO.BrowseFolder);
+                    //Debug.Log(IO.Instance.CheckedOutFile);
+                    //Debug.Log(IO.Instance.BrowseFolder);
 
                     done = true;
                     break;
@@ -1092,10 +1100,12 @@ namespace PresenceEngine
                     position.x = Screen.width;
                     FileMenu.transform.localPosition = position;
 
-                    //List <PFile> files = IO.GetFileList(IO.SelectedFolder);
+                    //List <PFile> files = IO.Instance.GetFileList(IO.Instance.SelectedFolder);
 
 
-                    List<PFile> files = IO.FilesInSelectedFolder;
+                //    List<PFile> files = IO.Instance.FilesInSelectedFolder;
+
+                    string[] files = IO.Instance.GetFiles(BrowseFolder);
 
 
                     for (int i = 0; i < 18; i++)
@@ -1108,10 +1118,10 @@ namespace PresenceEngine
                         folderButton.callback = "file";
                         serverInterface.addButton(folderButton);
 
-                        if (i < files.Count)
+                        if (i < files.Length)
                         {
 
-                            icon.GetComponentInChildren<UnityEngine.UI.Text>().text = files[i].Name;
+                            icon.GetComponentInChildren<UnityEngine.UI.Text>().text = files[i];
                             icon.transform.localScale = Vector3.one;
 
                         }
@@ -1265,24 +1275,52 @@ namespace PresenceEngine
 
                     if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
                         uxController.setSpringTarget(target, 0);
-
-
-
+                    
                     string data;
                     task.GetStringValue("persistantData", out data);
 
                     //Debug.Log("pers " + data);
 
-                    IO.SelectFolder(IO.GetLocalFolders()[int.Parse(data)].Path);
+                    // Check if we're not out of range.
+
+                    string[] FolderList = IO.Instance.GetFolders();
+                    int FolderIndex = int.Parse(data);
+
+                    if (FolderIndex < FolderList.Length)
+                    {
+                        BrowseFolder = FolderList[FolderIndex];
+                    }
+                    else
+                    {
+                        Error("Folder index is out of range.");
+                    }
+
+                    //SelectedFolder(IO.Instance.GetLocalFolders()[int.Parse(data)]);
 
                     done = true;
+
                     break;
 
                 case "setfile":
 
                     task.GetStringValue("persistantData", out data);
 
-                    IO.SelectFile(IO.FilesInSelectedFolder[int.Parse(data)].Path);
+                    string[] FileList = IO.Instance.GetFiles(BrowseFolder);
+                    int FileIndex = int.Parse(data);
+
+                    if (FileIndex < FileList.Length)
+                    {
+                        SETTINGS.SelectedFolder = BrowseFolder;
+                        SETTINGS.SelectedFile = FileList[FileIndex];
+
+                    }
+                    else
+                    {
+                        Error("File index is out of range.");
+                    }
+
+
+                //    IO.Instance.SelectFile(IO.Instance.FilesInSelectedFolder[int.Parse(data)].Path);
 
                     done = true;
 
@@ -1302,7 +1340,9 @@ namespace PresenceEngine
                         fileNameInput.onEndEdit.RemoveAllListeners();
                         fileNameInput.onEndEdit.AddListener((name) =>
                         {
-                            IO.MakeNewFile(IO.SelectedFolder + "/" + name + ".prs");
+                            SETTINGS.SelectedFile = name;
+
+                            IO.Instance.MakeNewFile(BrowseFolder + "/" + SETTINGS.SelectedFile );
 
                             NewFile.transform.localScale = Vector3.zero;
                             if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
@@ -1330,7 +1370,7 @@ namespace PresenceEngine
                         fileNameInput.onEndEdit.RemoveAllListeners();
                         fileNameInput.onEndEdit.AddListener((name) =>
                         {
-                            IO.MakeNewFolder("/" + name);
+                            IO.Instance.MakeNewFolder( name);
                             NewFile.transform.localScale = Vector3.zero;
                             if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
                                 uxController.setSpringTarget(target, 0);
