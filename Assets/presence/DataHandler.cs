@@ -219,20 +219,37 @@ namespace PresenceEngine
 
 #if SERVER
                      prefix = "server";
-#endif
-#if CLIENT
-                     prefix = "client";
-#endif
-
-                    // Kick of the async saving process.
-                                   
 
                     if (!task.GetStringValue(prefix + "State", out myState))
                     {
                         task.SetStringValue(prefix + "State", "begin");
                         IO.Instance.LoadManual(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile, task,prefix);
+                    task.SetStringValue("file",SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
 
                     }
+
+#endif
+#if CLIENT
+                     prefix = "client";
+                    string loadFile;
+                    if (task.GetStringValue("file", out loadFile))
+                    {
+                        task.SetStringValue(prefix + "State", "begin");
+
+                        SETTINGS.SelectedFile = IO.Instance.FileFromPath(loadFile);
+                        SETTINGS.SelectedFolder = IO.Instance.FolderFromPath(loadFile);
+
+                        IO.Instance.LoadManual(loadFile, task,prefix);
+                    //    task.SetStringValue("file",SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
+
+                    }
+
+#endif
+
+                    // Kick of the async saving process.
+                                   
+
+
 
                     // Wait for results
 
