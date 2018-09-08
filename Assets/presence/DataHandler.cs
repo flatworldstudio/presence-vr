@@ -242,30 +242,30 @@ namespace PresenceEngine
 
 #endif
 #if CLIENT
-                     prefix = "client";
+                    prefix = "client";
                     string loadFile;
 
-                    if (task.GetStringValue(prefix + "State", out myState)&& task.GetStringValue("file", out loadFile){
-                    // we have values for file and state.
+                    if (task.GetStringValue(prefix + "State", out myState) && task.GetStringValue("file", out loadFile))
+                    {
+                        // we have values for file and state.
 
-                    if (myState=="notstarted"){
-                     task.SetStringValue(prefix + "State", "begin");
+                        if (myState == "notstarted")
+                        {
+                            task.SetStringValue(prefix + "State", "begin");
 
-                        SETTINGS.SelectedFile = IO.Instance.FileFromPath(loadFile);
-                        SETTINGS.SelectedFolder = IO.Instance.FolderFromPath(loadFile);
+                            SETTINGS.SelectedFile = IO.Instance.FileFromPath(loadFile);
+                            SETTINGS.SelectedFolder = IO.Instance.FolderFromPath(loadFile);
 
-                        IO.Instance.LoadManual(loadFile, task,prefix);
+                            IO.Instance.LoadManual(loadFile, task, prefix);
 
-
-                    }
-
-
-                    }
-
+                        }
 
                     }
 
-                    
+
+
+
+
 
 #endif
 
@@ -279,7 +279,7 @@ namespace PresenceEngine
 
                     task.GetStringValue("serverState", out serverState);
                     task.GetStringValue("clientState", out clientState);
-                     
+
 
                     Alldone = true;
                     DebugString = "";
@@ -384,7 +384,7 @@ namespace PresenceEngine
 #if CLIENT
                 case "amvrclient":
 
-            //        SETTINGS.deviceMode = DEVICEMODE.VRCLIENT;
+                    //        SETTINGS.deviceMode = DEVICEMODE.VRCLIENT;
 
                     // Switched to using #if compiling.
 
@@ -455,34 +455,34 @@ namespace PresenceEngine
 
 #if CLIENT
 
-                   
-                        Application.targetFrameRate = 30;
-                        QualitySettings.vSyncCount = 0;
 
-                        DepthTransport UserDT = SETTINGS.user.DepthTransport;
+                    Application.targetFrameRate = 30;
+                    QualitySettings.vSyncCount = 0;
 
-                        // Decode depth from task
+                    DepthTransport UserDT = SETTINGS.user.DepthTransport;
 
-                        if (!UserDT.Decode(task, "user"))
-						Warning("Decode failed");
+                    // Decode depth from task
 
-
-                        // put head orientation, include calibartion
-
-                        UserDT.ActiveFrame.HeadOrientation = SETTINGS.HeadsetCorrection * headSet.transform.localRotation;
-                        task.SetQuaternionValue("user_headrotation", UserDT.ActiveFrame.HeadOrientation);
-                        UserDT.ActiveFrame.HeadPosition = headSet.transform.localPosition;
-                        task.SetVector3Value("user_headposition", UserDT.ActiveFrame.HeadPosition);
+                    if (!UserDT.Decode(task, "user"))
+                        Warning("Decode failed");
 
 
-                   
-               
-                        //    int usercalibrated;
+                    // put head orientation, include calibartion
 
-                        //  task.GetIntValue("usercalibrated", out usercalibrated);
-                        //      SETTINGS.user.Visualiser.SetMode(task, "user");
-                        //   GENERAL.UserCalibrated = (usercalibrated == 1);
-                    
+                    UserDT.ActiveFrame.HeadOrientation = SETTINGS.HeadsetCorrection * headSet.transform.localRotation;
+                    task.SetQuaternionValue("user_headrotation", UserDT.ActiveFrame.HeadOrientation);
+                    UserDT.ActiveFrame.HeadPosition = headSet.transform.localPosition;
+                    task.SetVector3Value("user_headposition", UserDT.ActiveFrame.HeadPosition);
+
+
+
+
+                    //    int usercalibrated;
+
+                    //  task.GetIntValue("usercalibrated", out usercalibrated);
+                    //      SETTINGS.user.Visualiser.SetMode(task, "user");
+                    //   GENERAL.UserCalibrated = (usercalibrated == 1);
+
 #endif
 
                     break;
@@ -527,21 +527,21 @@ namespace PresenceEngine
 
                     // presencehandler should pick up on server change...
 
-                  //      task.SetIntValue("user_0_cloudvisible", 0);
+                    //      task.SetIntValue("user_0_cloudvisible", 0);
 
-                //    SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
-                   
-                        //int v;
-                        //if (task.GetIntValue("user_0_cloudvisible", out v))
-                        //{
+                    //    SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
 
-                        //    SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
+                    //int v;
+                    //if (task.GetIntValue("user_0_cloudvisible", out v))
+                    //{
 
-                        //}
+                    //    SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
+
+                    //}
 
 
-                       done = true;
-                    
+                    done = true;
+
 #endif
                     break;
 
@@ -675,63 +675,63 @@ namespace PresenceEngine
 #endif
 
 #if CLIENT
-                    
 
-                        // Retrieve list.
 
-                        string[] taskPresenceNames;
+                    // Retrieve list.
 
-                        if (task.GetStringArrayValue("presences", out taskPresenceNames))
+                    string[] taskPresenceNames;
+
+                    if (task.GetStringArrayValue("presences", out taskPresenceNames))
+                    {
+
+                        foreach (string presenceName in taskPresenceNames)
                         {
 
-                            foreach (string presenceName in taskPresenceNames)
+                            Presence presence;
+
+                            if (!SETTINGS.Presences.TryGetValue(presenceName, out presence))
                             {
 
-                                Presence presence;
+                                // Create instance and retrieve/apply settings.
 
-                                if (!SETTINGS.Presences.TryGetValue(presenceName, out presence))
-                                {
+                                presence = Presence.Create(presences, presenceName);
+                                Log("Created an instance of " + presenceName);
 
-                                    // Create instance and retrieve/apply settings.
-
-                                    presence = Presence.Create(presences, presenceName);
-                                Log("Created an instance of " +presenceName);
-
-                                    //    SETTINGS.Presences.Add(presenceName, presence);
+                                //    SETTINGS.Presences.Add(presenceName, presence);
 
 
-                                    //presence.Visualiser.SettingsFromTask(task, presenceName);
-                                }
+                                //presence.Visualiser.SettingsFromTask(task, presenceName);
+                            }
 
-                                presence.PullAllSettingsFromTask(task, presenceName);
-
-                           
+                            presence.PullAllSettingsFromTask(task, presenceName);
 
 
-                                // Update depthmode 
-
-                                //  presence.PullModeFromTask(task, presenceName);
-
-                                if (presence.DepthTransport.Mode == DEPTHMODE.COPY)
-                                {
-                                    presence.DepthTransport.ActiveFrame = presence.DepthTransport.TargetPresence.DepthTransport.ActiveFrame;
-
-                                }
-
-                                float getTime;
-
-                                // We're displaying the point in time as indicated by the server.
-
-                                if (presence.DepthTransport.Mode == DEPTHMODE.PLAYBACK && task.GetFloatValue(presenceName+  "_time", out getTime))
-
-                                {
 
 
-                              
+                            // Update depthmode 
+
+                            //  presence.PullModeFromTask(task, presenceName);
+
+                            if (presence.DepthTransport.Mode == DEPTHMODE.COPY)
+                            {
+                                presence.DepthTransport.ActiveFrame = presence.DepthTransport.TargetPresence.DepthTransport.ActiveFrame;
+
+                            }
+
+                            float getTime;
+
+                            // We're displaying the point in time as indicated by the server.
+
+                            if (presence.DepthTransport.Mode == DEPTHMODE.PLAYBACK && task.GetFloatValue(presenceName + "_time", out getTime))
+
+                            {
 
 
-                                    presence.DepthTransport.CurrentTime = getTime;
-                                    int status = presence.DepthTransport.LoadFrameFromBuffer(getTime);
+
+
+
+                                presence.DepthTransport.CurrentTime = getTime;
+                                int status = presence.DepthTransport.LoadFrameFromBuffer(getTime);
 
                                 //if (Input.GetKey("d")){
 
@@ -745,45 +745,45 @@ namespace PresenceEngine
                                 //}
 
 
-                                    //if (status == 0 && !presence.SoundPlayed)
-                                    //{
-                                    //    presence.SoundPlayed = true;
-                                    //    presenceSound.Play();
-                                    //}
-
-                                }
+                                //if (status == 0 && !presence.SoundPlayed)
+                                //{
+                                //    presence.SoundPlayed = true;
+                                //    presenceSound.Play();
+                                //}
 
                             }
 
                         }
 
-                        // Reversed: go over presences and destroy if they're no longer listed.
+                    }
 
-                        string[] localPresenceNames = SETTINGS.Presences.Keys.ToArray();
+                    // Reversed: go over presences and destroy if they're no longer listed.
 
-                        for (int i = localPresenceNames.Length - 1; i >= 0; i--)
+                    string[] localPresenceNames = SETTINGS.Presences.Keys.ToArray();
+
+                    for (int i = localPresenceNames.Length - 1; i >= 0; i--)
+                    {
+
+                        if (Array.IndexOf(taskPresenceNames, localPresenceNames[i]) == -1)
+
                         {
 
-                            if (Array.IndexOf(taskPresenceNames, localPresenceNames[i]) == -1)
 
-                            {
+                            // A presence exists locally that has no reference in the task (does not exist on server) so we kill it.
 
+                            Log("Removing instance of " + localPresenceNames[i]);
 
-                                // A presence exists locally that has no reference in the task (does not exist on server) so we kill it.
+                            Presence presence = SETTINGS.Presences[localPresenceNames[i]];
 
-                                Log("Removing instance of " + localPresenceNames[i]);
+                            Destroy(presence.gameObject);
 
-                                Presence presence = SETTINGS.Presences[localPresenceNames[i]];
-
-                                Destroy(presence.gameObject);
-
-                                SETTINGS.Presences.Remove(localPresenceNames[i]);
-
-                            }
+                            SETTINGS.Presences.Remove(localPresenceNames[i]);
 
                         }
 
-                    
+                    }
+
+
 #endif
 
                     break;
@@ -2045,34 +2045,34 @@ namespace PresenceEngine
 #endif
 
 #if CLIENT
-                    Log("preparing buffer" );
-                         
-                        if (SETTINGS.user.DepthTransport != null)
-                        {
-                            // Wait for filename then fall through
-                            string filePath;
-                            if (task.GetStringValue("user_path", out filePath))
-                            {
-                       //         IO.Instance.SelectFile(file);
-                           SETTINGS.SelectedFile = IO.Instance.FileFromPath(filePath);
-                        SETTINGS.SelectedFolder = IO.Instance.FolderFromPath(filePath);
+                    Log("preparing buffer");
 
-                      //      string path = SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile;
+                    if (SETTINGS.user.DepthTransport != null)
+                    {
+                        // Wait for filename then fall through
+                        string filePath;
+                        if (task.GetStringValue("user_path", out filePath))
+                        {
+                            //         IO.Instance.SelectFile(file);
+                            SETTINGS.SelectedFile = IO.Instance.FileFromPath(filePath);
+                            SETTINGS.SelectedFolder = IO.Instance.FolderFromPath(filePath);
+
+                            //      string path = SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile;
 
                             SETTINGS.user.DepthTransport.TransCoder.CreateBufferFile(filePath);
 
-                            Log("created buffer "+filePath );
-                                done = true;
-
-                            }
-
-
-                        }
-                        else
-                        {
+                            Log("created buffer " + filePath);
                             done = true;
+
                         }
-                    
+
+
+                    }
+                    else
+                    {
+                        done = true;
+                    }
+
 #endif
                     break;
 
@@ -2164,19 +2164,19 @@ namespace PresenceEngine
 #endif
 
 #if CLIENT
-                  
-                        if (SETTINGS.user.DepthTransport != null)
-                        {
 
-                            SETTINGS.user.DepthTransport.Mode = DEPTHMODE.RECORD;
+                    if (SETTINGS.user.DepthTransport != null)
+                    {
 
-                           done = true;
+                        SETTINGS.user.DepthTransport.Mode = DEPTHMODE.RECORD;
+
+                        done = true;
 
 
 
-                        }
+                    }
 
-                  
+
 
 #endif
                     break;
@@ -2288,7 +2288,7 @@ namespace PresenceEngine
                         if (dataController.foundServer())
                         {
 
-                            Log(  "Found broadcast server");
+                            Log("Found broadcast server");
 
                             // Store network server address.
 
@@ -2391,7 +2391,7 @@ namespace PresenceEngine
 
                 case "startclient":
 
-                    Log(  "Starting network client.");
+                    Log("Starting network client.");
 
                     dataController.startNetworkClient(GENERAL.networkServer);
 
