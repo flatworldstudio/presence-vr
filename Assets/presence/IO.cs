@@ -243,7 +243,7 @@ namespace PresenceEngine
 
 
         // Public save/load methods.
-        public void SaveManual(FileformatBase presenceFile, string path, StoryTask taskRef,string prefix)
+        public void SaveManual(FileformatBase presenceFile, string path, StoryTask taskRef, string prefix)
         {
 
             Directory.CreateDirectory(localStorageFolder + "/" + FolderFromPath(path));
@@ -252,13 +252,13 @@ namespace PresenceEngine
 
             if (!busy)
             {
-                StartCoroutine(SaveManualAsync(presenceFile, path, taskRef,prefix));
+                StartCoroutine(SaveManualAsync(presenceFile, path, taskRef, prefix));
             }
 
 
 
         }
-        IEnumerator SaveManualAsync(FileformatBase file, string fileName, StoryTask taskRef,string prefix)
+        IEnumerator SaveManualAsync(FileformatBase file, string fileName, StoryTask taskRef, string prefix)
         {
             Log("Saving " + fileName + " on " + prefix);
 
@@ -324,7 +324,7 @@ namespace PresenceEngine
 
                 if (f % 8 == 0)
                 {
-                    taskRef.SetStringValue(prefix+"State", "" + (FrameCount - f));
+                    taskRef.SetStringValue(prefix + "State", "" + (FrameCount - f));
                     yield return null;
                 }
 
@@ -405,7 +405,7 @@ namespace PresenceEngine
         */
         public FileformatBase fileref;
 
-        IEnumerator LoadManualAsync(string fileName, StoryTask taskRef,string prefix)
+        IEnumerator LoadManualAsync(string fileName, StoryTask taskRef, string prefix)
         {
 
             Log("Loading " + fileName + " on " + prefix);
@@ -465,7 +465,7 @@ namespace PresenceEngine
 
                     if (f % 8 == 0)
                     {
-                        taskRef.SetStringValue(prefix+"State", "" + (frameCount - f));
+                        taskRef.SetStringValue(prefix + "State", "" + (frameCount - f));
                         yield return null;
                     }
 
@@ -487,12 +487,18 @@ namespace PresenceEngine
             //     Directory.CreateDirectory(localStorageFolder +"test");
             //     FileStream file = File.Create(localStorageFolder + "test.tst");
 
+            for (int f = 0; f < loaded.Frames.Count; f++)
+            {
+                Log("frame " + f + " " + loaded.Frames[f].Time);
 
+
+
+            }
 
             if (loaded == null)
-                taskRef.SetStringValue(prefix+"State", "failed");
+                taskRef.SetStringValue(prefix + "State", "failed");
             else
-                taskRef.SetStringValue(prefix+"State", "done");
+                taskRef.SetStringValue(prefix + "State", "done");
 
             busy = false;
 
@@ -502,7 +508,7 @@ namespace PresenceEngine
 
         }
 
-        public void LoadManual(string path, StoryTask taskRef,string prefix)
+        public void LoadManual(string path, StoryTask taskRef, string prefix)
         {
             path = RebuildPath(path);
 
@@ -511,7 +517,7 @@ namespace PresenceEngine
 
             if (Buffered != null)
             {
-                taskRef.SetStringValue(prefix+"State", "done");
+                taskRef.SetStringValue(prefix + "State", "done");
 
             }
             else
@@ -521,7 +527,7 @@ namespace PresenceEngine
                 if (!busy)
                 {
                     Log("loading async from disk");
-                    StartCoroutine(LoadManualAsync(path, taskRef,prefix));
+                    StartCoroutine(LoadManualAsync(path, taskRef, prefix));
                 }
 
 
@@ -834,7 +840,7 @@ namespace PresenceEngine
             filePath = RebuildPath(filePath);
 
             FileformatBase Buffered = FindInCache(RebuildPath(filePath));
-                   
+
 
             return Buffered;
 
@@ -853,7 +859,7 @@ namespace PresenceEngine
 
 
 
-              //  Buffered = LoadFromFile(RebuildPath(filePath) + SETTINGS.Ext);  // returns null and logs error on fail.
+                //  Buffered = LoadFromFile(RebuildPath(filePath) + SETTINGS.Ext);  // returns null and logs error on fail.
 
 
 
@@ -976,6 +982,17 @@ namespace PresenceEngine
                 PresenceCache.Add(filePath, loaded);
 
 
+
+                // DUMP
+
+                for (int f = 0; f < loaded.Frames.Count; f++)
+                {
+                    Log("frame " + f + " " + loaded.Frames[f].Time);
+
+
+
+                }
+
                 // }
                 //catch (Exception e)
                 //{
@@ -1043,11 +1060,12 @@ namespace PresenceEngine
 
             if (r == null)
                 Log("Not found in cache " + fileName);
-            else{
+            else
+            {
                 Log("Found in cache " + fileName);
                 r.DumpTimeStamps();
             }
-                
+
 
             return r;
 
