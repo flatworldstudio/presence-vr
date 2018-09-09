@@ -246,7 +246,7 @@ namespace PresenceEngine
                         }
                     }
 
-            
+
 
 
 #endif
@@ -2152,6 +2152,15 @@ namespace PresenceEngine
                             SETTINGS.user.DepthTransport.Mode = DEPTHMODE.RECORD;
 
                         }
+                        else
+                        {
+                            // abort task if recording was stopped elsewhere
+                            if (SETTINGS.user.DepthTransport.Mode != DEPTHMODE.RECORD)
+                            {
+                                Log("Stopping task IsRecording because recording was stopped elsewhere.");
+                                done = true;
+                            }
+                        }
 
                         if (Time.time > TimeOut)
                         {
@@ -2494,7 +2503,7 @@ namespace PresenceEngine
             // Server & client. If a client reacts, wait for it. So stopping client while saving will pause flow...
 
 #if SERVER
-          string  prefix = "server";
+            string prefix = "server";
             string myState;
 
             if (!task.GetStringValue(prefix + "State", out myState))
@@ -2553,8 +2562,8 @@ namespace PresenceEngine
             task.GetStringValue("clientState", out clientState);
 
 
-         bool   Alldone = true;
-          string  DebugString = "";
+            bool Alldone = true;
+            string DebugString = "";
 
             switch (serverState)
             {
@@ -2600,7 +2609,7 @@ namespace PresenceEngine
 
             return Alldone;
         }
-//
+        //
 
         string[] _list;
         string _folder;
