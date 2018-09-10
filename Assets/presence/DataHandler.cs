@@ -1942,7 +1942,7 @@ namespace PresenceEngine
                     {
                         if (pers == "fail")
                         {
-                            Warning("Load task failed on client or server, skipping playback.")
+                            Warning("Load task failed on client or server, skipping playback.");
                             done = true;
                             break;
                         }
@@ -2018,12 +2018,12 @@ namespace PresenceEngine
                 case "playbackpresence":
 
                     task.LoadPersistantData(task.pointer);
-                 '//   string pers;
+                //   string pers;
                     if (task.GetStringValue("persistantData", out pers))
                     {
                         if (pers == "fail")
                         {
-                            Warning("Load task failed on client or server, skipping playback.")
+                            Warning("Load task failed on client or server, skipping playback.");
                             done = true;
                             break;
                         }
