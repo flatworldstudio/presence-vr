@@ -2864,8 +2864,8 @@ namespace PresenceEngine
                         {
                             task.SetStringValue(prefix + "State", "begin");
 
-                            SETTINGS.SelectedFile = IO.Instance.FileFromPath(loadFile);
-                            SETTINGS.SelectedFolder = IO.Instance.FolderFromPath(loadFile);
+                          //  SETTINGS.SelectedFile = IO.Instance.FileFromPath(loadFile);
+                           // SETTINGS.SelectedFolder = IO.Instance.FolderFromPath(loadFile);
 
                     IO.Instance.LoadAsync(loadFile, task, prefix);
 
@@ -2895,9 +2895,11 @@ namespace PresenceEngine
             switch (serverState)
             {
 
-
-                case "done":
                 case "failed":
+                    task.SetStringValue("persistantData", "fail");
+                    break;
+                case "done":
+
                     break;
 
                 case "begin":
@@ -2916,7 +2918,9 @@ namespace PresenceEngine
 
                 case "done":
                 case "noclient":
+                    break;
                 case "failed":
+                    task.SetStringValue("persistantData", "fail");
                     break;
 
                 case "begin":
