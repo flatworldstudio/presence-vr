@@ -210,7 +210,7 @@ namespace PresenceEngine
 
                     f++;
 
-                    if (f % 32 == 0)
+                    if (f % 128 == 0)
                     {
                         taskRef.SetStringValue(prefix + "State", "" + (frameCount - f));
                         yield return null;
@@ -340,7 +340,7 @@ namespace PresenceEngine
 
                 f++;
 
-                if (f % 32 == 0)
+                if (f % 128 == 0)
                 {
                     taskRef.SetStringValue(prefix + "State", "" + (FrameCount - f));
                     yield return null;
