@@ -193,9 +193,9 @@ isglobal
 start presencehandler
 waitforuser
 start recording
-//MaterialiseOn
+MaterialiseOn
 pause5
-//goto presencescene
+goto mirrorscene
 GuideOpening
 pause5
 OffsetReset
@@ -313,7 +313,7 @@ end
 //end
 
 #RandomPresences
-islocal
+pause1
 @loadnextpresence
 nextfile
 loadfile
@@ -348,7 +348,7 @@ end
 // Playback of drawing sequences. 
 
 #PlayDrawings
-islocal
+pause1
 @loadnextdrawing
 nextfile
 loadfile
@@ -356,7 +356,6 @@ playbackdrawing
 goto loadnextdrawing
 
 #EndDrawings
-islocal
 stopdrawing
 stop PlayDrawings
 pause1

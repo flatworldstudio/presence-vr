@@ -2836,7 +2836,7 @@ namespace PresenceEngine
                             SETTINGS.SelectedFile = IO.Instance.FileFromPath(loadFile);
                             SETTINGS.SelectedFolder = IO.Instance.FolderFromPath(loadFile);
 
-                            IO.Instance.LoadManual(loadFile, task, prefix);
+                    IO.Instance.LoadAsync(loadFile, task, prefix);
 
                         }
 
