@@ -2330,7 +2330,10 @@ namespace PresenceEngine
 
                             SETTINGS.user.DepthTransport.TransCoder.CreateBufferFile(filePath);
 
+                            IO.Instance.AddToCache(SETTINGS.user.DepthTransport.TransCoder.GetBufferFile(),filePath);
+
                             Log("created buffer " + filePath);
+
                             done = true;
 
                         }

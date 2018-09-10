@@ -362,7 +362,7 @@ namespace PresenceEngine
             yield return null;
         }
 
-        void AddToCache(FileformatBase file, string fileName)
+     public   void AddToCache(FileformatBase file, string fileName)
         {
 
 
