@@ -2293,7 +2293,7 @@ namespace PresenceEngine
 
                     if (SETTINGS.user.DepthTransport != null && SETTINGS.SelectedFolder != "" && SETTINGS.SelectedFile != "")
                     {
-                        string path = SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile;
+                        string path ="/"+ SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile;
                         Log("preparing record for " + path);
 
 
