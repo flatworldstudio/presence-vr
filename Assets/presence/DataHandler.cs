@@ -1936,6 +1936,18 @@ namespace PresenceEngine
 
                 case "playbackdrawing":
 
+                    task.LoadPersistantData(task.pointer);
+                    string pers;
+                    if (task.GetStringValue("persistantData",out pers))
+                    {
+                        if (pers == "fail")
+                        {
+                            Warning("Load task failed on client or server, skipping playback.")
+                            done = true;
+                            break;
+                        }
+                    }
+
                     FileBuffer = IO.Instance.GetFromCache(SETTINGS.SelectedFolder + "/" + LoadFile);
 
                     Log("Attempting to play back drawing from  " + SETTINGS.SelectedFolder + "/" + LoadFile);
@@ -2004,6 +2016,18 @@ namespace PresenceEngine
                     break;
 
                 case "playbackpresence":
+
+                    task.LoadPersistantData(task.pointer);
+                 '//   string pers;
+                    if (task.GetStringValue("persistantData", out pers))
+                    {
+                        if (pers == "fail")
+                        {
+                            Warning("Load task failed on client or server, skipping playback.")
+                            done = true;
+                            break;
+                        }
+                    }
 
                     FileBuffer = IO.Instance.GetFromCache(SETTINGS.SelectedFolder + "/" + LoadFile);
 
