@@ -1901,11 +1901,33 @@ namespace PresenceEngine
                     // Loads the next file for playback. 
                     //    Log("Load file: " + LoadDrawing + " index " + DrawingIndex);
 
+                    #if SERVER
+                    string file;
+                    if (!task.GetStringValue("file",out file)){
+                    task.setStringValue("file",SETTINGS.SelectedFolder + "/" + LoadFile);
+                    }
                     if (LoadFileAsync(SETTINGS.SelectedFolder + "/" + LoadFile, task))
                     {
                         done = true;
                     }
 
+
+                    #endif
+
+                    #if CLIENT
+
+                    string file;
+                    if (task.GetStringValue("file",out file)){
+                        
+                        if (LoadFileAsync(file, task))
+                        {
+                            done = true;
+                        }
+
+                    }
+
+                    
+                    #endif
                     break;
 
 
