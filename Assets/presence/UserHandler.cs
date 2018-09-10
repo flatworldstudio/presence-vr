@@ -15,8 +15,8 @@ namespace PresenceEngine
     public class UserHandler : MonoBehaviour
     {
         public UserController userController;
-     //   public IO IO;
-        UxInterface serverInterface,headsetInterface;
+        //   public IO IO;
+        UxInterface serverInterface, headsetInterface;
         public GameObject Circle;
         public GameObject viewerRoot, viewerOffset, viewerCamera;
         public GameObject overviewObject, projectionObject, headSet, setObject, handl, handr, body, Kinect, SetHandler, startPosition;
@@ -27,13 +27,13 @@ namespace PresenceEngine
         UiConstraint fileBrowserConstraint;
         UxController uxController;
         public Text filePath;
-        float CircleStart,Circle2;
+        float CircleStart, Circle2;
         string status;
 
         public GameObject dummyCam;
         string BrowseFolder;
 
-        string ID="UserHandler";
+        string ID = "UserHandler";
 
 
 #if SERVER
@@ -42,7 +42,7 @@ namespace PresenceEngine
 
 #endif
 
-     //   string me = "Task handler: ";
+        //   string me = "Task handler: ";
 
         // Copy these into every class for easy debugging. This way we don't have to pass an ID. Stack-based ID doesn't work across platforms.
 
@@ -67,7 +67,7 @@ namespace PresenceEngine
 
         void Start()
         {
-            #if SERVER
+#if SERVER
             uxCanvas.SetActive(true);
 
 #endif
@@ -80,14 +80,14 @@ namespace PresenceEngine
             float width = 1280;
 
             fileBrowserConstraint.hardClamp = true;
-            fileBrowserConstraint.hardClampMin = new Vector3(-width - 100, 0);
-            fileBrowserConstraint.hardClampMax = new Vector3(width + 100, 0);
+            fileBrowserConstraint.hardClampMin = new Vector3(0, -10);
+            fileBrowserConstraint.hardClampMax = new Vector3(0, 530);
 
             fileBrowserConstraint.springs = true;
-            fileBrowserConstraint.springPositions = new Vector2[3];
-            fileBrowserConstraint.springPositions[0] = new Vector2(-width, 0); // files.
-            fileBrowserConstraint.springPositions[1] = new Vector2(0, 0); // folders.
-            fileBrowserConstraint.springPositions[2] = new Vector2(width, 0); // offscreen
+            fileBrowserConstraint.springPositions = new Vector2[2];
+            fileBrowserConstraint.springPositions[0] = new Vector2(0, 0); 
+            fileBrowserConstraint.springPositions[1] = new Vector2(0, 520); 
+          
 
         }
 
@@ -139,7 +139,7 @@ namespace PresenceEngine
                     float distance = Vector2.Distance(center2d, p2d);
                     Vector2 rp = p2d - center2d;
 
-                    if (distance<4f && distance > 0.5f)
+                    if (distance < 4f && distance > 0.5f)
                     {
                         timer += Time.deltaTime;
 
@@ -150,7 +150,7 @@ namespace PresenceEngine
                             if (CircleStart < 0)
                                 CircleStart += Mathf.PI * 2f;
 
-                            Debug.Log("began circle at " + CircleStart*Mathf.Rad2Deg);
+                            Debug.Log("began circle at " + CircleStart * Mathf.Rad2Deg);
                             userMessager.ShowTextMessage("Begin circle", 1);
                             done = true;
                         }
@@ -162,46 +162,46 @@ namespace PresenceEngine
                     }
 
                     task.SetFloatValue("timer", timer);
-                    
-                  
+
+
                     break;
 
 
                 case "WaitForCircleOneThird":
 
-                  
+
                     if (task.GetFloatValue("timer", out timer))
                         task.SetFloatValue("timer", timer);//0
 
                     // get position
-                     p = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
-                     p2d = new Vector2(p.x, p.z);
-               //      center2d = new Vector2(0, SETTINGS.kinectCentreDistance);
+                    p = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
+                    p2d = new Vector2(p.x, p.z);
+                    //      center2d = new Vector2(0, SETTINGS.kinectCentreDistance);
                     center2d = new Vector2(0, Circle.transform.position.z);
                     rp = p2d - center2d;
                     float current = Mathf.Atan2(rp.y, rp.x);
 
-                    float a1 = CircleStart - 110*Mathf.Deg2Rad;
+                    float a1 = CircleStart - 110 * Mathf.Deg2Rad;
                     float a2 = CircleStart + 110 * Mathf.Deg2Rad;
-                       
 
-                    if (!CheckSection(a1,a2, current))
+
+                    if (!CheckSection(a1, a2, current))
                     {
                         timer += Time.deltaTime;
-                      //  Debug.Log("outside initial section");
+                        //  Debug.Log("outside initial section");
 
                         if (timer > 0.25f)
                         {
                             done = true;
                             Circle2 = current;
                             userMessager.ShowTextMessage("One third", 1);
-                         
+
                         }
 
                     }
                     else
                     {
-                    //    Debug.Log("still in in section");
+                        //    Debug.Log("still in in section");
                         timer = 0;
                     }
 
@@ -220,20 +220,20 @@ namespace PresenceEngine
                     p = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
                     p2d = new Vector2(p.x, p.z);
 
-                    center2d = new Vector2(0,Circle.transform.position.z);
-              //      Debug.Log("Z circle " + center2d.y);
+                    center2d = new Vector2(0, Circle.transform.position.z);
+                    //      Debug.Log("Z circle " + center2d.y);
 
 
                     rp = p2d - center2d;
-                     current = Mathf.Atan2(rp.y, rp.x);
+                    current = Mathf.Atan2(rp.y, rp.x);
 
-                     a1 = Circle2 - 110 * Mathf.Deg2Rad;
-                     a2 = Circle2 + 110 * Mathf.Deg2Rad;
-                    
+                    a1 = Circle2 - 110 * Mathf.Deg2Rad;
+                    a2 = Circle2 + 110 * Mathf.Deg2Rad;
+
                     if (!CheckSection(a1, a2, current))
                     {
                         timer += Time.deltaTime;
-                    //    Debug.Log("outside  section");
+                        //    Debug.Log("outside  section");
 
                         if (timer > 0.25f)
                         {
@@ -244,7 +244,7 @@ namespace PresenceEngine
                     }
                     else
                     {
-                   //     Debug.Log("still in in section");
+                        //     Debug.Log("still in in section");
                         timer = 0;
                     }
 
@@ -262,7 +262,7 @@ namespace PresenceEngine
                     // get position
                     p = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
                     p2d = new Vector2(p.x, p.z);
-                   // center2d = new Vector2(0, SETTINGS.kinectCentreDistance);
+                    // center2d = new Vector2(0, SETTINGS.kinectCentreDistance);
                     center2d = new Vector2(0, Circle.transform.position.z);
                     rp = p2d - center2d;
                     current = Mathf.Atan2(rp.y, rp.x);
@@ -273,7 +273,7 @@ namespace PresenceEngine
                     if (CheckSection(a1, a2, current))
                     {
                         timer += Time.deltaTime;
-                    //    Debug.Log("in initial section");
+                        //    Debug.Log("in initial section");
 
                         if (timer > 0.25f)
                         {
@@ -284,7 +284,7 @@ namespace PresenceEngine
                     }
                     else
                     {
-                      //  Debug.Log("not in section");
+                        //  Debug.Log("not in section");
                         timer = 0;
                     }
 
@@ -303,7 +303,7 @@ namespace PresenceEngine
                         done = true;
                     }
 
-                //    float timer;
+                    //    float timer;
                     if (task.GetFloatValue("timer", out timer))
                         task.SetFloatValue("timer", timer);//0
 
@@ -332,79 +332,78 @@ namespace PresenceEngine
                     break;
 
                 case "WaitforSeated":
-                                      
-                       
 
-                        if (!task.GetStringValue("status", out status))
-                        {
 
-                            GestureDetection.Instance.BeginDetect(task, KinectGestures.Gestures.Centerseat);
-                            task.SetStringValue("status", "detecting");
+                    if (!task.GetStringValue("status", out status))
+                    {
 
-                        }
+                        GestureDetection.Instance.BeginDetect(task, KinectGestures.Gestures.Centerseat);
+                        task.SetStringValue("status", "detecting");
 
-                        if (status == "detected")
-                        {
-                            task.SetStringValue("status", "detected");
-                            userMessager.ShowTextMessage("Pose detected", 1);
+                    }
 
-                            GestureDetection.Instance.EndDetect();
-                            done = true;
-                        }
+                    if (status == "detected")
+                    {
+                        task.SetStringValue("status", "detected");
+                        userMessager.ShowTextMessage("Pose detected", 1);
 
-                    
+                        GestureDetection.Instance.EndDetect();
+                        done = true;
+                    }
+
+
 
                     break;
 
                 case "WaitforGetup":
 
-                 
-                      
 
-                        if (!task.GetStringValue("status", out status))
-                        {
 
-                            GestureDetection.Instance.BeginDetect(task, KinectGestures.Gestures.Getup);
-                            task.SetStringValue("status", "detecting");
 
-                        }
+                    if (!task.GetStringValue("status", out status))
+                    {
 
-                        if (status == "detected")
-                        {
-                            task.SetStringValue("status", "detected");
-                            userMessager.ShowTextMessage("Pose detected", 1);
+                        GestureDetection.Instance.BeginDetect(task, KinectGestures.Gestures.Getup);
+                        task.SetStringValue("status", "detecting");
 
-                            GestureDetection.Instance.EndDetect();
-                            done = true;
-                        }
+                    }
 
-                    
+                    if (status == "detected")
+                    {
+                        task.SetStringValue("status", "detected");
+                        userMessager.ShowTextMessage("Pose detected", 1);
+
+                        GestureDetection.Instance.EndDetect();
+                        done = true;
+                    }
+
+
 
                     break;
 
                 case "WaitforRaisedhands":
 
-                   
-                     
 
-                        if (!task.GetStringValue("status", out status))
-                        {
 
-                            GestureDetection.Instance.BeginDetect(task, KinectGestures.Gestures.HandsFolded);
-                            task.SetStringValue("status", "detecting");
 
-                        }
+                    if (!task.GetStringValue("status", out status))
+                    {
 
-                        if (status == "detected")
-                        {
-                            task.SetStringValue("status", "detected");
-                            userMessager.ShowTextMessage("Pose detected", 1);
+                        GestureDetection.Instance.BeginDetect(task, KinectGestures.Gestures.HandsFolded);
+                        task.SetStringValue("status", "detecting");
 
-                            GestureDetection.Instance.EndDetect();
-                            done = true;
-                        }
+                    }
 
-                    
+                    if (status == "detected")
+                    {
+                        task.SetStringValue("status", "detected");
+                        userMessager.ShowTextMessage("Pose detected", 1);
+
+                        GestureDetection.Instance.EndDetect();
+                        done = true;
+                    }
+
+
 
                     break;
 #endif
@@ -412,33 +411,33 @@ namespace PresenceEngine
                 case "waitforgesture":
 
 #if SERVER && (UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
-                   
-
-                        if (!task.GetStringValue("status", out status))
-                        {
-
-                            GestureDetection.Instance.BeginDetect(task, KinectGestures.Gestures.Tpose);
-
-                            //     GestureTpose gestureSeated = GestureObject.AddComponent<GestureTpose>();
-                            //        gestureSeated.BeginDetect(task);
-                            //                            Davinci.BeginDetect(task);
-                            task.SetStringValue("status", "detecting");
-
-                        }
 
 
-                        if (status == "detected")
-                        {
-                            task.SetStringValue("status", "detecting");
-                            userMessager.ShowTextMessage("Pose detected", 1);
-                            //  GestureObject.GetComponent<GestureTpose>().EndDetect();
-                            GestureDetection.Instance.EndDetect();
-                            //     GestureObject.GetComponent<GestureTpose>().EndDetect();
-                            //   Destroy(GestureObject.GetComponent<GestureTpose>());
-                            //   Davinci.EndDetect();
+                    if (!task.GetStringValue("status", out status))
+                    {
 
-                            done = true;
-                        }
+                        GestureDetection.Instance.BeginDetect(task, KinectGestures.Gestures.Tpose);
+
+                        //     GestureTpose gestureSeated = GestureObject.AddComponent<GestureTpose>();
+                        //        gestureSeated.BeginDetect(task);
+                        //                            Davinci.BeginDetect(task);
+                        task.SetStringValue("status", "detecting");
+
+                    }
+
+
+                    if (status == "detected")
+                    {
+                        task.SetStringValue("status", "detecting");
+                        userMessager.ShowTextMessage("Pose detected", 1);
+                        //  GestureObject.GetComponent<GestureTpose>().EndDetect();
+                        GestureDetection.Instance.EndDetect();
+                        //     GestureObject.GetComponent<GestureTpose>().EndDetect();
+                        //   Destroy(GestureObject.GetComponent<GestureTpose>());
+                        //   Davinci.EndDetect();
+
+                        done = true;
+                    }
 
 #endif
 
@@ -485,6 +484,7 @@ namespace PresenceEngine
                     break;
 
                 case "OffsetReset":
+                case "ResetGuided":
 
                     viewerOffset.transform.localRotation = SETTINGS.HeadsetCorrection * Quaternion.identity;
                     viewerOffset.transform.localPosition = Vector3.zero;
@@ -538,10 +538,10 @@ namespace PresenceEngine
                 case "depthlive":
 
                     userMessager.ShowTextMessage("Streaming depth", 1);
-                    #if SERVER
+#if SERVER
                     serverInterface.HideButton("startpresence");
                     serverInterface.ShowButton("stoppresence");
-                    #endif
+#endif
 
                     done = true;
 
@@ -550,10 +550,10 @@ namespace PresenceEngine
                 case "depthoff":
 
                     userMessager.ShowTextMessage("Streaming depth off", 1);
-                    #if SERVER
+#if SERVER
                     serverInterface.HideButton("stoppresence");
                     serverInterface.ShowButton("startpresence");
-                    #endif
+#endif
                     done = true;
                     break;
 
@@ -563,10 +563,10 @@ namespace PresenceEngine
                     userMessager.ShowTextMessage("Starting recording session", 0.5f);
 
 #if SERVER
-                    
-                        serverInterface.HideButton("recordstart");
-                        serverInterface.ShowButton("recordstop");
-                    
+
+                    serverInterface.HideButton("recordstart");
+                    serverInterface.ShowButton("recordstop");
+
 #endif
 
                     done = true;
@@ -577,10 +577,10 @@ namespace PresenceEngine
                     userMessager.ShowTextMessage("Stop recording", 0.5f);
 
 #if SERVER
-                    
-                        serverInterface.HideButton("recordstop");
-                        serverInterface.ShowButton("recordstart");
-                    
+
+                    serverInterface.HideButton("recordstop");
+                    serverInterface.ShowButton("recordstart");
+
 #endif
 
                     done = true;
@@ -591,10 +591,10 @@ namespace PresenceEngine
                     userMessager.ShowTextMessage("Starting playback session", 0.5f);
 
 #if SERVER
-                   
-                        serverInterface.HideButton("playbackstart");
-                        serverInterface.ShowButton("playbackstop");
-                    
+
+                    serverInterface.HideButton("playbackstart");
+                    serverInterface.ShowButton("playbackstop");
+
 #endif
 
                     done = true;
@@ -605,10 +605,10 @@ namespace PresenceEngine
                     userMessager.ShowTextMessage("Stop playback", 0.5f);
 
 #if SERVER
-                   
-                        serverInterface.HideButton("playbackstop");
-                        serverInterface.ShowButton("playbackstart");
-                    
+
+                    serverInterface.HideButton("playbackstop");
+                    serverInterface.ShowButton("playbackstart");
+
 #endif
 
                     done = true;
@@ -664,7 +664,7 @@ namespace PresenceEngine
 #if SERVER
 
                 case "waitforuser":
-                
+
                     if (DepthTransport.OwnsKinect != null && DepthTransport.OwnsKinect.Mode == DEPTHMODE.LIVE)
                     {
 
@@ -722,32 +722,32 @@ namespace PresenceEngine
                     }
 
 #if SERVER
-                    
-
-                        // apply user head rotation and local position from device. this has calibration applied.
-
-                        Quaternion ho;
-
-                        if (task.GetQuaternionValue("user_headrotation", out ho))
-                        {
-
-                            viewerCamera.transform.localRotation = ho;
 
 
-                        }
+                    // apply user head rotation and local position from device. this has calibration applied.
 
-                        Vector3 hp;
+                    Quaternion ho;
 
-                        if (task.GetVector3Value("user_headposition", out hp))
-                        {
+                    if (task.GetQuaternionValue("user_headrotation", out ho))
+                    {
 
-                            viewerCamera.transform.localPosition = hp;
-
-                        }
+                        viewerCamera.transform.localRotation = ho;
 
 
+                    }
 
-                    
+                    Vector3 hp;
+
+                    if (task.GetVector3Value("user_headposition", out hp))
+                    {
+
+                        viewerCamera.transform.localPosition = hp;
+
+                    }
+
+
+
+
 #endif
 
 
@@ -902,6 +902,7 @@ namespace PresenceEngine
 
                     serverInterface = new UxInterface();
 
+
                     UxMapping serverMapping = new UxMapping();
 
                     serverMapping.ux_none += UxMethods.none;
@@ -938,12 +939,33 @@ namespace PresenceEngine
                     UiConstraint constraint = new UiConstraint();
 
                     constraint.hardClamp = true;
-                    constraint.hardClampMin = new Vector3(0, -250);
-                    constraint.hardClampMax = new Vector3(0, -250);
+                    constraint.hardClampMin = new Vector3(0, -395);
+                    constraint.hardClampMax = new Vector3(0, -235);
+                    constraint.springs = true;
+                    constraint.springPositions = new Vector2[2];
+                    constraint.springPositions[0] = new Vector2(0, -380);
+                    constraint.springPositions[1] = new Vector2(0, -250);
+
 
                     GameObject menu = GameObject.Find("servermenu");
+                    GameObject filebrowser = GameObject.Find("FileBrowser");
 
-                    UiButton control = new UiButton("startpresence", menu, constraint);
+
+                    UiButton control = new UiButton("menuback", menu, constraint);
+                    control.callback = "";
+                    control.ChangeColor = false;
+                    serverInterface.addButton(control);
+                    control.image.color = new Color(0, 0, 0, 0.5f);
+
+                     control = new UiButton("browserback" , filebrowser, fileBrowserConstraint);
+                    control.callback = "";
+                    control.ChangeColor = false;
+                    serverInterface.addButton(control);
+                    control.image.color = new Color(0, 0, 0, 0.5f);
+
+
+                    control = new UiButton("startpresence", menu, constraint);
+
                     control.callback = "startpresence";
                     serverInterface.addButton(control);
 
@@ -1011,11 +1033,17 @@ namespace PresenceEngine
 
                     NewFile.transform.localScale = Vector3.zero;
 
+                    //UiButton target;
+                    //if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
+                    //{
+                    //    uxController.setSpringTarget(target, 0);
+                    //}
+
 
                     done = true;
 
                     break;
-                
+
                 case "makefoldermenu":
 
                     if (serverInterface == null)
@@ -1028,7 +1056,7 @@ namespace PresenceEngine
                     GameObject FolderMenu = GameObject.Find("Folders");
 
 
-                //    PFolder[] folders = IO.Instance.GetLocalFolders();
+                    //    PFolder[] folders = IO.Instance.GetLocalFolders();
 
                     string[] folders = IO.Instance.GetFolders();
 
@@ -1061,11 +1089,11 @@ namespace PresenceEngine
 
                     // Now hide it
 
-                    UiButton target;
-                    if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
-                    {
-                        uxController.setSpringTarget(target, 2);
-                    }
+                    //UiButton target;
+                    //if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
+                    //{
+                    //    uxController.setSpringTarget(target, 1);
+                    //}
 
                     done = true;
                     break;
@@ -1100,14 +1128,14 @@ namespace PresenceEngine
                     browser = GameObject.Find("FileBrowser");
                     GameObject FileMenu = GameObject.Find("Files");
 
-                    Vector3 position = FileMenu.transform.localPosition;
-                    position.x = Screen.width;
-                    FileMenu.transform.localPosition = position;
+                //    Vector3 position = FileMenu.transform.localPosition;
+                  //  position.x = Screen.width;
+                    //FileMenu.transform.localPosition = position;
 
                     //List <PFile> files = IO.Instance.GetFileList(IO.Instance.SelectedFolder);
 
 
-                //    List<PFile> files = IO.Instance.FilesInSelectedFolder;
+                    //    List<PFile> files = IO.Instance.FilesInSelectedFolder;
 
                     string[] files = IO.Instance.GetFiles(BrowseFolder);
 
@@ -1247,13 +1275,13 @@ namespace PresenceEngine
 
                 case "togglebrowser":
 
-                    //    UiButton target;
+                     UiButton target;
 
                     if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
                     {
                         //MakeBrowserConstraint();
 
-                        uxController.setSpringTarget(target, 1);
+                        uxController.setSpringTarget(target, 0);
 
                         //if (target.gameObject.GetComponent<RectTransform>().position.x > Screen.width-250-10)
                         //{
@@ -1277,9 +1305,9 @@ namespace PresenceEngine
 
                     // UiButton target;
 
-                    if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
-                        uxController.setSpringTarget(target, 0);
-                    
+                    //if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
+                    //    uxController.setSpringTarget(target, 0);
+
                     string data;
                     task.GetStringValue("persistantData", out data);
 
@@ -1324,12 +1352,11 @@ namespace PresenceEngine
                     }
 
 
-                //    IO.Instance.SelectFile(IO.Instance.FilesInSelectedFolder[int.Parse(data)].Path);
+                    //    IO.Instance.SelectFile(IO.Instance.FilesInSelectedFolder[int.Parse(data)].Path);
 
                     done = true;
 
                     break;
-
 
                 case "makenewfile":
 
@@ -1337,7 +1364,6 @@ namespace PresenceEngine
 
                     if (!task.GetStringValue("firstrun", out firstrun))
                     {
-
                         task.SetStringValue("firstrun", "done");
 
                         NewFile.transform.localScale = Vector3.one;
@@ -1345,18 +1371,22 @@ namespace PresenceEngine
                         fileNameInput.onEndEdit.AddListener((name) =>
                         {
                             SETTINGS.SelectedFile = name;
-
-                            IO.Instance.MakeNewFile(BrowseFolder + "/" + SETTINGS.SelectedFile );
+                            SETTINGS.SelectedFolder = BrowseFolder;
 
                             NewFile.transform.localScale = Vector3.zero;
-                            if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
-                                uxController.setSpringTarget(target, 0);
-                            task.ForceComplete();
+                            Log("end edit " + name);
+                            //   BrowseFolder
                         });
-
-                        // We pass a callback function that will complete the task when called. So we keep the task open here.
-
                     }
+
+                    // Now wait for that to happen.
+
+                    if (NewFile.transform.localScale == Vector3.zero)
+                    {
+
+                        done = true;
+                    }
+
 
 
                     break;
@@ -1365,6 +1395,7 @@ namespace PresenceEngine
 
                     //  NewFile.transform.localScale = Vector3.one;
 
+                    //  string firstrun;
 
                     if (!task.GetStringValue("firstrun", out firstrun))
                     {
@@ -1374,10 +1405,10 @@ namespace PresenceEngine
                         fileNameInput.onEndEdit.RemoveAllListeners();
                         fileNameInput.onEndEdit.AddListener((name) =>
                         {
-                            IO.Instance.MakeNewFolder( name);
+                            IO.Instance.MakeNewFolder(name);
                             NewFile.transform.localScale = Vector3.zero;
-                            if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
-                                uxController.setSpringTarget(target, 0);
+                            //if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
+                            //    uxController.setSpringTarget(target, 0);
                             task.ForceComplete();
                         });
                     }
@@ -1480,17 +1511,17 @@ namespace PresenceEngine
 
 #if SERVER
 
-        bool CheckSection (float a1, float a2, float current)
+        bool CheckSection(float a1, float a2, float current)
         {
-          //  Debug.Log(a1 * Mathf.Rad2Deg + " "+ current*Mathf.Rad2Deg+" " + a2 * Mathf.Rad2Deg);
-       
+            //  Debug.Log(a1 * Mathf.Rad2Deg + " "+ current*Mathf.Rad2Deg+" " + a2 * Mathf.Rad2Deg);
+
 
             if (a1 < current && current < a2)
                 return true;
 
             current += Mathf.PI * 2;
 
-        //    Debug.Log(a1 * Mathf.Rad2Deg + " " + current * Mathf.Rad2Deg + " " + a2 * Mathf.Rad2Deg);
+            //    Debug.Log(a1 * Mathf.Rad2Deg + " " + current * Mathf.Rad2Deg + " " + a2 * Mathf.Rad2Deg);
 
 
             if (a1 < current && current < a2)

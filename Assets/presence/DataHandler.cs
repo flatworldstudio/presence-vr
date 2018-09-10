@@ -53,6 +53,8 @@ namespace PresenceEngine
 
         public TimeHandler TimeHandler;
 
+        int FileIndex = 0;
+        string LoadFile = "";
         //string SelectedFile;
         //string SelectedFolder;
 
@@ -130,89 +132,41 @@ namespace PresenceEngine
 
             switch (task.description)
             {
-
-                //       IO.Instance.SaveFile(BufferFile, SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
-
-                case "storefileasync":
-
-                    // Server & client. If a client reacts, wait for it. So stopping client while saving will pause flow...
+                // -----------------------------------------------------------------------
+                // Main roles.
 
 #if SERVER
-                    string prefix = "server";
-#endif
-#if CLIENT
-                    string prefix = "client";
-#endif
+                case "amserver":
 
-                    // Kick of the async saving process.
-
-                    string myState;
-
-                    if (!task.GetStringValue(prefix + "State", out myState))
-                    {
-                        task.SetStringValue(prefix + "State", "begin");
-                        FileformatBase BufferFile = SETTINGS.user.DepthTransport.TransCoder.GetBufferFile();
-                        IO.Instance.SaveManual(BufferFile, SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile, task, prefix);
-
-                    }
-
-                    // Wait for results
-
-                    string serverState, clientState;
-                    task.GetStringValue("serverState", out serverState);
-                    if (!task.GetStringValue("clientState", out clientState))
-                        clientState = "noclient";
-
-                    bool Alldone = true;
-                    string DebugString = "";
-
-                    switch (serverState)
-                    {
-
-
-                        case "done":
-
-                            break;
-
-                        case "begin":
-
-                        default:
-
-                            // in progress
-                            DebugString += "s: " + serverState;
-                            Alldone = false;
-                            break;
-
-                    }
-
-                    switch (clientState)
-                    {
-
-                        case "done":
-                        case "noclient":
-
-                            break;
-
-                        case "begin":
-
-                        default:
-
-                            // in progress
-                            DebugString += " c: " + serverState;
-                            Alldone = false;
-                            break;
-
-                    }
-
-                    task.SetStringValue("debug", DebugString);
-
-                    if (Alldone)
-                        done = true;
-
-
+                    //         SETTINGS.deviceMode = DEVICEMODE.SERVER;
+                    // Switched to using #if compiling.
+                    done = true;
 
                     break;
+#endif
+
+#if CLIENT
+                case "amvrclient":
+
+                    //        SETTINGS.deviceMode = DEVICEMODE.VRCLIENT;
+
+                    // Switched to using #if compiling.
+
+                    done = true;
+
+                    break;
+#endif
+
+
+
+                // ----------------------------------------------------------------------------------------------------
+
+
+                // IO file handling.
+
                 case "loadfileasync":
+
+                    // Load the selected file.
 
                     if (LoadFileAsync(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile, task))
                     {
@@ -222,127 +176,237 @@ namespace PresenceEngine
                     break;
 
 
-                case "loadfileasyncfullcode":
+                case "storefileasync":
 
-                    // Server & client. If a client reacts, wait for it. So stopping client while saving will pause flow...
+                    // Save the selected file.
 
-#if SERVER
-                    prefix = "server";
+                    FileformatBase buffer = null;
 
-                    if (!task.GetStringValue(prefix + "State", out myState))
+                    if (SETTINGS.user.DepthTransport != null && SETTINGS.user.DepthTransport.TransCoder != null)
                     {
-                        task.SetStringValue(prefix + "State", "begin");
-                        IO.Instance.LoadManual(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile, task, prefix);
-                        task.SetStringValue("file", SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
-                        // If there's a client we'll flag that ourselves.
-
-                        if (GENERAL.wasConnected)
-                        {
-                            task.SetStringValue("clientState", "notstarted");
-                        }
-                        else
-                        {
-                            task.SetStringValue("clientState", "noclient");
-                        }
+                        buffer = SETTINGS.user.DepthTransport.TransCoder.GetBufferFile();
                     }
-
-
-
-
-#endif
-#if CLIENT
-                    prefix = "client";
-                    string loadFile;
-
-                    if (task.GetStringValue(prefix + "State", out myState) && task.GetStringValue("file", out loadFile))
+                    else
                     {
-                        // we have values for file and state.
-
-                        if (myState == "notstarted")
-                        {
-                            task.SetStringValue(prefix + "State", "begin");
-
-                            SETTINGS.SelectedFile = IO.Instance.FileFromPath(loadFile);
-                            SETTINGS.SelectedFolder = IO.Instance.FolderFromPath(loadFile);
-
-                            IO.Instance.LoadManual(loadFile, task, prefix);
-
-                        }
-
-                    }
-
-
-
-
-
-
-#endif
-
-                    // Kick of the async saving process.
-
-
-
-
-                    // Wait for results
-
-
-                    task.GetStringValue("serverState", out serverState);
-                    task.GetStringValue("clientState", out clientState);
-
-
-                    Alldone = true;
-                    DebugString = "";
-
-                    switch (serverState)
-                    {
-
-
-                        case "done":
-
-                            break;
-
-                        case "begin":
-
-                        default:
-
-                            // in progress
-                            DebugString += "s: " + serverState;
-                            Alldone = false;
-                            break;
-
-                    }
-
-                    switch (clientState)
-                    {
-
-                        case "done":
-                        case "noclient":
-
-                            break;
-
-                        case "begin":
-
-                        default:
-
-                            // in progress
-                            DebugString += " c: " + serverState;
-                            Alldone = false;
-                            break;
-
-                    }
-
-#if SERVER
-                    task.SetStringValue("debug", DebugString);
-#endif
-
-                    if (Alldone)
+                        Warning("can't get buffer");
                         done = true;
+                        break;
+                    }
 
 
+                    if (Storefileasync(buffer, SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile, task))
+                    {
+                        done = true;
+                    }
 
                     break;
 
+                /*
 
+
+                                case "storefileasyncfullcode":
+
+                                    // Server & client. If a client reacts, wait for it. So stopping client while saving will pause flow...
+
+                #if SERVER
+                                    string prefix = "server";
+                #endif
+                #if CLIENT
+                                    string prefix = "client";
+                #endif
+
+                                    // Kick of the async saving process.
+
+                                    string myState;
+
+                                    if (!task.GetStringValue(prefix + "State", out myState))
+                                    {
+                                        task.SetStringValue(prefix + "State", "begin");
+                                        FileformatBase BufferFile = SETTINGS.user.DepthTransport.TransCoder.GetBufferFile();
+                                        IO.Instance.SaveAsync(BufferFile, SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile, task, prefix);
+
+                                    }
+
+                                    // Wait for results
+
+                                    string serverState, clientState;
+                                    task.GetStringValue("serverState", out serverState);
+                                    if (!task.GetStringValue("clientState", out clientState))
+                                        clientState = "noclient";
+
+                                    bool Alldone = true;
+                                    string DebugString = "";
+
+                                    switch (serverState)
+                                    {
+
+
+                                        case "done":
+
+                                            break;
+
+                                        case "begin":
+
+                                        default:
+
+                                            // in progress
+                                            DebugString += "s: " + serverState;
+                                            Alldone = false;
+                                            break;
+
+                                    }
+
+                                    switch (clientState)
+                                    {
+
+                                        case "done":
+                                        case "noclient":
+
+                                            break;
+
+                                        case "begin":
+
+                                        default:
+
+                                            // in progress
+                                            DebugString += " c: " + serverState;
+                                            Alldone = false;
+                                            break;
+
+                                    }
+
+                                    task.SetStringValue("debug", DebugString);
+
+                                    if (Alldone)
+                                        done = true;
+
+
+
+                                    break;
+
+
+
+                                case "loadfileasyncfullcode":
+
+                                    // Server & client. If a client reacts, wait for it. So stopping client while saving will pause flow...
+
+                #if SERVER
+                                    prefix = "server";
+
+                                    if (!task.GetStringValue(prefix + "State", out myState))
+                                    {
+                                        task.SetStringValue(prefix + "State", "begin");
+                                        IO.Instance.LoadAsync(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile, task, prefix);
+                                        task.SetStringValue("file", SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
+                                        // If there's a client we'll flag that ourselves.
+
+                                        if (GENERAL.wasConnected)
+                                        {
+                                            task.SetStringValue("clientState", "notstarted");
+                                        }
+                                        else
+                                        {
+                                            task.SetStringValue("clientState", "noclient");
+                                        }
+                                    }
+
+
+
+
+                #endif
+                #if CLIENT
+                                    prefix = "client";
+                                    string loadFile;
+
+                                    if (task.GetStringValue(prefix + "State", out myState) && task.GetStringValue("file", out loadFile))
+                                    {
+                                        // we have values for file and state.
+
+                                        if (myState == "notstarted")
+                                        {
+                                            task.SetStringValue(prefix + "State", "begin");
+
+                                            SETTINGS.SelectedFile = IO.Instance.FileFromPath(loadFile);
+                                            SETTINGS.SelectedFolder = IO.Instance.FolderFromPath(loadFile);
+
+                                            IO.Instance.LoadManual(loadFile, task, prefix);
+
+                                        }
+
+                                    }
+
+
+
+
+
+
+                #endif
+
+                                    // Kick of the async saving process.
+
+
+
+
+                                    // Wait for results
+
+
+                                    task.GetStringValue("serverState", out serverState);
+                                    task.GetStringValue("clientState", out clientState);
+
+
+                                    Alldone = true;
+                                    DebugString = "";
+
+                                    switch (serverState)
+                                    {
+
+
+                                        case "done":
+
+                                            break;
+
+                                        case "begin":
+
+                                        default:
+
+                                            // in progress
+                                            DebugString += "s: " + serverState;
+                                            Alldone = false;
+                                            break;
+
+                                    }
+
+                                    switch (clientState)
+                                    {
+
+                                        case "done":
+                                        case "noclient":
+
+                                            break;
+
+                                        case "begin":
+
+                                        default:
+
+                                            // in progress
+                                            DebugString += " c: " + serverState;
+                                            Alldone = false;
+                                            break;
+
+                                    }
+
+                #if SERVER
+                                    task.SetStringValue("debug", DebugString);
+                #endif
+
+                                    if (Alldone)
+                                        done = true;
+
+
+
+                                    break;
+
+                                    */
                 //case "loadselectedfile":
 
                 //string loadingState;
@@ -376,33 +440,6 @@ namespace PresenceEngine
 
 
                 //break;
-
-                // -----------------------------------------------------------------------
-                // Main roles.
-
-#if SERVER
-                case "amserver":
-
-                    //         SETTINGS.deviceMode = DEVICEMODE.SERVER;
-                    // Switched to using #if compiling.
-                    done = true;
-
-                    break;
-#endif
-
-#if CLIENT
-                case "amvrclient":
-
-                    //        SETTINGS.deviceMode = DEVICEMODE.VRCLIENT;
-
-                    // Switched to using #if compiling.
-
-                    done = true;
-
-                    break;
-#endif
-
-
 
                 // ----------------------------------------------------------------------------------------------------
                 // User data manipulations
@@ -503,7 +540,6 @@ namespace PresenceEngine
 
                     // Use visualiser's to and from task method to change setting.
 
-
                     SETTINGS.user.SetVisualiser("PointShaded", 0);
                     task.SetIntValue("user_0_cloudvisible", 1);
 
@@ -516,13 +552,12 @@ namespace PresenceEngine
 
 
                     break;
-#endif
+
 
                 case "materialiseoff":
                 case "MaterialiseOff":
 
                     // Use visualiser's to and from task method to change setting.
-#if SERVER
 
                     task.SetIntValue("user_0_cloudvisible", 0);
 
@@ -530,31 +565,11 @@ namespace PresenceEngine
 
                     done = true;
 
-#endif
-
-#if CLIENT
-
-                    // presencehandler should pick up on server change...
-
-                    //      task.SetIntValue("user_0_cloudvisible", 0);
-
-                    //    SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
-
-                    //int v;
-                    //if (task.GetIntValue("user_0_cloudvisible", out v))
-                    //{
-
-                    //    SETTINGS.user.PullVisualiserSettingsFromTask(task, "user");
-
-                    //}
 
 
-                    done = true;
-
-#endif
                     break;
 
-
+#endif
 
                 // ----------------------------------------------------------------------------------------------------
                 // Presence data manipulations
@@ -800,8 +815,6 @@ namespace PresenceEngine
 #if SERVER
                 case "deletepresences":
 
-
-
                     foreach (KeyValuePair<string, Presence> presence in SETTINGS.Presences)
                     {
                         if (presence.Key != "user")
@@ -845,9 +858,23 @@ namespace PresenceEngine
                 // ----------------------------------------------------------------------------------------------------
                 // Pauses, only run on server
 #if SERVER
-                case "pause3":
+                case "pause1":
 
                     float TimeOut;
+
+                    if (!task.GetFloatValue("timeout", out TimeOut))
+                    {
+                        TimeOut = Time.time + 1;
+                        task.SetFloatValue("timeout", TimeOut);
+
+                    }
+
+                    if (Time.time > TimeOut)
+                        done = true;
+
+                    break;
+
+                case "pause3":
 
                     if (!task.GetFloatValue("timeout", out TimeOut))
                     {
@@ -970,14 +997,12 @@ namespace PresenceEngine
 
                 case "playbackfile":
 
-                    // Play back the checked out file. SHOULDN"t THIS BE SERVER ONNLY??
+                    // Play back the checked out file from cache. (Make sure to load it.)
 
                     Log("Starting name " + SETTINGS.SelectedFile);
 
                     FileformatBase pbBuffer = IO.Instance.GetFromCache(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
-
-                    //      Log("Starting name " + IO.CheckedOutFile);
-
+                    
                     TimeHandler = PlaybackStop;
 
                     if (pbBuffer != null)
@@ -1037,21 +1062,16 @@ namespace PresenceEngine
                     break;
 
                 case "stopplaybackfile":
-
-
-
+                    
                     if (fileplayback != null)
                         fileplayback.DepthTransport.Mode = DEPTHMODE.OFF;
-
-
+                    
                     done = true;
                     break;
 
 
                 case "stopallplayback":
-
-
-
+                    
                     foreach (KeyValuePair<string, Presence> presence in SETTINGS.Presences)
                     {
                         if (presence.Key != "user")
@@ -1074,11 +1094,13 @@ namespace PresenceEngine
 
                     // Creates a mirror presence of the user if recording OR of the playback file if playing.
 
-
+                    // // LEGACY
 
                     Log("Starting mirror of " + SETTINGS.SelectedFile);
 
-                    FileBuffer = IO.Instance.LoadFile(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
+                    //  FileBuffer = IO.Instance.LoadFile(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
+                    // loading sync no longer possible. make sure file is in cache!
+                    FileBuffer = IO.Instance.GetFromCache(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
 
                     if (FileBuffer != null)
                     {
@@ -1173,7 +1195,10 @@ namespace PresenceEngine
 
                         Log("starting name " + c + " " + name);
 
-                        FileBuffer = IO.Instance.LoadFile(SETTINGS.SelectedFolder + "/" + name);
+                        //                        FileBuffer = IO.Instance.LoadFile(SETTINGS.SelectedFolder + "/" + name);
+                        // Make sure file is in Cache!!
+
+                        FileBuffer = IO.Instance.GetFromCache(SETTINGS.SelectedFolder + "/" + name);
 
 
                         if (FileBuffer != null)
@@ -1338,7 +1363,10 @@ namespace PresenceEngine
                     string FileName = Files[Retrieve];
 
 
-                    FileBuffer = IO.Instance.LoadFile(FileName);
+                    //   FileBuffer = IO.Instance.LoadFile(FileName);
+                    // Make sure file is in cache
+                    FileBuffer = IO.Instance.GetFromCache(FileName);
+
 
                     Log("attempting clone presence for " + FileName);
 
@@ -1742,259 +1770,491 @@ namespace PresenceEngine
 
                     break;
 
-                case "nonewdrawings":
+                case "stopdrawing":
+
+
+                    //    SkeletonAndDepthFrame;laksjdflasdf
 
                     // We're changing the task settings from here.
-                    Log("nonewdrawings  ");
+                    Log("Stop drawing.");
 
-                    StoryTask drawtask = AssitantDirector.FindTaskByByLabel("PlayDrawings");// find task by label, should return the playbackdrawings task
+                    //   StoryTask drawtask = AssitantDirector.FindTaskByByLabel("loadnextdrawing");// find task by label, should return the playbackdrawings task
 
-                    if (drawtask != null && drawtask.description == "playbackdrawings")
+                    //     if (drawtask != null && drawtask.description == "nextdrawing")
+                    //     {
+                    //  drawtask.SetIntValue("index", -1); // no new instances, because file index will be out of range.
+                    //       task.SetStringValue("active", "false");
+
+
+                    foreach (KeyValuePair<string, Presence> presence in SETTINGS.Presences)
                     {
-                        drawtask.SetIntValue("index", 1000); // no new instances, because file index will be out of range.
-
-                        for (int dp = 0; dp < 3; dp++)
+                        if (presence.Key.IndexOf("drawing") != -1)
                         {
-                            PresenceName = "drawingpresence" + dp;
-                            int state = 0;
+                            task.SetIntValue(presence.Key + "_0_isdrawing", 0);
+                            presence.Value.PullVisualiserSettingsFromTask(task, presence.Key);
 
-                            if (drawtask.GetIntValue(PresenceName + "_state", out state) && state == 2)
-                            {
-                                if (SETTINGS.Presences.TryGetValue(PresenceName, out fileplayback))
-                                {
+                            //      drawtask.SetFloatValue(PresenceName + "_timeout", Time.time);
+                            //   drawtask.SetIntValue(PresenceName + "_state", 3);
+                            Log("Stopping drawing for " + presence.Key);
 
-                                    // stop drawing.
-
-                                    drawtask.SetIntValue(PresenceName + "_0_isdrawing", 0);
-                                    fileplayback.PullVisualiserSettingsFromTask(drawtask, PresenceName);
-                                    drawtask.SetFloatValue(PresenceName + "_timeout", Time.time);
-                                    drawtask.SetIntValue(PresenceName + "_state", 3);
-                                    Log("Stopping drawing " + PresenceName);
-
-                                }
-                            }
 
                         }
                     }
-                    else
+
+
+                    /*
+                    for (int i = 0; i < SETTINGS.Presences.Count; i++)
                     {
-                        Log("task not found correctly");
+                        // this will generate all possible instances, include one that doesn't exist.
+
+                        if (SETTINGS.Presences.Keys)
+                        {
+
+
+
+                        }
+
+                        PresenceName = "drawing" + dp;
+                        int state = 0;
+
+                        if (drawtask.GetIntValue(PresenceName + "_state", out state) && state == 2)
+                        {
+                            if (SETTINGS.Presences.TryGetValue(PresenceName, out fileplayback))
+                            {
+
+                                // stop drawing.
+
+                                drawtask.SetIntValue(PresenceName + "_0_isdrawing", 0);
+                                fileplayback.PullVisualiserSettingsFromTask(drawtask, PresenceName);
+                                drawtask.SetFloatValue(PresenceName + "_timeout", Time.time);
+                                drawtask.SetIntValue(PresenceName + "_state", 3);
+                                Log("Stopping drawing " + PresenceName);
+
+                            }
+                        }
+
                     }
+                    */
+                    // //    }
+                    //     else
+                    //     {
+                    //        Log("task not found correctly");
+                    //    }
 
                     done = true;
 
                     break;
 
-                case "playbackdrawings":
+                case "ResetGuided":
 
-                    // Plays back the drawing section of a session, using the drawing visualiser.
+                    FileIndex = 0;
+                    LoadFile = "";
 
-                    float BeginDraw, EndDraw;
-                    //  Index;
+                    done = true;
+                    break;
 
-                    if (!task.GetIntValue("index", out Index))
+                case "nextfile":
+
+                    // Task will hold if too many presences.
+
+                    if (SETTINGS.Presences.Count < 5)
                     {
-                        Index = 1;
-                        task.SetIntValue("index", Index);
-                    }
+                        // Start randomly.
 
-                    Vector3[] Positions = new Vector3[]
-                       {
-                            new Vector3(0, 0,-1f),
-                            new Vector3(1f, 0,-0.25f),
-                            new Vector3(-2f, 0,0f)
-                       };
+                        if (UnityEngine.Random.value > 1f / 60f)
+                            break;
 
-                    // this can be simplified using the timing delegate to clean up on completion. so we can just generate presences and let them roam ?
+                        FileIndex++;
 
-                    for (int dp = 0; dp < 3; dp++)
-                    {
+                        Files = FileList(SETTINGS.SelectedFolder);
+                        Current = Array.IndexOf(Files, SETTINGS.SelectedFile);
+                        Retrieve = Current + FileIndex;
 
-                        PresenceName = "drawingpresence" + dp;
-
-
-
-                        int state;
-
-                        if (!task.GetIntValue(PresenceName + "_state", out state))
-                            task.SetIntValue(PresenceName + "_state", state); // 0
-
-
-                        switch (state)
+                        if (Retrieve < Files.Length)
                         {
-                            case 0:
+                            // File available. Set file name for loading.
 
-                                // Empty.
+                            LoadFile = Files[Retrieve];
+                            Log("Next file: " + LoadFile + " index " + FileIndex + " of " + Files.Length);
 
-                                if (UnityEngine.Random.value < (1f / 60f))
-                                {
-                                    state = 1;
-
-                                }
-
-                                break;
-
-                            case 1:
-                                // New.
-
-                                if (SETTINGS.Presences.TryGetValue(PresenceName, out fileplayback))
-                                {
-                                    Warning("Presence already exits: " + PresenceName);
-                                    state = -1;
-                                    break;
-                                }
-
-                                // Create presence.
-                                Files = FileList(SETTINGS.SelectedFolder);
-
-                                Current = Array.IndexOf(Files, SETTINGS.SelectedFile);
-
-                                Retrieve = Current + Index;
-
-                                if (Retrieve >= Files.Length)
-                                {
-                                    // Loop through sessions.
-                                    Index = 1;
-                                    break;
-                                }
-
-
-
-                                //   Current = IO.Instance.CheckedOutFileIndex();
-
-                                FileName = Files[Retrieve];
-
-                                FileBuffer = IO.Instance.LoadFile(SETTINGS.SelectedFolder + "/" + FileName);
-
-                                if (FileBuffer == null)
-                                {
-                                    // No file, just revert to empty.
-                                    state = 0;
-                                    Log("no buffer found for " + FileName);
-                                    break;
-                                }
-
-                                Log("Starting drawing presence " + FileName);
-
-                                FileBuffer.DumpTimeStamps();
-
-                                BeginDraw = FileBuffer.GetTimeStamp("TimeStamp_BeginDraw");
-
-                                if (BeginDraw == -1)
-                                {
-                                    Warning("No drawing timestamp for: " + FileBuffer.Name);
-                                    state = -1;
-                                    Index++;
-                                    break;
-
-                                }
-                                // Proceed if there is a value for begindraw
-
-                                fileplayback = Presence.Create(presences, PresenceName);
-
-                                fileplayback.SetVisualiser("ShowSkeleton");
-                                fileplayback.SetTranscoder(FileBuffer.TransCoderName);
-                                fileplayback.DepthTransport.TransCoder.SetBufferFile(FileBuffer);
-
-                                fileplayback.DepthTransport.CurrentTime = BeginDraw;
-
-                                // Create relative placement
-
-                                Vector3 UserPosition = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
-                                UserPosition.y = 0;
-
-                                float randomy = UnityEngine.Random.Range(-180f, 180f);
-
-                                fileplayback.SetVisualiseTransform(UserPosition + Positions[dp], Vector3.one, Quaternion.Euler(0, randomy, 0));
-                                fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
-
-                                task.SetIntValue(PresenceName + "_0_cloudvisible", 1);
-                                task.SetIntValue(PresenceName + "_0_isdrawing", 1);
-                                fileplayback.PullVisualiserSettingsFromTask(task, PresenceName);
-
-                                StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
-                                handler.SetFloatValue(PresenceName + "_speed", 1f);
-
-                                Log("started drawing " + FileBuffer.Name);
-
-                                Index++;
-
-                                state = 2;
-
-
-                                break;
-
-                            case 2:
-
-                                // Active
-                                // Check if presence is at end of drawing
-
-                                if (!SETTINGS.Presences.TryGetValue(PresenceName, out fileplayback))
-                                {
-                                    // Error, abort.
-                                    state = -1;
-                                    break;
-                                }
-
-                                BeginDraw = fileplayback.DepthTransport.TransCoder.GetBufferFile().GetTimeStamp("TimeStamp_BeginDraw");
-                                EndDraw = fileplayback.DepthTransport.TransCoder.GetBufferFile().GetTimeStamp("TimeStamp_EndDraw");
-
-                                if (fileplayback.DepthTransport.CurrentTime > EndDraw || fileplayback.DepthTransport.CurrentTime < BeginDraw)
-                                {
-                                    // Head outside of drawing timespan.
-                                    task.SetIntValue(PresenceName + "_0_cloudvisible", 1);
-                                    task.SetIntValue(PresenceName + "_0_isdrawing", 0);
-                                    fileplayback.PullVisualiserSettingsFromTask(task, PresenceName);
-                                    Log("Stopping drawing " + PresenceName);
-                                    task.SetFloatValue(PresenceName + "_timeout", Time.time);
-
-                                    Log("Stopping drawing " + fileplayback.DepthTransport.TransCoder.GetBufferFile().Name);
-
-                                    state = 3;
-                                }
-
-                                break;
-
-                            case 3:
-                                // We've stopped drawing. Wait for animation to play out before cleaning up.
-
-                                float to;
-                                task.GetFloatValue(PresenceName + "_timeout", out to);
-
-                                if (Time.time > to + 10f)
-                                {
-                                    state = -1;
-                                }
-
-                                break;
-
-
-
-                            case -1:
-                            default:
-
-                                // Something wrong or done, try to remove presence.
-                                if (SETTINGS.Presences.TryGetValue(PresenceName, out fileplayback))
-                                {
-                                    Destroy(fileplayback.gameObject);
-                                    SETTINGS.Presences.Remove(PresenceName);
-                                    Log("Removed presence " + PresenceName);
-                                }
-                                state = 0;
-                                break;
-
-
+                            done = true;
+                            break;
                         }
 
-                        task.SetIntValue(PresenceName + "_state", state);
-                        task.SetIntValue("index", Index);
+                        if (Retrieve == Files.Length)
+                        {
+                            // Start at front.
+                            FileIndex = 0;
+                        }
+
                     }
+
 
                     break;
 
 
 
+                case "loadfile":
 
+                    // Loads the next file for playback. 
+                    //    Log("Load file: " + LoadDrawing + " index " + DrawingIndex);
+
+                    if (LoadFileAsync(SETTINGS.SelectedFolder + "/" + LoadFile, task))
+                    {
+                        done = true;
+                    }
+
+                    break;
+
+                case "playbackdrawing":
+
+                    FileBuffer = IO.Instance.GetFromCache(SETTINGS.SelectedFolder + "/" + LoadFile);
+
+                    Log("Attempting to play back drawing from  " + SETTINGS.SelectedFolder + "/" + LoadFile);
+
+                    if (FileBuffer != null)
+                    {
+                        // Registrer playback handler. This will turn drawing off at endpoint and kill presence 10s after that.
+
+                        TimeHandler = DrawingClone;
+
+                        // We have a buffer file to play from.
+                        FileBuffer.DumpTimeStamps();
+
+                        float begin = FileBuffer.GetTimeStamp("TimeStamp_BeginDraw");
+                        float end = FileBuffer.GetTimeStamp("TimeStamp_EndDraw");
+
+                        float length = end - begin;
+
+                        if (begin != -1 && end != -1 && length > 20.5f)
+                        {
+                            // It has a length we can work with.
+
+                            float inpoint = UnityEngine.Random.Range(0, end - 20f); // start or if longer, random range
+                            float duration = UnityEngine.Random.Range(10, 20);  // 
+                            float OutPoint = inpoint + duration;
+
+                            PresenceName = "drawing" + FileIndex;
+
+                            if (!SETTINGS.Presences.TryGetValue(PresenceName, out fileplayback))
+                                fileplayback = Presence.Create(presences, PresenceName);
+
+                            fileplayback.SetTranscoder(FileBuffer.TransCoderName);
+                            fileplayback.DepthTransport.TransCoder.SetBufferFile(FileBuffer);
+                            fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
+                            fileplayback.DepthTransport.CurrentTime = inpoint;
+                            fileplayback.SetVisualiser("ShowSkeleton");
+
+                            // random location. taking into account the fact that we are positioning the projector, not the presence.
+
+                            Vector2 center2d = new Vector2(0, SETTINGS.kinectCentreDistance);
+                            float a = UnityEngine.Random.Range(0, Mathf.PI * 2);
+                            Vector2 v = new Vector2(Mathf.Sin(a), Mathf.Cos(a));
+                            float offset = -SETTINGS.kinectCentreDistance + UnityEngine.Random.Range(-2f, 2f);// first compensate the projection distance to center. then add random. so projecting towards the center from different angles, with some offset.
+                            Vector2 placement = center2d + v * offset;
+                            Quaternion rotation = Quaternion.Euler(0, a * Mathf.Rad2Deg, 0);
+
+                            // all presences should now 'face' the user.
+
+                            fileplayback.SetVisualiseTransform(new Vector3(placement.x, 0, placement.y), Vector3.one, rotation);
+
+                            // Show visualiser.
+                            task.SetIntValue(PresenceName + "_0_cloudvisible", 1);
+                            task.SetIntValue(PresenceName + "_0_isdrawing", 1);
+                            fileplayback.PullVisualiserSettingsFromTask(task, PresenceName);
+
+                            StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
+                            handler.SetFloatValue(PresenceName + "_speed", 1f);
+                            handler.SetFloatValue(PresenceName + "_outpoint", OutPoint);
+
+                            Log("started drawing presence for " + FileBuffer.Name);
+                        }
+                    }
+                    done = true;
+
+
+                    break;
+
+                case "playbackpresence":
+
+                    FileBuffer = IO.Instance.GetFromCache(SETTINGS.SelectedFolder + "/" + LoadFile);
+
+                    Log("Attempting to play back drawing from  " + SETTINGS.SelectedFolder + "/" + LoadFile);
+
+                    if (FileBuffer != null)
+                    {
+                        // Registrer playback handler. This will turn drawing off at endpoint and kill presence 10s after that.
+
+                        TimeHandler = PresenceClone;
+
+                        // We have a buffer file to play from.
+                        FileBuffer.DumpTimeStamps();
+
+                        float begin = FileBuffer.StartTime;
+                        float end = FileBuffer.EndTime;
+
+                        float length = end - begin;
+
+                        if (begin != -1 && end != -1 && length > 20.5f)
+                        {
+                            // It has a length we can work with.
+
+                            float inpoint = UnityEngine.Random.Range(0, end - 20f); // start or if longer, random range
+                            float duration = UnityEngine.Random.Range(10, 20);  // 
+                            float OutPoint = inpoint + duration;
+
+                            PresenceName = "presence" + FileIndex;
+
+                            if (!SETTINGS.Presences.TryGetValue(PresenceName, out fileplayback))
+                                fileplayback = Presence.Create(presences, PresenceName);
+
+                            fileplayback.SetTranscoder(FileBuffer.TransCoderName);
+                            fileplayback.DepthTransport.TransCoder.SetBufferFile(FileBuffer);
+                            fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
+                            fileplayback.DepthTransport.CurrentTime = inpoint;
+                            fileplayback.SetVisualiser("PointShaded");
+
+                            // random location. taking into account the fact that we are positioning the projector, not the presence.
+
+                            Vector2 center2d = new Vector2(0, SETTINGS.kinectCentreDistance);
+                            float a = UnityEngine.Random.Range(0, Mathf.PI * 2);
+                            Vector2 v = new Vector2(Mathf.Sin(a), Mathf.Cos(a));
+                            float offset = -SETTINGS.kinectCentreDistance + UnityEngine.Random.Range(-2f, 2f);// first compensate the projection distance to center. then add random. so projecting towards the center from different angles, with some offset.
+                            Vector2 placement = center2d + v * offset;
+                            Quaternion rotation = Quaternion.Euler(0, a * Mathf.Rad2Deg, 0);
+
+                            // all presences should now 'face' the user.
+
+                            fileplayback.SetVisualiseTransform(new Vector3(placement.x, 0, placement.y), Vector3.one, rotation);
+
+                            // Show visualiser.
+                            task.SetIntValue(PresenceName + "_0_cloudvisible", 1);
+                            //   task.SetIntValue(PresenceName + "_0_isdrawing", 1);
+                            fileplayback.PullVisualiserSettingsFromTask(task, PresenceName);
+
+                            StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
+                            handler.SetFloatValue(PresenceName + "_speed", 1f);
+                            handler.SetFloatValue(PresenceName + "_outpoint", OutPoint);
+
+                            Log("started drawing presence for " + FileBuffer.Name);
+                        }
+                    }
+                    done = true;
+
+
+                    break;
+
+                /*
+            case "playbackdrawings":
+
+                // Plays back the drawing section of a session, using the drawing visualiser.
+
+                float BeginDraw, EndDraw;
+                //  Index;
+
+                if (!task.GetIntValue("index", out Index))
+                {
+                    Index = 1;
+                    task.SetIntValue("index", Index);
+                }
+
+                Vector3[] Positions = new Vector3[]
+                   {
+                        new Vector3(0, 0,-1f),
+                        new Vector3(1f, 0,-0.25f),
+                        new Vector3(-2f, 0,0f)
+                   };
+
+                // this can be simplified using the timing delegate to clean up on completion. so we can just generate presences and let them roam ?
+
+                for (int dp = 0; dp < 3; dp++)
+                {
+
+                    PresenceName = "drawingpresence" + dp;
+
+
+
+                    int state;
+
+                    if (!task.GetIntValue(PresenceName + "_state", out state))
+                        task.SetIntValue(PresenceName + "_state", state); // 0
+
+
+                    switch (state)
+                    {
+                        case 0:
+
+                            // Empty.
+
+                            if (UnityEngine.Random.value < (1f / 60f))
+                            {
+                                state = 1;
+
+                            }
+
+                            break;
+
+                        case 1:
+                            // New.
+
+                            if (SETTINGS.Presences.TryGetValue(PresenceName, out fileplayback))
+                            {
+                                Warning("Presence already exits: " + PresenceName);
+                                state = -1;
+                                break;
+                            }
+
+                            // Create presence.
+                            Files = FileList(SETTINGS.SelectedFolder);
+
+                            Current = Array.IndexOf(Files, SETTINGS.SelectedFile);
+
+                            Retrieve = Current + Index;
+
+                            if (Retrieve >= Files.Length)
+                            {
+                                // Loop through sessions.
+                                Index = 1;
+                                break;
+                            }
+
+
+
+                            //   Current = IO.Instance.CheckedOutFileIndex();
+
+                            FileName = Files[Retrieve];
+
+                            FileBuffer = IO.Instance.LoadFile(SETTINGS.SelectedFolder + "/" + FileName);
+
+                            if (FileBuffer == null)
+                            {
+                                // No file, just revert to empty.
+                                state = 0;
+                                Log("no buffer found for " + FileName);
+                                break;
+                            }
+
+                            Log("Starting drawing presence " + FileName);
+
+                            FileBuffer.DumpTimeStamps();
+
+                            BeginDraw = FileBuffer.GetTimeStamp("TimeStamp_BeginDraw");
+
+                            if (BeginDraw == -1)
+                            {
+                                Warning("No drawing timestamp for: " + FileBuffer.Name);
+                                state = -1;
+                                Index++;
+                                break;
+
+                            }
+                            // Proceed if there is a value for begindraw
+
+                            fileplayback = Presence.Create(presences, PresenceName);
+
+                            fileplayback.SetVisualiser("ShowSkeleton");
+                            fileplayback.SetTranscoder(FileBuffer.TransCoderName);
+                            fileplayback.DepthTransport.TransCoder.SetBufferFile(FileBuffer);
+
+                            fileplayback.DepthTransport.CurrentTime = BeginDraw;
+
+                            // Create relative placement
+
+                            Vector3 UserPosition = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
+                            UserPosition.y = 0;
+
+                            float randomy = UnityEngine.Random.Range(-180f, 180f);
+
+                            fileplayback.SetVisualiseTransform(UserPosition + Positions[dp], Vector3.one, Quaternion.Euler(0, randomy, 0));
+                            fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
+
+                            task.SetIntValue(PresenceName + "_0_cloudvisible", 1);
+                            task.SetIntValue(PresenceName + "_0_isdrawing", 1);
+                            fileplayback.PullVisualiserSettingsFromTask(task, PresenceName);
+
+                            StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
+                            handler.SetFloatValue(PresenceName + "_speed", 1f);
+
+                            Log("started drawing " + FileBuffer.Name);
+
+                            Index++;
+
+                            state = 2;
+
+
+                            break;
+
+                        case 2:
+
+                            // Active
+                            // Check if presence is at end of drawing
+
+                            if (!SETTINGS.Presences.TryGetValue(PresenceName, out fileplayback))
+                            {
+                                // Error, abort.
+                                state = -1;
+                                break;
+                            }
+
+                            BeginDraw = fileplayback.DepthTransport.TransCoder.GetBufferFile().GetTimeStamp("TimeStamp_BeginDraw");
+                            EndDraw = fileplayback.DepthTransport.TransCoder.GetBufferFile().GetTimeStamp("TimeStamp_EndDraw");
+
+                            if (fileplayback.DepthTransport.CurrentTime > EndDraw || fileplayback.DepthTransport.CurrentTime < BeginDraw)
+                            {
+                                // Head outside of drawing timespan.
+                                task.SetIntValue(PresenceName + "_0_cloudvisible", 1);
+                                task.SetIntValue(PresenceName + "_0_isdrawing", 0);
+                                fileplayback.PullVisualiserSettingsFromTask(task, PresenceName);
+                                Log("Stopping drawing " + PresenceName);
+                                task.SetFloatValue(PresenceName + "_timeout", Time.time);
+
+                                Log("Stopping drawing " + fileplayback.DepthTransport.TransCoder.GetBufferFile().Name);
+
+                                state = 3;
+                            }
+
+                            break;
+
+                        case 3:
+                            // We've stopped drawing. Wait for animation to play out before cleaning up.
+
+                            float to;
+                            task.GetFloatValue(PresenceName + "_timeout", out to);
+
+                            if (Time.time > to + 10f)
+                            {
+                                state = -1;
+                            }
+
+                            break;
+
+
+
+                        case -1:
+                        default:
+
+                            // Something wrong or done, try to remove presence.
+                            if (SETTINGS.Presences.TryGetValue(PresenceName, out fileplayback))
+                            {
+                                Destroy(fileplayback.gameObject);
+                                SETTINGS.Presences.Remove(PresenceName);
+                                Log("Removed presence " + PresenceName);
+                            }
+                            state = 0;
+                            break;
+
+
+                    }
+
+                    task.SetIntValue(PresenceName + "_state", state);
+                    task.SetIntValue("index", Index);
+                }
+
+                break;
+
+
+
+            */
 
 
 
@@ -2443,6 +2703,18 @@ namespace PresenceEngine
 
                     break;
 
+                case "islocal":
+
+                    if (GENERAL.AUTHORITY == AUTHORITY.GLOBAL)
+                    {
+
+                        task.pointer.scope = SCOPE.LOCAL;
+
+                    }
+
+                    done = true;
+
+                    break;
 
                 case "passglobal":
 
@@ -2463,9 +2735,32 @@ namespace PresenceEngine
                     done = true;
 
                     break;
+
+
+                case "savenewfile":
+
+
+                    //IO.Instance.MakeNewFile(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
+                    string fileName = SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile;
+
+
+                    //NewFile.transform.localScale = Vector3.zero;
+                    if (Storefileasync(new FileformatBase() { Name = fileName }, fileName, task))
+                    {
+                        ClearFileList();
+                        done = true;
+                        Log("New empty file created successfully. " + fileName);
+                    }
+
+
+                    break;
+
+
+
                 case "makenewfolder":
 
-                case "makenewfile":
+
+
                 case "setfiledefaults":
                     {
                         ClearFileList();
@@ -2509,9 +2804,10 @@ namespace PresenceEngine
             if (!task.GetStringValue(prefix + "State", out myState))
             {
                 task.SetStringValue(prefix + "State", "begin");
-                IO.Instance.LoadManual(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile, task, prefix);
-                task.SetStringValue("file", SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
-                // If there's a client we'll flag that ourselves.
+                IO.Instance.LoadAsync(fileName, task, prefix);
+                task.SetStringValue("file", fileName);
+
+                // If there's a client we'll flag that here to make sure we're waiting for it to finish.
 
                 if (GENERAL.wasConnected)
                 {
@@ -2610,6 +2906,84 @@ namespace PresenceEngine
             return Alldone;
         }
         //
+
+        bool Storefileasync(FileformatBase buffer, string fileName, StoryTask task)
+        {
+
+            // Server & client. If a client reacts, wait for it. So stopping client while saving will pause flow...
+
+#if SERVER
+            string prefix = "server";
+#endif
+#if CLIENT
+                    string prefix = "client";
+#endif
+
+            // Kick of the async saving process.
+
+            string myState;
+
+            if (!task.GetStringValue(prefix + "State", out myState))
+            {
+                task.SetStringValue(prefix + "State", "begin");
+                //    FileformatBase BufferFile = SETTINGS.user.DepthTransport.TransCoder.GetBufferFile();
+                IO.Instance.SaveAsync(buffer, fileName, task, prefix);
+
+            }
+
+            // Wait for results
+
+            string serverState, clientState;
+            task.GetStringValue("serverState", out serverState);
+            if (!task.GetStringValue("clientState", out clientState))
+                clientState = "noclient";
+
+            bool Alldone = true;
+            string DebugString = "";
+
+            switch (serverState)
+            {
+
+
+                case "done":
+
+                    break;
+
+                case "begin":
+
+                default:
+
+                    // in progress
+                    DebugString += "s: " + serverState;
+                    Alldone = false;
+                    break;
+
+            }
+
+            switch (clientState)
+            {
+
+                case "done":
+                case "noclient":
+
+                    break;
+
+                case "begin":
+
+                default:
+
+                    // in progress
+                    DebugString += " c: " + serverState;
+                    Alldone = false;
+                    break;
+
+            }
+
+            task.SetStringValue("debug", DebugString);
+
+            return Alldone;
+
+        }
 
         string[] _list;
         string _folder;
@@ -2718,12 +3092,54 @@ namespace PresenceEngine
 
 
         }
+        void DrawingClone(StoryTask task, string name, Presence presence, float time)
+        {
+            // See if any of the clones has reached their out point.
+
+            if (name.IndexOf("drawing") == -1)
+                return;
+
+            FileformatBase buffer = presence.DepthTransport.TransCoder.GetBufferFile();
+
+            if (buffer != null)
+            {
+                float EndTime = -1;
+                task.GetFloatValue(name + "_outpoint", out EndTime);
+
+                // Fully done?
+
+                if (EndTime != -1 && time >= EndTime + 10f)
+                {
+                    // Playback completed and animation wound down.
+                    Log("Killing drawing " + name);
+                    Destroy(presence.gameObject);
+                    SETTINGS.Presences.Remove(name);
+                    return;
+                }
+
+                // Reached end?
+
+                if (EndTime != -1 && time >= EndTime)
+                {
+
+                    //     Log("Drawing off for " + name);
+                    task.SetIntValue(name + "_0_cloudvisible", 1);
+                    task.SetIntValue(name + "_0_isdrawing", 0);
+                    presence.PullVisualiserSettingsFromTask(task, name);
+
+                }
+
+
+            }
+
+
+        }
 
         void PresenceClone(StoryTask task, string name, Presence presence, float time)
         {
             // See if any of the clones has reached their out point.
 
-            if (name.IndexOf("presenceclone") == -1)
+            if (name.IndexOf("presence") == -1)
                 return;
 
             FileformatBase buffer = presence.DepthTransport.TransCoder.GetBufferFile();

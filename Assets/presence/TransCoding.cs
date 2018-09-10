@@ -402,7 +402,8 @@ namespace PresenceEngine
             if (_bufferFile != null && _bufferFile.Name == target)
                 return;
 
-            _bufferFile = IO.Instance.LoadFile(target);
+            // make sure file is in cache.
+            _bufferFile = IO.Instance.GetFromCache(target);
 
             // _bufferFile = target;
         }
@@ -768,7 +769,9 @@ namespace PresenceEngine
             if (_bufferFile != null && _bufferFile.Name == target)
                 return;
 
-            _bufferFile = IO.Instance.LoadFile(target);
+            //_bufferFile = IO.Instance.LoadFile(target);
+            // Make sure file is cached.
+            _bufferFile = IO.Instance.GetFromCache(target);
 
         }
 

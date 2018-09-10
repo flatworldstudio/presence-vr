@@ -112,6 +112,7 @@ end
 
 #newfile
 makenewfile
+savenewfile
 makefilemenu
 end
 
@@ -187,14 +188,14 @@ end
 
 #recordguided
 pressedrecordstart
-OffsetReset
+ResetGuided
 isglobal
 start presencehandler
 waitforuser
 start recording
 //MaterialiseOn
 pause5
-//goto drawingplayback
+//goto presencescene
 GuideOpening
 pause5
 OffsetReset
@@ -292,7 +293,7 @@ recordoff
 storefileasync
 MaterialiseOff
 deletepresences
-pause5
+pause3
 stop RandomPresences
 stop PlayDrawings
 stop Shatter
@@ -307,9 +308,18 @@ end
 ShatterUser
 end
 
+//#RandomPresences
+//SpawnPresences
+//end
+
 #RandomPresences
-SpawnPresences
-end
+islocal
+@loadnextpresence
+nextfile
+loadfile
+playbackpresence
+goto loadnextpresence
+
 
 #stoprecordguided
 tell recordguided recordguided_stop
@@ -320,7 +330,7 @@ pressedplay
 pause5
 @playguided_stop
 pressedstop
-pause5
+pause1
 end
 
 #stopplayguided
@@ -338,13 +348,18 @@ end
 // Playback of drawing sequences. 
 
 #PlayDrawings
-playbackdrawings
-end
+islocal
+@loadnextdrawing
+nextfile
+loadfile
+playbackdrawing
+goto loadnextdrawing
 
 #EndDrawings
-nonewdrawings
-pause15
+islocal
+stopdrawing
 stop PlayDrawings
+pause1
 end
 
 
@@ -371,7 +386,7 @@ materialiseoff
 storefileasync
 stop presencehandler
 makefilemenu
-pause3
+pause1
 end
 
 #stoprecordsolo
@@ -389,6 +404,7 @@ waitforallplaybacktoend
 deletepresences
 pressedstop
 stop presencehandler
+pause1
 end
 
 #stopplaysolo

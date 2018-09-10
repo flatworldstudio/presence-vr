@@ -83,6 +83,308 @@ namespace PresenceEngine
 
         }
 
+        // --------------------------------------------------------------------------
+        // Async IO. Load.
+
+        public void LoadAsync(string path, StoryTask taskRef, string prefix)
+        {
+            path = RebuildPath(path);
+
+            FileformatBase Buffered = FindInCache(RebuildPath(path));
+
+            if (Buffered != null)
+            {
+                taskRef.SetStringValue(prefix + "State", "done");
+            }
+            else
+            {
+                if (!File.Exists(localStorageFolder + path + SETTINGS.Ext))
+                {
+                    Warning("File doesn't exits: " + path);
+                    taskRef.SetStringValue(prefix + "State", "failed");
+                    return;
+                }
+
+                if (!busy)
+                {
+                    Log("loading async from disk: " + path);
+                    StartCoroutine(Loader(path, taskRef, prefix));
+                }
+                else
+                {
+                    Warning("IO is busy, can't load.");
+                    taskRef.SetStringValue(prefix + "State", "failed");
+                }
+
+            }
+
+        }
+
+        IEnumerator Loader(string fileName, StoryTask taskRef, string prefix)
+        {
+
+            Log("Loading " + fileName + " on " + prefix);
+
+            busy = true;
+            bool success = true;
+
+            //   FileformatBase loaded = null;
+
+            FileStream rf;
+            System.Int64 frameCount = 0;
+            BinaryFormatter bf = new BinaryFormatter();
+            FileformatBase file = null;
+            rf = null;
+
+            try
+            {
+                rf = File.Open(localStorageFolder + fileName + SETTINGS.Ext, FileMode.Open);
+
+                byte[] infoBuffer = new byte[58];
+                rf.Read(infoBuffer, 0, 58);
+                MemoryStream info = new MemoryStream(infoBuffer);
+                System.Int64 contentLength = (System.Int64)bf.Deserialize(info);
+                Verbose("content length " + contentLength);
+
+                byte[] contentBuffer = new byte[contentLength];
+                rf.Read(contentBuffer, 0, (int)contentLength);
+                MemoryStream content = new MemoryStream(contentBuffer);
+                file = (FileformatBase)bf.Deserialize(content);
+
+                Verbose("content " + file.Name + " " + file.TransCoderName);
+
+                infoBuffer = new byte[58];
+                rf.Read(infoBuffer, 0, 58);
+                info = new MemoryStream(infoBuffer);
+                frameCount = (System.Int64)bf.Deserialize(info);
+                Verbose("frame counnt " + frameCount);
+
+                file.Frames = new List<FrameBase>(); // should already be there
+
+            }
+            catch (Exception e)
+            {
+
+                Error(e.Message);
+                success = false;
+
+                if (rf != null)
+                    rf.Dispose();
+
+            }
+
+            if (success && rf != null)
+            {
+
+                int f = 0;
+                while (f < frameCount)
+                {
+
+                    Verbose("deserialising frame " + f);
+                    try
+                    {
+                        byte[] infoBuffer = new byte[58];
+                        rf.Read(infoBuffer, 0, 58);
+                        MemoryStream info = new MemoryStream(infoBuffer);
+                        System.Int64 contentLength = (System.Int64)bf.Deserialize(info);
+                        Verbose("frame length " + contentLength);
+
+                        byte[] contentBuffer = new byte[contentLength];
+                        rf.Read(contentBuffer, 0, (int)contentLength);
+                        MemoryStream content = new MemoryStream(contentBuffer);
+
+                        FrameBase frame = (FrameBase)bf.Deserialize(content);
+
+                        file.Frames.Add(frame);
+
+
+                    }
+                    catch (Exception e)
+                    {
+                        Error(e.Message);
+                        success = false;
+                        if (rf != null)
+                            rf.Dispose();
+                    }
+
+
+                    f++;
+
+                    if (f % 32 == 0)
+                    {
+                        taskRef.SetStringValue(prefix + "State", "" + (frameCount - f));
+                        yield return null;
+                    }
+
+
+                }
+
+
+            }
+
+            if (success && rf != null)
+            {
+                rf.Close();
+                rf.Dispose();
+            }
+
+            if (success && file != null)
+            {
+                AddToCache(file, fileName);
+                Verbose("Cache size " + PresenceCache.Keys.ToArray().Length);
+                Log("Loading done for " + fileName);
+                taskRef.SetStringValue(prefix + "State", "done");
+            }
+            else
+            {
+                Warning("Loading failed for " + fileName);
+                taskRef.SetStringValue(prefix + "State", "failed");
+
+            }
+
+            busy = false;
+
+            yield return null;
+
+        }
+        // -------------------------------------
+        // Save.
+
+        public void SaveAsync(FileformatBase presenceFile, string path, StoryTask taskRef, string prefix)
+        {
+            path = RebuildPath(path);
+            Directory.CreateDirectory(localStorageFolder + "/" + FolderFromPath(path));
+
+            if (presenceFile == null)
+            {
+                Warning("Buffer is null, can't save.");
+                taskRef.SetStringValue(prefix + "State", "failed");
+            }
+
+            if (!busy)
+            {
+                StartCoroutine(Saver(presenceFile, path, taskRef, prefix));
+            }
+            else
+            {
+                Warning("IO is busy, can't save.");
+                taskRef.SetStringValue(prefix + "State", "failed");
+            }
+
+
+
+        }
+
+
+        IEnumerator Saver(FileformatBase file, string fileName, StoryTask taskRef, string prefix)
+        {
+            Log("Saving " + fileName + " on " + prefix);
+
+            busy = true;
+
+            // Store a ref to the frames.
+            List<FrameBase> frames = file.Frames;
+            Log("number of frames " + frames.Count);
+
+            file.Frames = new List<FrameBase>();// clear out the main file for serialisation.
+
+            FileStream fs = File.Create(localStorageFolder + fileName + SETTINGS.Ext);
+            BinaryFormatter bf = new BinaryFormatter();
+
+            MemoryStream ContentSize = new MemoryStream();
+            MemoryStream Content = new MemoryStream();
+
+            // serialise content
+            bf.Serialize(Content, file);
+            Verbose("main file serialised  " + Content.Length);
+
+            // serialise length of content
+            bf.Serialize(ContentSize, Content.Length);
+            Verbose("mainfile length integer " + ContentSize.Length);
+
+            ContentSize.WriteTo(fs);
+            Content.WriteTo(fs);
+
+            // Now iterate over frames
+            ContentSize = new MemoryStream();
+
+            long FrameCount = frames.Count;
+
+            // serialise number of frames of content
+            bf.Serialize(ContentSize, FrameCount);
+            Verbose("framecount integer " + ContentSize.Length);
+            ContentSize.WriteTo(fs);
+
+
+            int f = 0;
+            while (f < FrameCount)
+            {
+                FrameBase frame = frames[f];
+
+                Verbose("serialising frame " + f);
+
+                // serialise frame
+
+                Content = new MemoryStream();
+                bf.Serialize(Content, frame);
+                Verbose("frame serialised  " + Content.Length);
+
+                // serialise frame size
+
+                ContentSize = new MemoryStream();
+                bf.Serialize(ContentSize, Content.Length);
+                Verbose("frame length integer " + ContentSize.Length);
+
+                ContentSize.WriteTo(fs);
+                Content.WriteTo(fs);
+
+                f++;
+
+                if (f % 32 == 0)
+                {
+                    taskRef.SetStringValue(prefix + "State", "" + (FrameCount - f));
+                    yield return null;
+                }
+
+            }
+
+            Verbose("Closing file");
+            fs.Close();
+
+            // Put the frames back.
+            file.Frames = frames;
+
+            AddToCache(file, fileName);
+
+            taskRef.SetStringValue(prefix + "State", "done");
+            busy = false;
+
+            yield return null;
+        }
+
+        void AddToCache(FileformatBase file, string fileName)
+        {
+
+
+            FileformatBase entry;
+            if (PresenceCache.TryGetValue(fileName, out entry))
+            {
+                Log("Overwriting in cache: " + fileName);
+                PresenceCache[fileName] = file;
+            }
+            else
+            {
+                Log("Adding to cache: " + fileName);
+                PresenceCache.Add(fileName, file);
+            }
+
+        }
+
+
+        //---------------------------------------------------------------------------------------------------------------
+
+
+
         void SetLocalStorage()
         {
 
@@ -242,124 +544,7 @@ namespace PresenceEngine
         }
 
 
-        // Public save/load methods.
-        public void SaveManual(FileformatBase presenceFile, string path, StoryTask taskRef, string prefix)
-        {
 
-            Directory.CreateDirectory(localStorageFolder + "/" + FolderFromPath(path));
-
-            path = RebuildPath(path);
-
-            if (!busy)
-            {
-                StartCoroutine(SaveManualAsync(presenceFile, path, taskRef, prefix));
-            }
-
-
-
-        }
-        IEnumerator SaveManualAsync(FileformatBase file, string fileName, StoryTask taskRef, string prefix)
-        {
-            Log("Saving " + fileName + " on " + prefix);
-
-            busy = true;
-
-            // Store a ref to the frames.
-            List<FrameBase> frames = file.Frames;
-            Log("number of frames " + frames.Count);
-
-            file.Frames = new List<FrameBase>();// clear out the main file for serialisation.
-
-            FileStream fs = File.Create(localStorageFolder + fileName + SETTINGS.Ext);
-            BinaryFormatter bf = new BinaryFormatter();
-
-            MemoryStream ContentSize = new MemoryStream();
-            MemoryStream Content = new MemoryStream();
-
-            // serialise content
-            bf.Serialize(Content, file);
-            Verbose("main file serialised  " + Content.Length);
-
-            // serialise length of content
-            bf.Serialize(ContentSize, Content.Length);
-            Verbose("mainfile length integer " + ContentSize.Length);
-
-            ContentSize.WriteTo(fs);
-            Content.WriteTo(fs);
-
-            // Now iterate over frames
-            ContentSize = new MemoryStream();
-
-            long FrameCount = frames.Count;
-
-            // serialise number of frames of content
-            bf.Serialize(ContentSize, FrameCount);
-            Verbose("framecount integer " + ContentSize.Length);
-            ContentSize.WriteTo(fs);
-
-
-            int f = 0;
-            while (f < FrameCount)
-            {
-                FrameBase frame = frames[f];
-
-                Verbose("serialising frame " + f);
-
-                // serialise frame
-
-                Content = new MemoryStream();
-                bf.Serialize(Content, frame);
-                Verbose("frame serialised  " + Content.Length);
-
-                // serialise frame size
-
-                ContentSize = new MemoryStream();
-                bf.Serialize(ContentSize, Content.Length);
-                Verbose("frame length integer " + ContentSize.Length);
-
-                ContentSize.WriteTo(fs);
-                Content.WriteTo(fs);
-
-                f++;
-
-                if (f % 8 == 0)
-                {
-                    taskRef.SetStringValue(prefix + "State", "" + (FrameCount - f));
-                    yield return null;
-                }
-
-            }
-
-            Verbose("Closing file");
-            fs.Close();
-
-            // Put the frames back.
-            file.Frames = frames;
-
-            AddToCache(file, fileName);
-
-            taskRef.SetStringValue(prefix + "State", "done");
-            busy = false;
-
-            yield return null;
-        }
-
-        void AddToCache(FileformatBase file, string fileName)
-        {
-            Log("Adding to cache: " + fileName);
-
-            FileformatBase entry;
-            if (PresenceCache.TryGetValue(fileName, out entry))
-            {
-                PresenceCache[fileName] = file;
-            }
-            else
-            {
-                PresenceCache.Add(fileName, file);
-            }
-
-
-        }
         /*
         IEnumerator SaveManualAsync (FileInfo file, string fileName)
         {
@@ -398,148 +583,13 @@ namespace PresenceEngine
             //    fs.Write(buffer, 0, 1024);
 
             fs.Close();
-          
+
 
             yield return null;
         }
         */
-        public FileformatBase fileref;
-
-        IEnumerator LoadManualAsync(string fileName, StoryTask taskRef, string prefix)
-        {
-
-            Log("Loading " + fileName + " on " + prefix);
-
-            busy = true;
-            FileformatBase loaded = null;
-
-            using (FileStream rf = File.Open(localStorageFolder + fileName + SETTINGS.Ext, FileMode.Open))
-            {
-                BinaryFormatter bf = new BinaryFormatter();
-
-                //   byte[] bytes = new byte[rf.Length];
-
-                byte[] infoBuffer = new byte[58];
-                rf.Read(infoBuffer, 0, 58);
-                MemoryStream info = new MemoryStream(infoBuffer);
-                System.Int64 contentLength = (System.Int64)bf.Deserialize(info);
-                Verbose("content length " + contentLength);
-
-                byte[] contentBuffer = new byte[contentLength];
-                rf.Read(contentBuffer, 0, (int)contentLength);
-                MemoryStream content = new MemoryStream(contentBuffer);
-                FileformatBase file = (FileformatBase)bf.Deserialize(content);
-
-                Verbose("content " + file.Name + " " + file.TransCoderName);
-
-                infoBuffer = new byte[58];
-                rf.Read(infoBuffer, 0, 58);
-                info = new MemoryStream(infoBuffer);
-                System.Int64 frameCount = (System.Int64)bf.Deserialize(info);
-                Verbose("frame counnt " + frameCount);
-
-                file.Frames = new List<FrameBase>(); // should already be there
-
-                int f = 0;
-                while (f < frameCount)
-                {
-
-                    Verbose("deserialising frame " + f);
-
-                    infoBuffer = new byte[58];
-                    rf.Read(infoBuffer, 0, 58);
-                    info = new MemoryStream(infoBuffer);
-                    contentLength = (System.Int64)bf.Deserialize(info);
-                    Verbose("frame length " + contentLength);
-
-                    contentBuffer = new byte[contentLength];
-                    rf.Read(contentBuffer, 0, (int)contentLength);
-                    content = new MemoryStream(contentBuffer);
-                    FrameBase frame = (FrameBase)bf.Deserialize(content);
 
 
-
-                    file.Frames.Add(frame);
-
-                    f++;
-
-                    if (f % 8 == 0)
-                    {
-                        taskRef.SetStringValue(prefix + "State", "" + (frameCount - f));
-                        yield return null;
-                    }
-
-
-                }
-
-                AddToCache(file, fileName);
-                //   PresenceCache.Add(fileName, file);
-                Verbose("cache size " + PresenceCache.Keys.ToArray().Length);
-                // Log("filename " + fileName);
-
-                loaded = file;
-                fileref = file;
-
-
-
-                rf.Close();
-            }
-            //     Directory.CreateDirectory(localStorageFolder +"test");
-            //     FileStream file = File.Create(localStorageFolder + "test.tst");
-
-            for (int f = 0; f < loaded.Frames.Count; f++)
-            {
-                Log("frame " + f + " " + loaded.Frames[f].Time);
-
-
-
-            }
-
-            if (loaded == null)
-                taskRef.SetStringValue(prefix + "State", "failed");
-            else
-                taskRef.SetStringValue(prefix + "State", "done");
-
-            busy = false;
-
-            yield return null;
-
-
-
-        }
-
-        public void LoadManual(string path, StoryTask taskRef, string prefix)
-        {
-            path = RebuildPath(path);
-
-
-            FileformatBase Buffered = FindInCache(RebuildPath(path));
-
-            if (Buffered != null)
-            {
-                taskRef.SetStringValue(prefix + "State", "done");
-
-            }
-            else
-            {
-
-
-                if (!busy)
-                {
-                    Log("loading async from disk");
-                    StartCoroutine(LoadManualAsync(path, taskRef, prefix));
-                }
-
-
-
-            }
-
-
-
-
-
-
-        }
 
 
         public void SaveFile(FileformatBase presenceFile, string path)
@@ -755,7 +805,7 @@ namespace PresenceEngine
 
         public void MakeNewFile(string path)
         {
-            Log("Make file " + path);
+            Warning("Make file - FIX FORMAT " + path);
 
             FileformatBase placeholder = new FileformatBase();
 
@@ -846,7 +896,7 @@ namespace PresenceEngine
 
         }
 
-
+        /*
         public FileformatBase LoadFile(string filePath)
         {
 
@@ -879,45 +929,47 @@ namespace PresenceEngine
             return Buffered;
 
         }
+        */
 
+        /*
         public void LoadFileAsync(string filePath, StoryTask taskRef)
         {
 
-            if (filePath == "")
+        if (filePath == "")
+        {
+            taskRef.SetStringValue("loadingstate", "failed");
+            return;
+        }
+
+        filePath = RebuildPath(filePath);
+        //    AsyncFilePath =
+        //    AsyncTaskRef = taskRef;
+
+        FileformatBase Buffered = FindInCache(filePath);
+
+        if (Buffered == null)
+        {
+            // try loading it from disk
+            Log("try loading from disk");
+
+            //if (!File.Exists(localStorageFolder + filePath+SETTINGS.Ext))
+            //{
+            //    Log("File not found " + localStorageFolder + AsyncFilePath + SETTINGS.Ext);
+            //    taskRef.SetStringValue("loadingstate", "failed");
+            //    return;
+            //}
+
+
+            if (!busy)
             {
-                taskRef.SetStringValue("loadingstate", "failed");
-                return;
+
+                StartCoroutine(Load(filePath, taskRef));
             }
 
-            filePath = RebuildPath(filePath);
-            //    AsyncFilePath =
-            //    AsyncTaskRef = taskRef;
-
-            FileformatBase Buffered = FindInCache(filePath);
-
-            if (Buffered == null)
-            {
-                // try loading it from disk
-                Log("try loading from disk");
-
-                //if (!File.Exists(localStorageFolder + filePath+SETTINGS.Ext))
-                //{
-                //    Log("File not found " + localStorageFolder + AsyncFilePath + SETTINGS.Ext);
-                //    taskRef.SetStringValue("loadingstate", "failed");
-                //    return;
-                //}
-
-
-                if (!busy)
-                {
-
-                    StartCoroutine(Load(filePath, taskRef));
-                }
 
 
 
-
-            }
+        }
 
 
 
@@ -925,129 +977,130 @@ namespace PresenceEngine
 
         IEnumerator Load(string filePath, StoryTask taskRef)
         {
-            busy = true;
+        busy = true;
 
-            FileformatBase loaded = null;
+        FileformatBase loaded = null;
 
-            using (FileStream fs = File.Open(localStorageFolder + filePath + SETTINGS.Ext, FileMode.Open))
+        using (FileStream fs = File.Open(localStorageFolder + filePath + SETTINGS.Ext, FileMode.Open))
+        {
+
+            //
+            Debug.Log("Loading buffer from file: " + filePath);
+
+            byte[] bytes = new byte[fs.Length];
+
+            int bytesToRead = (int)fs.Length;
+            int bytesRead = 0;
+            //    string DEBUG = "";
+            int MaxBuffer = 1024 * 1024;
+
+
+            while (bytesToRead > 0)
             {
 
-                //
-                Debug.Log("Loading buffer from file: " + filePath);
+                int n = fs.Read(bytes, bytesRead, Mathf.Min(bytesToRead, MaxBuffer));
 
-                byte[] bytes = new byte[fs.Length];
+                if (n == 0)
+                    break;
 
-                int bytesToRead = (int)fs.Length;
-                int bytesRead = 0;
-                //    string DEBUG = "";
-                int MaxBuffer = 1024 * 1024;
+                // loaded = (FileformatBase)bf.Deserialize(stream);
 
 
-                while (bytesToRead > 0)
-                {
+                bytesToRead -= n;
+                bytesRead += n;
 
-                    int n = fs.Read(bytes, bytesRead, Mathf.Min(bytesToRead, MaxBuffer));
+                //DEBUG += " " + n;
+                Log("" + n);
 
-                    if (n == 0)
-                        break;
+                taskRef.SetStringValue("debug", "Remaining: " + bytesToRead);
 
-                    // loaded = (FileformatBase)bf.Deserialize(stream);
+                yield return null;
+            }
+            //     Debug.Log(DEBUG);
 
+            Log("loading done");
 
-                    bytesToRead -= n;
-                    bytesRead += n;
-
-                    //DEBUG += " " + n;
-                    Log("" + n);
-
-                    taskRef.SetStringValue("debug", "Remaining: " + bytesToRead);
-
-                    yield return null;
-                }
-                //     Debug.Log(DEBUG);
-
-                Log("loading done");
-
-                fs.Close();
+            fs.Close();
 
 
 
-                //   fs.Read
+            //   fs.Read
 
-                Stream stream = new MemoryStream(bytes);
-                BinaryFormatter bf = new BinaryFormatter();
-
-
-                loaded = (FileformatBase)bf.Deserialize(stream);
-                PresenceCache.Add(filePath, loaded);
+            Stream stream = new MemoryStream(bytes);
+            BinaryFormatter bf = new BinaryFormatter();
 
 
-
-                // DUMP
-
-                for (int f = 0; f < loaded.Frames.Count; f++)
-                {
-                    Log("frame " + f + " " + loaded.Frames[f].Time);
+            loaded = (FileformatBase)bf.Deserialize(stream);
+            PresenceCache.Add(filePath, loaded);
 
 
 
-                }
+            // DUMP
 
-                // }
-                //catch (Exception e)
-                //{
-
-                //    Debug.LogError(e);
+            for (int f = 0; f < loaded.Frames.Count; f++)
+            {
+                Log("frame " + f + " " + loaded.Frames[f].Time);
 
 
-                //}
 
             }
-            //  return;
 
-            if (loaded == null)
-                taskRef.SetStringValue("loadingstate", "failed");
-            else
-                taskRef.SetStringValue("loadingstate", "done");
+            // }
+            //catch (Exception e)
+            //{
 
-            busy = false;
-            yield return null;
+            //    Debug.LogError(e);
+
+
+            //}
+
+        }
+        //  return;
+
+        if (loaded == null)
+            taskRef.SetStringValue("loadingstate", "failed");
+        else
+            taskRef.SetStringValue("loadingstate", "done");
+
+        busy = false;
+        yield return null;
 
         }
 
-
+        */
+        /*
 
         FileformatBase FindBufferFileInScene(string fileName)
         {
 
-            //  Debug.Log("Trying to find buffer " + fileName);
+        //  Debug.Log("Trying to find buffer " + fileName);
 
-            foreach (KeyValuePair<string, Presence> entry in SETTINGS.Presences)
+        foreach (KeyValuePair<string, Presence> entry in SETTINGS.Presences)
+        {
+
+            // do something with entry.Value or entry.Key
+
+            if (entry.Value != null && entry.Value.DepthTransport != null && entry.Value.DepthTransport.TransCoder != null)
             {
+                FileformatBase bufferFile = entry.Value.DepthTransport.TransCoder.GetBufferFile();
 
-                // do something with entry.Value or entry.Key
-
-                if (entry.Value != null && entry.Value.DepthTransport != null && entry.Value.DepthTransport.TransCoder != null)
+                if (bufferFile != null && bufferFile.Name == fileName)
                 {
-                    FileformatBase bufferFile = entry.Value.DepthTransport.TransCoder.GetBufferFile();
-
-                    if (bufferFile != null && bufferFile.Name == fileName)
-                    {
-                        Debug.Log("found buffer file in scene");
-                        return bufferFile;
-                    }
-
+                    Debug.Log("found buffer file in scene");
+                    return bufferFile;
                 }
 
             }
 
-
-            //     Debug.Log("Didn't find buffer file in scene.");
-
-            return null;
         }
 
 
+        //     Debug.Log("Didn't find buffer file in scene.");
+
+        return null;
+        }
+
+        */
 
 
         FileformatBase FindInCache(string fileName)
@@ -1117,112 +1170,116 @@ namespace PresenceEngine
 
         //}
 
+        /*
+    FileformatBase LoadAsyncTest(string filePath)
+    {
 
-        FileformatBase LoadAsyncTest(string filePath)
+        if (filePath == "")
+            return null;
+
+        if (!File.Exists(localStorageFolder + filePath + SETTINGS.Ext))
+            return null;
+
+
+        FileformatBase loaded;
+
+        using (FileStream fs = File.Open(localStorageFolder + filePath + SETTINGS.Ext, FileMode.Open))
         {
 
-            if (filePath == "")
-                return null;
+            try
+            {
+                Debug.Log("Loading buffer from file: " + filePath);
 
-            if (!File.Exists(localStorageFolder + filePath + SETTINGS.Ext))
-                return null;
+                byte[] bytes = new byte[fs.Length];
+
+                int bytesToRead = (int)fs.Length;
+                int bytesRead = 0;
+                string DEBUG = "";
+                int MaxBuffer = 16 * 1024;
+
+                while (bytesToRead > 0)
+                {
+
+                    int n = fs.Read(bytes, bytesRead, Mathf.Min(bytesToRead, MaxBuffer));
+
+                    if (n == 0)
+                        break;
+
+                    bytesToRead -= n;
+                    bytesRead += n;
+
+                    DEBUG += " " + n;
+
+                }
+                Debug.Log(DEBUG);
+
+                fs.Close();
+
+                Stream stream = new MemoryStream(bytes);
+
+                //   fs.Read
 
 
-            FileformatBase loaded;
+                BinaryFormatter bf = new BinaryFormatter();
+                loaded = (FileformatBase)bf.Deserialize(stream);
+                //  loaded = (FileformatBase)bf.Deserialize(fs);
 
-            using (FileStream fs = File.Open(localStorageFolder + filePath + SETTINGS.Ext, FileMode.Open))
+
+            }
+            catch (Exception e)
             {
 
-                try
-                {
-                    Debug.Log("Loading buffer from file: " + filePath);
-
-                    byte[] bytes = new byte[fs.Length];
-
-                    int bytesToRead = (int)fs.Length;
-                    int bytesRead = 0;
-                    string DEBUG = "";
-                    int MaxBuffer = 16 * 1024;
-
-                    while (bytesToRead > 0)
-                    {
-
-                        int n = fs.Read(bytes, bytesRead, Mathf.Min(bytesToRead, MaxBuffer));
-
-                        if (n == 0)
-                            break;
-
-                        bytesToRead -= n;
-                        bytesRead += n;
-
-                        DEBUG += " " + n;
-
-                    }
-                    Debug.Log(DEBUG);
-
-                    fs.Close();
-
-                    Stream stream = new MemoryStream(bytes);
-
-                    //   fs.Read
-
-
-                    BinaryFormatter bf = new BinaryFormatter();
-                    loaded = (FileformatBase)bf.Deserialize(stream);
-                    //  loaded = (FileformatBase)bf.Deserialize(fs);
-
-
-                }
-                catch (Exception e)
-                {
-
-                    Debug.LogError(e);
-                    return null;
-
-                }
+                Debug.LogError(e);
+                return null;
 
             }
 
-            return loaded;
-
         }
 
-        FileformatBase LoadFromFile(string filePath)
+        return loaded;
+
+    }
+    */
+
+        /*
+
+    FileformatBase LoadFromFile(string filePath)
+    {
+
+        if (filePath == "")
+            return null;
+
+        if (!File.Exists(localStorageFolder + filePath))
+            return null;
+
+
+        FileformatBase loaded;
+
+        using (FileStream fs = File.Open(localStorageFolder + filePath, FileMode.Open))
         {
 
-            if (filePath == "")
-                return null;
+            try
+            {
+                Debug.Log("Loading buffer from file: " + filePath);
+                BinaryFormatter bf = new BinaryFormatter();
+                loaded = (FileformatBase)bf.Deserialize(fs);
+                fs.Close();
 
-            if (!File.Exists(localStorageFolder + filePath))
-                return null;
-
-
-            FileformatBase loaded;
-
-            using (FileStream fs = File.Open(localStorageFolder + filePath, FileMode.Open))
+            }
+            catch (Exception e)
             {
 
-                try
-                {
-                    Debug.Log("Loading buffer from file: " + filePath);
-                    BinaryFormatter bf = new BinaryFormatter();
-                    loaded = (FileformatBase)bf.Deserialize(fs);
-                    fs.Close();
-
-                }
-                catch (Exception e)
-                {
-
-                    Debug.LogError(e);
-                    return null;
-
-                }
+                Debug.LogError(e);
+                return null;
 
             }
 
-            return loaded;
-
         }
+
+        return loaded;
+
+    }
+    */
 
 
     }

@@ -35,7 +35,7 @@ public class GestureDetection : MonoBehaviour, KinectGestures.GestureListenerInt
     {
         KinectManager.Instance.ClearGestures(User);
         
-        Debug.Log("ENDING GESTURE DETECT");
+        Debug.Log("Ending gesture detection.");
 
         TaskRef = null;
         active = false;
@@ -69,7 +69,10 @@ public class GestureDetection : MonoBehaviour, KinectGestures.GestureListenerInt
     void KinectGestures.GestureListenerInterface.UserDetected(uint userId, int userIndex)
     {
         //     throw new System.NotImplementedException();
-        Debug.Log("Gestures: user is detected");
+    //    Debug.Log("Gestures: user is detected");
+
+        if (TaskRef != null)
+            TaskRef.SetStringValue("debug", "User detected...");
 
         User = userId;
         userPresent = true;
@@ -85,27 +88,34 @@ public class GestureDetection : MonoBehaviour, KinectGestures.GestureListenerInt
 
     void KinectGestures.GestureListenerInterface.UserLost(uint userId, int userIndex)
     {
-        Debug.Log("Gestures: user is lost");
+    //    Debug.Log("Gestures: user is lost");
         
         userPresent = false;
 
+        if (TaskRef != null)
+            TaskRef.SetStringValue("debug", "User lost...");
         //  throw new System.NotImplementedException();
     }
 
     void KinectGestures.GestureListenerInterface.GestureInProgress(uint userId, int userIndex, KinectGestures.Gestures gesture, float progress, KinectWrapper.NuiSkeletonPositionIndex joint, Vector3 screenPos)
     {
         // throw new System.NotImplementedException();
-        Debug.Log("IN PROGRESS");
-
+      //  Debug.Log("IN PROGRESS");
+        if (TaskRef != null)
+            TaskRef.SetStringValue("debug", "In progress...");
     }
 
     bool KinectGestures.GestureListenerInterface.GestureCompleted(uint userId, int userIndex, KinectGestures.Gestures gesture, KinectWrapper.NuiSkeletonPositionIndex joint, Vector3 screenPos)
     {
         //  throw new System.NotImplementedException();
-        Debug.Log("DETECT");
+     //   Debug.Log("DETECT");
 
         if (TaskRef != null)
+        {
             TaskRef.SetStringValue("status", "detected");
+            TaskRef.SetStringValue("debug", "Detected");
+        }
+           
         return true;
     }
 
