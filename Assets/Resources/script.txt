@@ -195,7 +195,7 @@ waitforuser
 start recording
 MaterialiseOn
 pause5
-goto mirrorscene
+goto presencescene
 GuideOpening
 pause5
 OffsetReset

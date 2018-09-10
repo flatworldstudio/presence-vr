@@ -1893,6 +1893,8 @@ namespace PresenceEngine
                     break;
 
 
+                    #endif
+
 
                 case "loadfile":
 
@@ -1905,6 +1907,9 @@ namespace PresenceEngine
                     }
 
                     break;
+
+
+                    #if SERVER
 
                 case "playbackdrawing":
 
