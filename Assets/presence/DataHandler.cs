@@ -1002,7 +1002,7 @@ namespace PresenceEngine
                     Log("Starting name " + SETTINGS.SelectedFile);
 
                     FileformatBase pbBuffer = IO.Instance.GetFromCache(SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile);
-                    
+
                     TimeHandler = PlaybackStop;
 
                     if (pbBuffer != null)
@@ -1062,16 +1062,16 @@ namespace PresenceEngine
                     break;
 
                 case "stopplaybackfile":
-                    
+
                     if (fileplayback != null)
                         fileplayback.DepthTransport.Mode = DEPTHMODE.OFF;
-                    
+
                     done = true;
                     break;
 
 
                 case "stopallplayback":
-                    
+
                     foreach (KeyValuePair<string, Presence> presence in SETTINGS.Presences)
                     {
                         if (presence.Key != "user")
@@ -1893,7 +1893,7 @@ namespace PresenceEngine
                     break;
 
 
-                    #endif
+#endif
 
 
                 case "loadfile":
@@ -1901,10 +1901,11 @@ namespace PresenceEngine
                     // Loads the next file for playback. 
                     //    Log("Load file: " + LoadDrawing + " index " + DrawingIndex);
 
-                    #if SERVER
+#if SERVER
                     string file;
-                    if (!task.GetStringValue("file",out file)){
-                    task.setStringValue("file",SETTINGS.SelectedFolder + "/" + LoadFile);
+                    if (!task.GetStringValue("file", out file))
+                    {
+                        task.SetStringValue("file", SETTINGS.SelectedFolder + "/" + LoadFile);
                     }
                     if (LoadFileAsync(SETTINGS.SelectedFolder + "/" + LoadFile, task))
                     {
@@ -1912,9 +1913,9 @@ namespace PresenceEngine
                     }
 
 
-                    #endif
+#endif
 
-                    #if CLIENT
+#if CLIENT
 
                     string file;
                     if (task.GetStringValue("file",out file)){
@@ -1927,11 +1928,11 @@ namespace PresenceEngine
                     }
 
                     
-                    #endif
+#endif
                     break;
 
 
-                    #if SERVER
+#if SERVER
 
                 case "playbackdrawing":
 
@@ -2320,7 +2321,7 @@ namespace PresenceEngine
 
                     if (SETTINGS.user.DepthTransport != null && SETTINGS.SelectedFolder != "" && SETTINGS.SelectedFile != "")
                     {
-                        string path ="/"+ SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile;
+                        string path = "/" + SETTINGS.SelectedFolder + "/" + SETTINGS.SelectedFile;
                         Log("preparing record for " + path);
 
 
@@ -2896,7 +2897,7 @@ namespace PresenceEngine
 
 
                 case "done":
-
+                case "failed":
                     break;
 
                 case "begin":
@@ -2915,7 +2916,7 @@ namespace PresenceEngine
 
                 case "done":
                 case "noclient":
-
+                case "failed":
                     break;
 
                 case "begin":
@@ -2976,7 +2977,7 @@ namespace PresenceEngine
 
 
                 case "done":
-
+                case "failed":
                     break;
 
                 case "begin":
@@ -2995,7 +2996,7 @@ namespace PresenceEngine
 
                 case "done":
                 case "noclient":
-
+                case "failed":
                     break;
 
                 case "begin":
