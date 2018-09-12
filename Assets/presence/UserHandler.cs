@@ -32,6 +32,7 @@ namespace PresenceEngine
 
         public GameObject dummyCam;
         string BrowseFolder;
+        Vector3 gizzmo1, gizzmo2;
 
         string ID = "UserHandler";
 
@@ -63,7 +64,14 @@ namespace PresenceEngine
             Logger.Output(message, ID, LOGLEVEL.VERBOSE);
         }
 
+        private void OnDrawGizmos()
+        {
+            gizzmo1.y = 0;
+            gizzmo2.y = 0;
 
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(gizzmo1, gizzmo2);
+        }
 
         void Start()
         {
@@ -134,17 +142,22 @@ namespace PresenceEngine
                     Vector3 p = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
                     Vector2 p2d = new Vector2(p.x, p.z);
 
-                    Vector3 CircleCenter = Circle.Instance.transform.position + Circle.Instance.center;
+                    Vector3 CircleCenter = Circle.Instance.transform.TransformPoint(Circle.Instance.center);
+
+                 
                     Vector2 center2d = new Vector2(CircleCenter.x, CircleCenter.z);
+
+                    gizzmo1 = p;
+                    gizzmo2 = CircleCenter;
 
                     float distance = Vector2.Distance(center2d, p2d);
                     Vector2 rp = p2d - center2d;
 
-                    if (distance < 4f && distance > 0.25f)
+                    if (distance < 4f && distance > 0.1f)
                     {
                         timer += Time.deltaTime;
 
-                        if (timer > 0.25f)
+                        if (timer > 0.15f)
                         {
                             CircleStart = Mathf.Atan2(rp.y, rp.x);
 
@@ -178,11 +191,14 @@ namespace PresenceEngine
                     p = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
                     p2d = new Vector2(p.x, p.z);
                     //      center2d = new Vector2(0, SETTINGS.kinectCentreDistance);
-                  //  center2d = new Vector2(Circle.Instance.transform.position.x, Circle.Instance.transform.position.z);
+                    //  center2d = new Vector2(Circle.Instance.transform.position.x, Circle.Instance.transform.position.z);
 
 
-                     CircleCenter = Circle.Instance.transform.position + Circle.Instance.center;
-                     center2d = new Vector2(CircleCenter.x, CircleCenter.z);
+                     CircleCenter = Circle.Instance.transform.TransformPoint(Circle.Instance.center);
+                    center2d = new Vector2(CircleCenter.x, CircleCenter.z);
+
+                    gizzmo1 = p;
+                    gizzmo2 = CircleCenter;
 
 
                     rp = p2d - center2d;
@@ -197,11 +213,11 @@ namespace PresenceEngine
                         timer += Time.deltaTime;
                         //  Debug.Log("outside initial section");
 
-                        if (timer > 0.25f)
+                        if (timer > 0.15f)
                         {
                             done = true;
                             Circle2 = current;
-                            userMessager.ShowTextMessage("One third", 1);
+                            userMessager.ShowTextMessage("One Third", 1);
 
                         }
 
@@ -227,10 +243,13 @@ namespace PresenceEngine
                     p = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
                     p2d = new Vector2(p.x, p.z);
 
-                  //  center2d = new Vector2(Circle.Instance.transform.position.x, Circle.Instance.transform.position.z);
+                    //  center2d = new Vector2(Circle.Instance.transform.position.x, Circle.Instance.transform.position.z);
                     //      Debug.Log("Z circle " + center2d.y);
-                    CircleCenter = Circle.Instance.transform.position + Circle.Instance.center;
+                    CircleCenter = Circle.Instance.transform.TransformPoint(Circle.Instance.center);
                     center2d = new Vector2(CircleCenter.x, CircleCenter.z);
+
+                    gizzmo1 = p;
+                    gizzmo2 = CircleCenter;
 
                     rp = p2d - center2d;
                     current = Mathf.Atan2(rp.y, rp.x);
@@ -243,9 +262,9 @@ namespace PresenceEngine
                         timer += Time.deltaTime;
                         //    Debug.Log("outside  section");
 
-                        if (timer > 0.25f)
+                        if (timer > 0.15f)
                         {
-                            userMessager.ShowTextMessage("One third", 1);
+                            userMessager.ShowTextMessage("Two Thirds", 1);
                             done = true;
                         }
 
@@ -271,10 +290,13 @@ namespace PresenceEngine
                     p = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
                     p2d = new Vector2(p.x, p.z);
                     // center2d = new Vector2(0, SETTINGS.kinectCentreDistance);
-                 //   center2d = new Vector2(Circle.Instance.transform.position.x, Circle.Instance.transform.position.z);
+                    //   center2d = new Vector2(Circle.Instance.transform.position.x, Circle.Instance.transform.position.z);
 
-                    CircleCenter = Circle.Instance.transform.position + Circle.Instance.center;
+                    CircleCenter = Circle.Instance.transform.TransformPoint(Circle.Instance.center);
                     center2d = new Vector2(CircleCenter.x, CircleCenter.z);
+
+                    gizzmo1 = p;
+                    gizzmo2 = CircleCenter;
 
                     rp = p2d - center2d;
                     current = Mathf.Atan2(rp.y, rp.x);
@@ -287,10 +309,10 @@ namespace PresenceEngine
                         timer += Time.deltaTime;
                         //    Debug.Log("in initial section");
 
-                        if (timer > 0.25f)
+                        if (timer > 0.15f)
                         {
                             done = true;
-                            userMessager.ShowTextMessage("Full", 1);
+                            userMessager.ShowTextMessage("Full Circle", 1);
                         }
 
                     }
