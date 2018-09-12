@@ -21,7 +21,7 @@ namespace PresenceEngine
     {
         //  public IO IO;
         public Camera CaptureCamera;
-
+        public GameObject barriers;
         public GameObject presences;
         Presence fileplayback;
         float startListening = 0f;
@@ -1901,13 +1901,36 @@ namespace PresenceEngine
 
 
                     string state;
+
 #if SERVER
+
+
                     if (!task.GetStringValue("state", out state))
                     {
-                        task.SetStringValue("state", "pushing");
-                        task.SetVector3Value("center", Circle.Instance.center);
+                        
+                        Vector3[] positions = new Vector3[4];
+                        positions[0] = Circle.Instance.center;
+
+                        if (barriers != null && barriers.transform.childCount == 4)
+                        {
+                            positions[1] = barriers.transform.GetChild(0).position;
+                            positions[2] = barriers.transform.GetChild(1).position;
+                            positions[3] = barriers.transform.GetChild(2).position;
+                            positions[4] = barriers.transform.GetChild(3).position;
+
+                        }
+                        else
+                        {
+                            Warning("unable to push barrier positions");
+                        }
+
+                        //   positions[1]=
+                                              
+                        task.SetVector3ArrayValue("positions", positions);
                         task.SetFloatValue("radius", Circle.Instance.radius);
-                      //  Circle.Instance.StartDrawing();
+
+                        task.SetStringValue("state", "pushing");
+                        //  Circle.Instance.StartDrawing();
 
                     }
                     else
@@ -1925,18 +1948,24 @@ namespace PresenceEngine
 #if CLIENT
                     if (task.GetStringValue("state", out state))
                     {
-                        Vector3 center;
+                        Vector3[] positions;
                         float radius;
 
-                        if (task.GetVector3Value("center", out center) && task.GetFloatValue("radius", out radius))
+                        if (task.GetVector3ArrayValue("positions", out positions) && task.GetFloatValue("radius", out radius))
                         {
-                            Circle.Instance.center = center;
+                            Circle.Instance.center = positions[0];
+                            barriers.transform.GetChild(0).position = positions[1];
+                            barriers.transform.GetChild(1).position = positions[2];
+                            barriers.transform.GetChild(2).position = positions[3];
+                            barriers.transform.GetChild(3).position = positions[4];
+
+
                             Circle.Instance.radius = radius;
                             task.SetStringValue("state", "done");
 
                         }
                         done = true;
-                 //       Circle.Instance.StartDrawing();
+                        //       Circle.Instance.StartDrawing();
                     }
 
 
@@ -2034,8 +2063,9 @@ namespace PresenceEngine
 #if CLIENT
 
                     string file;
-                    if (task.GetStringValue("file",out file)){
-                        
+                    if (task.GetStringValue("file", out file))
+                    {
+
                         if (LoadFileAsync(file, task))
                         {
                             done = true;
@@ -2043,7 +2073,7 @@ namespace PresenceEngine
 
                     }
 
-                    
+
 #endif
                     break;
 
@@ -2585,7 +2615,7 @@ namespace PresenceEngine
 
                             SETTINGS.user.DepthTransport.TransCoder.CreateBufferFile(filePath);
 
-                            IO.Instance.AddToCache(SETTINGS.user.DepthTransport.TransCoder.GetBufferFile(),filePath);
+                            IO.Instance.AddToCache(SETTINGS.user.DepthTransport.TransCoder.GetBufferFile(), filePath);
 
                             Log("created buffer " + filePath);
 
@@ -3079,26 +3109,26 @@ namespace PresenceEngine
 
 #endif
 #if CLIENT
-                 string   prefix = "client";
-                    string loadFile;
+            string prefix = "client";
+            string loadFile;
             string myState;
 
-                    if (task.GetStringValue(prefix + "State", out myState) && task.GetStringValue("file", out loadFile))
-                    {
-                        // we have values for file and state.
+            if (task.GetStringValue(prefix + "State", out myState) && task.GetStringValue("file", out loadFile))
+            {
+                // we have values for file and state.
 
-                        if (myState == "NotStarted")
-                        {
-                            task.SetStringValue(prefix + "State", "Begin");
+                if (myState == "NotStarted")
+                {
+                    task.SetStringValue(prefix + "State", "Begin");
 
-                          //  SETTINGS.SelectedFile = IO.Instance.FileFromPath(loadFile);
-                           // SETTINGS.SelectedFolder = IO.Instance.FolderFromPath(loadFile);
+                    //  SETTINGS.SelectedFile = IO.Instance.FileFromPath(loadFile);
+                    // SETTINGS.SelectedFolder = IO.Instance.FolderFromPath(loadFile);
 
                     IO.Instance.LoadAsync(loadFile, task, prefix);
 
-                        }
+                }
 
-                    }
+            }
 
 
 
@@ -3194,7 +3224,7 @@ namespace PresenceEngine
             string prefix = "server";
 #endif
 #if CLIENT
-                    string prefix = "client";
+            string prefix = "client";
 #endif
 
             // Kick of the async saving process.

@@ -4571,6 +4571,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CaptureCamera: {fileID: 0}
+  barriers: {fileID: 1442658879}
   presences: {fileID: 1016915580}
   presenceSound: {fileID: 1061460024}
   BufferStatusIn: {fileID: 191388821}
