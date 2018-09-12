@@ -380,6 +380,8 @@ namespace PresenceEngine
                 case "ShowCircle":
 
                     Circle.Instance.StartDrawing();
+                    done = true;
+
                     break;
 
                 case "HideCircle":

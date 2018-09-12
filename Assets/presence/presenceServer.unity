@@ -13542,12 +13542,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   signalSound: {fileID: 884691749}
-  ColliderObject: {fileID: 2050427740}
+  ColliderObject: {fileID: 1827492561}
   CornerPoints:
-  - {fileID: 851906016}
-  - {fileID: 325960672}
-  - {fileID: 1989442429}
-  - {fileID: 1972964636}
+  - {fileID: 1977859283}
+  - {fileID: 131908321}
+  - {fileID: 2029386168}
+  - {fileID: 1886203737}
 --- !u!135 &2021882228
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -13558,7 +13558,7 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 1
+  m_Radius: 0.25
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2023494552
 GameObject:
