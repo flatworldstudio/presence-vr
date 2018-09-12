@@ -207,7 +207,7 @@ waitforuser
 start recording
 //MaterialiseOn
 pause5
-//goto circlescene
+//goto drawingscene
 GuideOpening
 pause5
 OffsetReset

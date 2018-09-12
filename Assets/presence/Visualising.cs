@@ -47,7 +47,7 @@ namespace PresenceEngine
         public void SettingsToTask(StoryEngine.StoryTask task, string prefix)
         {
             task.SetIntValue(prefix + "_isdrawing", IsDrawing ? 1 : 0);
-    
+
 
         }
         public void SettingsFromTask(StoryEngine.StoryTask task, string prefix)
@@ -111,11 +111,11 @@ namespace PresenceEngine
             GameObject n;
 
 #if SERVER
-            
-                n = DebugObject.getNullObject(0.25f, 0.25f, 0.5f);
-                n.transform.SetParent(ParentObject.transform, false);
-                Head = n;
-            
+
+            n = DebugObject.getNullObject(0.25f, 0.25f, 0.5f);
+            n.transform.SetParent(ParentObject.transform, false);
+            Head = n;
+
 #endif
 
             n = DebugObject.getNullObject(0.25f);
@@ -206,11 +206,11 @@ namespace PresenceEngine
                 Body.transform.localPosition = Frame.UserPosition + offset;
 
 #if SERVER
-               
-                    //  if (Frame.Tracked
-                    Head.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.Head] + offset;
-                    Head.transform.localRotation = Frame.HeadOrientation;
-                
+
+                //  if (Frame.Tracked
+                Head.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.Head] + offset;
+                Head.transform.localRotation = Frame.HeadOrientation;
+
 #endif
 
                 // Check if frame is new.
@@ -225,11 +225,15 @@ namespace PresenceEngine
                     Vector3 last = lastFrame.Joints[(int)NuiSkeletonPositionIndex.HandLeft] + offset;
                     Vector3 current = Frame.Joints[(int)NuiSkeletonPositionIndex.HandLeft] + offset;
 
+                    float FrameDuration = Frame.Time - lastFrame.Time;
+                    int Steps = (int)(4f * FrameDuration * 30f);// based on 4 steps at 30fps. so a  longer frame, more steps.
+
+
                     if (lastFrame.Tracked[(int)NuiSkeletonPositionIndex.HandLeft] &&
                         Frame.Tracked[(int)NuiSkeletonPositionIndex.HandLeft])
                     {
 
-                        for (float i = 0; i < 1; i += 0.25f)
+                        for (float i = 0; i < 1; i += 1f/Steps)
                         {
                             Cloud.Emit(Vector3.Lerp(last, current, i));
                         }
@@ -244,7 +248,7 @@ namespace PresenceEngine
                     if (lastFrame.Tracked[(int)NuiSkeletonPositionIndex.HandRight] &&
                         Frame.Tracked[(int)NuiSkeletonPositionIndex.HandRight])
                     {
-                        for (float i = 0; i < 1; i += 0.25f)
+                        for (float i = 0; i < 1; i += 1f / Steps)
                         {
                             Cloud.Emit(Vector3.Lerp(last, current, i));
                         }
@@ -299,7 +303,7 @@ namespace PresenceEngine
 
         public void SettingsToTask(StoryEngine.StoryTask task, string prefix)
         {
-            task.SetIntValue(prefix + "_cloudvisible", CloudVisible?1:0);
+            task.SetIntValue(prefix + "_cloudvisible", CloudVisible ? 1 : 0);
 
         }
         public void SettingsFromTask(StoryEngine.StoryTask task, string prefix)
@@ -307,7 +311,7 @@ namespace PresenceEngine
 
             int v;
 
-            if (        task.GetIntValue(prefix + "_cloudvisible", out v))
+            if (task.GetIntValue(prefix + "_cloudvisible", out v))
             {
 
                 CloudVisible = (v == 1);
@@ -369,11 +373,15 @@ namespace PresenceEngine
             GameObject n;
 
 #if SERVER
-           
-                n = DebugObject.getNullObject(0.1f, 0.1f, 0.2f);
-                n.transform.SetParent(ParentObject.transform, false);
-                Head = n;
-            
+
+            n = DebugObject.getNullObject(0.1f, 0.1f, 0.2f);
+            n.transform.SetParent(ParentObject.transform, false);
+            Head = n;
+
+            n = DebugObject.getNullObject(0.2f);
+            n.transform.SetParent(ParentObject.transform, false);
+            Body = n;
+
 #endif
 
             n = DebugObject.getNullObject(0.1f);
@@ -384,9 +392,7 @@ namespace PresenceEngine
             n.transform.SetParent(ParentObject.transform, false);
             HandRight = n;
 
-            n = DebugObject.getNullObject(0.2f);
-            n.transform.SetParent(ParentObject.transform, false);
-            Body = n;
+
 
             PLight = new GameObject("PLight");
             Light lightComp = PLight.AddComponent<Light>();
@@ -502,31 +508,33 @@ namespace PresenceEngine
                     return;
                 }
 
-                #if SERVER
-              
-                    Head.SetActive(Frame.UserTracked);
+#if SERVER
+
+                Head.SetActive(Frame.UserTracked);
+                Body.SetActive(Frame.UserTracked);
 #endif
 
-                Body.SetActive(Frame.UserTracked);
+
                 HandLeft.SetActive(Frame.UserTracked);
                 HandRight.SetActive(Frame.UserTracked);
                 PLight.SetActive(Frame.UserTracked);
 
-             //   Vector3 offset = new Vector3(0, Frame.SensorY, 0);
+                //   Vector3 offset = new Vector3(0, Frame.SensorY, 0);
 
                 Vector3 offset = Vector3.zero;
 
                 HandLeft.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.HandLeft] + offset;
                 HandRight.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.HandRight] + offset;
 
-                Body.transform.localPosition = Frame.UserPosition + offset;
+
                 PLight.transform.localPosition = new Vector3(Frame.UserPosition.x, 1, Frame.UserPosition.z);
 
-                #if SERVER
-               
-                    Head.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.Head] + offset;
-                    Head.transform.localRotation = Frame.HeadOrientation;
-                
+#if SERVER
+                Body.transform.localPosition = Frame.UserPosition + offset;
+
+                Head.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.Head] + offset;
+                Head.transform.localRotation = Frame.HeadOrientation;
+
 #endif
 
                 // takes a kinect styled uint[] RawDepthMap
@@ -583,8 +591,8 @@ namespace PresenceEngine
 
                 // Now calculate normals, lighting and assign colours accordingly
 
-             //   Color32 Color01 = new Color32(137, 223, 255, 255);
-             //   Color32 Color02 = new Color32(137, 223, 161, 255);
+                //   Color32 Color01 = new Color32(137, 223, 255, 255);
+                //   Color32 Color02 = new Color32(137, 223, 161, 255);
                 Color32 Color01 = new Color32(111, 207, 255, 255);
                 Color32 Color02 = new Color32(83, 208, 43, 255);
 
@@ -683,7 +691,7 @@ namespace PresenceEngine
 
                 }
 
-                Cloud.ApplyParticles(CloudVisible  ? ParticleIndex : 0);
+                Cloud.ApplyParticles(CloudVisible ? ParticleIndex : 0);
                 //Cloud.ApplyParticles(ParticleIndex );
 
                 // Check if frame is new.
@@ -771,12 +779,12 @@ namespace PresenceEngine
 
             GameObject n;
 
-            #if SERVER
-          
-                n = DebugObject.getNullObject(0.1f, 0.1f, 0.2f);
-                n.transform.SetParent(PresenceObject.transform, false);
-                Head = n;
-            
+#if SERVER
+
+            n = DebugObject.getNullObject(0.1f, 0.1f, 0.2f);
+            n.transform.SetParent(PresenceObject.transform, false);
+            Head = n;
+
 #endif
 
             n = DebugObject.getNullObject(0.1f);
@@ -905,9 +913,9 @@ namespace PresenceEngine
                     return;
                 }
 
-                #if SERVER
-              
-                    Head.SetActive(Frame.UserTracked);
+#if SERVER
+
+                Head.SetActive(Frame.UserTracked);
 #endif
 
                 Body.SetActive(Frame.UserTracked);
@@ -924,11 +932,11 @@ namespace PresenceEngine
                 Body.transform.localPosition = Frame.UserPosition + offset;
                 PLight.transform.localPosition = new Vector3(Frame.UserPosition.x, 1, Frame.UserPosition.z);
 
-                #if SERVER
-               
-                    Head.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.Head] + offset;
-                    Head.transform.localRotation = Frame.HeadOrientation;
-                
+#if SERVER
+
+                Head.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.Head] + offset;
+                Head.transform.localRotation = Frame.HeadOrientation;
+
 #endif
 
                 // takes a kinect styled uint[] RawDepthMap
@@ -1092,11 +1100,11 @@ namespace PresenceEngine
             GameObject n;
 
 #if SERVER
-           
-                n = DebugObject.getNullObject(0.1f, 0.1f, 0.2f);
-                n.transform.SetParent(PresenceObject.transform, false);
-                Head = n;
-            
+
+            n = DebugObject.getNullObject(0.1f, 0.1f, 0.2f);
+            n.transform.SetParent(PresenceObject.transform, false);
+            Head = n;
+
 #endif
 
             n = DebugObject.getNullObject(0.1f);
@@ -1233,8 +1241,8 @@ namespace PresenceEngine
                 }
 
 #if SERVER
-              
-                    Head.SetActive(Frame.UserTracked);
+
+                Head.SetActive(Frame.UserTracked);
 #endif
 
                 Body.SetActive(Frame.UserTracked);
@@ -1252,10 +1260,10 @@ namespace PresenceEngine
                 PLight.transform.localPosition = new Vector3(Frame.UserPosition.x, 1, Frame.UserPosition.z);
 
 #if SERVER
-              
-                    Head.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.Head] + offset;
-                    Head.transform.localRotation = Frame.HeadOrientation;
-                
+
+                Head.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.Head] + offset;
+                Head.transform.localRotation = Frame.HeadOrientation;
+
 #endif
 
                 // takes a kinect styled uint[] RawDepthMap
