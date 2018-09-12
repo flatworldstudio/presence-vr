@@ -384,9 +384,10 @@ namespace PresenceEngine
                     if (!task.GetStringValue( "state",out state))
                     {
                         task.SetStringValue("state","pushing");
-                        task.SetVector3Value("center", Circle.Instance.transform.position);
+                        task.SetVector3Value("center", Circle.Instance.center);
                         task.SetFloatValue("radius", Circle.Instance.radius);
                         Circle.Instance.StartDrawing();
+                        
                     }
                     else
                     {
@@ -408,9 +409,10 @@ namespace PresenceEngine
 
                         if (task.GetVector3Value("center", out center) && task.GetFloatValue("radius", out radius))
                         {
-                            Circle.Instance.transform.position = center;
+                            Circle.Instance.center = center;
                             Circle.Instance.radius = radius;
                             task.SetStringValue("state", "done");
+
                         }
                         done = true;
                         Circle.Instance.StartDrawing();

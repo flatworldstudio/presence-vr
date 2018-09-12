@@ -7,7 +7,7 @@ namespace PresenceEngine
     public class Circle : MonoBehaviour
     {
         ParticleCloud Cloud;
-      //  public Vector3 center;
+       public Vector3 center;
         public float radius;
 
         float a1, a2;
@@ -31,7 +31,9 @@ namespace PresenceEngine
         {
             if (IsDrawing)
             {
-                Vector3 center = Vector3.zero;
+                //   Vector3 center = Vector3.zero;
+
+
                 Vector3 e1n = center + new Vector3(Mathf.Sin(a1) * radius, 0, Mathf.Cos(a1) * radius);
                 Vector3 e2n = center + new Vector3(Mathf.Sin(a2) * radius, 0, Mathf.Cos(a2) * radius);
 
