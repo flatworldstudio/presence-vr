@@ -199,8 +199,8 @@ end
 
 #recordguided
 pressedrecordstart
-ResetGuided
 isglobal
+ResetGuided
 start presencehandler
 preloadfile
 waitforuser
