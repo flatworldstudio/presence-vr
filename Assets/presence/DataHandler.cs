@@ -1890,6 +1890,8 @@ namespace PresenceEngine
 
                     break;
 
+#endif
+
                 case "ResetGuided":
 
                     FileIndex = 0;
@@ -1945,9 +1947,11 @@ namespace PresenceEngine
 
 
 
-//                    done = true;
+                    //                    done = true;
                     break;
 
+
+#if SERVER
                 case "nextfile":
 
                     // Task will hold if too many presences.
