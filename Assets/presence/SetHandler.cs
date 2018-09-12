@@ -379,51 +379,7 @@ namespace PresenceEngine
 
                 case "ShowCircle":
 
-                    string state;
-#if SERVER
-                    if (!task.GetStringValue( "state",out state))
-                    {
-                        task.SetStringValue("state","pushing");
-                        task.SetVector3Value("center", Circle.Instance.center);
-                        task.SetFloatValue("radius", Circle.Instance.radius);
-                        Circle.Instance.StartDrawing();
-                        
-                    }
-                    else
-                    {
-                        if (state == "done")
-                        {
-                            done = true;
-                            break;
-                        }
-
-                    }
-
-
-#endif
-#if CLIENT
-                    if (task.GetStringValue("state", out state))
-                    {
-                        Vector3 center;
-                        float radius;
-
-                        if (task.GetVector3Value("center", out center) && task.GetFloatValue("radius", out radius))
-                        {
-                            Circle.Instance.center = center;
-                            Circle.Instance.radius = radius;
-                            task.SetStringValue("state", "done");
-
-                        }
-                        done = true;
-                        Circle.Instance.StartDrawing();
-                    }
-
-
-
-
-#endif
-
-
+                    Circle.Instance.StartDrawing();
                     break;
 
                 case "HideCircle":
