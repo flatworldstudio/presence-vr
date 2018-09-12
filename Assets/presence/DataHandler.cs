@@ -1907,8 +1907,8 @@ namespace PresenceEngine
 
                     if (!task.GetStringValue("state", out state))
                     {
-                        
-                        Vector3[] positions = new Vector3[4];
+
+                        Vector3[] positions = new Vector3[5];
                         positions[0] = Circle.Instance.center;
 
                         if (barriers != null && barriers.transform.childCount == 4)
@@ -1918,14 +1918,20 @@ namespace PresenceEngine
                             positions[3] = barriers.transform.GetChild(2).position;
                             positions[4] = barriers.transform.GetChild(3).position;
 
+
+
                         }
                         else
                         {
                             Warning("unable to push barrier positions");
                         }
 
+                        task.SetQuaternionValue("b1q", barriers.transform.GetChild(0).rotation);
+                        task.SetQuaternionValue("b2q", barriers.transform.GetChild(1).rotation);
+                        task.SetQuaternionValue("b3q", barriers.transform.GetChild(2).rotation);
+                        task.SetQuaternionValue("b4q", barriers.transform.GetChild(3).rotation);
                         //   positions[1]=
-                                              
+
                         task.SetVector3ArrayValue("positions", positions);
                         task.SetFloatValue("radius", Circle.Instance.radius);
 
@@ -1950,17 +1956,30 @@ namespace PresenceEngine
                     {
                         Vector3[] positions;
                         float radius;
+                        Quaternion b1q, b2q, b3q, b4q;
+                        
+                        if (task.GetVector3ArrayValue("positions", out positions) &&
+                            task.GetFloatValue("radius", out radius) &&
+                            task.GetQuaternionValue("b1q", out b1q) &&
+                            task.GetQuaternionValue("b2q", out b2q) &&
+                            task.GetQuaternionValue("b3q", out b3q) &&
+                            task.GetQuaternionValue("b4q", out b4q))
 
-                        if (task.GetVector3ArrayValue("positions", out positions) && task.GetFloatValue("radius", out radius))
                         {
+                            
                             Circle.Instance.center = positions[0];
                             barriers.transform.GetChild(0).position = positions[1];
                             barriers.transform.GetChild(1).position = positions[2];
                             barriers.transform.GetChild(2).position = positions[3];
                             barriers.transform.GetChild(3).position = positions[4];
 
-
+                            barriers.transform.GetChild(0).rotation = b1q;
+                            barriers.transform.GetChild(1).rotation = b2q;
+                            barriers.transform.GetChild(2).rotation = b3q;
+                            barriers.transform.GetChild(3).rotation = b4q;
+                                                     
                             Circle.Instance.radius = radius;
+
                             task.SetStringValue("state", "done");
 
                         }
@@ -2179,14 +2198,14 @@ namespace PresenceEngine
 
                             float inpoint = begin + Mathf.Min(UnityEngine.Random.Range(0, 20f), length - 5); // so we never play less than 5
 
-                            float OutPoint = Mathf.Min(inpoint+UnityEngine.Random.Range(10, 30),end);// either random or just the end if random exceeds that
-                            // 
+                            float OutPoint = Mathf.Min(inpoint + UnityEngine.Random.Range(10, 30), end);// either random or just the end if random exceeds that
+                                                                                                        // 
 
-                         //   float OutPoint = inpoint + duration;
+                            //   float OutPoint = inpoint + duration;
 
-                      //      float inpoint = begin; // start or if longer, random range
-                                                   // float duration = UnityEngine.Random.Range(10, 20);  // 
-                         //   float OutPoint = end;
+                            //      float inpoint = begin; // start or if longer, random range
+                            // float duration = UnityEngine.Random.Range(10, 20);  // 
+                            //   float OutPoint = end;
 
                             PresenceName = "drawing" + DrawCount;
 
@@ -2289,7 +2308,7 @@ namespace PresenceEngine
                             {
                                 Warning("Targeting existing presence.");
                             }
-                         //   fileplayback = Presence.Create(presences, PresenceName);
+                            //   fileplayback = Presence.Create(presences, PresenceName);
 
                             fileplayback.SetTranscoder(FileBuffer.TransCoderName);
                             fileplayback.DepthTransport.TransCoder.SetBufferFile(FileBuffer);
