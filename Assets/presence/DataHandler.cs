@@ -1941,7 +1941,7 @@ namespace PresenceEngine
                     }
                     else
                     {
-                        if (state == "done")
+                        if (state == "done" || !GENERAL.wasConnected)
                         {
                             done = true;
                             break;
