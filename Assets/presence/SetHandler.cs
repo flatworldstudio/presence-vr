@@ -85,7 +85,14 @@ namespace PresenceEngine
                 // Guide VO Playback
                 // Note: make this work on remote only.
 
+
                 case "GuideOpening":
+
+#if VOICEOFF
+
+                    VoiceOver.volume = 0f;
+#endif
+
 
                     if (PlayVoiceOver("GuideOpening", task))
                     {
