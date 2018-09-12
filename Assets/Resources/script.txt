@@ -1,7 +1,7 @@
 // CLIENT STORIES.
 
 #presenceclient
-debugon
+debugoff
 amvrclient
 moodon
 start moodlight
@@ -50,7 +50,7 @@ end
 
 
 #presenceserver
-debugon
+debugoff
 amserver
 //writefile
 //readfile
