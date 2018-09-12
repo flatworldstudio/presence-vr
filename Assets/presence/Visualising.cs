@@ -575,16 +575,18 @@ namespace PresenceEngine
                 float distance = Vector3.Distance(CameraPosition, Frame.UserPosition);
                 float factor = (Mathf.Clamp(distance, 0.5f, 4f) - 0.5f) / 3.5f; //result is normalised to 0-1
 
-                factor = Mathf.Pow((1f - factor), 2f);
+                factor = Mathf.Pow((1f - factor), 2.5f); // close small further big
 
                 //     float size = 0.001f + factor * 0.005f;
-                float size = 0.001f + factor * 0.0065f;
+                float size = 0.002f + factor * 0.0055f;
                 Cloud.SetPointSize(size);
 
                 // Now calculate normals, lighting and assign colours accordingly
 
-                Color32 Color01 = new Color32(137, 223, 255, 255);
-                Color32 Color02 = new Color32(137, 223, 161, 255);
+             //   Color32 Color01 = new Color32(137, 223, 255, 255);
+             //   Color32 Color02 = new Color32(137, 223, 161, 255);
+                Color32 Color01 = new Color32(111, 207, 255, 255);
+                Color32 Color02 = new Color32(83, 208, 43, 255);
 
                 Gradient g;
                 GradientColorKey[] gck;
@@ -592,13 +594,13 @@ namespace PresenceEngine
                 g = new Gradient();
                 gck = new GradientColorKey[2];
                 gck[0].color = Color01;
-                gck[0].time = 0.0F;
+                gck[0].time = 0.25F;
                 gck[1].color = Color02;
                 gck[1].time = 1.0F;
                 gak = new GradientAlphaKey[2];
                 gak[0].alpha = 1.0F;
-                gak[0].time = 0.0F;
-                gak[1].alpha = 0.1F;
+                gak[0].time = 0.75F;
+                gak[1].alpha = 0.25F;
                 gak[1].time = 1.0F;
                 g.SetKeys(gck, gak);
 

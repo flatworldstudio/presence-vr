@@ -94,26 +94,26 @@ namespace PresenceEngine
 
             if (Buffered != null)
             {
-                taskRef.SetStringValue(prefix + "State", "done");
+                taskRef.SetStringValue(prefix + "State", "WasLoaded");
             }
             else
             {
                 if (!File.Exists(localStorageFolder + path + SETTINGS.Ext))
                 {
                     Warning("File doesn't exits: " + path);
-                    taskRef.SetStringValue(prefix + "State", "failed");
+                    taskRef.SetStringValue(prefix + "State", "Fail");
                     return;
                 }
 
                 if (!busy)
                 {
-                    Log("loading async from disk: " + path);
+                    Log("Loading async from disk: " + path);
                     StartCoroutine(Loader(path, taskRef, prefix));
                 }
                 else
                 {
                     Warning("IO is busy, can't load.");
-                    taskRef.SetStringValue(prefix + "State", "failed");
+                    taskRef.SetStringValue(prefix + "State", "Fail");
                 }
 
             }
@@ -210,7 +210,7 @@ namespace PresenceEngine
 
                     f++;
 
-                    if (f % 128 == 0)
+                    if (f % 48 == 0)
                     {
                         taskRef.SetStringValue(prefix + "State", "" + (frameCount - f));
                         yield return null;
@@ -233,12 +233,12 @@ namespace PresenceEngine
                 AddToCache(file, fileName);
                 Verbose("Cache size " + PresenceCache.Keys.ToArray().Length);
                 Log("Loading done for " + fileName);
-                taskRef.SetStringValue(prefix + "State", "done");
+                taskRef.SetStringValue(prefix + "State", "Done");
             }
             else
             {
                 Warning("Loading failed for " + fileName);
-                taskRef.SetStringValue(prefix + "State", "failed");
+                taskRef.SetStringValue(prefix + "State", "Fail");
 
             }
 
@@ -258,7 +258,7 @@ namespace PresenceEngine
             if (presenceFile == null)
             {
                 Warning("Buffer is null, can't save.");
-                taskRef.SetStringValue(prefix + "State", "failed");
+                taskRef.SetStringValue(prefix + "State", "Fail");
             }
 
             if (!busy)
@@ -268,7 +268,7 @@ namespace PresenceEngine
             else
             {
                 Warning("IO is busy, can't save.");
-                taskRef.SetStringValue(prefix + "State", "failed");
+                taskRef.SetStringValue(prefix + "State", "Fail");
             }
 
 
@@ -356,7 +356,7 @@ namespace PresenceEngine
 
             AddToCache(file, fileName);
 
-            taskRef.SetStringValue(prefix + "State", "done");
+            taskRef.SetStringValue(prefix + "State", "Done");
             busy = false;
 
             yield return null;

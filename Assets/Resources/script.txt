@@ -71,10 +71,15 @@ start keyboardcontrols
 start moodlight
 end
 
-#screentap
+#toggleviews
 toggleview
 end
 
+#toggleinfo
+isglobal
+toggledebug
+pause1
+end
 
 // Server starts server and waits and calls #newclient when a client connects.
 
@@ -186,16 +191,23 @@ end
 setflow_guided
 end
 
+#preloader
+loadfile
+pause1
+end
+
+
 #recordguided
 pressedrecordstart
 ResetGuided
 isglobal
 start presencehandler
+preloadfile
 waitforuser
 start recording
-//MaterialiseOn
+MaterialiseOn
 pause5
-//goto presencescene
+goto presencescene
 GuideOpening
 pause5
 OffsetReset
@@ -212,10 +224,11 @@ TimeStamp_BeginDraw
 DrawingOn
 GuideDrawing
 @drawingplayback
-pause5
+pause1
 start PlayDrawings
+pause10
 GuideObservedrawing
-pause15
+pause30
 TimeStamp_EndDraw
 DrawingOff
 start EndDrawings
@@ -276,13 +289,15 @@ pause15
 endcirclescene
 // PRESENCE SCENE
 @presencescene
-GuideNotalone
+pause1
 start RandomPresences
-pause5
+GuideNotalone
+pause10
 GuidePresences
 pause15
+pause10
 GuideEndpresences
-pause5
+pause1
 stop RandomPresences
 WaitforSeated
 @recordguided_stop
@@ -317,6 +332,7 @@ pause1
 @loadnextpresence
 nextfile
 loadfile
+randomdelay
 playbackpresence
 goto loadnextpresence
 
@@ -352,6 +368,7 @@ pause1
 @loadnextdrawing
 nextfile
 loadfile
+randomdelay
 playbackdrawing
 goto loadnextdrawing
 

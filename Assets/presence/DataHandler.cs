@@ -55,6 +55,8 @@ namespace PresenceEngine
 
         int FileIndex = 0;
         string LoadFile = "";
+        int DrawCount = 0;
+        int PresenceCount = 0;
         //string SelectedFile;
         //string SelectedFolder;
 
@@ -902,12 +904,40 @@ namespace PresenceEngine
 
                     break;
 
+                case "pause10":
+
+                    if (!task.GetFloatValue("timeout", out TimeOut))
+                    {
+                        TimeOut = Time.time + 5;
+                        task.SetFloatValue("timeout", TimeOut);
+
+                    }
+
+                    if (Time.time > TimeOut)
+                        done = true;
+
+                    break;
+
 
                 case "pause15":
 
                     if (!task.GetFloatValue("timeout", out TimeOut))
                     {
                         TimeOut = Time.time + 15;
+                        task.SetFloatValue("timeout", TimeOut);
+
+                    }
+
+                    if (Time.time > TimeOut)
+                        done = true;
+
+                    break;
+
+                case "pause30":
+
+                    if (!task.GetFloatValue("timeout", out TimeOut))
+                    {
+                        TimeOut = Time.time + 30;
                         task.SetFloatValue("timeout", TimeOut);
 
                     }
@@ -1790,12 +1820,27 @@ namespace PresenceEngine
                     {
                         if (presence.Key.IndexOf("drawing") != -1)
                         {
+                            // Disable drawing.
+
                             task.SetIntValue(presence.Key + "_0_isdrawing", 0);
                             presence.Value.PullVisualiserSettingsFromTask(task, presence.Key);
 
-                            //      drawtask.SetFloatValue(PresenceName + "_timeout", Time.time);
-                            //   drawtask.SetIntValue(PresenceName + "_state", 3);
-                            Log("Stopping drawing for " + presence.Key);
+                            // Set timeout, by setting the endpoint to the current time. So the delegate will destroy after 10 seconds when animation has died out.
+
+                            StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
+
+                            if (handler != null)
+                            {
+                                float time;
+                                if (handler.GetFloatValue(presence.Key + "_time", out time))
+                                {
+                                    handler.SetFloatValue(presence.Key + "_outpoint", time);
+                                }
+
+
+                            }
+
+                            Log("Stopping drawing and setting out point for " + presence.Key);
 
 
                         }
@@ -1849,6 +1894,9 @@ namespace PresenceEngine
 
                     FileIndex = 0;
                     LoadFile = "";
+                    DrawCount = 0;
+                    PresenceCount = 0;
+
 
                     done = true;
                     break;
@@ -1859,10 +1907,6 @@ namespace PresenceEngine
 
                     if (SETTINGS.Presences.Count < 5)
                     {
-                        // Start randomly.
-
-                        if (UnityEngine.Random.value > 1f / 60f)
-                            break;
 
                         FileIndex++;
 
@@ -1889,6 +1933,27 @@ namespace PresenceEngine
 
                     }
 
+
+                    break;
+
+                case "preloadfile":
+
+                    Files = FileList(SETTINGS.SelectedFolder);
+                    Current = Array.IndexOf(Files, SETTINGS.SelectedFile);
+                    Retrieve = Current + 1;
+
+                    if (Retrieve < Files.Length)
+                    {
+                        // File available. Set file name for loading.
+
+                        LoadFile = Files[Retrieve];
+                        Log("Preload file: " + LoadFile + " index " + FileIndex + " of " + Files.Length);
+
+                        task.setCallBack("preloader");
+
+                    }
+
+                    done = true;
 
                     break;
 
@@ -1933,20 +1998,81 @@ namespace PresenceEngine
 
 
 #if SERVER
+                case "randomdelay":
+
+                    task.LoadPersistantData(task.pointer);
+
+                    string Status;
+
+                    if (task.GetStringValue("persistantData", out Status))
+                    {
+                        switch (Status)
+                        {
+
+                            case "WasLoaded":
+
+                                // Already in cache, insert a delay.
+
+                                if (!task.GetFloatValue("timeout", out TimeOut))
+                                {
+                                    TimeOut = Time.time + 2f + UnityEngine.Random.value * 4f;
+                                    task.SetFloatValue("timeout", TimeOut);
+
+                                }
+
+                                if (Time.time > TimeOut)
+                                {
+                                    task.SetStringValue("persistantData", "play");
+                                    done = true;
+                                }
+
+                                break;
+
+                            case "Done":
+                                // Loaded from disk, don't dealy.
+                                task.SetStringValue("persistantData", "play");
+                                done = true;
+                                break;
+
+
+                            case "Fail":
+                                Warning("Load task failed on client or server, skipping playback.");
+                                task.SetStringValue("persistantData", "skip");
+
+                                done = true;
+                                break;
+
+                            default:
+                                Warning("Loading result unclear, skipping playback.");
+                                task.SetStringValue("persistantData", "skip");
+                                done = true;
+                                break;
+
+                        }
+
+                    }
+
+
+
+                    break;
+
+
+
 
                 case "playbackdrawing":
 
                     task.LoadPersistantData(task.pointer);
-                    string pers;
-                    if (task.GetStringValue("persistantData",out pers))
+
+                    if (task.GetStringValue("persistantData", out Status))
                     {
-                        if (pers == "fail")
+                        if (Status == "skip")
                         {
-                            Warning("Load task failed on client or server, skipping playback.");
                             done = true;
                             break;
                         }
+
                     }
+
 
                     FileBuffer = IO.Instance.GetFromCache(SETTINGS.SelectedFolder + "/" + LoadFile);
 
@@ -1966,18 +2092,32 @@ namespace PresenceEngine
 
                         float length = end - begin;
 
-                        if (begin != -1 && end != -1 && length > 20.5f)
+                        if (begin != -1 && end != -1 && length > 10f)
                         {
                             // It has a length we can work with.
 
-                            float inpoint = UnityEngine.Random.Range(0, end - 20f); // start or if longer, random range
-                            float duration = UnityEngine.Random.Range(10, 20);  // 
-                            float OutPoint = inpoint + duration;
+                            float inpoint = begin + Mathf.Min(UnityEngine.Random.Range(0, 20f), length - 5); // so we never play less than 5
 
-                            PresenceName = "drawing" + FileIndex;
+                            float OutPoint = Mathf.Min(inpoint+UnityEngine.Random.Range(10, 30),end);// either random or just the end if random exceeds that
+                            // 
+
+                         //   float OutPoint = inpoint + duration;
+
+                      //      float inpoint = begin; // start or if longer, random range
+                                                   // float duration = UnityEngine.Random.Range(10, 20);  // 
+                         //   float OutPoint = end;
+
+                            PresenceName = "drawing" + DrawCount;
 
                             if (!SETTINGS.Presences.TryGetValue(PresenceName, out fileplayback))
+                            {
                                 fileplayback = Presence.Create(presences, PresenceName);
+                            }
+                            else
+                            {
+                                Warning("Targeting existing presence.");
+                            }
+
 
                             fileplayback.SetTranscoder(FileBuffer.TransCoderName);
                             fileplayback.DepthTransport.TransCoder.SetBufferFile(FileBuffer);
@@ -2007,6 +2147,8 @@ namespace PresenceEngine
                             handler.SetFloatValue(PresenceName + "_speed", 1f);
                             handler.SetFloatValue(PresenceName + "_outpoint", OutPoint);
 
+                            DrawCount++;
+
                             Log("started drawing presence for " + FileBuffer.Name);
                         }
                     }
@@ -2018,15 +2160,16 @@ namespace PresenceEngine
                 case "playbackpresence":
 
                     task.LoadPersistantData(task.pointer);
-                //   string pers;
-                    if (task.GetStringValue("persistantData", out pers))
+
+                    if (task.GetStringValue("persistantData", out Status))
                     {
-                        if (pers == "fail")
+                        if (Status == "skip")
                         {
-                            Warning("Load task failed on client or server, skipping playback.");
                             done = true;
                             break;
                         }
+
+
                     }
 
                     FileBuffer = IO.Instance.GetFromCache(SETTINGS.SelectedFolder + "/" + LoadFile);
@@ -2047,18 +2190,25 @@ namespace PresenceEngine
 
                         float length = end - begin;
 
-                        if (begin != -1 && end != -1 && length > 20.5f)
+                        if (begin != -1 && end != -1 && length > 30.5f)
                         {
                             // It has a length we can work with.
 
-                            float inpoint = UnityEngine.Random.Range(0, end - 20f); // start or if longer, random range
-                            float duration = UnityEngine.Random.Range(10, 20);  // 
+                            float inpoint = begin + UnityEngine.Random.Range(0, end - 30f); // start or if longer, random range
+                            float duration = UnityEngine.Random.Range(20, 30);  // 
                             float OutPoint = inpoint + duration;
 
-                            PresenceName = "presence" + FileIndex;
+                            PresenceName = "presence" + PresenceCount;
 
                             if (!SETTINGS.Presences.TryGetValue(PresenceName, out fileplayback))
+                            {
                                 fileplayback = Presence.Create(presences, PresenceName);
+                            }
+                            else
+                            {
+                                Warning("Targeting existing presence.");
+                            }
+                         //   fileplayback = Presence.Create(presences, PresenceName);
 
                             fileplayback.SetTranscoder(FileBuffer.TransCoderName);
                             fileplayback.DepthTransport.TransCoder.SetBufferFile(FileBuffer);
@@ -2088,7 +2238,9 @@ namespace PresenceEngine
                             handler.SetFloatValue(PresenceName + "_speed", 1f);
                             handler.SetFloatValue(PresenceName + "_outpoint", OutPoint);
 
-                            Log("started drawing presence for " + FileBuffer.Name);
+                            PresenceCount++;
+
+                            Log("started presence for " + FileBuffer.Name);
                         }
                     }
                     done = true;
@@ -2858,7 +3010,7 @@ namespace PresenceEngine
 
             if (!task.GetStringValue(prefix + "State", out myState))
             {
-                task.SetStringValue(prefix + "State", "begin");
+                task.SetStringValue(prefix + "State", "Begin");
                 IO.Instance.LoadAsync(fileName, task, prefix);
                 task.SetStringValue("file", fileName);
 
@@ -2866,11 +3018,11 @@ namespace PresenceEngine
 
                 if (GENERAL.wasConnected)
                 {
-                    task.SetStringValue("clientState", "notstarted");
+                    task.SetStringValue("clientState", "NotStarted");
                 }
                 else
                 {
-                    task.SetStringValue("clientState", "noclient");
+                    task.SetStringValue("clientState", "NoClient");
                 }
             }
 
@@ -2884,9 +3036,9 @@ namespace PresenceEngine
                     {
                         // we have values for file and state.
 
-                        if (myState == "notstarted")
+                        if (myState == "NotStarted")
                         {
-                            task.SetStringValue(prefix + "State", "begin");
+                            task.SetStringValue(prefix + "State", "Begin");
 
                           //  SETTINGS.SelectedFile = IO.Instance.FileFromPath(loadFile);
                            // SETTINGS.SelectedFolder = IO.Instance.FolderFromPath(loadFile);
@@ -2919,15 +3071,12 @@ namespace PresenceEngine
             switch (serverState)
             {
 
-                case "failed":
-                    task.SetStringValue("persistantData", "fail");
-                    break;
-                case "done":
-
+                case "WasLoaded":
+                case "Fail":
+                case "Done":
                     break;
 
-                case "begin":
-
+                case "Begin":
                 default:
 
                     // in progress
@@ -2940,15 +3089,13 @@ namespace PresenceEngine
             switch (clientState)
             {
 
-                case "done":
-                case "noclient":
-                    break;
-                case "failed":
-                    task.SetStringValue("persistantData", "fail");
+                case "WasLoaded":
+                case "Fail":
+                case "Done":
+                case "NoClient":
                     break;
 
-                case "begin":
-
+                case "Begin":
                 default:
 
                     // in progress
@@ -2961,6 +3108,27 @@ namespace PresenceEngine
 #if SERVER
             task.SetStringValue("debug", DebugString);
 #endif
+
+            if (Alldone)
+            {
+                // Check the outcomes
+
+                // Assumme fail.
+                task.SetStringValue("persistantData", "Fail");
+
+                // If the data is in place, 'done'.
+                if ((serverState == "WasLoaded" || serverState == "Done") &&
+                    (clientState == "WasLoaded" || clientState == "Done" || clientState == "NoClient"))
+                    task.SetStringValue("persistantData", "Done");
+
+                // If the data was already in place on both server and client, 'Wasloaded'.
+                if ((serverState == "WasLoaded") &&
+                    (clientState == "WasLoaded" || clientState == "NoClient"))
+                    task.SetStringValue("persistantData", "WasLoaded");
+
+
+            }
+
 
             return Alldone;
         }
@@ -2984,7 +3152,7 @@ namespace PresenceEngine
 
             if (!task.GetStringValue(prefix + "State", out myState))
             {
-                task.SetStringValue(prefix + "State", "begin");
+                task.SetStringValue(prefix + "State", "Begin");
                 //    FileformatBase BufferFile = SETTINGS.user.DepthTransport.TransCoder.GetBufferFile();
                 IO.Instance.SaveAsync(buffer, fileName, task, prefix);
 
@@ -2995,7 +3163,7 @@ namespace PresenceEngine
             string serverState, clientState;
             task.GetStringValue("serverState", out serverState);
             if (!task.GetStringValue("clientState", out clientState))
-                clientState = "noclient";
+                clientState = "NoClient";
 
             bool Alldone = true;
             string DebugString = "";
@@ -3004,12 +3172,11 @@ namespace PresenceEngine
             {
 
 
-                case "done":
-                case "failed":
+                case "Done":
+                case "Fail":
                     break;
 
-                case "begin":
-
+                case "Begin":
                 default:
 
                     // in progress
@@ -3022,13 +3189,12 @@ namespace PresenceEngine
             switch (clientState)
             {
 
-                case "done":
-                case "noclient":
-                case "failed":
+                case "Done":
+                case "NoClient":
+                case "Fail":
                     break;
 
-                case "begin":
-
+                case "Begin":
                 default:
 
                     // in progress

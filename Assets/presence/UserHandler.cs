@@ -17,7 +17,7 @@ namespace PresenceEngine
         public UserController userController;
         //   public IO IO;
         UxInterface serverInterface, headsetInterface;
-        public GameObject Circle;
+   //     public GameObject Circle;
         public GameObject viewerRoot, viewerOffset, viewerCamera;
         public GameObject overviewObject, projectionObject, headSet, setObject, handl, handr, body, Kinect, SetHandler, startPosition;
         public AudioSource signalSound;
@@ -134,7 +134,7 @@ namespace PresenceEngine
                     Vector3 p = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
                     Vector2 p2d = new Vector2(p.x, p.z);
                     //  Vector2 center2d = new Vector2(0, SETTINGS.kinectCentreDistance);
-                    Vector2 center2d = new Vector2(0, Circle.transform.position.z);
+                    Vector2 center2d = new Vector2(Circle.Instance.transform.position.x, Circle.Instance.transform.position.z);
 
                     float distance = Vector2.Distance(center2d, p2d);
                     Vector2 rp = p2d - center2d;
@@ -177,7 +177,7 @@ namespace PresenceEngine
                     p = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
                     p2d = new Vector2(p.x, p.z);
                     //      center2d = new Vector2(0, SETTINGS.kinectCentreDistance);
-                    center2d = new Vector2(0, Circle.transform.position.z);
+                    center2d = new Vector2(Circle.Instance.transform.position.x, Circle.Instance.transform.position.z);
                     rp = p2d - center2d;
                     float current = Mathf.Atan2(rp.y, rp.x);
 
@@ -220,7 +220,7 @@ namespace PresenceEngine
                     p = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
                     p2d = new Vector2(p.x, p.z);
 
-                    center2d = new Vector2(0, Circle.transform.position.z);
+                    center2d = new Vector2(Circle.Instance.transform.position.x, Circle.Instance.transform.position.z);
                     //      Debug.Log("Z circle " + center2d.y);
 
 
@@ -263,7 +263,7 @@ namespace PresenceEngine
                     p = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
                     p2d = new Vector2(p.x, p.z);
                     // center2d = new Vector2(0, SETTINGS.kinectCentreDistance);
-                    center2d = new Vector2(0, Circle.transform.position.z);
+                     center2d = new Vector2(Circle.Instance.transform.position.x, Circle.Instance.transform.position.z);
                     rp = p2d - center2d;
                     current = Mathf.Atan2(rp.y, rp.x);
 
@@ -934,7 +934,7 @@ namespace PresenceEngine
                     serverInterface.camera.constraint.pitchClampMax = 85f;
 
                     serverInterface.canvasObject = uxCanvas;
-                    serverInterface.tapNoneCallback = "screentap";
+                    serverInterface.tapNoneCallback = "";
 
                     UiConstraint constraint = new UiConstraint();
 
@@ -987,23 +987,23 @@ namespace PresenceEngine
 
                     // Flows
 
-                    control = new UiButton("flow01", menu, constraint);
+                    control = new UiButton("soloflow", menu, constraint);
                     control.callback = "flow_solo";
                     serverInterface.addButton(control);
 
-                    control = new UiButton("flow02", menu, constraint);
-                    control.callback = "flow_mirror";
+                    control = new UiButton("toggleview", menu, constraint);
+                    control.callback = "toggleviews";
                     serverInterface.addButton(control);
 
-                    control = new UiButton("flow03", menu, constraint);
-                    control.callback = "flow_delay";
+                    control = new UiButton("toggleinfo", menu, constraint);
+                    control.callback = "toggleinfo";
                     serverInterface.addButton(control);
 
                     control = new UiButton("flow04", menu, constraint);
-                    control.callback = "flow_echo";
+                    control.callback = "";
                     serverInterface.addButton(control);
 
-                    control = new UiButton("flow05", menu, constraint);
+                    control = new UiButton("guidedflow", menu, constraint);
                     control.callback = "flow_guided";
                     serverInterface.addButton(control);
 
