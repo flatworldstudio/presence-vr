@@ -27,7 +27,7 @@ namespace PresenceEngine
         ParticleCloud[] clouds;
         public GameObject MoodParticles;
         public LightControl MainStageLight, MoodLight01, MoodLight02;
-     //   public GameObject Circle;
+        //   public GameObject Circle;
         ushort[] depthMap;
         int width, height;
 
@@ -87,15 +87,16 @@ namespace PresenceEngine
 
                 case "GuideOpening":
 
-                    if (PlayVoiceOver("GuideOpening", task)){
-                      //  task.SetStringValue("debug", "" + VoiceOver.time);
+                    if (PlayVoiceOver("GuideOpening", task))
+                    {
+                        //  task.SetStringValue("debug", "" + VoiceOver.time);
                     }
                     else
                     {
-                    //    Debug.LogWarning("VO TASK KILLED");
+                        //    Debug.LogWarning("VO TASK KILLED");
                         done = true;
                     }
-                      
+
 
                     break;
 
@@ -103,7 +104,7 @@ namespace PresenceEngine
 
                     if (PlayVoiceOver("GuideSitdown", task))
                     {
-                    //    task.SetStringValue("debug", "" + VoiceOver.time);
+                        //    task.SetStringValue("debug", "" + VoiceOver.time);
                     }
                     else
                         done = true;
@@ -361,7 +362,7 @@ namespace PresenceEngine
                     else
                         done = true;
 
-                   
+
 
                     break;
 
@@ -393,20 +394,20 @@ namespace PresenceEngine
 
 #endif
 #if CLIENT
-                     if (task.GetStringValue( "state",out state))
+                    if (task.GetStringValue("state", out state))
                     {
-                    Vector3 center;
-                    float radius;
+                        Vector3 center;
+                        float radius;
 
-                    if ( task.SetVector3Value("center",out center)&&  task.SetFloatValue("radius", out radius))
-                    {
-                       Circle.Instance.transform.position=center;
-                      Circle.Instance.radius=radius;
-                        task.SetStringValue("state","done");
-                    }
+                        if (task.GetVector3Value("center", out center) && task.GetFloatValue("radius", out radius))
+                        {
+                            Circle.Instance.transform.position = center;
+                            Circle.Instance.radius = radius;
+                            task.SetStringValue("state", "done");
+                        }
                         done = true;
-                      Circle.Instance.StartDrawing();
-                  }
+                        Circle.Instance.StartDrawing();
+                    }
 
 
 
@@ -418,7 +419,7 @@ namespace PresenceEngine
 
                 case "HideCircle":
 
-              //      Circle.SetActive(false);
+                    //      Circle.SetActive(false);
                     Circle.Instance.StopDrawing();
 
                     done = true;
@@ -505,15 +506,15 @@ namespace PresenceEngine
 
 #if CLIENT
 
-                        // We are a connected vr client so we'll load the values all the time, in case they change server side. (Ie on connection)
+                    // We are a connected vr client so we'll load the values all the time, in case they change server side. (Ie on connection)
 
-                        task.GetFloatValue("mainperlinstart", out MainPerlinStart);
-                        task.GetFloatValue("mainperlin", out MainPerlin);
-                        task.GetFloatValue("moodlight01perlinstart", out MoodLight01PerlinStart);
-                        task.GetFloatValue("moodlight01perlin", out MoodLight01Perlin);
-                        task.GetFloatValue("moodlight02perlinstart", out MoodLight02PerlinStart);
-                        task.GetFloatValue("moodlight02perlin", out MoodLight02Perlin);
-                    
+                    task.GetFloatValue("mainperlinstart", out MainPerlinStart);
+                    task.GetFloatValue("mainperlin", out MainPerlin);
+                    task.GetFloatValue("moodlight01perlinstart", out MoodLight01PerlinStart);
+                    task.GetFloatValue("moodlight01perlin", out MoodLight01Perlin);
+                    task.GetFloatValue("moodlight02perlinstart", out MoodLight02PerlinStart);
+                    task.GetFloatValue("moodlight02perlin", out MoodLight02Perlin);
+
 #endif
 
                     // And now we apply those values.
@@ -732,14 +733,14 @@ namespace PresenceEngine
 #endif
 #if CLIENT
 
-            string id="client";
+            string id = "client";
 #endif
 
             string vostatus;
 
             if (!taskRef.GetStringValue(id, out vostatus))
                 vostatus = "start";
-            
+
             switch (vostatus)
             {
                 case "start":

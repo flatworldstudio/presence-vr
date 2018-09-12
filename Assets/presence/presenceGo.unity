@@ -4516,7 +4516,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 822068149}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1, y: 0.25, z: -1}
+  m_LocalPosition: {x: 0, y: 0.25, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1348691420}
@@ -4533,7 +4533,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5986f0c280799a4488e34f29f1c22a2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  radius: 1
+  radius: 1.25
   IsDrawing: 0
 --- !u!114 &828846654 stripped
 MonoBehaviour:
@@ -4724,7 +4724,6 @@ MonoBehaviour:
   userMessager: {fileID: 1634575136}
   filePath: {fileID: 0}
   dummyCam: {fileID: 429326544}
-  uxCanvas: {fileID: 0}
 --- !u!4 &1012313925
 Transform:
   m_ObjectHideFlags: 0
