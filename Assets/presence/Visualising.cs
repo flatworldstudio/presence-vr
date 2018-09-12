@@ -110,25 +110,51 @@ namespace PresenceEngine
 
             GameObject n;
 
+
 #if SERVER
 
-            n = DebugObject.getNullObject(0.25f, 0.25f, 0.5f);
+            n = DebugObject.getNullObject(0.1f, 0.1f, 0.2f);
             n.transform.SetParent(ParentObject.transform, false);
             Head = n;
 
+            n = DebugObject.getNullObject(0.2f);
+            n.transform.SetParent(ParentObject.transform, false);
+            Body = n;
+
 #endif
 
-            n = DebugObject.getNullObject(0.25f);
+            n = DebugObject.getNullObject(0.1f);
             n.transform.SetParent(ParentObject.transform, false);
             HandLeft = n;
 
-            n = DebugObject.getNullObject(0.25f);
+            n = DebugObject.getNullObject(0.1f);
             n.transform.SetParent(ParentObject.transform, false);
             HandRight = n;
 
-            n = DebugObject.getNullObject(0.5f);
-            n.transform.SetParent(ParentObject.transform, false);
-            Body = n;
+
+
+
+
+//#if SERVER
+//            n = DebugObject.getNullObject(0.5f);
+//            n.transform.SetParent(ParentObject.transform, false);
+//            Body = n;
+
+//            n = DebugObject.getNullObject(0.25f, 0.25f, 0.5f);
+//            n.transform.SetParent(ParentObject.transform, false);
+//            Head = n;
+
+//#endif
+
+//            n = DebugObject.getNullObject(0.15f);
+//            n.transform.SetParent(ParentObject.transform, false);
+//            HandLeft = n;
+
+//            n = DebugObject.getNullObject(0.15f);
+//            n.transform.SetParent(ParentObject.transform, false);
+//            HandRight = n;
+
+     
 
 
             Cloud = new ParticleCloud(5000, "CloudDyn", false);
@@ -203,14 +229,14 @@ namespace PresenceEngine
                 HandLeft.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.HandLeft] + offset;
                 HandRight.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.HandRight] + offset;
 
-                Body.transform.localPosition = Frame.UserPosition + offset;
+              
 
 #if SERVER
 
                 //  if (Frame.Tracked
                 Head.transform.localPosition = Frame.Joints[(int)NuiSkeletonPositionIndex.Head] + offset;
                 Head.transform.localRotation = Frame.HeadOrientation;
-
+                Body.transform.localPosition = Frame.UserPosition + offset;
 #endif
 
                 // Check if frame is new.

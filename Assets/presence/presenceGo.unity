@@ -3162,7 +3162,7 @@ ParticleSystem:
     multiplyColliderForceByParticleSize: 0
     multiplyColliderForceByParticleSpeed: 0
     multiplyColliderForceByCollisionAngle: 1
-    plane0: {fileID: 0}
+    plane0: {fileID: 1130396737}
     plane1: {fileID: 0}
     plane2: {fileID: 0}
     plane3: {fileID: 0}
@@ -5124,6 +5124,7 @@ MonoBehaviour:
   userMessager: {fileID: 1634575136}
   filePath: {fileID: 0}
   dummyCam: {fileID: 429326544}
+  uxCanvas: {fileID: 0}
 --- !u!4 &1012313925
 Transform:
   m_ObjectHideFlags: 0

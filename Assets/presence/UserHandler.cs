@@ -17,7 +17,7 @@ namespace PresenceEngine
         public UserController userController;
         //   public IO IO;
         UxInterface serverInterface, headsetInterface;
-   //     public GameObject Circle;
+        //     public GameObject Circle;
         public GameObject viewerRoot, viewerOffset, viewerCamera;
         public GameObject overviewObject, projectionObject, headSet, setObject, handl, handr, body, Kinect, SetHandler, startPosition;
         public AudioSource signalSound;
@@ -85,9 +85,9 @@ namespace PresenceEngine
 
             fileBrowserConstraint.springs = true;
             fileBrowserConstraint.springPositions = new Vector2[2];
-            fileBrowserConstraint.springPositions[0] = new Vector2(0, 0); 
-            fileBrowserConstraint.springPositions[1] = new Vector2(0, 520); 
-          
+            fileBrowserConstraint.springPositions[0] = new Vector2(0, 0);
+            fileBrowserConstraint.springPositions[1] = new Vector2(0, 520);
+
 
         }
 
@@ -133,13 +133,14 @@ namespace PresenceEngine
                     // get position
                     Vector3 p = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
                     Vector2 p2d = new Vector2(p.x, p.z);
-                    //  Vector2 center2d = new Vector2(0, SETTINGS.kinectCentreDistance);
-                    Vector2 center2d = new Vector2(Circle.Instance.transform.position.x, Circle.Instance.transform.position.z);
+
+                    Vector3 CircleCenter = Circle.Instance.transform.position + Circle.Instance.center;
+                    Vector2 center2d = new Vector2(CircleCenter.x, CircleCenter.z);
 
                     float distance = Vector2.Distance(center2d, p2d);
                     Vector2 rp = p2d - center2d;
 
-                    if (distance < 4f && distance > 0.5f)
+                    if (distance < 4f && distance > 0.25f)
                     {
                         timer += Time.deltaTime;
 
@@ -177,7 +178,13 @@ namespace PresenceEngine
                     p = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
                     p2d = new Vector2(p.x, p.z);
                     //      center2d = new Vector2(0, SETTINGS.kinectCentreDistance);
-                    center2d = new Vector2(Circle.Instance.transform.position.x, Circle.Instance.transform.position.z);
+                  //  center2d = new Vector2(Circle.Instance.transform.position.x, Circle.Instance.transform.position.z);
+
+
+                     CircleCenter = Circle.Instance.transform.position + Circle.Instance.center;
+                     center2d = new Vector2(CircleCenter.x, CircleCenter.z);
+
+
                     rp = p2d - center2d;
                     float current = Mathf.Atan2(rp.y, rp.x);
 
@@ -220,9 +227,10 @@ namespace PresenceEngine
                     p = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
                     p2d = new Vector2(p.x, p.z);
 
-                    center2d = new Vector2(Circle.Instance.transform.position.x, Circle.Instance.transform.position.z);
+                  //  center2d = new Vector2(Circle.Instance.transform.position.x, Circle.Instance.transform.position.z);
                     //      Debug.Log("Z circle " + center2d.y);
-
+                    CircleCenter = Circle.Instance.transform.position + Circle.Instance.center;
+                    center2d = new Vector2(CircleCenter.x, CircleCenter.z);
 
                     rp = p2d - center2d;
                     current = Mathf.Atan2(rp.y, rp.x);
@@ -263,7 +271,11 @@ namespace PresenceEngine
                     p = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
                     p2d = new Vector2(p.x, p.z);
                     // center2d = new Vector2(0, SETTINGS.kinectCentreDistance);
-                     center2d = new Vector2(Circle.Instance.transform.position.x, Circle.Instance.transform.position.z);
+                 //   center2d = new Vector2(Circle.Instance.transform.position.x, Circle.Instance.transform.position.z);
+
+                    CircleCenter = Circle.Instance.transform.position + Circle.Instance.center;
+                    center2d = new Vector2(CircleCenter.x, CircleCenter.z);
+
                     rp = p2d - center2d;
                     current = Mathf.Atan2(rp.y, rp.x);
 
@@ -957,7 +969,7 @@ namespace PresenceEngine
                     serverInterface.addButton(control);
                     control.image.color = new Color(0, 0, 0, 0.5f);
 
-                     control = new UiButton("browserback" , filebrowser, fileBrowserConstraint);
+                    control = new UiButton("browserback", filebrowser, fileBrowserConstraint);
                     control.callback = "";
                     control.ChangeColor = false;
                     serverInterface.addButton(control);
@@ -1128,8 +1140,8 @@ namespace PresenceEngine
                     browser = GameObject.Find("FileBrowser");
                     GameObject FileMenu = GameObject.Find("Files");
 
-                //    Vector3 position = FileMenu.transform.localPosition;
-                  //  position.x = Screen.width;
+                    //    Vector3 position = FileMenu.transform.localPosition;
+                    //  position.x = Screen.width;
                     //FileMenu.transform.localPosition = position;
 
                     //List <PFile> files = IO.Instance.GetFileList(IO.Instance.SelectedFolder);
@@ -1275,7 +1287,7 @@ namespace PresenceEngine
 
                 case "togglebrowser":
 
-                     UiButton target;
+                    UiButton target;
 
                     if (serverInterface.uiButtons.TryGetValue("folder#0", out target))
                     {

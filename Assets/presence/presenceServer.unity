@@ -14103,8 +14103,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5986f0c280799a4488e34f29f1c22a2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  center: {x: -1, y: 0.25, z: -1}
-  radius: 1
+  center: {x: -0.5, y: 0.25, z: -0.5}
+  radius: 0.75
   IsDrawing: 0
 --- !u!1 &2055519343
 GameObject:

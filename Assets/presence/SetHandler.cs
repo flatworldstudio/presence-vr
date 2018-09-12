@@ -549,7 +549,7 @@ namespace PresenceEngine
 
                 case "addkinectnull":
 
-                    g = DebugObject.getNullObject(1, 1, 1);
+                    g = DebugObject.getNullObject(0.5f, 0.5f, 0.5f);
                     g.transform.SetParent(KinectGizmo.transform, false);
 
                     done = true;
