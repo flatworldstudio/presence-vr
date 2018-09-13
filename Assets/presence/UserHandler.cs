@@ -136,7 +136,7 @@ namespace PresenceEngine
 
                     float timer;
                     if (!task.GetFloatValue("timer", out timer))
-                        task.SetFloatValue("timer", timer);//0
+                        task.SetFloatValue("timer", 0);//0
 
                     // get position
                     Vector3 p = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
@@ -157,7 +157,7 @@ namespace PresenceEngine
                     {
                         timer += Time.deltaTime;
 
-                        if (timer > 0.15f)
+                        if (timer > 0.25f)
                         {
                             CircleStart = Mathf.Atan2(rp.y, rp.x);
 
@@ -185,7 +185,7 @@ namespace PresenceEngine
 
 
                     if (!task.GetFloatValue("timer", out timer))
-                        task.SetFloatValue("timer", timer);//0
+                        task.SetFloatValue("timer", 0);//0
 
                     // get position
                     p = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
@@ -213,7 +213,7 @@ namespace PresenceEngine
                         timer += Time.deltaTime;
                         //  Debug.Log("outside initial section");
 
-                        if (timer > 0.15f)
+                        if (timer > 0.25f)
                         {
                             done = true;
                             Circle2 = current;
@@ -237,7 +237,7 @@ namespace PresenceEngine
 
 
                     if (!task.GetFloatValue("timer", out timer))
-                        task.SetFloatValue("timer", timer);//0
+                        task.SetFloatValue("timer", 0);//0
 
                     // get position
                     p = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
@@ -262,7 +262,7 @@ namespace PresenceEngine
                         timer += Time.deltaTime;
                         //    Debug.Log("outside  section");
 
-                        if (timer > 0.15f)
+                        if (timer > 0.25f)
                         {
                             userMessager.ShowTextMessage("Two Thirds", 1);
                             done = true;
@@ -284,7 +284,7 @@ namespace PresenceEngine
 
 
                     if (!task.GetFloatValue("timer", out timer))
-                        task.SetFloatValue("timer", timer);//0
+                        task.SetFloatValue("timer", 0);//0
 
                     // get position
                     p = SETTINGS.user.DepthTransport.ActiveFrame.Joints[(int)NuiSkeletonPositionIndex.Head];
@@ -309,7 +309,7 @@ namespace PresenceEngine
                         timer += Time.deltaTime;
                         //    Debug.Log("in initial section");
 
-                        if (timer > 0.15f)
+                        if (timer > 0.25f)
                         {
                             done = true;
                             userMessager.ShowTextMessage("Full Circle", 1);
@@ -339,19 +339,22 @@ namespace PresenceEngine
 
                     //    float timer;
                     if (!task.GetFloatValue("timer", out timer))
-                        task.SetFloatValue("timer", timer);//0
+                        task.SetFloatValue("timer", 0);//0
 
                     //Vector3 up = SETTINGS.user.DepthTransport.ActiveFrame.Joints[NuiSkeletonPositionIndex.Head];
 
                     Quaternion rot = SETTINGS.user.DepthTransport.ActiveFrame.HeadOrientation;
                     float y = rot.eulerAngles.y;
 
-                    if (y > 160 || y < -160)
-                    {
-                        Debug.Log("facing ...");
-                        timer += Time.deltaTime;
+                    // returns 0-360
 
-                        if (timer > 2)
+                    if (y > 160 && y < 200)
+                    {
+                        Debug.Log("facing ... " + y);
+                        timer += Time.deltaTime;
+                        task.SetStringValue("debug", "inprogress");
+
+                        if (timer > 1f)
                         {
                             done = true;
                         }
@@ -359,6 +362,7 @@ namespace PresenceEngine
                     else
                     {
                         timer = 0;
+                        task.SetStringValue("debug", "");
                     }
 
                     task.SetFloatValue("timer", timer);
