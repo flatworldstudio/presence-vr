@@ -135,7 +135,7 @@ namespace PresenceEngine
                 case "WaitForCircleStart":
 
                     float timer;
-                    if (task.GetFloatValue("timer", out timer))
+                    if (!task.GetFloatValue("timer", out timer))
                         task.SetFloatValue("timer", timer);//0
 
                     // get position
@@ -172,7 +172,7 @@ namespace PresenceEngine
                     }
                     else
                     {
-
+                        timer = 0;
                     }
 
                     task.SetFloatValue("timer", timer);
@@ -184,7 +184,7 @@ namespace PresenceEngine
                 case "WaitForCircleOneThird":
 
 
-                    if (task.GetFloatValue("timer", out timer))
+                    if (!task.GetFloatValue("timer", out timer))
                         task.SetFloatValue("timer", timer);//0
 
                     // get position
@@ -236,7 +236,7 @@ namespace PresenceEngine
                 case "WaitForCircleTwoThird":
 
 
-                    if (task.GetFloatValue("timer", out timer))
+                    if (!task.GetFloatValue("timer", out timer))
                         task.SetFloatValue("timer", timer);//0
 
                     // get position
@@ -283,7 +283,7 @@ namespace PresenceEngine
                 case "WaitForCircleThreeThird":
 
 
-                    if (task.GetFloatValue("timer", out timer))
+                    if (!task.GetFloatValue("timer", out timer))
                         task.SetFloatValue("timer", timer);//0
 
                     // get position
@@ -338,7 +338,7 @@ namespace PresenceEngine
                     }
 
                     //    float timer;
-                    if (task.GetFloatValue("timer", out timer))
+                    if (!task.GetFloatValue("timer", out timer))
                         task.SetFloatValue("timer", timer);//0
 
                     //Vector3 up = SETTINGS.user.DepthTransport.ActiveFrame.Joints[NuiSkeletonPositionIndex.Head];
@@ -346,7 +346,7 @@ namespace PresenceEngine
                     Quaternion rot = SETTINGS.user.DepthTransport.ActiveFrame.HeadOrientation;
                     float y = rot.eulerAngles.y;
 
-                    if (y > 150 || y < -150)
+                    if (y > 160 || y < -160)
                     {
                         Debug.Log("facing ...");
                         timer += Time.deltaTime;

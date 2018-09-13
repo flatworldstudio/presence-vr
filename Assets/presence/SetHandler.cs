@@ -84,17 +84,18 @@ namespace PresenceEngine
                 // ------------------------------------------------------------------------------------------------------------------------
                 // Guide VO Playback
                 // Note: make this work on remote only.
-
-
-                case "GuideOpening":
-
+                case "ResetGuided":
 #if VOICEOFF
 
                     VoiceOver.volume = 0f;
 #endif
+                    done = true;
+                    break;
 
 
-                    if (PlayVoiceOver("GuideOpening", task))
+                case "G01_Opening":
+                    
+                    if (PlayVoiceOver("G01_Opening", task))
                     {
                         //  task.SetStringValue("debug", "" + VoiceOver.time);
                     }
@@ -107,9 +108,9 @@ namespace PresenceEngine
 
                     break;
 
-                case "GuideSitdown":
+                case "G02_Position":
 
-                    if (PlayVoiceOver("GuideSitdown", task))
+                    if (PlayVoiceOver("G02_Position", task))
                     {
                         //    task.SetStringValue("debug", "" + VoiceOver.time);
                     }
@@ -118,9 +119,9 @@ namespace PresenceEngine
 
                     break;
 
-                case "GuideBegin":
+                case "G03_Lifthands":
 
-                    if (PlayVoiceOver("GuideBegin", task))
+                    if (PlayVoiceOver("G03_Lifthands", task))
                     {
                         //    task.SetStringValue("debug", "" + VoiceOver.time);
                     }
@@ -129,9 +130,9 @@ namespace PresenceEngine
 
                     break;
 
-                case "GuideObservehands":
+                case "G04_Seehands":
 
-                    if (PlayVoiceOver("GuideObservehands", task))
+                    if (PlayVoiceOver("G04_Seehands", task))
                     {
                         //    task.SetStringValue("debug", "" + VoiceOver.time);
                     }
@@ -140,9 +141,9 @@ namespace PresenceEngine
 
                     break;
 
-                case "GuideDrawing":
+                case "G05_Draw":
 
-                    if (PlayVoiceOver("GuideDrawing", task))
+                    if (PlayVoiceOver("G05_Draw", task))
                     {
                         //    task.SetStringValue("debug", "" + VoiceOver.time);
                     }
@@ -151,9 +152,9 @@ namespace PresenceEngine
 
                     break;
 
-                case "GuideObservedrawing":
+                case "G06_Watchdrawing":
 
-                    if (PlayVoiceOver("GuideObservedrawing", task))
+                    if (PlayVoiceOver("G06_Watchdrawing", task))
                     {
                         //    task.SetStringValue("debug", "" + VoiceOver.time);
                     }
@@ -162,9 +163,9 @@ namespace PresenceEngine
 
                     break;
 
-                case "GuideGetup":
+                case "G07_Return":
 
-                    if (PlayVoiceOver("GuideGetup", task))
+                    if (PlayVoiceOver("G07_Return", task))
                     {
                         //    task.SetStringValue("debug", "" + VoiceOver.time);
                     }
@@ -173,9 +174,9 @@ namespace PresenceEngine
 
                     break;
 
-                case "GuideThirdpersonintro":
+                case "G08_ThirdpersonIntro":
 
-                    if (PlayVoiceOver("GuideThirdpersonintro", task))
+                    if (PlayVoiceOver("G08_ThirdpersonIntro", task))
                     {
                         //    task.SetStringValue("debug", "" + VoiceOver.time);
                     }
@@ -184,9 +185,9 @@ namespace PresenceEngine
 
                     break;
 
-                case "GuideThirdperson":
+                case "G09_Thirdperson":
 
-                    if (PlayVoiceOver("GuideThirdperson", task))
+                    if (PlayVoiceOver("G09_Thirdperson", task))
                     {
                         //    task.SetStringValue("debug", "" + VoiceOver.time);
                     }
@@ -195,9 +196,9 @@ namespace PresenceEngine
 
                     break;
 
-                case "GuideThirdpersonexit":
+                case "G10_Return":
 
-                    if (PlayVoiceOver("GuideThirdpersonexit", task))
+                    if (PlayVoiceOver("G10_Return", task))
                     {
                         //    task.SetStringValue("debug", "" + VoiceOver.time);
                     }
@@ -206,9 +207,9 @@ namespace PresenceEngine
 
                     break;
 
-                case "GuideReturntocenter":
+                case "G11_Closeeyes":
 
-                    if (PlayVoiceOver("GuideReturntocenter", task))
+                    if (PlayVoiceOver("G11_Closeeyes", task))
                     {
                         //    task.SetStringValue("debug", "" + VoiceOver.time);
                     }
@@ -217,9 +218,9 @@ namespace PresenceEngine
 
                     break;
 
-                case "GuideMirrorintro":
+                case "G12_Mirror":
 
-                    if (PlayVoiceOver("GuideMirrorintro", task))
+                    if (PlayVoiceOver("G12_Mirror", task))
                     {
                         //    task.SetStringValue("debug", "" + VoiceOver.time);
                     }
@@ -228,9 +229,9 @@ namespace PresenceEngine
 
                     break;
 
-                case "GuideMirror":
+                case "G13_Notlinear":
 
-                    if (PlayVoiceOver("GuideMirror", task))
+                    if (PlayVoiceOver("G13_Notlinear", task))
                     {
                         //    task.SetStringValue("debug", "" + VoiceOver.time);
                     }
@@ -239,9 +240,9 @@ namespace PresenceEngine
 
                     break;
 
-                case "GuideSlowdown":
+                case "G14_Backward":
 
-                    if (PlayVoiceOver("GuideSlowdown", task))
+                    if (PlayVoiceOver("G14_Backward", task))
                     {
                         //    task.SetStringValue("debug", "" + VoiceOver.time);
                     }
@@ -250,9 +251,9 @@ namespace PresenceEngine
 
                     break;
 
-                case "GuideReverse":
+                case "G15_Timestop":
 
-                    if (PlayVoiceOver("GuideReverse", task))
+                    if (PlayVoiceOver("G15_Timestop", task))
                     {
                         //    task.SetStringValue("debug", "" + VoiceOver.time);
                     }
@@ -261,9 +262,9 @@ namespace PresenceEngine
 
                     break;
 
-                case "GuideFreeze":
+                case "G16_Shatter":
 
-                    if (PlayVoiceOver("GuideFreeze", task))
+                    if (PlayVoiceOver("G16_Shatter", task))
                     {
                         //    task.SetStringValue("debug", "" + VoiceOver.time);
                     }
@@ -272,9 +273,9 @@ namespace PresenceEngine
 
                     break;
 
-                case "GuideShatter":
+                case "G17_Circle":
 
-                    if (PlayVoiceOver("GuideShatter", task))
+                    if (PlayVoiceOver("G17_Circle", task))
                     {
                         //    task.SetStringValue("debug", "" + VoiceOver.time);
                     }
@@ -283,9 +284,9 @@ namespace PresenceEngine
 
                     break;
 
-                case "GuideCircleintro":
+                case "G18_Followcircle":
 
-                    if (PlayVoiceOver("GuideCircleintro", task))
+                    if (PlayVoiceOver("G18_Followcircle", task))
                     {
                         //    task.SetStringValue("debug", "" + VoiceOver.time);
                     }
@@ -294,9 +295,9 @@ namespace PresenceEngine
 
                     break;
 
-                case "GuideCircle":
+                case "G19_Otherselves":
 
-                    if (PlayVoiceOver("GuideCircle", task))
+                    if (PlayVoiceOver("G19_Otherselves", task))
                     {
                         //    task.SetStringValue("debug", "" + VoiceOver.time);
                     }
@@ -305,9 +306,9 @@ namespace PresenceEngine
 
                     break;
 
-                case "GuideCircleclone":
+                case "G20_Continue":
 
-                    if (PlayVoiceOver("GuideCircleclone", task))
+                    if (PlayVoiceOver("G20_Continue", task))
                     {
                         //    task.SetStringValue("debug", "" + VoiceOver.time);
                     }
@@ -316,9 +317,9 @@ namespace PresenceEngine
 
                     break;
 
-                case "GuideCircleobserve":
+                case "G21_Stepaway":
 
-                    if (PlayVoiceOver("GuideCircleobserve", task))
+                    if (PlayVoiceOver("G21_Stepaway", task))
                     {
                         //    task.SetStringValue("debug", "" + VoiceOver.time);
                     }
@@ -327,9 +328,9 @@ namespace PresenceEngine
 
                     break;
 
-                case "GuideNotalone":
+                case "G22_Timespace":
 
-                    if (PlayVoiceOver("GuideNotalone", task))
+                    if (PlayVoiceOver("G22_Timespace", task))
                     {
                         //    task.SetStringValue("debug", "" + VoiceOver.time);
                     }
@@ -338,9 +339,9 @@ namespace PresenceEngine
 
                     break;
 
-                case "GuidePresences":
+                case "G23_Others":
 
-                    if (PlayVoiceOver("GuidePresences", task))
+                    if (PlayVoiceOver("G23_Others", task))
                     {
                         //    task.SetStringValue("debug", "" + VoiceOver.time);
                     }
@@ -349,9 +350,9 @@ namespace PresenceEngine
 
                     break;
 
-                case "GuideEndpresences":
+                case "G24_Sitdown":
 
-                    if (PlayVoiceOver("GuideEndpresences", task))
+                    if (PlayVoiceOver("G24_Sitdown", task))
                     {
                         //    task.SetStringValue("debug", "" + VoiceOver.time);
                     }
@@ -360,9 +361,9 @@ namespace PresenceEngine
 
                     break;
 
-                case "GuideEndsession":
+                case "G25_Endsession":
 
-                    if (PlayVoiceOver("GuideEndsession", task))
+                    if (PlayVoiceOver("G25_Endsession", task))
                     {
                         //    task.SetStringValue("debug", "" + VoiceOver.time);
                     }
@@ -372,6 +373,20 @@ namespace PresenceEngine
 
 
                     break;
+
+                case "G26_Removeheadset":
+
+                    if (PlayVoiceOver("G26_Removeheadset", task))
+                    {
+                        //    task.SetStringValue("debug", "" + VoiceOver.time);
+                    }
+                    else
+                        done = true;
+
+
+
+                    break;
+
 
 
                 // ----------------------------------------------------------------------------------------------------

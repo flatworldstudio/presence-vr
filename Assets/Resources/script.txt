@@ -208,98 +208,104 @@ start recording
 //MaterialiseOn
 pause5
 //goto circlescene
-GuideOpening
+G01_Opening
 pause5
 OffsetReset
 start recording
-GuideSitdown
-WaitforSeated
-GuideBegin
+G02_Position
+//XXXXXXWaitforSeated
+WaitForFacekinect
+pause3
+G03_Lifthands
 MaterialiseOn
-GuideObservehands
+G04_Seehands
 pause5
 // DRAWING SCENE
 @drawingscene
 TimeStamp_BeginDraw
 DrawingOn
-GuideDrawing
+G05_Draw
 @drawingplayback
 pause1
 start PlayDrawings
 pause10
-GuideObservedrawing
+G06_Watchdrawing
 pause30
 TimeStamp_EndDraw
 DrawingOff
 start EndDrawings
-GuideGetup
-WaitforGetup
-GuideThirdpersonintro
+G07_Return
+//XXXXXXXXXXXXXXWaitforGetup
+WaitForFacekinect
+pause3
+G08_ThirdpersonIntro
 DrawingRemove
 OffsetThirdperson
-GuideThirdperson
+G09_Thirdperson
 pause5
 //GuideThirdpersonexit
 pause5
-GuideReturntocenter
+G10_Return
 WaitForFacekinect
 OffsetReset
-pause5
+pause3
 // MIRROR SCENE
 @mirrorscene
-GuideMirrorintro
-pause5
+G11_Closeeyes
+pause1
 DelayOn
-GuideMirror
+pause1
+G12_Mirror
 pause5
 DelaySlow
-GuideSlowdown
+G13_Notlinear
 pause5
 DelayReverse
-GuideReverse
+G14_Backward
 pause5
 DelayStop
-GuideFreeze
+G15_Timestop
 pause5
 deletepresences
 start Shatter
-GuideShatter
+G16_Shatter
 pause15
 stop Shatter
 deletepresences
 // CIRCLE SCENE
 @circlescene
 ShowCircle
-GuideCircleintro
-GuideCircle
+G17_Circle
 WaitForCircleStart
+G18_Followcircle
 TimeStamp_BeginCircle
 WaitForCircleOneThird
 AddCircleClone
-GuideCircleclone
+G19_Otherselves
 WaitForCircleTwoThird
 AddCircleClone
-GuideCircleclone
+G20_Continue
 WaitForCircleThreeThird
 AddCircleClone
 TimeStamp_EndCircle
 HideCircle
-GuideCircleobserve
+G21_Stepaway
 pause15
 endcirclescene
 // PRESENCE SCENE
 @presencescene
 pause1
 start RandomPresences
-GuideNotalone
+G22_Timespace
 pause10
-GuidePresences
+G23_Others
 pause15
 pause10
-GuideEndpresences
+G24_Sitdown
 pause1
 stop RandomPresences
 WaitforSeated
+G25_Endsession
 @recordguided_stop
 pressedrecordstop
 stop recording
@@ -308,13 +314,14 @@ recordoff
 storefileasync
 MaterialiseOff
 deletepresences
-pause3
+pause1
 stop RandomPresences
 stop PlayDrawings
 stop Shatter
 stop presencehandler
-GuideEndsession
+G26_Removeheadset
 makefilemenu
+pause1
 end
 
 
