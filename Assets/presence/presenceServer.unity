@@ -689,8 +689,8 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 131908321}
   m_LocalRotation: {x: 0, y: 0.9659258, z: 0, w: 0.2588191}
-  m_LocalPosition: {x: 2, y: 0, z: 2}
-  m_LocalScale: {x: 0.10000001, y: 1, z: 0.10000001}
+  m_LocalPosition: {x: 1.5, y: 0, z: 1.5}
+  m_LocalScale: {x: 0.1, y: 1, z: 0.1}
   m_Children: []
   m_Father: {fileID: 1827492562}
   m_RootOrder: 1
@@ -12653,8 +12653,8 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1886203737}
   m_LocalRotation: {x: 0, y: -0.7933534, z: 0, w: 0.6087614}
-  m_LocalPosition: {x: 3.4641018, y: 0, z: -0.53589773}
-  m_LocalScale: {x: 0.10000002, y: 1, z: 0.10000002}
+  m_LocalPosition: {x: 2.75, y: 0, z: -0.75}
+  m_LocalScale: {x: 0.1, y: 1, z: 0.1}
   m_Children: []
   m_Father: {fileID: 1827492562}
   m_RootOrder: 3
@@ -13660,8 +13660,8 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 2029386168}
   m_LocalRotation: {x: 0, y: 0.86602545, z: 0, w: 0.49999994}
-  m_LocalPosition: {x: -0.53589857, y: 0, z: 3.4641027}
-  m_LocalScale: {x: 0.10000003, y: 1, z: 0.10000003}
+  m_LocalPosition: {x: -0.75, y: 0, z: 2.75}
+  m_LocalScale: {x: 0.1, y: 1, z: 0.1}
   m_Children: []
   m_Father: {fileID: 1827492562}
   m_RootOrder: 2
@@ -14103,8 +14103,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5986f0c280799a4488e34f29f1c22a2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  center: {x: -1, y: 0.25, z: -1}
-  radius: 0.5
+  center: {x: -0.65, y: 0.25, z: -0.65}
+  radius: 0.75
   IsDrawing: 0
 --- !u!1 &2055519343
 GameObject:
