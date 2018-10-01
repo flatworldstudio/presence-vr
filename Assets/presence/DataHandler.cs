@@ -2004,7 +2004,7 @@ namespace PresenceEngine
 
                     // Task will hold if too many presences.
 
-                    if (SETTINGS.Presences.Count < 5)
+                    if (SETTINGS.Presences.Count < SETTINGS.MaxPresences)
                     {
 
                         FileIndex++;
@@ -2034,6 +2034,8 @@ namespace PresenceEngine
 
 
                     break;
+
+             
 
                 case "preloadfile":
 
@@ -2322,6 +2324,101 @@ namespace PresenceEngine
                             float a = UnityEngine.Random.Range(0, Mathf.PI * 2);
                             Vector2 v = new Vector2(Mathf.Sin(a), Mathf.Cos(a));
                             float offset = -SETTINGS.kinectCentreDistance + UnityEngine.Random.Range(-2f, 2f);// first compensate the projection distance to center. then add random. so projecting towards the center from different angles, with some offset.
+                            Vector2 placement = center2d + v * offset;
+                            Quaternion rotation = Quaternion.Euler(0, a * Mathf.Rad2Deg, 0);
+
+                            // all presences should now 'face' the user.
+
+                            fileplayback.SetVisualiseTransform(new Vector3(placement.x, 0, placement.y), Vector3.one, rotation);
+
+                            // Show visualiser.
+                            task.SetIntValue(PresenceName + "_0_cloudvisible", 1);
+                            //   task.SetIntValue(PresenceName + "_0_isdrawing", 1);
+                            fileplayback.PullVisualiserSettingsFromTask(task, PresenceName);
+
+                            StoryTask handler = AssitantDirector.FindTaskByByLabel("handler");
+                            handler.SetFloatValue(PresenceName + "_speed", 1f);
+                            handler.SetFloatValue(PresenceName + "_outpoint", OutPoint);
+
+                            PresenceCount++;
+
+                            Log("started presence for " + FileBuffer.Name);
+                        }
+                    }
+                    done = true;
+
+
+                    break;
+
+                case "playbackdemo":
+
+                    task.LoadPersistantData(task.pointer);
+
+                    if (task.GetStringValue("persistantData", out Status))
+                    {
+                        if (Status == "skip")
+                        {
+                            done = true;
+                            break;
+                        }
+
+
+                    }
+
+                    FileBuffer = IO.Instance.GetFromCache(SETTINGS.SelectedFolder + "/" + LoadFile);
+
+                    Log("Attempting to play back drawing from  " + SETTINGS.SelectedFolder + "/" + LoadFile);
+
+                    if (FileBuffer != null)
+                    {
+                        // Registrer playback handler. This will turn drawing off at endpoint and kill presence 10s after that.
+
+                        TimeHandler = PresenceClone;
+
+                        // We have a buffer file to play from.
+                        FileBuffer.DumpTimeStamps();
+
+                        float begin = FileBuffer.StartTime;
+                        float end = FileBuffer.EndTime;
+
+                        float length = end - begin;
+
+                        if (begin != -1 && end != -1 && length > 40.5f)
+                        {
+                            // It has a length we can work with.
+
+                            float inpoint = begin + UnityEngine.Random.Range(0, end - 30f); // start or if longer, random range
+                            float duration = UnityEngine.Random.Range(30, 40);  // 
+                            float OutPoint = inpoint + duration;
+
+                            PresenceName = "presence" + PresenceCount;
+
+                            if (!SETTINGS.Presences.TryGetValue(PresenceName, out fileplayback))
+                            {
+                                fileplayback = Presence.Create(presences, PresenceName);
+                            }
+                            else
+                            {
+                                Warning("Targeting existing presence.");
+                            }
+                            //   fileplayback = Presence.Create(presences, PresenceName);
+
+                            fileplayback.SetTranscoder(FileBuffer.TransCoderName);
+                            fileplayback.DepthTransport.TransCoder.SetBufferFile(FileBuffer);
+                            fileplayback.DepthTransport.Mode = DEPTHMODE.PLAYBACK;
+                            fileplayback.DepthTransport.CurrentTime = inpoint;
+                            fileplayback.SetVisualiser("PointShaded");
+
+                            // random location. taking into account the fact that we are positioning the projector, not the presence.
+
+                           // Vector3 
+
+                            Vector2 center2d = new Vector2(CaptureCamera.transform.position.x, SETTINGS.kinectCentreDistance);
+                            
+                            float a = UnityEngine.Random.Range(0, Mathf.PI * 2);
+                            Vector2 v = new Vector2(Mathf.Sin(a), Mathf.Cos(a));
+                            float offset = -SETTINGS.kinectCentreDistance + UnityEngine.Random.Range(-2f, 2f);// first compensate the projection distance to center. then add random. so projecting towards the center from different angles, with some offset.
+
                             Vector2 placement = center2d + v * offset;
                             Quaternion rotation = Quaternion.Euler(0, a * Mathf.Rad2Deg, 0);
 

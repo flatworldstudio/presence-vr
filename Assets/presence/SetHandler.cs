@@ -23,7 +23,7 @@ namespace PresenceEngine
         public GameObject PresenceObjectPrefab, presences;
         public SetController setController;
         public AudioSource VoiceOver;
-        public GameObject Set, KinectObject, ViewerRoot, KinectGizmo;
+        public GameObject Set, KinectObject, ViewerRoot,OverviewRoot, KinectGizmo,Barriers,MoodlightAnchor;
         ParticleCloud[] clouds;
         public GameObject MoodParticles;
         public LightControl MainStageLight, MoodLight01, MoodLight02;
@@ -39,6 +39,8 @@ namespace PresenceEngine
         Quaternion q;
         Vector3 p;
         GameObject c, g;
+
+        Vector3 OverviewPositionOnLaunch;
 
         float serverFrameStamp, clientFrameStamp;
         float serverFrameRate, clientFrameRate;
@@ -85,6 +87,9 @@ namespace PresenceEngine
                 // Guide VO Playback
                 // Note: make this work on remote only.
                 case "ResetGuided":
+
+                    SETTINGS.MaxPresences = 5;
+
 #if VOICEOFF
 
                     VoiceOver.volume = 0f;
@@ -409,6 +414,47 @@ namespace PresenceEngine
 
 
 #if SERVER
+
+                    case "travelcam" :
+
+                    Vector3 OverviewPosition = OverviewRoot.transform.position;
+                    Vector3 Speed = new Vector3(0.1f, 0, 0);
+                 
+
+                    OverviewPosition += Time.deltaTime * Speed;
+                    
+                    OverviewRoot.transform.position = OverviewPosition;
+
+                    MoodlightAnchor.transform.position = OverviewPosition;
+
+                    break;
+
+
+
+                case "begindemo":
+
+                    SETTINGS.MaxPresences = 5;
+
+                    Quaternion TravelAngle = Quaternion.Euler(5f, -122f, 0f);
+                    OverviewRoot.transform.rotation = TravelAngle;
+
+                    Barriers.SetActive(false);
+
+                    done = true;
+                    break;
+
+                case "resetdemo":
+
+                    Barriers.SetActive(true);
+
+
+                    // Reset overview cam position. (Was cached by alignset on launch)
+
+                    OverviewRoot.transform.position = OverviewPositionOnLaunch;
+                    MoodlightAnchor.transform.position = Vector3.zero;
+
+                done = true;
+                    break;
                 case "DrawingOn":
 
 
@@ -572,6 +618,11 @@ namespace PresenceEngine
                     break;
 
                 case "alignset":
+
+                    // Also, store overview camera position.
+
+                    OverviewPositionOnLaunch = OverviewRoot.transform.position;
+
 
                     // Position set and user relative to kinect.
 

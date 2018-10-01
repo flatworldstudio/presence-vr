@@ -463,7 +463,7 @@ GameObject:
   - component: {fileID: 116205348}
   - component: {fileID: 116205347}
   m_Layer: 5
-  m_Name: flow04
+  m_Name: demo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -477,7 +477,7 @@ RectTransform:
   m_GameObject: {fileID: 116205345}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 589693009}
   m_RootOrder: 14
@@ -506,7 +506,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: 98eb47cc6ef6e469b84961b6561c390e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 57102368b3caf9a449035e61eaccdf07, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1215,6 +1215,7 @@ GameObject:
   - component: {fileID: 231812585}
   - component: {fileID: 231812584}
   - component: {fileID: 231812582}
+  - component: {fileID: 231812583}
   m_Layer: 0
   m_Name: overviewCamera
   m_TagString: Untagged
@@ -1229,6 +1230,18 @@ AudioListener:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 231812581}
   m_Enabled: 0
+--- !u!114 &231812583
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 231812581}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff26db721962cdf4a8edcdfa9a767d2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profile: {fileID: 11400000, guid: c420d730846981f4390cae2666924238, type: 2}
 --- !u!124 &231812584
 Behaviour:
   m_ObjectHideFlags: 0
@@ -3680,6 +3693,36 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 681798982}
+--- !u!1 &697434472
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 697434473}
+  m_Layer: 0
+  m_Name: moodlightAnchor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &697434473
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 697434472}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 1494358998}
+  - {fileID: 1074196398}
+  m_Father: {fileID: 1047906916}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &702653087
 GameObject:
   m_ObjectHideFlags: 0
@@ -5727,7 +5770,10 @@ MonoBehaviour:
   Set: {fileID: 1047906914}
   KinectObject: {fileID: 771985735}
   ViewerRoot: {fileID: 298670808}
+  OverviewRoot: {fileID: 601651060}
   KinectGizmo: {fileID: 1575849411}
+  Barriers: {fileID: 1827492561}
+  MoodlightAnchor: {fileID: 697434472}
   MoodParticles: {fileID: 1153341153}
   MainStageLight: {fileID: 1415680258}
   MoodLight01: {fileID: 1494358996}
@@ -5749,8 +5795,7 @@ Transform:
   - {fileID: 1840163571}
   - {fileID: 2050427741}
   - {fileID: 1418223819}
-  - {fileID: 1494358998}
-  - {fileID: 1074196398}
+  - {fileID: 697434473}
   - {fileID: 1415680257}
   - {fileID: 2053934157}
   - {fileID: 1827492562}
@@ -6170,8 +6215,8 @@ Transform:
   m_LocalPosition: {x: 1.57, y: 10.73, z: 0.89}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 1047906916}
-  m_RootOrder: 7
+  m_Father: {fileID: 697434473}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!1 &1082028979
 GameObject:
@@ -10698,7 +10743,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1047906916}
-  m_RootOrder: 8
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1415680258
 MonoBehaviour:
@@ -11478,8 +11523,8 @@ Transform:
   m_LocalPosition: {x: 1.72, y: 10.73, z: -3.63}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 1047906916}
-  m_RootOrder: 6
+  m_Father: {fileID: 697434473}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!122 &1494358999
 Halo:
@@ -12474,7 +12519,7 @@ Transform:
   - {fileID: 2029386169}
   - {fileID: 1886203738}
   m_Father: {fileID: 1047906916}
-  m_RootOrder: 10
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1834452758
 GameObject:
@@ -14090,7 +14135,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1047906916}
-  m_RootOrder: 9
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2053934160
 MonoBehaviour:

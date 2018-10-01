@@ -50,7 +50,7 @@ end
 
 
 #presenceserver
-debugoff
+debugon
 amserver
 //writefile
 //readfile
@@ -184,6 +184,46 @@ end
 isglobal
 calibrateheadset
 end
+
+// Flows - demo
+// Plays back content from folder to a travelling camera.
+
+#flow_demo
+setflow_demo
+end
+
+#playdemo
+pressedplay
+begindemo
+start travellingcamera
+start presencehandler
+start DemoPresences
+hold
+end
+
+#stopplaydemo
+resetdemo
+pressedstop
+stop travellingcamera
+stop playdemo
+stop presencehandler
+deletepresences
+end
+
+#travellingcamera
+travelcam
+end
+
+#DemoPresences
+pause1
+@loadnextdemopresence
+nextfile
+loadfile
+randomdelay
+playbackdemo
+goto loadnextdemopresence
+
+
 
 // Flows - guided
 

@@ -119,6 +119,13 @@ namespace PresenceEngine
             }
 
         }
+        // caching variables
+
+        byte[] infoBuffer;
+        MemoryStream info;
+        byte[] contentBuffer;
+        MemoryStream content;
+        FrameBase frame;
 
         IEnumerator Loader(string fileName, StoryTask taskRef, string prefix)
         {
@@ -140,24 +147,24 @@ namespace PresenceEngine
             {
                 rf = File.Open(localStorageFolder + fileName + SETTINGS.Ext, FileMode.Open);
 
-                byte[] infoBuffer = new byte[58];
+                infoBuffer = new byte[58];
                 rf.Read(infoBuffer, 0, 58);
-                MemoryStream info = new MemoryStream(infoBuffer);
+                info = new MemoryStream(infoBuffer);
                 System.Int64 contentLength = (System.Int64)bf.Deserialize(info);
-                Verbose("content length " + contentLength);
+          //      Verbose("content length " + contentLength);
 
-                byte[] contentBuffer = new byte[contentLength];
+                contentBuffer = new byte[contentLength];
                 rf.Read(contentBuffer, 0, (int)contentLength);
-                MemoryStream content = new MemoryStream(contentBuffer);
+                 content = new MemoryStream(contentBuffer);
                 file = (FileformatBase)bf.Deserialize(content);
 
-                Verbose("content " + file.Name + " " + file.TransCoderName);
+            //    Verbose("content " + file.Name + " " + file.TransCoderName);
 
                 infoBuffer = new byte[58];
                 rf.Read(infoBuffer, 0, 58);
                 info = new MemoryStream(infoBuffer);
                 frameCount = (System.Int64)bf.Deserialize(info);
-                Verbose("frame counnt " + frameCount);
+           //     Verbose("frame counnt " + frameCount);
 
                 file.Frames = new List<FrameBase>(); // should already be there
 
@@ -175,25 +182,26 @@ namespace PresenceEngine
 
             if (success && rf != null)
             {
+             //   infoBuffer = new byte[58];
 
                 int f = 0;
                 while (f < frameCount)
                 {
 
-                    Verbose("deserialising frame " + f);
+                 //   Verbose("deserialising frame " + f);
                     try
                     {
-                        byte[] infoBuffer = new byte[58];
+                       infoBuffer = new byte[58];
                         rf.Read(infoBuffer, 0, 58);
-                        MemoryStream info = new MemoryStream(infoBuffer);
+                      info = new MemoryStream(infoBuffer);
                         System.Int64 contentLength = (System.Int64)bf.Deserialize(info);
-                        Verbose("frame length " + contentLength);
+                 //       Verbose("frame length " + contentLength);
 
-                        byte[] contentBuffer = new byte[contentLength];
+                       contentBuffer = new byte[contentLength];
                         rf.Read(contentBuffer, 0, (int)contentLength);
-                        MemoryStream content = new MemoryStream(contentBuffer);
+                         content = new MemoryStream(contentBuffer);
 
-                        FrameBase frame = (FrameBase)bf.Deserialize(content);
+                         frame = (FrameBase)bf.Deserialize(content);
 
                         file.Frames.Add(frame);
 

@@ -555,6 +555,11 @@ namespace PresenceEngine
 
                 PLight.transform.localPosition = new Vector3(Frame.UserPosition.x, 1, Frame.UserPosition.z);
 
+                PLight.GetComponent<Light>().intensity = 0.25f + 0.1f * Mathf.PerlinNoise(Frame.Time, 0);
+
+
+
+
 #if SERVER
                 Body.transform.localPosition = Frame.UserPosition + offset;
 

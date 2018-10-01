@@ -1037,8 +1037,8 @@ namespace PresenceEngine
                     control.callback = "toggleinfo";
                     serverInterface.addButton(control);
 
-                    control = new UiButton("flow04", menu, constraint);
-                    control.callback = "";
+                    control = new UiButton("demo", menu, constraint);
+                    control.callback = "flow_demo";
                     serverInterface.addButton(control);
 
                     control = new UiButton("guidedflow", menu, constraint);
@@ -1206,13 +1206,31 @@ namespace PresenceEngine
                     done = true;
                     break;
 
+                case "setflow_demo":
+
+                    userMessager.ShowTextMessage("Flow: Demo", 1);
+
+                    UiButton b = serverInterface.GetButton("playbackstart");
+                    b.callback = "playdemo";
+
+                    b = serverInterface.GetButton("playbackstop");
+                    b.callback = "stopplaydemo";
+
+                    b = serverInterface.GetButton("recordstart");
+                    b.callback = "";
+
+                    b = serverInterface.GetButton("recordstop");
+                    b.callback = "";
+
+                    done = true;
+                    break;
 
 
                 case "setflow_solo":
 
                     userMessager.ShowTextMessage("Flow: Solo", 1);
 
-                    UiButton b = serverInterface.GetButton("playbackstart");
+                     b = serverInterface.GetButton("playbackstart");
                     b.callback = "playsolo";
 
                     b = serverInterface.GetButton("playbackstop");

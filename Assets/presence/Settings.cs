@@ -22,6 +22,7 @@ namespace PresenceEngine
 
         public static string SelectedFolder, SelectedFile;
         public static bool UserInConfinedArea = true;
+        public static int MaxPresences = 5;
 
         public static int SessionDuration = 10*60; // this is a time out, not fixed length or buffer size.
 
